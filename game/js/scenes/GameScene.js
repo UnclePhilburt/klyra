@@ -289,15 +289,6 @@ class GameScene extends Phaser.Scene {
             font: '14px monospace',
             fill: '#ffff00'
         }).setOrigin(1, 0).setScrollFactor(0);
-
-        // Minimap (optional)
-        this.minimapBg = this.add.rectangle(width - 160, 60, 140, 140, 0x000000, 0.7);
-        this.minimapBg.setOrigin(0, 0).setScrollFactor(0);
-
-        this.add.text(width - 90, 65, 'MINIMAP', {
-            font: '10px monospace',
-            fill: '#666666'
-        }).setOrigin(0.5, 0).setScrollFactor(0);
     }
 
     setupControls() {

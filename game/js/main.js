@@ -6,6 +6,10 @@ const config = {
     parent: 'game-container',
     backgroundColor: '#0a0a0a',
     pixelArt: GameConfig.GAME.PIXEL_ART,
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
     physics: {
         default: 'arcade',
         arcade: {
@@ -17,13 +21,3 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
-
-// Hide loading screen when game starts
-game.events.once('ready', () => {
-    setTimeout(() => {
-        const loading = document.getElementById('loading');
-        if (loading) {
-            loading.style.display = 'none';
-        }
-    }, 1000);
-});
