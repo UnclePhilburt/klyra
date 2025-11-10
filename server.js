@@ -172,9 +172,11 @@ class Lobby {
             this.players.delete(socketId);
             console.log(`❌ ${player.username} left game ${this.id.slice(0, 8)} (${this.players.size}/${this.maxPlayers})`);
 
-            // Mark as finished if empty
+            // Mark as finished if empty and auto-close
             if (this.players.size === 0) {
                 this.status = 'finished';
+                this.gameState.endTime = Date.now();
+                console.log(`🗑️  Room ${this.id.slice(0, 8)} closed - all players left`);
             }
         }
     }
@@ -182,13 +184,18 @@ class Lobby {
     generateDungeon() {
         const size = this.getDungeonSize();
 
+        // Generate unique seed based on lobby ID + timestamp for unique procedural worlds
+        const uniqueSeed = `${this.id}-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+
         this.gameState.dungeon = {
             width: size.width,
             height: size.height,
             tiles: this.generateDungeonTiles(size.width, size.height),
             rooms: this.generateRooms(size.width, size.height),
-            seed: Math.random().toString(36).substring(7)
+            seed: uniqueSeed
         };
+
+        console.log(`🗺️  Generated unique world for room ${this.id.slice(0, 8)} (${size.width}x${size.height}, ${this.difficulty})`);
 
         // Spawn enemies based on difficulty
         const enemyCount = this.getEnemyCount();
@@ -710,8 +717,10 @@ io.on('connection', (socket) => {
                             playerCount: lobby.players.size
                         });
 
+                        // Auto-close room if all players left
                         if (lobby.status === 'finished') {
                             lobbies.delete(lobby.id);
+                            console.log(`🗑️  Deleted empty room ${lobby.id.slice(0, 8)} from lobbies map`);
                         }
                     }
                 }, RECONNECT_TIMEOUT);
