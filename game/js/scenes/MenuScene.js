@@ -142,17 +142,15 @@ class MenuScene extends Phaser.Scene {
             barBg.fillStyle(0x222222, 1);
             barBg.fillRoundedRect(panelX, y + 30, 250, 6, 3);
 
-            // Progress bar fill
-            const barFill = this.add.graphics();
-            barFill.fillStyle(parseInt(stat.color.replace('#', '0x')), 1);
-            barFill.fillRoundedRect(panelX, y + 30, 250 * stat.bar, 6, 3);
+            // Progress bar fill with animation
+            const barFillWidth = 250 * stat.bar;
+            const barFill = this.add.rectangle(panelX, y + 30, 0, 6, parseInt(stat.color.replace('#', '0x')));
+            barFill.setOrigin(0, 0);
 
             // Animate bar fill
-            barFill.scaleX = 0;
-            barFill.setOrigin(0, 0);
             this.tweens.add({
                 targets: barFill,
-                scaleX: 1,
+                width: barFillWidth,
                 duration: 1000,
                 delay: 200 + (index * 100),
                 ease: 'Power2'
