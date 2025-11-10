@@ -55,272 +55,159 @@ class MenuScene extends Phaser.Scene {
         `;
         document.body.appendChild(this.usernameInput);
 
-        // Character Selection - Modern Design
-        this.add.text(width / 2, 280, 'SELECT YOUR CHARACTER', {
-            font: 'bold 32px Arial',
-            fill: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 4
-        }).setOrigin(0.5);
+        // Clean background with subtle gradient
+        const bgGradient = this.add.graphics();
+        bgGradient.fillGradientStyle(0x0a0a0a, 0x0a0a0a, 0x1a1a2a, 0x1a1a2a, 1, 1, 1, 1);
+        bgGradient.fillRect(0, 0, width, height);
 
-        // Only Malachar for now
-        const characters = ['malachar'];
-        this.classButtons = [];
+        // Left side - Character display
+        const charX = width * 0.3;
+        const charY = height / 2;
 
-        // Create stunning character card
-        const cardX = width / 2;
-        const cardY = 400;
+        // Spotlight effect behind character
+        const spotlight = this.add.graphics();
+        spotlight.fillGradientStyle(0x8b0000, 0x8b0000, 0x2a0000, 0x2a0000, 0.3, 0.3, 0, 0);
+        spotlight.fillEllipse(charX, charY + 50, 400, 500);
 
-        // Animated gradient background
-        const gradientBg = this.add.graphics();
-        gradientBg.fillGradientStyle(0xff0066, 0xff0066, 0x8b00ff, 0x8b00ff, 1, 1, 1, 1);
-        gradientBg.fillRoundedRect(cardX - 180, cardY - 120, 360, 240, 20);
-
-        // Pulsing glow effect
-        const glow = this.add.graphics();
-        glow.fillStyle(0xff0066, 0.3);
-        glow.fillRoundedRect(cardX - 190, cardY - 130, 380, 260, 25);
-        this.tweens.add({
-            targets: glow,
-            alpha: 0.6,
-            scale: 1.05,
-            duration: 2000,
-            yoyo: true,
-            repeat: -1,
-            ease: 'Sine.easeInOut'
-        });
-
-        // Character sprite - LARGE
+        // Character sprite - HUGE
         if (this.textures.exists('malachar')) {
-            this.characterSprite = this.add.sprite(cardX - 80, cardY, 'malachar');
-            this.characterSprite.setScale(2.5);
+            this.characterSprite = this.add.sprite(charX, charY, 'malachar');
+            this.characterSprite.setScale(4);
             if (this.anims.exists('malachar_idle')) {
                 this.characterSprite.play('malachar_idle');
             }
 
-            // Character shadow
-            const shadow = this.add.ellipse(cardX - 80, cardY + 80, 100, 30, 0x000000, 0.4);
-
-            // Floating animation
+            // Smooth idle breathing animation
             this.tweens.add({
                 targets: this.characterSprite,
-                y: cardY - 10,
-                duration: 2000,
+                y: charY - 15,
+                scaleX: 4.05,
+                scaleY: 3.95,
+                duration: 3000,
                 yoyo: true,
                 repeat: -1,
                 ease: 'Sine.easeInOut'
             });
         }
 
-        // Character name with neon effect
-        const nameText = this.add.text(cardX + 50, cardY - 60, 'MALACHAR', {
-            font: 'bold 40px Arial',
+        // Right side - Info panel
+        const panelX = width * 0.65;
+        const panelY = height / 2 - 50;
+
+        // Character name - clean typography
+        const nameText = this.add.text(panelX, panelY - 100, 'MALACHAR', {
+            font: 'bold 72px Arial',
             fill: '#ffffff',
-            stroke: '#ff0066',
-            strokeThickness: 3
-        }).setOrigin(0.5);
+            letterSpacing: 4
+        });
+        nameText.setOrigin(0, 0.5);
 
-        const nameShadow = this.add.text(cardX + 52, cardY - 58, 'MALACHAR', {
-            font: 'bold 40px Arial',
-            fill: '#8b00ff',
-            alpha: 0.5
-        }).setOrigin(0.5);
+        // Accent line under name
+        const accentLine = this.add.graphics();
+        accentLine.fillStyle(0xff1744, 1);
+        accentLine.fillRect(panelX, panelY - 60, 200, 4);
 
-        // Character subtitle
-        this.add.text(cardX + 50, cardY - 20, 'Dark Berserker', {
-            font: 'italic 20px Arial',
-            fill: '#ff66cc'
-        }).setOrigin(0.5);
+        // Character role
+        this.add.text(panelX, panelY - 30, 'DARK BERSERKER', {
+            font: '20px Arial',
+            fill: '#888888',
+            letterSpacing: 2
+        });
 
-        // Stats display - modern cards
-        const statsY = cardY + 30;
+        // Stats - clean modern layout
+        const statsStartY = panelY + 40;
         const stats = [
-            { label: 'STR', value: '16', color: 0xff0066 },
-            { label: 'HP', value: '115', color: 0x00ff88 },
-            { label: 'DEF', value: '10', color: 0x00ccff },
-            { label: 'SPD', value: '9', color: 0xffaa00 }
+            { label: 'STRENGTH', value: 16, color: '#ff1744', bar: 0.94 },
+            { label: 'HEALTH', value: 115, color: '#00e676', bar: 0.88 },
+            { label: 'DEFENSE', value: 10, color: '#00b0ff', bar: 0.67 },
+            { label: 'SPEED', value: 9, color: '#ffd600', bar: 0.60 }
         ];
 
         stats.forEach((stat, index) => {
-            const statX = cardX - 20 + (index * 80);
+            const y = statsStartY + (index * 60);
 
-            // Stat card
-            const statCard = this.add.graphics();
-            statCard.fillStyle(0x000000, 0.6);
-            statCard.fillRoundedRect(statX - 30, statsY - 15, 60, 50, 8);
+            // Stat name
+            this.add.text(panelX, y, stat.label, {
+                font: '14px Arial',
+                fill: '#666666',
+                letterSpacing: 1
+            });
 
-            // Stat value - BIG
-            this.add.text(statX, statsY, stat.value, {
-                font: 'bold 24px Arial',
-                fill: Phaser.Display.Color.IntegerToRGB(stat.color).rgba
-            }).setOrigin(0.5);
+            // Stat value
+            this.add.text(panelX + 250, y, stat.value.toString(), {
+                font: 'bold 32px Arial',
+                fill: stat.color
+            }).setOrigin(1, 0);
 
-            // Stat label
-            this.add.text(statX, statsY + 20, stat.label, {
-                font: '12px Arial',
-                fill: '#aaaaaa'
-            }).setOrigin(0.5);
+            // Progress bar background
+            const barBg = this.add.graphics();
+            barBg.fillStyle(0x222222, 1);
+            barBg.fillRoundedRect(panelX, y + 30, 250, 6, 3);
+
+            // Progress bar fill
+            const barFill = this.add.graphics();
+            barFill.fillStyle(parseInt(stat.color.replace('#', '0x')), 1);
+            barFill.fillRoundedRect(panelX, y + 30, 250 * stat.bar, 6, 3);
+
+            // Animate bar fill
+            barFill.scaleX = 0;
+            barFill.setOrigin(0, 0);
+            this.tweens.add({
+                targets: barFill,
+                scaleX: 1,
+                duration: 1000,
+                delay: 200 + (index * 100),
+                ease: 'Power2'
+            });
         });
-
-        // Particle effects around character
-        this.createParticles(cardX - 80, cardY);
 
         this.selectedClass = 'malachar';
+        this.selectedDifficulty = 'normal';
 
-        // Difficulty Selection - Modern Pills
-        this.add.text(width / 2, 560, 'DIFFICULTY', {
-            font: 'bold 24px Arial',
-            fill: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 3
-        }).setOrigin(0.5);
+        // Play button - clean and simple
+        const playY = height - 80;
 
-        const difficulties = ['easy', 'normal', 'hard', 'nightmare'];
-        const diffColors = [0x00ff88, 0xffaa00, 0xff4400, 0xff0066];
-        const diffIcons = ['✓', '⚔', '☠', '💀'];
-        this.diffButtons = [];
-        const diffStartX = width / 2 - 300;
+        const playButtonBg = this.add.graphics();
+        playButtonBg.fillStyle(0xff1744, 1);
+        playButtonBg.fillRoundedRect(panelX, playY - 25, 280, 60, 4);
 
-        difficulties.forEach((diff, index) => {
-            const x = diffStartX + index * 160;
-            const y = 610;
-
-            // Pill-shaped button with gradient
-            const buttonBg = this.add.graphics();
-            buttonBg.fillStyle(0x000000, 0.6);
-            buttonBg.fillRoundedRect(x - 70, y - 25, 140, 50, 25);
-
-            const buttonGlow = this.add.graphics();
-            buttonGlow.lineStyle(3, diffColors[index], 1);
-            buttonGlow.strokeRoundedRect(x - 70, y - 25, 140, 50, 25);
-
-            const button = this.add.rectangle(x, y, 140, 50, 0x000000, 0);
-            button.setInteractive({ useHandCursor: true });
-
-            // Icon
-            const icon = this.add.text(x - 40, y, diffIcons[index], {
-                font: '24px Arial',
-                fill: Phaser.Display.Color.IntegerToRGB(diffColors[index]).rgba
-            }).setOrigin(0.5);
-
-            // Text
-            const text = this.add.text(x + 10, y, diff.toUpperCase(), {
-                font: 'bold 16px Arial',
-                fill: Phaser.Display.Color.IntegerToRGB(diffColors[index]).rgba
-            });
-            text.setOrigin(0.5);
-
-            button.on('pointerover', () => {
-                buttonBg.clear();
-                buttonBg.fillStyle(diffColors[index], 0.2);
-                buttonBg.fillRoundedRect(x - 70, y - 25, 140, 50, 25);
-                this.tweens.add({
-                    targets: [icon, text],
-                    scale: 1.1,
-                    duration: 100
-                });
-            });
-
-            button.on('pointerout', () => {
-                if (diff !== this.selectedDifficulty) {
-                    buttonBg.clear();
-                    buttonBg.fillStyle(0x000000, 0.6);
-                    buttonBg.fillRoundedRect(x - 70, y - 25, 140, 50, 25);
-                }
-                this.tweens.add({
-                    targets: [icon, text],
-                    scale: 1,
-                    duration: 100
-                });
-            });
-
-            button.on('pointerdown', () => {
-                this.selectDifficulty(diff);
-            });
-
-            this.diffButtons.push({ button, buttonBg, buttonGlow, text, icon, difficulty: diff, color: diffColors[index], x, y });
-        });
-
-        // EPIC Play button with animations
-        const playY = height - 60;
-
-        // Outer glow
-        const playGlow = this.add.graphics();
-        playGlow.fillStyle(0x00ff88, 0.3);
-        playGlow.fillRoundedRect(width / 2 - 125, playY - 32, 250, 64, 32);
-        this.tweens.add({
-            targets: playGlow,
-            scale: 1.1,
-            alpha: 0.5,
-            duration: 1500,
-            yoyo: true,
-            repeat: -1,
-            ease: 'Sine.easeInOut'
-        });
-
-        // Button gradient background
-        const playBg = this.add.graphics();
-        playBg.fillGradientStyle(0x00ff88, 0x00ff88, 0x00cc66, 0x00cc66, 1, 1, 1, 1);
-        playBg.fillRoundedRect(width / 2 - 120, playY - 30, 240, 60, 30);
-
-        const playButton = this.add.rectangle(width / 2, playY, 240, 60, 0x000000, 0);
+        const playButton = this.add.rectangle(panelX + 140, playY, 280, 60, 0x000000, 0);
         playButton.setInteractive({ useHandCursor: true });
 
-        const playText = this.add.text(width / 2, playY, 'START GAME', {
-            font: 'bold 28px Arial',
+        const playText = this.add.text(panelX + 140, playY, 'PLAY NOW', {
+            font: 'bold 24px Arial',
             fill: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 4
+            letterSpacing: 2
         });
         playText.setOrigin(0.5);
 
-        // Sparkles
-        const sparkle1 = this.add.text(width / 2 - 100, playY, '✦', {
-            font: '20px Arial',
-            fill: '#ffffff'
-        }).setOrigin(0.5);
-        const sparkle2 = this.add.text(width / 2 + 100, playY, '✦', {
-            font: '20px Arial',
-            fill: '#ffffff'
-        }).setOrigin(0.5);
-
-        this.tweens.add({
-            targets: [sparkle1, sparkle2],
-            alpha: 0.3,
-            scale: 1.5,
-            duration: 1000,
-            yoyo: true,
-            repeat: -1
-        });
-
         playButton.on('pointerover', () => {
-            playBg.clear();
-            playBg.fillGradientStyle(0x00ffaa, 0x00ffaa, 0x00ee88, 0x00ee88, 1, 1, 1, 1);
-            playBg.fillRoundedRect(width / 2 - 120, playY - 30, 240, 60, 30);
+            playButtonBg.clear();
+            playButtonBg.fillStyle(0xff4569, 1);
+            playButtonBg.fillRoundedRect(panelX, playY - 25, 280, 60, 4);
             this.tweens.add({
-                targets: playText,
-                scale: 1.1,
-                duration: 100
+                targets: [playButtonBg],
+                scaleX: 1.02,
+                scaleY: 1.05,
+                duration: 150
             });
         });
 
         playButton.on('pointerout', () => {
-            playBg.clear();
-            playBg.fillGradientStyle(0x00ff88, 0x00ff88, 0x00cc66, 0x00cc66, 1, 1, 1, 1);
-            playBg.fillRoundedRect(width / 2 - 120, playY - 30, 240, 60, 30);
+            playButtonBg.clear();
+            playButtonBg.fillStyle(0xff1744, 1);
+            playButtonBg.fillRoundedRect(panelX, playY - 25, 280, 60, 4);
             this.tweens.add({
-                targets: playText,
-                scale: 1,
-                duration: 100
+                targets: [playButtonBg],
+                scaleX: 1,
+                scaleY: 1,
+                duration: 150
             });
         });
 
         playButton.on('pointerdown', () => {
             this.startGame();
         });
-
-        // Select default
-        this.selectDifficulty('normal');
 
         // Version text
         this.add.text(10, height - 30, 'v2.0', {
@@ -329,44 +216,6 @@ class MenuScene extends Phaser.Scene {
         });
     }
 
-    createParticles(x, y) {
-        // Create particle emitters around character
-        for (let i = 0; i < 20; i++) {
-            const angle = (Math.PI * 2 * i) / 20;
-            const distance = 150;
-            const px = x + Math.cos(angle) * distance;
-            const py = y + Math.sin(angle) * distance;
-
-            const particle = this.add.circle(px, py, 3, 0xff0066, 0.6);
-
-            this.tweens.add({
-                targets: particle,
-                x: x + Math.cos(angle) * (distance + 20),
-                y: y + Math.sin(angle) * (distance + 20),
-                alpha: 0,
-                duration: 2000 + Math.random() * 1000,
-                repeat: -1,
-                ease: 'Sine.easeOut'
-            });
-        }
-    }
-
-    selectDifficulty(difficulty) {
-        this.selectedDifficulty = difficulty;
-
-        this.diffButtons.forEach(btn => {
-            if (btn.difficulty === difficulty) {
-                btn.buttonBg.clear();
-                btn.buttonBg.fillStyle(btn.color, 0.4);
-                btn.buttonBg.fillRoundedRect(btn.x - 70, btn.y - 25, 140, 50, 25);
-                btn.buttonGlow.lineStyle(3, btn.color, 1);
-            } else {
-                btn.buttonBg.clear();
-                btn.buttonBg.fillStyle(0x000000, 0.6);
-                btn.buttonBg.fillRoundedRect(btn.x - 70, btn.y - 25, 140, 50, 25);
-            }
-        });
-    }
 
     startGame() {
         const username = this.usernameInput.value.trim();
