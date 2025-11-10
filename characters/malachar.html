@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malachar - KLYRA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-pink: #ff006e;
+            --neon-purple: #8b5cf6;
+            --neon-blue: #3b82f6;
+            --neon-cyan: #06b6d4;
+            --neon-green: #10b981;
+            --blood-red: #dc2626;
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background: #000000;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        #grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(139, 92, 246, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: float 15s ease-in-out infinite;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--blood-red), transparent);
+            top: -300px;
+            right: -300px;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--neon-purple), transparent);
+            bottom: -250px;
+            left: -250px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(60px, 60px); }
+        }
+
+        /* Scanlines */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 999;
+            animation: scanline 8s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            background: rgba(0, 0, 0, 0.7);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple), var(--neon-cyan), var(--neon-green));
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s linear infinite;
+            filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.8));
+            text-decoration: none;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        nav a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-weight: 700;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        nav a:hover {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        /* Hero section */
+        .hero {
+            position: relative;
+            z-index: 10;
+            padding: 150px 3rem 6rem;
+            text-align: center;
+        }
+
+        .character-icon-large {
+            font-size: 10rem;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 0 50px var(--blood-red));
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 50px var(--blood-red)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 80px var(--blood-red)); }
+        }
+
+        .character-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, var(--blood-red), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 30px var(--blood-red));
+        }
+
+        .character-subtitle {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .character-quote {
+            font-size: 1.2rem;
+            font-style: italic;
+            color: var(--neon-cyan);
+            max-width: 800px;
+            margin: 2rem auto;
+            line-height: 1.8;
+        }
+
+        /* Content sections */
+        .content {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 3rem 6rem;
+        }
+
+        .section {
+            margin-bottom: 5rem;
+            background: rgba(139, 92, 246, 0.05);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            padding: 3rem;
+            transition: all 0.3s;
+        }
+
+        .section:hover {
+            background: rgba(139, 92, 246, 0.08);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.3);
+        }
+
+        .section-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            color: var(--neon-cyan);
+            letter-spacing: 2px;
+            border-bottom: 2px solid var(--neon-cyan);
+            padding-bottom: 1rem;
+        }
+
+        .section-content {
+            font-size: 1.1rem;
+            line-height: 2;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .section-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-content strong {
+            color: var(--neon-cyan);
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid var(--neon-cyan);
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px var(--neon-cyan);
+        }
+
+        .stat-value {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 3rem;
+            color: var(--neon-cyan);
+            margin-bottom: 1rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Abilities */
+        .abilities-grid {
+            display: grid;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .ability {
+            background: rgba(0, 0, 0, 0.4);
+            border-left: 4px solid var(--blood-red);
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+
+        .ability:hover {
+            background: rgba(220, 38, 38, 0.1);
+            border-left-width: 8px;
+            transform: translateX(10px);
+        }
+
+        .ability-name {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.2rem;
+            color: var(--blood-red);
+            margin-bottom: 1rem;
+        }
+
+        .ability-description {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .ability-cooldown {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+        }
+
+        /* Lore timeline */
+        .timeline {
+            margin-top: 2rem;
+            border-left: 3px solid var(--neon-purple);
+            padding-left: 2rem;
+        }
+
+        .timeline-event {
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .timeline-event::before {
+            content: '☠';
+            position: absolute;
+            left: -2.8rem;
+            top: 0;
+            width: 2rem;
+            height: 2rem;
+            background: var(--neon-purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 0 20px var(--neon-purple);
+        }
+
+        .timeline-date {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9rem;
+            color: var(--neon-purple);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-text {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Play button */
+        .play-button {
+            display: inline-block;
+            margin: 3rem auto;
+            padding: 1.5rem 4rem;
+            background: linear-gradient(135deg, var(--blood-red), var(--neon-purple));
+            color: white;
+            text-decoration: none;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: 2px solid var(--neon-purple);
+            box-shadow: 0 0 30px rgba(220, 38, 38, 0.5);
+            transition: all 0.3s;
+            animation: buttonPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes buttonPulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(220, 38, 38, 0.5); }
+            50% { box-shadow: 0 0 50px rgba(220, 38, 38, 0.8); }
+        }
+
+        .play-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 0 60px rgba(220, 38, 38, 0.9);
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 4rem 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .character-title {
+                font-size: 2.5rem;
+            }
+
+            .character-icon-large {
+                font-size: 6rem;
+            }
+
+            .section {
+                padding: 2rem;
+            }
+
+            .content {
+                padding: 0 1.5rem 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="grid-bg"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <header>
+        <a href="/" class="logo">KLYRA</a>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/characters.html">Characters</a></li>
+                <li><a href="/game/">Play</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="hero">
+        <div class="character-icon-large">☠️</div>
+        <h1 class="character-title">MALACHAR</h1>
+        <p class="character-subtitle">The Bone Sovereign</p>
+        <p class="character-quote">
+            "Death is not the end. It is merely... a recruitment opportunity."
+        </p>
+    </div>
+
+    <div class="content">
+        <!-- Stats Section -->
+        <div class="section">
+            <h2 class="section-title">Combat Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">16</div>
+                    <div class="stat-label">Strength</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">115</div>
+                    <div class="stat-label">Health</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">10</div>
+                    <div class="stat-label">Defense</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">9</div>
+                    <div class="stat-label">Speed</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backstory Section -->
+        <div class="section">
+            <h2 class="section-title">Origin Story</h2>
+            <div class="section-content">
+                <p>
+                    <strong>Malachar</strong> was once a royal scholar in the Kingdom of Eldrath, obsessed with understanding the boundary between life and death.
+                    When a plague swept through the kingdom, claiming his family and thousands of others, he descended into forbidden archives beneath the palace.
+                </p>
+                <p>
+                    There, he discovered the <strong>Codex Mortis</strong> - an ancient tome bound in human leather and inked with the blood of forgotten gods.
+                    The codex promised power over death itself. Desperate and broken, Malachar spoke the words that would damn his soul forever.
+                </p>
+                <p>
+                    The ritual succeeded. The dead rose. But the price was steep - Malachar's humanity withered like autumn leaves.
+                    His body became a vessel for dark energies, his heart stopped beating, and his eyes turned black as void.
+                    He could no longer feel warmth, taste food, or remember what love felt like.
+                </p>
+                <p>
+                    Now, <strong>centuries later</strong>, Malachar wanders the cursed dungeons of Klyra, commanding legions of skeletal warriors.
+                    Some say he's searching for a way to reverse his curse. Others claim he's simply perfecting his mastery over death.
+                    Only Malachar knows the truth - and the dead tell no tales.
+                </p>
+            </div>
+        </div>
+
+        <!-- Abilities Section -->
+        <div class="section">
+            <h2 class="section-title">Abilities</h2>
+            <div class="abilities-grid">
+                <div class="ability">
+                    <div class="ability-name">💀 Raise Dead</div>
+                    <div class="ability-description">
+                        Summon skeleton warriors from the corpses of fallen enemies. Each skeleton fights alongside you until destroyed.
+                        Maximum 5 skeletons active at once. Skeletons inherit 30% of your stats.
+                    </div>
+                    <div class="ability-cooldown">Cooldown: 8 seconds per skeleton</div>
+                </div>
+
+                <div class="ability">
+                    <div class="ability-name">🌑 Necrotic Surge</div>
+                    <div class="ability-description">
+                        Channel dark energy through your skeletal army, increasing their attack speed by 50% and granting them life-steal for 10 seconds.
+                        During this time, you heal for a portion of damage your skeletons deal.
+                    </div>
+                    <div class="ability-cooldown">Cooldown: 45 seconds</div>
+                </div>
+
+                <div class="ability">
+                    <div class="ability-name">⚰️ Bone Prison</div>
+                    <div class="ability-description">
+                        Sacrifice a skeleton to create a cage of bones around target enemy, stunning them for 3 seconds and dealing damage over time.
+                        The skeleton reforms after the prison expires.
+                    </div>
+                    <div class="ability-cooldown">Cooldown: 20 seconds</div>
+                </div>
+
+                <div class="ability">
+                    <div class="ability-name">👻 Death's Embrace (Ultimate)</div>
+                    <div class="ability-description">
+                        Transform into a spectral wraith for 15 seconds. While in wraith form, you become invulnerable and all enemies killed during this time
+                        instantly rise as elite skeletons with 100% of your stats. Maximum 3 elite skeletons.
+                    </div>
+                    <div class="ability-cooldown">Cooldown: 120 seconds</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lore Timeline -->
+        <div class="section">
+            <h2 class="section-title">The Chronicles of Malachar</h2>
+            <div class="timeline">
+                <div class="timeline-event">
+                    <div class="timeline-date">Age 842 - The Fall of Eldrath</div>
+                    <div class="timeline-text">
+                        The Great Plague decimates the kingdom. Malachar loses his wife and daughter. In his grief, he breaks the royal seal
+                        on the forbidden archives and discovers the Codex Mortis.
+                    </div>
+                </div>
+
+                <div class="timeline-event">
+                    <div class="timeline-date">Age 843 - The First Rising</div>
+                    <div class="timeline-text">
+                        Malachar performs the ritual at midnight. The dead rise from their graves. The kingdom crowns him a hero - until they realize
+                        he can no longer stop the resurrections. Eldrath falls to the undead within a week.
+                    </div>
+                </div>
+
+                <div class="timeline-event">
+                    <div class="timeline-date">Age 850 - The Wandering Begins</div>
+                    <div class="timeline-text">
+                        Hunted by the Church of Light, Malachar flees into the wilderness. He spends decades mastering his necromantic powers,
+                        learning to control and refine his summons. The wild skeletal armies are replaced with disciplined legions.
+                    </div>
+                </div>
+
+                <div class="timeline-event">
+                    <div class="timeline-date">Age 1127 - Discovery of Klyra</div>
+                    <div class="timeline-text">
+                        Malachar senses powerful death magic emanating from the cursed dungeons of Klyra. He ventures inside, hoping to find
+                        either a cure for his condition or greater power. What he finds is far stranger - other warriors like himself, trapped in
+                        an endless cycle of death and rebirth.
+                    </div>
+                </div>
+
+                <div class="timeline-event">
+                    <div class="timeline-date">Age 1128 - Present Day</div>
+                    <div class="timeline-text">
+                        Malachar continues to delve deeper into Klyra's dungeons. Some say he's found fragments of a greater truth - that Klyra itself
+                        is alive, feeding on the deaths within. Others claim he's finally gone mad. But one thing is certain: the Bone Sovereign
+                        grows stronger with every fallen foe.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secrets Section -->
+        <div class="section">
+            <h2 class="section-title">Hidden Truths</h2>
+            <div class="section-content">
+                <p>
+                    <strong>Few know that Malachar's curse has a loophole.</strong> The Codex Mortis stated: "To reverse the ritual, one must
+                    gather the essence of 10,000 souls and return them to the void at the heart of death itself."
+                </p>
+                <p>
+                    Every enemy Malachar kills in Klyra adds to his count. Currently: <strong>████/10,000</strong>.
+                    The closer he gets to his goal, the more his humanity returns - brief flashes of emotion, memories of warmth,
+                    the phantom taste of wine on his tongue.
+                </p>
+                <p>
+                    But there's a darker truth: <strong>the ritual can't be reversed.</strong> The Codex lied. Malachar doesn't know this yet.
+                    When he reaches 10,000 souls and attempts the counter-ritual, something far worse will happen.
+                    The scholars who hid the Codex knew this - which is why they sealed it away in the first place.
+                </p>
+                <p>
+                    The real question is: will anyone stop him before he dooms the world... again?
+                </p>
+            </div>
+        </div>
+
+        <!-- Play CTA -->
+        <div class="button-container">
+            <a href="/game/" class="play-button">Play as Malachar →</a>
+        </div>
+    </div>
+
+    <script>
+        // Add scroll reveal animation
+        const sections = document.querySelectorAll('.section');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        sections.forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(30px)';
+            section.style.transition = 'all 0.6s ease-out';
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
