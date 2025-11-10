@@ -18,16 +18,38 @@
             --neon-blue: #3b82f6;
             --neon-cyan: #06b6d4;
             --neon-green: #10b981;
+            --neon-red: #dc2626;
+            --neon-gold: #fbbf24;
+            --crimson: #dc143c;
         }
 
+        /* Custom Cursor - Changes color based on hovered character */
         body {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="cyan" d="M12 0v8M12 16v8M0 12h8M16 12h8M12 10h2v2h-2z"/></svg>') 12 12, crosshair;
             font-family: 'Space Mono', monospace;
             background: #000000;
             color: #ffffff;
             overflow-x: hidden;
+            transition: cursor 0.3s;
         }
 
-        /* Grid background */
+        body.cursor-malachar {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23dc2626" d="M12 0v8M12 16v8M0 12h8M16 12h8M12 10h2v2h-2z"/></svg>') 12 12, crosshair;
+        }
+
+        body.cursor-aldric {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23fbbf24" d="M12 0v8M12 16v8M0 12h8M16 12h8M12 10h2v2h-2z"/></svg>') 12 12, crosshair;
+        }
+
+        body.cursor-hiroshi {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23dc143c" d="M12 0v8M12 16v8M0 12h8M16 12h8M12 10h2v2h-2z"/></svg>') 12 12, crosshair;
+        }
+
+        a, button, .interactive {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="8" fill="none" stroke="magenta" stroke-width="2"/><circle cx="16" cy="16" r="2" fill="magenta"/></svg>') 16 16, pointer;
+        }
+
+        /* Parallax Grid background with slower scroll */
         #grid-bg {
             position: fixed;
             top: 0;
@@ -40,6 +62,7 @@
             background-size: 50px 50px;
             animation: gridMove 20s linear infinite;
             z-index: 0;
+            will-change: transform;
         }
 
         @keyframes gridMove {
@@ -47,7 +70,7 @@
             100% { transform: translate(50px, 50px); }
         }
 
-        /* Floating orbs */
+        /* Mixed orb colors - red, gold, crimson */
         .orb {
             position: fixed;
             border-radius: 50%;
@@ -56,27 +79,40 @@
             animation: float 15s ease-in-out infinite;
             z-index: 1;
             pointer-events: none;
+            will-change: transform;
         }
 
         .orb-1 {
             width: 600px;
             height: 600px;
-            background: radial-gradient(circle, var(--neon-pink), transparent);
+            background: radial-gradient(circle, var(--neon-red), transparent);
             top: -300px;
             left: -300px;
+            animation-delay: 0s;
         }
 
         .orb-2 {
             width: 500px;
             height: 500px;
-            background: radial-gradient(circle, var(--neon-cyan), transparent);
-            bottom: -250px;
+            background: radial-gradient(circle, var(--neon-gold), transparent);
+            top: 20%;
             right: -250px;
+            animation-delay: 5s;
+        }
+
+        .orb-3 {
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, var(--crimson), transparent);
+            bottom: -200px;
+            left: 40%;
+            animation-delay: 10s;
         }
 
         @keyframes float {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(80px, 80px); }
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(80px, 120px) scale(1.1); }
+            66% { transform: translate(-80px, 80px) scale(0.9); }
         }
 
         /* Scanlines */
@@ -117,6 +153,7 @@
             background: rgba(0, 0, 0, 0.7);
             border-bottom: 1px solid rgba(139, 92, 246, 0.3);
             z-index: 1000;
+            transition: all 0.3s;
         }
 
         .logo {
@@ -157,6 +194,38 @@
             text-shadow: 0 0 10px var(--neon-cyan);
         }
 
+        /* Hamburger menu for mobile */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 30px;
+            height: 3px;
+            background: var(--neon-cyan);
+            transition: all 0.3s;
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(9px, 9px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(9px, -9px);
+        }
+
         /* Main content */
         main {
             position: relative;
@@ -175,19 +244,98 @@
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 0 30px var(--neon-purple));
             animation: glitchTitle 5s infinite;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .page-title.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         @keyframes glitchTitle {
             0%, 98%, 100% { transform: translate(0, 0); }
             99% { transform: translate(-3px, 2px); }
+            99.5% { transform: translate(3px, -2px); }
         }
 
         .page-subtitle {
             text-align: center;
             font-size: 1.1rem;
             color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 5rem;
+            margin-bottom: 3rem;
             letter-spacing: 2px;
+        }
+
+        /* Filter/Sort Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        select, .btn {
+            font-family: 'Space Mono', monospace;
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid rgba(139, 92, 246, 0.4);
+            color: var(--neon-cyan);
+            padding: 0.75rem 1.5rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        select:hover, .btn:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .btn-compare {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            padding: 1rem 2rem;
+            background: transparent;
+            border: 2px solid var(--neon-pink);
+            color: var(--neon-pink);
+            transition: all 0.3s;
+        }
+
+        .btn-compare:hover {
+            background: var(--neon-pink);
+            color: #000;
+            box-shadow: 0 0 30px var(--neon-pink);
+        }
+
+        .btn-compare.active {
+            background: var(--neon-pink);
+            color: #000;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 30px var(--neon-pink); }
+            50% { box-shadow: 0 0 50px var(--neon-pink); }
         }
 
         /* Characters grid */
@@ -197,6 +345,13 @@
             gap: 3rem;
             max-width: 1400px;
             margin: 0 auto;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Comparison mode layout */
+        .characters-grid.compare-mode {
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
         }
 
         .character-card {
@@ -208,8 +363,84 @@
             overflow: hidden;
             text-decoration: none;
             display: block;
+            opacity: 0;
+            transform: translateY(50px);
+            transform-style: preserve-3d;
+            perspective: 1000px;
         }
 
+        .character-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Flip card container */
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        .character-card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .abilities-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.2rem;
+            color: var(--neon-cyan);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .ability {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(6, 182, 212, 0.1);
+            border-left: 3px solid var(--neon-cyan);
+        }
+
+        .ability-name {
+            font-weight: 700;
+            color: var(--neon-cyan);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .ability-desc {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        .ability.locked {
+            opacity: 0.5;
+            border-left-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .ability.locked .ability-name::before {
+            content: '🔒 ';
+        }
+
+        /* 3D tilt effect on hover */
         .character-card::before {
             content: '';
             position: absolute;
@@ -223,15 +454,41 @@
             transition: opacity 0.5s;
         }
 
-        .character-card:hover {
-            transform: translateY(-15px) scale(1.02);
-            background: rgba(139, 92, 246, 0.15);
-            box-shadow: 0 30px 80px rgba(139, 92, 246, 0.6);
-            border-color: var(--neon-cyan);
-        }
-
         .character-card:hover::before {
             opacity: 1;
+        }
+
+        /* Background glow in character color */
+        .character-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, var(--card-color, var(--neon-purple)), transparent);
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: -2;
+            filter: blur(60px);
+        }
+
+        .character-card:hover::after {
+            opacity: 0.6;
+        }
+
+        /* Character-specific colors */
+        .character-card[data-character="malachar"] {
+            --card-color: var(--neon-red);
+        }
+
+        .character-card[data-character="aldric"] {
+            --card-color: var(--neon-gold);
+        }
+
+        .character-card[data-character="hiroshi"] {
+            --card-color: var(--crimson);
         }
 
         .character-icon {
@@ -239,11 +496,21 @@
             text-align: center;
             margin-bottom: 2rem;
             filter: drop-shadow(0 0 30px currentColor);
-            transition: transform 0.5s;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 1;
         }
 
+        /* Icon animation on hover - rotate, scale, glow */
         .character-card:hover .character-icon {
-            transform: scale(1.15) rotate(-5deg);
+            transform: scale(1.2) rotate(5deg);
+            filter: drop-shadow(0 0 50px currentColor) brightness(1.3);
+            animation: iconFloat 2s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: scale(1.2) rotate(5deg) translateY(0); }
+            50% { transform: scale(1.2) rotate(5deg) translateY(-10px); }
         }
 
         .character-name {
@@ -272,16 +539,19 @@
             margin-bottom: 2rem;
         }
 
+        /* Stats with bars that appear/fill on hover */
         .character-stats {
             display: flex;
             justify-content: space-around;
             margin-top: 2rem;
             padding-top: 2rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 1rem;
         }
 
         .stat {
             text-align: center;
+            flex: 1;
         }
 
         .stat-value {
@@ -296,6 +566,70 @@
             color: rgba(255, 255, 255, 0.5);
             text-transform: uppercase;
             letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Stat bars appear on hover */
+        .stat-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            opacity: 0;
+            transform: scaleX(0);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+            width: 0;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .character-card:hover .stat-bar {
+            opacity: 1;
+            transform: scaleX(1);
+        }
+
+        .character-card:hover .stat-bar-fill {
+            width: var(--stat-width, 50%);
+        }
+
+        /* Comparison mode stats */
+        .compare-mode .character-stats {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .compare-mode .stat {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .compare-mode .stat-bar {
+            opacity: 1;
+            transform: scaleX(1);
+            flex: 1;
+        }
+
+        .compare-mode .stat-bar-fill {
+            width: var(--stat-width, 50%);
+        }
+
+        .flip-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 2;
         }
 
         .view-details {
@@ -320,6 +654,42 @@
             box-shadow: 0 0 30px var(--neon-cyan);
         }
 
+        /* Comparison selection */
+        .character-card.selected {
+            border-color: var(--neon-pink);
+            background: rgba(255, 0, 110, 0.1);
+            transform: scale(1.05);
+        }
+
+        .character-card.selected::before {
+            opacity: 1;
+        }
+
+        .selection-indicator {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            width: 40px;
+            height: 40px;
+            background: var(--neon-pink);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            color: #000;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .character-card.selected .selection-indicator {
+            opacity: 1;
+            transform: scale(1);
+        }
+
         /* Coming soon card */
         .coming-soon {
             opacity: 0.4;
@@ -335,6 +705,182 @@
             color: rgba(255, 255, 255, 0.2);
         }
 
+        /* Easter egg - Konami code activated */
+        body.konami-active .character-card {
+            animation: konamiFloat 3s ease-in-out infinite;
+            box-shadow: 0 0 60px var(--neon-pink), 0 0 100px var(--neon-purple);
+        }
+
+        @keyframes konamiFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
+
+        /* Secret teaser */
+        .secret-teaser {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid var(--neon-pink);
+            padding: 3rem;
+            z-index: 10000;
+            text-align: center;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 600px;
+        }
+
+        .secret-teaser.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .secret-teaser h2 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            animation: glitchTitle 2s infinite;
+        }
+
+        .secret-teaser p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .secret-teaser button {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            padding: 1rem 2rem;
+            background: var(--neon-pink);
+            border: none;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .secret-teaser button:hover {
+            box-shadow: 0 0 30px var(--neon-pink);
+        }
+
+        /* Comparison panel */
+        .comparison-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            border-top: 2px solid var(--neon-pink);
+            padding: 2rem;
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+
+        .comparison-panel.active {
+            transform: translateY(0);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .comparison-character {
+            text-align: center;
+        }
+
+        .comparison-character h3 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            color: var(--neon-cyan);
+            margin-bottom: 1rem;
+        }
+
+        .comparison-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .comparison-stat {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .comparison-stat-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            min-width: 50px;
+        }
+
+        .comparison-stat-bar {
+            flex: 1;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .comparison-stat-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+            width: var(--stat-width, 50%);
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .comparison-stat-value {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            color: var(--neon-cyan);
+            min-width: 40px;
+        }
+
+        .strength-indicator {
+            font-size: 0.7rem;
+            color: var(--neon-green);
+            margin-top: 0.5rem;
+        }
+
+        .weakness-indicator {
+            font-size: 0.7rem;
+            color: var(--neon-red);
+            margin-top: 0.5rem;
+        }
+
+        .close-comparison {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            padding: 0.5rem 1rem;
+            background: var(--neon-pink);
+            border: none;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-comparison:hover {
+            box-shadow: 0 0 30px var(--neon-pink);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .page-title {
@@ -343,10 +889,59 @@
 
             .characters-grid {
                 grid-template-columns: 1fr;
+                gap: 2rem;
             }
 
             main {
                 padding: 120px 1.5rem 3rem;
+            }
+
+            header {
+                padding: 1rem 1.5rem;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            nav ul {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: rgba(0, 0, 0, 0.95);
+                flex-direction: column;
+                padding: 2rem;
+                gap: 1.5rem;
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+                border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+            }
+
+            nav ul.active {
+                transform: translateX(0);
+            }
+
+            .controls {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .character-card {
+                padding: 2rem;
+            }
+
+            .character-card:hover {
+                transform: translateY(-10px) scale(1);
+            }
+
+            /* Disable 3D tilt on mobile */
+            .character-card {
+                transform-style: flat;
+            }
+
+            .comparison-panel {
+                max-height: 50vh;
             }
         }
     </style>
@@ -355,11 +950,17 @@
     <div id="grid-bg"></div>
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
 
     <header>
         <a href="index.html" class="logo">KLYRA</a>
+        <button class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
         <nav>
-            <ul>
+            <ul id="nav-menu">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="characters.html">Characters</a></li>
                 <li><a href="lore.html">Lore</a></li>
@@ -369,106 +970,596 @@
     </header>
 
     <main>
-        <h1 class="page-title">Characters</h1>
+        <h1 class="page-title" id="page-title">Characters</h1>
         <p class="page-subtitle">Choose your fate. Master your power.</p>
 
-        <div class="characters-grid">
+        <!-- Filter/Sort Controls -->
+        <div class="controls">
+            <div class="control-group">
+                <label class="control-label">Role:</label>
+                <select id="filter-role">
+                    <option value="all">All Roles</option>
+                    <option value="tank">Tank</option>
+                    <option value="dps">DPS</option>
+                    <option value="summoner">Summoner</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Sort By:</label>
+                <select id="sort-stat">
+                    <option value="default">Default</option>
+                    <option value="hp">HP</option>
+                    <option value="str">STR</option>
+                    <option value="def">DEF</option>
+                    <option value="spd">SPD</option>
+                </select>
+            </div>
+            <button class="btn btn-compare" id="compare-btn">Compare Characters</button>
+            <button class="btn" id="reset-btn" style="display: none;">Show All</button>
+        </div>
+
+        <div class="characters-grid" id="characters-grid">
             <!-- Malachar -->
-            <a href="characters/malachar.html" class="character-card">
-                <div class="character-icon">
-                    <img src="/game/assets/sprites/malachar.png" alt="Malachar" style="width: 128px; height: 128px; image-rendering: pixelated; filter: drop-shadow(0 0 30px rgba(220, 38, 38, 0.8));">
+            <div class="character-card" data-character="malachar" data-role="summoner" data-hp="115" data-str="16" data-def="10" data-spd="9">
+                <div class="selection-indicator"></div>
+                <div class="flip-indicator">Click stats to flip</div>
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="character-icon">
+                            <!-- <img src="/assets/sprites/malachar.png" alt="Malachar" style="width: 128px; height: 128px; image-rendering: pixelated;"> -->
+                            <img src="/game/assets/sprites/malachar.png" alt="Malachar" style="width: 128px; height: 128px; image-rendering: pixelated; filter: drop-shadow(0 0 30px rgba(220, 38, 38, 0.8));">
+                        </div>
+                        <h2 class="character-name">MALACHAR</h2>
+                        <p class="character-role">Necromancer Summoner</p>
+                        <p class="character-description">
+                            Master of death and decay. Raise skeleton armies from fallen enemies and overwhelm your foes with undead hordes.
+                        </p>
+                        <div class="character-stats">
+                            <div class="stat">
+                                <div class="stat-value">16</div>
+                                <div class="stat-label">STR</div>
+                                <div class="stat-bar"><div class="stat-bar-fill" style="--stat-width: 53%"></div></div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">115</div>
+                                <div class="stat-label">HP</div>
+                                <div class="stat-bar"><div class="stat-bar-fill" style="--stat-width: 77%"></div></div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">10</div>
+                                <div class="stat-label">DEF</div>
+                                <div class="stat-bar"><div class="stat-bar-fill" style="--stat-width: 56%"></div></div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">9</div>
+                                <div class="stat-label">SPD</div>
+                                <div class="stat-bar"><div class="stat-bar-fill" style="--stat-width: 64%"></div></div>
+                            </div>
+                        </div>
+                        <a href="characters/malachar.html" class="view-details">View Details →</a>
+                    </div>
+                    <div class="card-back">
+                        <h3 class="abilities-title">Abilities</h3>
+                        <div class="ability">
+                            <div class="ability-name">Raise Dead</div>
+                            <div class="ability-desc">Summon 2 skeletons from fallen enemies to fight alongside you.</div>
+                        </div>
+                        <div class="ability locked">
+                            <div class="ability-name">Death's Embrace</div>
+                            <div class="ability-desc">Drain life from enemies to heal yourself and your minions.</div>
+                        </div>
+                        <div class="ability locked">
+                            <div class="ability-name">Necrotic Storm</div>
+                            <div class="ability-desc">Unleash a wave of dark energy that damages all enemies.</div>
+                        </div>
+                    </div>
                 </div>
-                <h2 class="character-name">MALACHAR</h2>
-                <p class="character-role">Necromancer Summoner</p>
-                <p class="character-description">
-                    Master of death and decay. Raise skeleton armies from fallen enemies and overwhelm your foes with undead hordes.
-                </p>
-                <div class="character-stats">
-                    <div class="stat">
-                        <div class="stat-value">16</div>
-                        <div class="stat-label">STR</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">115</div>
-                        <div class="stat-label">HP</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">10</div>
-                        <div class="stat-label">DEF</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">9</div>
-                        <div class="stat-label">SPD</div>
-                    </div>
-                </div>
-                <div class="view-details">View Details →</div>
-            </a>
+            </div>
 
             <!-- Sir Aldric Thornheart -->
-            <a href="characters/aldric.html" class="character-card">
-                <div class="character-icon">
-                    <div style="width: 128px; height: 128px; background: linear-gradient(135deg, #ffd700, #ffed4e); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4rem; filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.8));">🛡️</div>
+            <div class="character-card" data-character="aldric" data-role="tank" data-hp="150" data-str="14" data-def="18" data-spd="6">
+                <div class="selection-indicator"></div>
+                <div class="flip-indicator">Click stats to flip</div>
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="character-icon">
+                            <!-- <img src="/assets/sprites/aldric.png" alt="Sir Aldric" style="width: 128px; height: 128px; image-rendering: pixelated;"> -->
+                            <div style="width: 128px; height: 128px; background: linear-gradient(135deg, #ffd700, #ffed4e); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4rem; filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.8));">🛡️</div>
+                        </div>
+                        <h2 class="character-name">SIR ALDRIC</h2>
+                        <p class="character-role">Knight Tank</p>
+                        <p class="character-description">
+                            Unbreakable vanguard of the realm. Stand as an immortal wall between your allies and annihilation. Your shield never falters.
+                        </p>
+                        <div class="character-stats">
+                            <div class="stat">
+                                <div class="stat-value">14</div>
+                                <div class="stat-label">STR</div>
+                                <div class="stat-bar"><div class="stat-bar-fill" style="--stat-width: 47%"></div></div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">150</div>
+                                <div class="stat-label">HP</div>
+                                <div class="stat-bar"><div class="stat-bar-fill" style="--stat-width: 100%"></div></div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">18</div>
+                                <div class="stat-label">DEF</div>
+                                <div class="stat-bar"><div class="stat-bar-fill" style="--stat-width: 100%"></div></div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">6</div>
+                                <div class="stat-label">SPD</div>
+                                <div class="stat-bar"><div class="stat-bar-fill" style="--stat-width: 43%"></div></div>
+                            </div>
+                        </div>
+                        <a href="characters/aldric.html" class="view-details">View Details →</a>
+                    </div>
+                    <div class="card-back">
+                        <h3 class="abilities-title">Abilities</h3>
+                        <div class="ability">
+                            <div class="ability-name">Shield Wall</div>
+                            <div class="ability-desc">Raise your shield to block incoming damage and protect nearby allies.</div>
+                        </div>
+                        <div class="ability locked">
+                            <div class="ability-name">Rallying Cry</div>
+                            <div class="ability-desc">Inspire nearby allies, increasing their defense and attack speed.</div>
+                        </div>
+                        <div class="ability locked">
+                            <div class="ability-name">Divine Smite</div>
+                            <div class="ability-desc">Strike with holy power, dealing massive damage and stunning enemies.</div>
+                        </div>
+                    </div>
                 </div>
-                <h2 class="character-name">SIR ALDRIC</h2>
-                <p class="character-role">Knight Tank</p>
-                <p class="character-description">
-                    Unbreakable vanguard of the realm. Stand as an immortal wall between your allies and annihilation. Your shield never falters.
-                </p>
-                <div class="character-stats">
-                    <div class="stat">
-                        <div class="stat-value">14</div>
-                        <div class="stat-label">STR</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">150</div>
-                        <div class="stat-label">HP</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">18</div>
-                        <div class="stat-label">DEF</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">6</div>
-                        <div class="stat-label">SPD</div>
-                    </div>
-                </div>
-                <div class="view-details">View Details →</div>
-            </a>
+            </div>
 
             <!-- Hiroshi the Exiled -->
-            <a href="characters/hiroshi.html" class="character-card">
-                <div class="character-icon">
-                    <div style="width: 128px; height: 128px; background: linear-gradient(135deg, #dc143c, #ff6b9d); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4rem; filter: drop-shadow(0 0 30px rgba(220, 20, 60, 0.8));">⚔️</div>
+            <div class="character-card" data-character="hiroshi" data-role="dps" data-hp="100" data-str="18" data-def="8" data-spd="14">
+                <div class="selection-indicator"></div>
+                <div class="flip-indicator">Click stats to flip</div>
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="character-icon">
+                            <!-- <img src="/assets/sprites/hiroshi.png" alt="Hiroshi" style="width: 128px; height: 128px; image-rendering: pixelated;"> -->
+                            <div style="width: 128px; height: 128px; background: linear-gradient(135deg, #dc143c, #ff6b9d); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4rem; filter: drop-shadow(0 0 30px rgba(220, 20, 60, 0.8));">⚔️</div>
+                        </div>
+                        <h2 class="character-name">HIROSHI</h2>
+                        <p class="character-role">Samurai Swordmaster</p>
+                        <p class="character-description">
+                            Exiled blade dancer seeking redemption. Master the way of the sword with lightning-fast strikes and perfect precision.
+                        </p>
+                        <div class="character-stats">
+                            <div class="stat">
+                                <div class="stat-value">18</div>
+                                <div class="stat-label">STR</div>
+                                <div class="stat-bar"><div class="stat-bar-fill" style="--stat-width: 100%"></div></div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">100</div>
+                                <div class="stat-label">HP</div>
+                                <div class="stat-bar"><div class="stat-bar-fill" style="--stat-width: 67%"></div></div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">8</div>
+                                <div class="stat-label">DEF</div>
+                                <div class="stat-bar"><div class="stat-bar-fill" style="--stat-width: 44%"></div></div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">14</div>
+                                <div class="stat-label">SPD</div>
+                                <div class="stat-bar"><div class="stat-bar-fill" style="--stat-width: 100%"></div></div>
+                            </div>
+                        </div>
+                        <a href="characters/hiroshi.html" class="view-details">View Details →</a>
+                    </div>
+                    <div class="card-back">
+                        <h3 class="abilities-title">Abilities</h3>
+                        <div class="ability">
+                            <div class="ability-name">Quick Slash</div>
+                            <div class="ability-desc">Execute a lightning-fast sword strike dealing high damage to a single target.</div>
+                        </div>
+                        <div class="ability locked">
+                            <div class="ability-name">Blade Dance</div>
+                            <div class="ability-desc">Perform a deadly combo, striking multiple enemies in rapid succession.</div>
+                        </div>
+                        <div class="ability locked">
+                            <div class="ability-name">Moment of Clarity</div>
+                            <div class="ability-desc">Enter a meditative state, gaining increased critical hit chance and evasion.</div>
+                        </div>
+                    </div>
                 </div>
-                <h2 class="character-name">HIROSHI</h2>
-                <p class="character-role">Samurai Swordmaster</p>
-                <p class="character-description">
-                    Exiled blade dancer seeking redemption. Master the way of the sword with lightning-fast strikes and perfect precision.
-                </p>
-                <div class="character-stats">
-                    <div class="stat">
-                        <div class="stat-value">18</div>
-                        <div class="stat-label">STR</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">100</div>
-                        <div class="stat-label">HP</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">8</div>
-                        <div class="stat-label">DEF</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">14</div>
-                        <div class="stat-label">SPD</div>
-                    </div>
-                </div>
-                <div class="view-details">View Details →</div>
-            </a>
+            </div>
         </div>
     </main>
 
+    <!-- Comparison Panel -->
+    <div class="comparison-panel" id="comparison-panel">
+        <button class="close-comparison" id="close-comparison">Close</button>
+        <div class="comparison-grid" id="comparison-grid"></div>
+    </div>
+
+    <!-- Secret Teaser -->
+    <div class="secret-teaser" id="secret-teaser">
+        <h2>??? SECRET UNLOCKED ???</h2>
+        <p>A fourth character lurks in the shadows...<br>A mysterious warrior from beyond the veil.<br><br>Coming Soon™</p>
+        <button onclick="closeTeaser()">Close</button>
+    </div>
+
     <script>
+        // Parallax effect on grid and orbs
+        let scrollY = 0;
+        window.addEventListener('scroll', () => {
+            scrollY = window.scrollY;
+            const grid = document.getElementById('grid-bg');
+            const orbs = document.querySelectorAll('.orb');
+
+            // Grid scrolls slower (parallax)
+            grid.style.transform = `translate(${scrollY * 0.02}px, ${scrollY * 0.02}px)`;
+
+            // Orbs move at different speeds
+            orbs.forEach((orb, index) => {
+                const speed = 0.1 + (index * 0.05);
+                orb.style.transform = `translate(${scrollY * speed}px, ${scrollY * speed}px)`;
+            });
+        });
+
+        // Custom cursor color change on character hover
+        const characterCards = document.querySelectorAll('.character-card');
+        characterCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                const character = this.dataset.character;
+                document.body.className = `cursor-${character}`;
+            });
+
+            card.addEventListener('mouseleave', function() {
+                document.body.className = '';
+            });
+        });
+
+        // 3D tilt effect based on mouse position
+        characterCards.forEach(card => {
+            card.addEventListener('mousemove', function(e) {
+                if (window.innerWidth <= 768) return; // Disable on mobile
+
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+
+                this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-15px) scale(1.02)`;
+            });
+
+            card.addEventListener('mouseleave', function() {
+                if (window.innerWidth <= 768) return;
+                this.style.transform = '';
+            });
+        });
+
+        // Scroll animations - fade in and slide up
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all character cards with staggered delays
+        characterCards.forEach((card, index) => {
+            card.style.transitionDelay = `${index * 0.1}s`;
+            observer.observe(card);
+        });
+
+        // Title glitch animation
+        const pageTitle = document.getElementById('page-title');
+        setTimeout(() => {
+            pageTitle.classList.add('visible');
+        }, 200);
+
+        // Card flip functionality
+        characterCards.forEach(card => {
+            const stats = card.querySelector('.character-stats');
+            if (stats) {
+                stats.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    card.classList.toggle('flipped');
+                });
+            }
+        });
+
+        // Filter by role
+        const filterRole = document.getElementById('filter-role');
+        const sortStat = document.getElementById('sort-stat');
+        const resetBtn = document.getElementById('reset-btn');
+        const grid = document.getElementById('characters-grid');
+
+        filterRole.addEventListener('change', function() {
+            const role = this.value;
+            resetBtn.style.display = role !== 'all' ? 'inline-block' : 'none';
+
+            characterCards.forEach(card => {
+                if (role === 'all' || card.dataset.role === role) {
+                    card.style.display = 'block';
+                    setTimeout(() => card.classList.add('visible'), 50);
+                } else {
+                    card.classList.remove('visible');
+                    setTimeout(() => card.style.display = 'none', 300);
+                }
+            });
+        });
+
+        // Sort by stats with animated re-ordering
+        sortStat.addEventListener('change', function() {
+            const stat = this.value;
+            if (stat === 'default') return;
+
+            const cardsArray = Array.from(characterCards);
+            cardsArray.sort((a, b) => {
+                const aVal = parseInt(a.dataset[stat]) || 0;
+                const bVal = parseInt(b.dataset[stat]) || 0;
+                return bVal - aVal; // Descending order
+            });
+
+            // Animate out
+            characterCards.forEach(card => card.classList.remove('visible'));
+
+            // Reorder and animate in
+            setTimeout(() => {
+                cardsArray.forEach((card, index) => {
+                    grid.appendChild(card);
+                    card.style.transitionDelay = `${index * 0.1}s`;
+                    setTimeout(() => card.classList.add('visible'), 50);
+                });
+            }, 300);
+        });
+
+        // Reset filters
+        resetBtn.addEventListener('click', function() {
+            filterRole.value = 'all';
+            sortStat.value = 'default';
+            this.style.display = 'none';
+            characterCards.forEach(card => {
+                card.style.display = 'block';
+                setTimeout(() => card.classList.add('visible'), 50);
+            });
+        });
+
+        // Comparison mode
+        const compareBtn = document.getElementById('compare-btn');
+        const comparisonPanel = document.getElementById('comparison-panel');
+        const comparisonGrid = document.getElementById('comparison-grid');
+        const closeComparison = document.getElementById('close-comparison');
+        let compareMode = false;
+        let selectedCharacters = [];
+
+        compareBtn.addEventListener('click', function() {
+            compareMode = !compareMode;
+            this.classList.toggle('active');
+
+            if (!compareMode) {
+                // Exit compare mode
+                selectedCharacters = [];
+                characterCards.forEach(card => card.classList.remove('selected'));
+                grid.classList.remove('compare-mode');
+                comparisonPanel.classList.remove('active');
+            } else {
+                grid.classList.add('compare-mode');
+            }
+        });
+
+        characterCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!compareMode) return;
+                if (this.classList.contains('coming-soon')) return;
+
+                e.preventDefault();
+
+                const character = this.dataset.character;
+                const index = selectedCharacters.indexOf(character);
+
+                if (index > -1) {
+                    // Deselect
+                    selectedCharacters.splice(index, 1);
+                    this.classList.remove('selected');
+                    this.querySelector('.selection-indicator').textContent = '';
+                } else if (selectedCharacters.length < 3) {
+                    // Select (max 3)
+                    selectedCharacters.push(character);
+                    this.classList.add('selected');
+                    this.querySelector('.selection-indicator').textContent = selectedCharacters.length;
+                }
+
+                // Update comparison panel
+                if (selectedCharacters.length >= 2) {
+                    showComparison();
+                } else {
+                    comparisonPanel.classList.remove('active');
+                }
+            });
+        });
+
+        function showComparison() {
+            comparisonGrid.innerHTML = '';
+
+            selectedCharacters.forEach(charName => {
+                const card = document.querySelector(`[data-character="${charName}"]`);
+                const hp = parseInt(card.dataset.hp);
+                const str = parseInt(card.dataset.str);
+                const def = parseInt(card.dataset.def);
+                const spd = parseInt(card.dataset.spd);
+
+                // Find max values for percentage calculation
+                const allHP = selectedCharacters.map(c => parseInt(document.querySelector(`[data-character="${c}"]`).dataset.hp));
+                const allSTR = selectedCharacters.map(c => parseInt(document.querySelector(`[data-character="${c}"]`).dataset.str));
+                const allDEF = selectedCharacters.map(c => parseInt(document.querySelector(`[data-character="${c}"]`).dataset.def));
+                const allSPD = selectedCharacters.map(c => parseInt(document.querySelector(`[data-character="${c}"]`).dataset.spd));
+
+                const maxHP = Math.max(...allHP);
+                const maxSTR = Math.max(...allSTR);
+                const maxDEF = Math.max(...allDEF);
+                const maxSPD = Math.max(...allSPD);
+
+                const minHP = Math.min(...allHP);
+                const minSTR = Math.min(...allSTR);
+                const minDEF = Math.min(...allDEF);
+                const minSPD = Math.min(...allSPD);
+
+                const strengths = [];
+                const weaknesses = [];
+
+                if (hp === maxHP && selectedCharacters.length > 1) strengths.push('HP');
+                if (str === maxSTR && selectedCharacters.length > 1) strengths.push('STR');
+                if (def === maxDEF && selectedCharacters.length > 1) strengths.push('DEF');
+                if (spd === maxSPD && selectedCharacters.length > 1) strengths.push('SPD');
+
+                if (hp === minHP && selectedCharacters.length > 1) weaknesses.push('HP');
+                if (str === minSTR && selectedCharacters.length > 1) weaknesses.push('STR');
+                if (def === minDEF && selectedCharacters.length > 1) weaknesses.push('DEF');
+                if (spd === minSPD && selectedCharacters.length > 1) weaknesses.push('SPD');
+
+                const characterDiv = document.createElement('div');
+                characterDiv.className = 'comparison-character';
+                characterDiv.innerHTML = `
+                    <h3>${charName.toUpperCase()}</h3>
+                    <div class="comparison-stats">
+                        <div class="comparison-stat">
+                            <span class="comparison-stat-label">HP</span>
+                            <div class="comparison-stat-bar">
+                                <div class="comparison-stat-fill" style="--stat-width: ${(hp / 150 * 100)}%"></div>
+                            </div>
+                            <span class="comparison-stat-value">${hp}</span>
+                        </div>
+                        <div class="comparison-stat">
+                            <span class="comparison-stat-label">STR</span>
+                            <div class="comparison-stat-bar">
+                                <div class="comparison-stat-fill" style="--stat-width: ${(str / 18 * 100)}%"></div>
+                            </div>
+                            <span class="comparison-stat-value">${str}</span>
+                        </div>
+                        <div class="comparison-stat">
+                            <span class="comparison-stat-label">DEF</span>
+                            <div class="comparison-stat-bar">
+                                <div class="comparison-stat-fill" style="--stat-width: ${(def / 18 * 100)}%"></div>
+                            </div>
+                            <span class="comparison-stat-value">${def}</span>
+                        </div>
+                        <div class="comparison-stat">
+                            <span class="comparison-stat-label">SPD</span>
+                            <div class="comparison-stat-bar">
+                                <div class="comparison-stat-fill" style="--stat-width: ${(spd / 14 * 100)}%"></div>
+                            </div>
+                            <span class="comparison-stat-value">${spd}</span>
+                        </div>
+                    </div>
+                    ${strengths.length > 0 ? `<div class="strength-indicator">▲ Strengths: ${strengths.join(', ')}</div>` : ''}
+                    ${weaknesses.length > 0 ? `<div class="weakness-indicator">▼ Weaknesses: ${weaknesses.join(', ')}</div>` : ''}
+                `;
+                comparisonGrid.appendChild(characterDiv);
+            });
+
+            comparisonPanel.classList.add('active');
+        }
+
+        closeComparison.addEventListener('click', function() {
+            comparisonPanel.classList.remove('active');
+        });
+
+        // Hamburger menu
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('nav-menu');
+
+        hamburger.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Close menu when clicking a link
+        navMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+
+        // Easter Eggs
+
+        // 1. Konami Code: ↑ ↑ ↓ ↓ ← → ← → B A
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiIndex = 0;
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    activateKonami();
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        });
+
+        function activateKonami() {
+            document.body.classList.add('konami-active');
+            console.log('🎮 KONAMI CODE ACTIVATED! All characters are now floating!');
+
+            setTimeout(() => {
+                document.body.classList.remove('konami-active');
+            }, 10000);
+        }
+
+        // 2. Click page title 5 times for secret teaser
+        let titleClicks = 0;
+        let titleClickTimer;
+
+        pageTitle.addEventListener('click', function() {
+            titleClicks++;
+
+            clearTimeout(titleClickTimer);
+            titleClickTimer = setTimeout(() => {
+                titleClicks = 0;
+            }, 2000);
+
+            if (titleClicks >= 5) {
+                showSecretTeaser();
+                titleClicks = 0;
+            }
+        });
+
+        function showSecretTeaser() {
+            const teaser = document.getElementById('secret-teaser');
+            teaser.classList.add('active');
+            console.log('🤫 SECRET CHARACTER TEASER UNLOCKED!');
+        }
+
+        function closeTeaser() {
+            document.getElementById('secret-teaser').classList.remove('active');
+        }
+
+        // 3. Console messages with character hints
+        console.log('%c🎮 KLYRA - Characters Roster', 'color: #ff006e; font-size: 20px; font-weight: bold;');
+        console.log('%cHints:', 'color: #06b6d4; font-size: 14px; font-weight: bold;');
+        console.log('%c• Try the Konami Code: ↑ ↑ ↓ ↓ ← → ← → B A', 'color: #8b5cf6; font-size: 12px;');
+        console.log('%c• Click the page title 5 times quickly', 'color: #8b5cf6; font-size: 12px;');
+        console.log('%c• Use Compare Mode to find the perfect team', 'color: #8b5cf6; font-size: 12px;');
+        console.log('%c\nCharacter Stats:', 'color: #06b6d4; font-size: 14px; font-weight: bold;');
+        console.log('%c• Malachar: Necromancer with undead summoning', 'color: #dc2626; font-size: 12px;');
+        console.log('%c• Sir Aldric: Tankiest character with highest defense', 'color: #fbbf24; font-size: 12px;');
+        console.log('%c• Hiroshi: Fastest DPS with deadly precision', 'color: #dc143c; font-size: 12px;');
+        console.log('%c• ??? - Coming Soon...', 'color: #666; font-size: 12px;');
+
         // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {

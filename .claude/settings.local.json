@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd professional homepage for Klyra multiplayer roguelike\n\nCreated a modern, responsive homepage featuring:\n- Hero section with call-to-action\n- Game features grid with 6 key features\n- About section with game description\n- Dark theme with gradient accents\n- Smooth animations and hover effects\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)",
+      "Bash(git remote add:*)",
+      "Bash(scp:*)",
+      "Bash(ssh:*)",
+      "Bash(git remote:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nPremium redesign: Apple-inspired modern retro aesthetic\n\nComplete visual overhaul featuring:\n- Sleek, minimalist design with sophisticated color palette\n- Vibrant neon gradients (pink, purple, blue, cyan, green)\n- Animated floating gradient orbs for depth\n- Glassmorphism with backdrop blur effects\n- Smooth cubic-bezier animations throughout\n- Space Mono + Press Start 2P font pairing\n- Subtle scanlines for retro touch\n- Premium button with shimmer effect\n- Rounded corners and modern spacing\n- Seamless blend of 16-bit nostalgia and contemporary design\n\nThink Apple meets retro gaming - clean, sexy, sophisticated.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd multiplayer server for Render deployment\n\nComplete multiplayer infrastructure:\n- Node.js + Express + Socket.IO server\n- Automatic matchmaking system (10 players/lobby)\n- Real-time player synchronization\n- Procedural dungeon generation\n- Game state management (players, enemies, items)\n- Chat system\n- Health and stats endpoints\n\nFeatures:\n- Auto-joins players to available lobbies\n- Game starts when lobby reaches 10 players\n- Full player movement, combat, and item systems\n- Comprehensive event system for real-time sync\n- Render deployment configuration included\n\nFiles:\n- server.js: Main multiplayer server\n- package.json: Dependencies (express, socket.io, uuid)\n- render.yaml: Render deployment config\n- SERVER_README.md: Full server documentation\n- client-example.html: Test client for debugging\n- Updated README.md with architecture info\n- Updated .gitignore for Node.js\n\nReady to deploy to Render! 🚀\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(curl:*)",
+      "Bash(git commit:*)",
+      "Bash(find:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

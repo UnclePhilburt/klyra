@@ -27,7 +27,29 @@
             overflow-x: hidden;
         }
 
-        /* Grid background */
+        /* Custom Cursor */
+        body {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M7 2v20l4-4h5l-1-5 5-1-13-10z"/></svg>'), auto;
+        }
+
+        .clickable, a, button, .lore-section, .timeline-point, .reveal-text, .section-header {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="%238b5cf6"><path d="M12 2l2 7h7l-5.5 4.5 2 7-5.5-4-5.5 4 2-7-5.5-4.5h7z"/></svg>'), pointer !important;
+        }
+
+        /* Scroll Progress Indicator */
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple), var(--neon-cyan));
+            z-index: 10000;
+            transition: width 0.1s ease-out;
+            box-shadow: 0 0 20px var(--neon-purple);
+        }
+
+        /* Grid background with parallax */
         #grid-bg {
             position: fixed;
             top: 0;
@@ -40,6 +62,7 @@
             background-size: 50px 50px;
             animation: gridMove 20s linear infinite;
             z-index: 0;
+            transform: translateZ(0);
         }
 
         @keyframes gridMove {
@@ -47,7 +70,7 @@
             100% { transform: translate(50px, 50px); }
         }
 
-        /* Floating orbs */
+        /* Floating orbs with parallax */
         .orb {
             position: fixed;
             border-radius: 50%;
@@ -56,6 +79,7 @@
             animation: float 15s ease-in-out infinite;
             z-index: 1;
             pointer-events: none;
+            will-change: transform;
         }
 
         .orb-1 {
@@ -168,6 +192,35 @@
             text-shadow: 0 0 10px var(--neon-cyan);
         }
 
+        /* Hamburger Menu for Mobile */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--neon-cyan);
+            transition: all 0.3s;
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(8px, -8px);
+        }
+
         /* Main content */
         main {
             position: relative;
@@ -199,11 +252,83 @@
             text-align: center;
             font-size: 1.1rem;
             color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 5rem;
+            margin-bottom: 3rem;
             letter-spacing: 2px;
         }
 
-        /* Lore sections */
+        /* Typing Effect Skip Button */
+        #skip-typing {
+            display: block;
+            margin: 0 auto 2rem;
+            padding: 10px 30px;
+            background: rgba(139, 92, 246, 0.2);
+            border: 2px solid var(--neon-purple);
+            color: var(--neon-purple);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            border-radius: 10px;
+            transition: all 0.3s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #skip-typing.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #skip-typing:hover {
+            background: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 0 20px var(--neon-purple);
+            transform: scale(1.05);
+        }
+
+        /* Book Container */
+        #book-container {
+            perspective: 2000px;
+            margin-bottom: 3rem;
+        }
+
+        /* Page Navigation */
+        .page-navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .page-nav-btn {
+            padding: 12px 24px;
+            background: rgba(139, 92, 246, 0.2);
+            border: 2px solid var(--neon-purple);
+            color: var(--neon-cyan);
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            border-radius: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .page-nav-btn:hover:not(:disabled) {
+            background: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 0 20px var(--neon-purple);
+            transform: scale(1.05);
+        }
+
+        .page-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .page-counter {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.2rem;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        /* Lore sections - Book Page Style */
         .lore-section {
             background: rgba(139, 92, 246, 0.05);
             border: 2px solid rgba(139, 92, 246, 0.3);
@@ -212,7 +337,28 @@
             margin-bottom: 3rem;
             position: relative;
             overflow: hidden;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            display: none;
+        }
+
+        .lore-section.active {
+            display: block;
+            animation: pageFlip 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes pageFlip {
+            0% {
+                transform: rotateY(-90deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: rotateY(0deg);
+                opacity: 1;
+            }
         }
 
         .lore-section::before {
@@ -240,6 +386,7 @@
             opacity: 0.3;
         }
 
+        /* Collapsible Section Header */
         .section-header {
             font-family: 'Press Start 2P', cursive;
             font-size: 1.8rem;
@@ -247,6 +394,26 @@
             color: var(--neon-cyan);
             text-align: center;
             filter: drop-shadow(0 0 20px var(--neon-cyan));
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            transition: all 0.3s;
+        }
+
+        .section-header:hover {
+            color: var(--neon-pink);
+            filter: drop-shadow(0 0 30px var(--neon-pink));
+        }
+
+        .section-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+
+        .section-header.collapsed .section-icon {
+            transform: rotate(-90deg);
         }
 
         .section-content {
@@ -254,10 +421,223 @@
             line-height: 2;
             color: rgba(255, 255, 255, 0.85);
             text-align: center;
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+        }
+
+        .section-content.collapsed {
+            max-height: 0;
+            opacity: 0;
         }
 
         .section-content p {
             margin-bottom: 1.5rem;
+        }
+
+        /* Typing Effect */
+        .typing-text {
+            display: inline;
+        }
+
+        .typing-cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1.2em;
+            background: var(--neon-cyan);
+            margin-left: 2px;
+            animation: blink 1s infinite;
+            vertical-align: text-bottom;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Interactive Timeline */
+        .timeline-container {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple), var(--neon-cyan));
+            transform: translateY(-50%);
+            animation: expandLine 2s ease-out forwards;
+            box-shadow: 0 0 20px var(--neon-purple);
+        }
+
+        @keyframes expandLine {
+            to { width: 100%; }
+        }
+
+        .timeline-points {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .timeline-point {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .timeline-point:hover {
+            transform: scale(1.1);
+        }
+
+        .timeline-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--neon-purple);
+            border: 3px solid var(--neon-cyan);
+            box-shadow: 0 0 20px var(--neon-purple);
+            transition: all 0.3s;
+            animation: pulse 2s infinite;
+        }
+
+        .timeline-point:hover .timeline-dot {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 40px var(--neon-cyan);
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px var(--neon-purple); }
+            50% { box-shadow: 0 0 40px var(--neon-purple); }
+        }
+
+        .timeline-label {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--neon-cyan);
+            text-align: center;
+            max-width: 120px;
+            font-weight: 700;
+        }
+
+        /* Hover Reveals / Tooltips */
+        .tooltip-trigger {
+            position: relative;
+            color: var(--neon-cyan);
+            font-weight: 700;
+            border-bottom: 2px dotted var(--neon-cyan);
+            cursor: help;
+            transition: all 0.3s;
+        }
+
+        .tooltip-trigger:hover {
+            color: var(--neon-pink);
+            border-bottom-color: var(--neon-pink);
+        }
+
+        .tooltip-content {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 15px;
+            padding: 1.5rem;
+            min-width: 250px;
+            max-width: 350px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.6);
+        }
+
+        .tooltip-trigger:hover .tooltip-content {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-20px);
+        }
+
+        .tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 10px solid transparent;
+            border-top-color: var(--neon-cyan);
+        }
+
+        .tooltip-portrait {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan));
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 0 30px var(--neon-purple);
+        }
+
+        .tooltip-text {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        /* Hidden/Corrupted Text */
+        .reveal-text {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .reveal-text.corrupted {
+            color: transparent;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: glitch 0.3s infinite;
+        }
+
+        .reveal-text.corrupted::before {
+            content: '█████████████';
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: var(--neon-pink);
+        }
+
+        .reveal-text.revealed {
+            animation: revealGlitch 0.5s;
+        }
+
+        @keyframes glitch {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes revealGlitch {
+            0%, 20%, 40%, 60%, 80% { opacity: 0; }
+            10%, 30%, 50%, 70%, 90% { opacity: 1; }
+            100% { opacity: 1; }
         }
 
         /* List sections */
@@ -336,8 +716,51 @@
             font-size: 1.5rem;
         }
 
+        /* Easter Egg - Secret Lore */
+        #secret-lore {
+            display: none;
+            background: rgba(255, 0, 110, 0.1);
+            border: 2px solid var(--neon-pink);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-top: 3rem;
+            animation: secretReveal 1s;
+        }
+
+        #secret-lore.revealed {
+            display: block;
+        }
+
+        @keyframes secretReveal {
+            0% { opacity: 0; transform: scale(0.8) rotateX(90deg); }
+            100% { opacity: 1; transform: scale(1) rotateX(0deg); }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            nav ul {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.95);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 3rem;
+                transition: right 0.3s;
+                border-left: 2px solid var(--neon-purple);
+            }
+
+            nav ul.active {
+                right: 0;
+            }
+
             .page-title {
                 font-size: 2rem;
             }
@@ -353,19 +776,62 @@
             main {
                 padding: 120px 1.5rem 3rem;
             }
+
+            .page-nav-btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+
+            .page-counter {
+                font-size: 0.9rem;
+            }
+
+            .timeline-points {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .timeline-line {
+                width: 4px;
+                height: 0%;
+                left: 50%;
+                top: 0;
+                transform: translateX(-50%);
+            }
+
+            @keyframes expandLine {
+                to { height: 100%; }
+            }
+
+            .tooltip-content {
+                position: fixed;
+                left: 50% !important;
+                top: 50% !important;
+                transform: translate(-50%, -50%) !important;
+            }
+
+            .tooltip-trigger:hover .tooltip-content {
+                transform: translate(-50%, -50%) !important;
+            }
         }
     </style>
 </head>
 <body>
+    <div id="scroll-progress"></div>
     <div id="grid-bg"></div>
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
 
     <header>
-        <a href="index.html" class="logo">KLYRA</a>
+        <a href="index.html" class="logo" id="logo-title">KLYRA</a>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
         <nav>
-            <ul>
+            <ul id="nav-menu">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="characters.html">Characters</a></li>
                 <li><a href="lore.html">Lore</a></li>
@@ -378,114 +844,509 @@
         <h1 class="page-title">The Lore</h1>
         <p class="page-subtitle">Uncover the mysteries of the Fractured Realm</p>
 
-        <!-- Before the Fracture -->
-        <div class="lore-section">
-            <h2 class="section-header">Before The Fracture</h2>
-            <div class="section-content">
-                <p>
-                    Klyra was a unified continent of seven prosperous kingdoms under the rule of the goddess-queen Kyraeth.
-                    Magic flowed naturally through ley lines connecting grand cities. Trade flourished, scholars advanced the
-                    arcane arts, and death was simply the end of one's journey.
-                </p>
-                <p>
-                    It was an age of progress and relative peace.
-                </p>
-            </div>
+        <button id="skip-typing">Skip Intro ⏭</button>
+
+        <!-- Page Navigation -->
+        <div class="page-navigation">
+            <button class="page-nav-btn" id="prev-page" disabled>◀ Previous</button>
+            <span class="page-counter"><span id="current-page">1</span>/<span id="total-pages">6</span></span>
+            <button class="page-nav-btn" id="next-page">Next ▶</button>
         </div>
 
-        <!-- The Fracture Event -->
-        <div class="lore-section">
-            <h2 class="section-header">The Fracture Event</h2>
-            <div class="section-content">
-                <p>
-                    When Kyraeth's lover, the hero Dravos, was slain in battle, she refused to accept his death.
-                    Using forbidden rituals, she attempted to rewrite the fundamental law of mortality itself.
-                </p>
-                <p>
-                    The spell catastrophically failed, shattering not just the world but the concept of death itself.
-                    Kyraeth vanished in the chaos, and Klyra broke into fragments.
-                </p>
-            </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- The Curse of Resurrection -->
-        <div class="lore-section">
-            <h2 class="section-header">The Curse of Resurrection</h2>
-            <div class="section-content">
-                <p>
-                    The Fracture created an unintended consequence — anyone who dies within Klyra's bounds cannot truly perish.
-                    Souls are violently pulled back into physical form, forced to manifest again and again.
-                </p>
-
-                <div class="highlight-box">
-                    <p class="highlight-text">This curse affects everyone differently:</p>
-                </div>
-
-                <ul class="curse-list">
-                    <li>Some retain full memories of their deaths</li>
-                    <li>Others wake with only fragments</li>
-                    <li>A few lose pieces of themselves with each return</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Why You're Here -->
-        <div class="lore-section">
-            <h2 class="section-header">Why You're Here</h2>
-            <div class="section-content">
-                <p>
-                    You are Seekers — individuals drawn to Klyra from across dimensions and timelines by the pull of
-                    Kyraeth's broken magic. Some came willingly, seeking power or answers. Others were pulled through
-                    rifts involuntarily.
-                </p>
-                <p>
-                    All Seekers share one trait: <strong>the ability to manipulate the unstable magic that permeates the Fractured Realm.</strong>
-                </p>
-            </div>
-        </div>
-
-        <!-- Why You're Together -->
-        <div class="lore-section">
-            <h2 class="section-header">Why You're Together</h2>
-            <div class="section-content">
-                <p>
-                    The curse doesn't discriminate by time or origin. Seekers from different eras, different worlds,
-                    even different versions of the same timeline, manifest together in Klyra.
-                </p>
-                <p>
-                    A warrior from Klyra's golden age might find themselves alongside someone from a world that doesn't exist yet.
-                    The Fracture exists outside normal causality.
-                </p>
-            </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- The Shared Goal -->
-        <div class="lore-section">
-            <h2 class="section-header">The Shared Goal</h2>
-            <div class="section-content">
-                <p>Most Seekers pursue one of three paths:</p>
-
-                <ul class="paths-list">
-                    <li>Find Kyraeth's remaining power to escape the death loop</li>
-                    <li>Restore Klyra and break the curse for everyone</li>
-                    <li>Claim the fractured divinity for themselves</li>
-                </ul>
-
-                <div class="highlight-box">
-                    <p class="highlight-text">
-                        Some cooperate. Some compete. All are trapped until they succeed or give up trying.
+        <div id="book-container">
+            <!-- Page 1: Before the Fracture -->
+            <div class="lore-section active" data-page="1">
+                <h2 class="section-header">
+                    <span class="section-icon">▼</span>
+                    Before The Fracture
+                </h2>
+                <div class="section-content">
+                    <p>
+                        Klyra was a unified continent of seven prosperous kingdoms under the rule of the goddess-queen <span class="tooltip-trigger">Kyraeth<span class="tooltip-content">
+                            <div class="tooltip-portrait">👑</div>
+                            <div class="tooltip-text">
+                                <strong>Kyraeth, The Eternal Queen</strong><br>
+                                A divine being who ruled with wisdom and grace. Her power over life itself was unmatched, until tragedy struck.
+                            </div>
+                        </span></span>.
+                        Magic flowed naturally through ley lines connecting grand cities. Trade flourished, scholars advanced the
+                        arcane arts, and death was simply the end of one's journey.
+                    </p>
+                    <p>
+                        It was an age of progress and relative peace.
                     </p>
                 </div>
+            </div>
+
+            <!-- Page 2: The Fracture Event -->
+            <div class="lore-section" data-page="2">
+                <h2 class="section-header">
+                    <span class="section-icon">▼</span>
+                    The Fracture Event
+                </h2>
+                <div class="section-content">
+                    <div class="timeline-container">
+                        <div class="timeline">
+                            <div class="timeline-line"></div>
+                            <div class="timeline-points">
+                                <div class="timeline-point" data-scroll-to="1">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-label">Before<br>Peace</div>
+                                </div>
+                                <div class="timeline-point" data-scroll-to="2">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-label">The Event<br>Chaos</div>
+                                </div>
+                                <div class="timeline-point" data-scroll-to="3">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-label">After<br>Cursed</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p>
+                        When Kyraeth's lover, the hero <span class="tooltip-trigger">Dravos<span class="tooltip-content">
+                            <div class="tooltip-portrait">⚔️</div>
+                            <div class="tooltip-text">
+                                <strong>Dravos, The Fallen Hero</strong><br>
+                                A legendary warrior whose death sparked the end of the world. His love for Kyraeth was matched only by her desperation to bring him back.
+                            </div>
+                        </span></span>, was slain in battle, she refused to accept his death.
+                        Using forbidden rituals, she attempted to rewrite the fundamental law of mortality itself.
+                    </p>
+                    <p>
+                        The spell catastrophically failed, shattering not just the world but the concept of death itself.
+                        Kyraeth vanished in the chaos, and Klyra broke into <span class="reveal-text corrupted" data-revealed-text="infinite fragments, each existing in a different temporal state">fragments</span>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Page 3: The Curse of Resurrection -->
+            <div class="lore-section" data-page="3">
+                <h2 class="section-header">
+                    <span class="section-icon">▼</span>
+                    The Curse of Resurrection
+                </h2>
+                <div class="section-content">
+                    <p>
+                        The Fracture created an unintended consequence — anyone who dies within Klyra's bounds cannot truly perish.
+                        Souls are violently pulled back into physical form, forced to manifest again and again.
+                    </p>
+
+                    <div class="highlight-box">
+                        <p class="highlight-text">This curse affects everyone differently:</p>
+                    </div>
+
+                    <ul class="curse-list">
+                        <li>Some retain full memories of their deaths</li>
+                        <li>Others wake with only fragments</li>
+                        <li>A few lose pieces of themselves with each return</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Page 4: Why You're Here -->
+            <div class="lore-section" data-page="4">
+                <h2 class="section-header">
+                    <span class="section-icon">▼</span>
+                    Why You're Here
+                </h2>
+                <div class="section-content">
+                    <p>
+                        You are <span class="tooltip-trigger">Seekers<span class="tooltip-content">
+                            <div class="tooltip-portrait">🔮</div>
+                            <div class="tooltip-text">
+                                <strong>Current Seekers: <span id="player-count">∞</span></strong><br>
+                                Countless souls from infinite timelines, all drawn to this fractured realm in search of answers, power, or escape.
+                            </div>
+                        </span></span> — individuals drawn to Klyra from across dimensions and timelines by the pull of
+                        Kyraeth's broken magic. Some came willingly, seeking power or answers. Others were pulled through
+                        rifts involuntarily.
+                    </p>
+                    <p>
+                        All Seekers share one trait: <strong>the ability to manipulate the <span class="reveal-text corrupted" data-revealed-text="reality-warping unstable magic that permeates the Fractured Realm">unstable magic</span> that permeates the Fractured Realm.</strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Page 5: Why You're Together -->
+            <div class="lore-section" data-page="5">
+                <h2 class="section-header">
+                    <span class="section-icon">▼</span>
+                    Why You're Together
+                </h2>
+                <div class="section-content">
+                    <p>
+                        The curse doesn't discriminate by time or origin. Seekers from different eras, different worlds,
+                        even different versions of the same timeline, manifest together in Klyra.
+                    </p>
+                    <p>
+                        A warrior from Klyra's golden age might find themselves alongside someone from a world that doesn't exist yet.
+                        The Fracture exists <span class="reveal-text corrupted" data-revealed-text="outside normal causality, in a state of quantum superposition where all timelines collapse into one">outside normal causality</span>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Page 6: The Shared Goal -->
+            <div class="lore-section" data-page="6">
+                <h2 class="section-header">
+                    <span class="section-icon">▼</span>
+                    The Shared Goal
+                </h2>
+                <div class="section-content">
+                    <p>Most Seekers pursue one of three paths:</p>
+
+                    <ul class="paths-list">
+                        <li>Find Kyraeth's remaining power to escape the death loop</li>
+                        <li>Restore Klyra and break the curse for everyone</li>
+                        <li>Claim the fractured divinity for themselves</li>
+                    </ul>
+
+                    <div class="highlight-box">
+                        <p class="highlight-text">
+                            Some cooperate. Some compete. All are trapped until they succeed or give up trying.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secret Lore Easter Egg -->
+        <div id="secret-lore">
+            <h2 class="section-header">The Hidden Truth</h2>
+            <div class="section-content">
+                <p style="color: var(--neon-pink); font-weight: 700;">
+                    Kyraeth did not fail. She succeeded perfectly.
+                </p>
+                <p>
+                    The "accident" was intentional. Dravos wasn't just her lover — he was the anchor keeping her mortal.
+                    When he died, she used the ritual not to bring him back, but to ascend beyond godhood itself.
+                </p>
+                <p>
+                    The Seekers aren't trapped. They're batteries. Each death, each resurrection, feeds power into the fractured realm.
+                    Kyraeth is building something with that energy. Something that requires infinite suffering across infinite timelines.
+                </p>
+                <p style="color: var(--neon-cyan); font-weight: 700;">
+                    The only way out is to stop dying. But in a realm designed to kill you forever... that's impossible.
+                </p>
             </div>
         </div>
     </main>
 
     <script>
-        // Smooth scroll
+        // === MOBILE MENU ===
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('nav-menu');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Close menu when clicking a link
+        navMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+
+        // === SCROLL PROGRESS ===
+        const scrollProgress = document.getElementById('scroll-progress');
+
+        window.addEventListener('scroll', () => {
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollPercent = (scrollTop / (documentHeight - windowHeight)) * 100;
+            scrollProgress.style.width = scrollPercent + '%';
+        });
+
+        // === PARALLAX SCROLLING ===
+        window.addEventListener('scroll', () => {
+            const scrollY = window.pageYOffset;
+            const orbs = document.querySelectorAll('.orb');
+            const gridBg = document.getElementById('grid-bg');
+
+            orbs.forEach((orb, index) => {
+                const speed = 0.5 + (index * 0.2);
+                orb.style.transform = `translate(0, ${scrollY * speed}px)`;
+            });
+
+            gridBg.style.transform = `translateY(${scrollY * 0.3}px)`;
+        });
+
+        // === PAGE NAVIGATION ===
+        let currentPageNum = 1;
+        const totalPagesNum = 6;
+        const loreSections = document.querySelectorAll('.lore-section');
+        const prevBtn = document.getElementById('prev-page');
+        const nextBtn = document.getElementById('next-page');
+        const currentPageSpan = document.getElementById('current-page');
+
+        function showPage(pageNum) {
+            loreSections.forEach(section => {
+                section.classList.remove('active');
+                if (parseInt(section.dataset.page) === pageNum) {
+                    section.classList.add('active');
+                }
+            });
+
+            currentPageNum = pageNum;
+            currentPageSpan.textContent = pageNum;
+
+            prevBtn.disabled = pageNum === 1;
+            nextBtn.disabled = pageNum === totalPagesNum;
+
+            // Scroll to top of book container
+            document.getElementById('book-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentPageNum > 1) {
+                showPage(currentPageNum - 1);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentPageNum < totalPagesNum) {
+                showPage(currentPageNum + 1);
+            }
+        });
+
+        // === COLLAPSIBLE SECTIONS ===
+        const sectionHeaders = document.querySelectorAll('.section-header');
+
+        sectionHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                const isCollapsed = content.classList.contains('collapsed');
+
+                // Optional: Close all other sections
+                // Uncomment below to only allow one section open at a time
+                /*
+                document.querySelectorAll('.section-content').forEach(c => {
+                    c.classList.add('collapsed');
+                });
+                document.querySelectorAll('.section-header').forEach(h => {
+                    h.classList.add('collapsed');
+                });
+                */
+
+                if (isCollapsed) {
+                    content.classList.remove('collapsed');
+                    header.classList.remove('collapsed');
+                } else {
+                    content.classList.add('collapsed');
+                    header.classList.add('collapsed');
+                }
+            });
+        });
+
+        // === TYPING EFFECT ===
+        const hasSeenTyping = localStorage.getItem('klyra-lore-typing-seen');
+        const skipBtn = document.getElementById('skip-typing');
+        let typingInProgress = false;
+        let typingIntervals = [];
+
+        function typeText(element, text, speed = 30) {
+            return new Promise((resolve) => {
+                let i = 0;
+                element.innerHTML = '';
+                const cursor = document.createElement('span');
+                cursor.className = 'typing-cursor';
+                element.appendChild(cursor);
+
+                const interval = setInterval(() => {
+                    if (i < text.length) {
+                        cursor.before(text.charAt(i));
+                        i++;
+                    } else {
+                        setTimeout(() => {
+                            cursor.remove();
+                            clearInterval(interval);
+                            resolve();
+                        }, 500);
+                    }
+                }, speed);
+
+                typingIntervals.push(interval);
+            });
+        }
+
+        async function runTypingEffect() {
+            if (hasSeenTyping) return;
+
+            typingInProgress = true;
+            skipBtn.classList.add('visible');
+
+            const firstSection = document.querySelector('.lore-section[data-page="1"] .section-content');
+            const paragraphs = firstSection.querySelectorAll('p');
+
+            for (let p of paragraphs) {
+                const originalText = p.textContent;
+                await typeText(p, originalText, 20);
+            }
+
+            typingInProgress = false;
+            skipBtn.classList.remove('visible');
+            localStorage.setItem('klyra-lore-typing-seen', 'true');
+        }
+
+        skipBtn.addEventListener('click', () => {
+            typingIntervals.forEach(interval => clearInterval(interval));
+            typingIntervals = [];
+
+            const firstSection = document.querySelector('.lore-section[data-page="1"] .section-content');
+            const paragraphs = firstSection.querySelectorAll('p');
+            paragraphs.forEach(p => {
+                const cursor = p.querySelector('.typing-cursor');
+                if (cursor) cursor.remove();
+            });
+
+            typingInProgress = false;
+            skipBtn.classList.remove('visible');
+            localStorage.setItem('klyra-lore-typing-seen', 'true');
+        });
+
+        // Start typing effect after a brief delay
+        setTimeout(runTypingEffect, 500);
+
+        // === INTERACTIVE TIMELINE ===
+        const timelinePoints = document.querySelectorAll('.timeline-point');
+
+        timelinePoints.forEach(point => {
+            point.addEventListener('click', () => {
+                const targetPage = parseInt(point.dataset.scrollTo);
+                showPage(targetPage);
+            });
+        });
+
+        // === HIDDEN LORE FRAGMENTS ===
+        const revealTexts = document.querySelectorAll('.reveal-text');
+        const revealCounts = {};
+
+        // Load revealed state from localStorage
+        revealTexts.forEach((text, index) => {
+            const isRevealed = localStorage.getItem(`klyra-reveal-${index}`);
+            if (isRevealed) {
+                text.classList.remove('corrupted');
+                text.classList.add('revealed');
+                text.textContent = text.dataset.revealedText;
+            } else {
+                revealCounts[index] = 0;
+            }
+        });
+
+        // Click to reveal
+        revealTexts.forEach((text, index) => {
+            text.addEventListener('click', () => {
+                if (text.classList.contains('corrupted')) {
+                    text.classList.remove('corrupted');
+                    text.classList.add('revealed');
+                    text.textContent = text.dataset.revealedText;
+                    localStorage.setItem(`klyra-reveal-${index}`, 'true');
+                }
+            });
+        });
+
+        // Scroll past 3 times to auto-reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const index = Array.from(revealTexts).indexOf(entry.target);
+                    if (entry.target.classList.contains('corrupted')) {
+                        revealCounts[index] = (revealCounts[index] || 0) + 1;
+
+                        if (revealCounts[index] >= 3) {
+                            setTimeout(() => {
+                                entry.target.classList.remove('corrupted');
+                                entry.target.classList.add('revealed');
+                                entry.target.textContent = entry.target.dataset.revealedText;
+                                localStorage.setItem(`klyra-reveal-${index}`, 'true');
+                            }, 300);
+                        }
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
+
+        revealTexts.forEach(text => observer.observe(text));
+
+        // === EASTER EGGS ===
+
+        // Konami Code: ↑ ↑ ↓ ↓ ← → ← → B A
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiIndex = 0;
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    // Reveal all hidden lore
+                    revealTexts.forEach((text, index) => {
+                        if (text.classList.contains('corrupted')) {
+                            text.classList.remove('corrupted');
+                            text.classList.add('revealed');
+                            text.textContent = text.dataset.revealedText;
+                            localStorage.setItem(`klyra-reveal-${index}`, 'true');
+                        }
+                    });
+
+                    // Show secret lore
+                    document.getElementById('secret-lore').classList.add('revealed');
+
+                    // Visual effect
+                    document.body.style.animation = 'glitch 0.5s';
+                    setTimeout(() => {
+                        document.body.style.animation = '';
+                    }, 500);
+
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        });
+
+        // Click title 7 times for secret lore
+        const logoTitle = document.getElementById('logo-title');
+        let titleClicks = 0;
+        let titleClickTimer = null;
+
+        logoTitle.addEventListener('click', (e) => {
+            e.preventDefault();
+            titleClicks++;
+
+            clearTimeout(titleClickTimer);
+            titleClickTimer = setTimeout(() => {
+                titleClicks = 0;
+            }, 2000);
+
+            if (titleClicks >= 7) {
+                document.getElementById('secret-lore').classList.add('revealed');
+                document.getElementById('secret-lore').scrollIntoView({ behavior: 'smooth' });
+                titleClicks = 0;
+            }
+        });
+
+        // Console Easter Egg
+        console.log('%c🔮 KLYRA LORE FRAGMENT DETECTED 🔮', 'color: #8b5cf6; font-size: 20px; font-weight: bold;');
+        console.log('%cHint: The Konami Code unlocks all secrets...', 'color: #06b6d4; font-size: 14px;');
+        console.log('%cHint: Click the logo 7 times for hidden lore...', 'color: #ff006e; font-size: 14px;');
+        console.log('%cHint: Some text reveals itself after you scroll past it multiple times...', 'color: #10b981; font-size: 14px;');
+
+        // === DYNAMIC PLAYER COUNT (Fun animation) ===
+        const playerCountElement = document.getElementById('player-count');
+        let count = 0;
+        setInterval(() => {
+            count = Math.floor(Math.random() * 9999) + 1000;
+            playerCountElement.textContent = count.toLocaleString();
+        }, 3000);
+
+        // === SMOOTH SCROLL ===
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
