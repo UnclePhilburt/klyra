@@ -22,18 +22,36 @@ class Player {
 
         const classConfig = GameConfig.CLASSES[this.class];
 
-        // Create sprite (using a circle for now)
-        this.sprite = this.scene.add.circle(x, y, 12, classConfig.color);
-        this.scene.physics.add.existing(this.sprite);
+        // Check if sprite sheet exists for this character
+        if (this.scene.textures.exists(this.class)) {
+            // Use sprite sheet
+            this.sprite = this.scene.add.sprite(x, y, this.class);
+            this.sprite.setScale(0.5); // Scale down to fit tile
+            this.scene.physics.add.existing(this.sprite);
 
-        // Add glow effect
-        this.glow = this.scene.add.circle(x, y, 14, classConfig.color, 0.3);
+            // Play idle animation
+            if (this.scene.anims.exists(`${this.class}_idle`)) {
+                this.sprite.play(`${this.class}_idle`);
+            }
 
-        // Add weapon indicator
-        this.weapon = this.scene.add.rectangle(x + 15, y, 20, 4, 0xffffff);
-        this.weapon.setOrigin(0, 0.5);
+            this.usingSprite = true;
+        } else {
+            // Fallback to circle placeholder
+            this.sprite = this.scene.add.circle(x, y, 12, classConfig.color);
+            this.scene.physics.add.existing(this.sprite);
 
-        this.container = this.scene.add.container(0, 0, [this.glow, this.sprite, this.weapon]);
+            // Add glow effect
+            this.glow = this.scene.add.circle(x, y, 14, classConfig.color, 0.3);
+
+            // Add weapon indicator
+            this.weapon = this.scene.add.rectangle(x + 15, y, 20, 4, 0xffffff);
+            this.weapon.setOrigin(0, 0.5);
+
+            this.container = this.scene.add.container(0, 0, [this.glow, this.sprite, this.weapon]);
+            this.usingSprite = false;
+        }
+
+        this.currentDirection = 'down';
     }
 
     createNameTag() {
@@ -58,10 +76,27 @@ class Player {
 
         body.setVelocity(velocityX * speed, velocityY * speed);
 
-        // Update weapon rotation to face movement direction
+        // Update animations and direction
         if (velocityX !== 0 || velocityY !== 0) {
-            const angle = Math.atan2(velocityY, velocityX);
-            this.weapon.setRotation(angle);
+            // Determine direction for animation
+            let direction = 'down';
+            if (Math.abs(velocityX) > Math.abs(velocityY)) {
+                direction = velocityX > 0 ? 'right' : 'left';
+            } else {
+                direction = velocityY > 0 ? 'down' : 'up';
+            }
+
+            // Play walking animation if using sprite
+            if (this.usingSprite && this.scene.anims.exists(`${this.class}_walk_${direction}`)) {
+                if (this.currentDirection !== direction) {
+                    this.sprite.play(`${this.class}_walk_${direction}`);
+                    this.currentDirection = direction;
+                }
+            } else if (!this.usingSprite) {
+                // Update weapon rotation for circle placeholder
+                const angle = Math.atan2(velocityY, velocityX);
+                this.weapon.setRotation(angle);
+            }
 
             // Send position to server (throttled)
             const now = Date.now();
@@ -72,6 +107,13 @@ class Player {
                     x: Math.floor(this.sprite.x / tileSize),
                     y: Math.floor(this.sprite.y / tileSize)
                 });
+            }
+        } else {
+            // Play idle animation when stopped
+            if (this.usingSprite && this.scene.anims.exists(`${this.class}_idle`)) {
+                if (!this.sprite.anims.isPlaying || this.sprite.anims.currentAnim.key !== `${this.class}_idle`) {
+                    this.sprite.play(`${this.class}_idle`);
+                }
             }
         }
 
@@ -94,25 +136,37 @@ class Player {
     }
 
     attack(targetX, targetY) {
-        // Point weapon at target
-        const angle = Phaser.Math.Angle.Between(
-            this.sprite.x,
-            this.sprite.y,
-            targetX,
-            targetY
-        );
-        this.weapon.setRotation(angle);
+        if (this.usingSprite && this.scene.anims.exists(`${this.class}_attack`)) {
+            // Play attack animation
+            this.sprite.play(`${this.class}_attack`);
 
-        // Attack animation
-        this.scene.tweens.add({
-            targets: this.weapon,
-            scaleX: 1.5,
-            scaleY: 1.5,
-            duration: 100,
-            yoyo: true
-        });
+            // Return to idle after attack
+            this.sprite.once('animationcomplete', () => {
+                if (this.scene.anims.exists(`${this.class}_idle`)) {
+                    this.sprite.play(`${this.class}_idle`);
+                }
+            });
+        } else if (!this.usingSprite) {
+            // Point weapon at target for circle placeholder
+            const angle = Phaser.Math.Angle.Between(
+                this.sprite.x,
+                this.sprite.y,
+                targetX,
+                targetY
+            );
+            this.weapon.setRotation(angle);
 
-        // Flash effect
+            // Attack animation
+            this.scene.tweens.add({
+                targets: this.weapon,
+                scaleX: 1.5,
+                scaleY: 1.5,
+                duration: 100,
+                yoyo: true
+            });
+        }
+
+        // Flash effect for all sprite types
         this.scene.tweens.add({
             targets: this.sprite,
             alpha: 0.5,
@@ -156,21 +210,23 @@ class Player {
     }
 
     updateElements() {
-        // Update glow position
-        this.glow.setPosition(this.sprite.x, this.sprite.y);
+        if (!this.usingSprite) {
+            // Update glow position for circle placeholder
+            this.glow.setPosition(this.sprite.x, this.sprite.y);
 
-        // Update weapon position
-        const angle = this.weapon.rotation;
-        const distance = 15;
-        this.weapon.setPosition(
-            this.sprite.x + Math.cos(angle) * distance,
-            this.sprite.y + Math.sin(angle) * distance
-        );
+            // Update weapon position
+            const angle = this.weapon.rotation;
+            const distance = 15;
+            this.weapon.setPosition(
+                this.sprite.x + Math.cos(angle) * distance,
+                this.sprite.y + Math.sin(angle) * distance
+            );
+        }
 
-        // Update name tag and health bar
-        this.nameTag.setPosition(this.sprite.x, this.sprite.y - 25);
-        this.healthBarBg.setPosition(this.sprite.x, this.sprite.y - 15);
-        this.healthBar.setPosition(this.sprite.x - 20 + (40 * (this.health / this.maxHealth) / 2), this.sprite.y - 15);
+        // Update name tag and health bar (for all sprite types)
+        this.nameTag.setPosition(this.sprite.x, this.sprite.y - 35);
+        this.healthBarBg.setPosition(this.sprite.x, this.sprite.y - 25);
+        this.healthBar.setPosition(this.sprite.x - 20 + (40 * (this.health / this.maxHealth) / 2), this.sprite.y - 25);
 
         this.updateHealthBar();
     }

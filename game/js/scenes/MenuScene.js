@@ -82,11 +82,25 @@ class MenuScene extends Phaser.Scene {
             }
 
             const classConfig = GameConfig.CLASSES[className];
-            const button = this.add.rectangle(x, y, 200, 60, 0x222222);
+            const button = this.add.rectangle(x, y, 200, 70, 0x222222);
             button.setStrokeStyle(2, classConfig.color);
             button.setInteractive({ useHandCursor: true });
 
-            const text = this.add.text(x, y, classConfig.name, {
+            // Character preview sprite (avatar)
+            let avatar;
+            if (this.textures.exists(className)) {
+                // Use actual sprite if available
+                avatar = this.add.sprite(x - 60, y, className);
+                avatar.setScale(0.8);
+                if (this.anims.exists(`${className}_idle`)) {
+                    avatar.play(`${className}_idle`);
+                }
+            } else {
+                // Fallback to colored circle
+                avatar = this.add.circle(x - 60, y, 20, classConfig.color);
+            }
+
+            const text = this.add.text(x + 10, y, classConfig.name, {
                 font: '16px monospace',
                 fill: Phaser.Display.Color.IntegerToRGB(classConfig.color).rgba
             });
@@ -106,7 +120,7 @@ class MenuScene extends Phaser.Scene {
                 this.selectClass(className);
             });
 
-            this.classButtons.push({ button, text, className, color: classConfig.color });
+            this.classButtons.push({ button, text, avatar, className, color: classConfig.color });
         });
 
         // Difficulty Selection
