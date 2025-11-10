@@ -7,7 +7,7 @@
     <title>KLYRA - Multiplayer Roguelike</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -16,27 +16,29 @@
         }
 
         :root {
-            --primary: #00ff00;
-            --secondary: #ff00ff;
-            --accent: #00ffff;
-            --bg-dark: #0a0a0a;
-            --bg-grid: #1a1a1a;
-            --text: #00ff00;
-            --glow: rgba(0, 255, 0, 0.5);
+            --neon-pink: #FF006E;
+            --neon-purple: #8338EC;
+            --neon-blue: #3A86FF;
+            --neon-cyan: #06FFF0;
+            --neon-green: #06FF7A;
+            --neon-yellow: #FFD60A;
+            --neon-orange: #FF5400;
+            --dark: #0F0F1E;
+            --darker: #050508;
+            --light: #FFFFFF;
         }
 
         body {
-            font-family: 'VT323', monospace;
-            background: var(--bg-dark);
-            color: var(--text);
+            font-family: 'Space Mono', monospace;
+            background: radial-gradient(ellipse at top, #1a1a3e 0%, #0F0F1E 50%, #050508 100%);
+            color: var(--light);
             line-height: 1.6;
             overflow-x: hidden;
             position: relative;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* CRT Screen Effect */
+        /* Subtle scanlines */
         body::before {
             content: '';
             position: fixed;
@@ -44,88 +46,78 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background:
-                repeating-linear-gradient(
-                    0deg,
-                    rgba(0, 0, 0, 0.15),
-                    rgba(0, 0, 0, 0.15) 1px,
-                    transparent 1px,
-                    transparent 2px
-                );
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.05),
+                rgba(0, 0, 0, 0.05) 1px,
+                transparent 1px,
+                transparent 2px
+            );
             pointer-events: none;
             z-index: 9999;
-            animation: scanlines 8s linear infinite;
+            opacity: 0.5;
         }
 
-        /* CRT Curve Effect */
-        body::after {
-            content: '';
+        /* Animated gradient orbs */
+        .orb {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
-            pointer-events: none;
-            z-index: 9998;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 20s ease-in-out infinite;
+            z-index: 0;
         }
 
-        @keyframes scanlines {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(10px); }
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: var(--neon-purple);
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
         }
 
-        /* Flickering Effect */
-        @keyframes flicker {
-            0% { opacity: 0.97; }
-            50% { opacity: 1; }
-            100% { opacity: 0.97; }
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: var(--neon-blue);
+            top: 50%;
+            right: -150px;
+            animation-delay: 5s;
         }
 
-        body {
-            animation: flicker 0.15s infinite alternate;
+        .orb-3 {
+            width: 450px;
+            height: 450px;
+            background: var(--neon-pink);
+            bottom: -200px;
+            left: 30%;
+            animation-delay: 10s;
         }
 
-        /* Glitch Effect */
-        @keyframes glitch {
-            0% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
-            100% { transform: translate(0); }
-        }
-
-        /* Pixel Grid Background */
-        .pixel-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image:
-                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
-            background-size: 20px 20px;
-            z-index: -1;
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, 100px) scale(1.1); }
+            66% { transform: translate(-50px, 50px) scale(0.9); }
         }
 
         /* Header */
         header {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 1rem 0;
+            background: rgba(15, 15, 30, 0.8);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 1.5rem 0;
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
-            border-bottom: 3px solid var(--primary);
-            box-shadow: 0 0 20px var(--glow);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         nav {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 3rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -133,38 +125,37 @@
 
         .logo {
             font-family: 'Press Start 2P', cursive;
-            font-size: 1.5rem;
-            color: var(--primary);
-            text-shadow:
-                0 0 10px var(--glow),
-                0 0 20px var(--glow),
-                0 0 30px var(--glow);
-            animation: pulse 2s ease-in-out infinite;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple), var(--neon-blue), var(--neon-cyan));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientFlow 6s ease infinite;
+            letter-spacing: 2px;
         }
 
-        @keyframes pulse {
-            0%, 100% { text-shadow: 0 0 10px var(--glow), 0 0 20px var(--glow); }
-            50% { text-shadow: 0 0 20px var(--glow), 0 0 30px var(--glow), 0 0 40px var(--glow); }
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         nav ul {
             list-style: none;
             display: flex;
-            gap: 2rem;
+            gap: 3rem;
         }
 
         nav a {
-            font-family: 'Press Start 2P', cursive;
-            color: var(--text);
+            font-family: 'Space Mono', monospace;
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
-            font-size: 0.8rem;
-            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-        }
-
-        nav a:hover {
-            color: var(--accent);
-            text-shadow: 0 0 10px var(--accent);
         }
 
         nav a::after {
@@ -174,8 +165,12 @@
             left: 0;
             width: 0;
             height: 2px;
-            background: var(--accent);
-            transition: width 0.3s;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        nav a:hover {
+            color: var(--light);
         }
 
         nav a:hover::after {
@@ -185,82 +180,70 @@
         /* Hero Section */
         .hero {
             margin-top: 80px;
-            padding: 6rem 2rem;
+            padding: 8rem 3rem 6rem;
             text-align: center;
-            min-height: 90vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             position: relative;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            height: 80%;
-            background: radial-gradient(circle, rgba(0, 255, 0, 0.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-        }
-
-        @keyframes rotate {
-            from { transform: translate(-50%, -50%) rotate(0deg); }
-            to { transform: translate(-50%, -50%) rotate(360deg); }
+            z-index: 1;
         }
 
         .hero h1 {
             font-family: 'Press Start 2P', cursive;
-            font-size: 4rem;
+            font-size: 5rem;
             margin-bottom: 2rem;
-            color: var(--primary);
-            text-shadow:
-                3px 3px 0 var(--secondary),
-                6px 6px 0 var(--accent),
-                0 0 20px var(--glow);
-            animation: glitchTitle 5s infinite;
-            position: relative;
-            z-index: 1;
+            background: linear-gradient(135deg, var(--neon-pink) 0%, var(--neon-purple) 25%, var(--neon-blue) 50%, var(--neon-cyan) 75%, var(--neon-green) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientFlow 8s linear infinite;
+            letter-spacing: 8px;
+            filter: drop-shadow(0 0 40px rgba(131, 56, 236, 0.6));
         }
 
-        @keyframes glitchTitle {
-            0%, 90%, 100% { transform: translate(0); }
-            91% { transform: translate(-5px, -5px); }
-            92% { transform: translate(5px, 5px); }
-            93% { transform: translate(-3px, 3px); }
-            94% { transform: translate(3px, -3px); }
+        .subtitle {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
 
         .hero p {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             max-width: 700px;
             margin: 0 auto 3rem;
-            color: var(--text);
-            text-shadow: 0 0 5px var(--glow);
+            color: rgba(255, 255, 255, 0.85);
             line-height: 1.8;
-            position: relative;
-            z-index: 1;
         }
 
         .cta-button {
-            font-family: 'Press Start 2P', cursive;
+            font-family: 'Space Mono', monospace;
             display: inline-block;
-            padding: 1.5rem 3rem;
-            background: var(--bg-dark);
-            color: var(--primary);
+            padding: 1.2rem 3rem;
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple), var(--neon-blue));
+            background-size: 200% auto;
+            color: white;
             text-decoration: none;
-            border: 4px solid var(--primary);
+            border-radius: 50px;
             font-size: 1rem;
-            transition: all 0.3s;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow:
-                0 0 10px var(--glow),
-                inset 0 0 10px rgba(0, 255, 0, 0.1);
+                0 10px 40px rgba(255, 0, 110, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            animation: buttonPulse 3s ease-in-out infinite;
             position: relative;
             overflow: hidden;
-            z-index: 1;
         }
 
         .cta-button::before {
@@ -270,53 +253,89 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: var(--primary);
-            transition: left 0.3s;
-            z-index: -1;
-        }
-
-        .cta-button:hover {
-            color: var(--bg-dark);
-            box-shadow:
-                0 0 20px var(--glow),
-                0 0 30px var(--glow);
-            transform: scale(1.05);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
         }
 
         .cta-button:hover::before {
-            left: 0;
+            left: 100%;
+        }
+
+        @keyframes buttonPulse {
+            0%, 100% {
+                background-position: 0% center;
+                box-shadow: 0 10px 40px rgba(255, 0, 110, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            }
+            50% {
+                background-position: 100% center;
+                box-shadow: 0 10px 50px rgba(58, 134, 255, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            }
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 20px 60px rgba(255, 0, 110, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .cta-button:active {
-            transform: scale(0.95);
+            transform: translateY(-1px);
         }
 
-        /* ASCII Art Decoration */
-        .ascii-art {
-            font-family: 'VT323', monospace;
-            color: var(--primary);
-            opacity: 0.3;
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 5rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem 3rem;
+            min-width: 140px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-box:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
             font-size: 0.8rem;
-            line-height: 1;
-            position: absolute;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 0.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 700;
         }
 
         /* Features Section */
         .features {
-            padding: 6rem 2rem;
-            background: rgba(0, 0, 0, 0.5);
-            border-top: 3px solid var(--primary);
-            border-bottom: 3px solid var(--primary);
+            padding: 8rem 3rem;
+            position: relative;
+            z-index: 1;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -324,187 +343,158 @@
             font-family: 'Press Start 2P', cursive;
             text-align: center;
             font-size: 2.5rem;
-            margin-bottom: 4rem;
-            color: var(--secondary);
-            text-shadow:
-                2px 2px 0 var(--primary),
-                4px 4px 0 var(--accent),
-                0 0 20px rgba(255, 0, 255, 0.5);
+            margin-bottom: 5rem;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 4px;
         }
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 2rem;
         }
 
         .feature-card {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 2rem;
-            border: 3px solid var(--primary);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            transition: all 0.3s;
-            box-shadow: 0 0 10px var(--glow);
+            overflow: hidden;
         }
 
         .feature-card::before {
             content: '';
             position: absolute;
-            top: -3px;
-            left: -3px;
-            right: -3px;
-            bottom: -3px;
-            background: var(--primary);
-            z-index: -1;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple), var(--neon-blue), var(--neon-cyan));
+            background-size: 200% auto;
+            animation: gradientFlow 3s linear infinite;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.5s;
         }
 
         .feature-card:hover {
-            transform: translate(-5px, -5px);
-            box-shadow:
-                5px 5px 0 var(--secondary),
-                0 0 20px var(--glow);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(131, 56, 236, 0.3);
         }
 
         .feature-card:hover::before {
-            opacity: 0.1;
+            opacity: 1;
         }
 
         .feature-icon {
             font-size: 3rem;
-            margin-bottom: 1rem;
-            filter:
-                drop-shadow(0 0 5px var(--primary))
-                drop-shadow(0 0 10px var(--primary));
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            filter: grayscale(0);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.2) rotate(-5deg);
         }
 
         .feature-card h3 {
             font-family: 'Press Start 2P', cursive;
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            color: var(--accent);
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            color: var(--light);
+            letter-spacing: 1px;
         }
 
         .feature-card p {
-            font-size: 1.3rem;
-            color: var(--text);
-            line-height: 1.6;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
         }
 
         /* About Section */
         .about {
-            padding: 6rem 2rem;
+            padding: 8rem 3rem;
             position: relative;
+            z-index: 1;
         }
 
         .about-content {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             text-align: center;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 3rem;
-            border: 3px dashed var(--primary);
-            box-shadow: 0 0 30px var(--glow);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            padding: 4rem;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .about-content h2 {
             font-family: 'Press Start 2P', cursive;
             font-size: 2rem;
-            margin-bottom: 2rem;
-            color: var(--secondary);
-            text-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 3px;
         }
 
         .about-content p {
-            font-size: 1.4rem;
-            color: var(--text);
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
             margin-bottom: 1.5rem;
-            line-height: 1.8;
-        }
-
-        /* Stats Display */
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 3rem;
-            flex-wrap: wrap;
-            gap: 2rem;
-        }
-
-        .stat-box {
-            font-family: 'Press Start 2P', cursive;
-            background: rgba(0, 0, 0, 0.8);
-            border: 3px solid var(--accent);
-            padding: 1.5rem;
-            text-align: center;
-            min-width: 150px;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            color: var(--primary);
-            text-shadow: 0 0 10px var(--glow);
-        }
-
-        .stat-label {
-            font-size: 0.7rem;
-            color: var(--accent);
-            margin-top: 0.5rem;
+            line-height: 2;
         }
 
         /* Footer */
         footer {
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(5, 5, 8, 0.95);
+            backdrop-filter: blur(20px);
             text-align: center;
-            padding: 2rem;
-            border-top: 3px solid var(--primary);
-            box-shadow: 0 0 20px var(--glow);
+            padding: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
         }
 
         footer p {
-            font-family: 'Press Start 2P', cursive;
-            color: var(--text);
-            font-size: 0.8rem;
-            text-shadow: 0 0 5px var(--glow);
+            font-family: 'Space Mono', monospace;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
         }
-
-        /* Pixel Corners */
-        .pixel-corner {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--primary);
-        }
-
-        .pixel-corner.tl { top: -3px; left: -3px; border-right: none; border-bottom: none; }
-        .pixel-corner.tr { top: -3px; right: -3px; border-left: none; border-bottom: none; }
-        .pixel-corner.bl { bottom: -3px; left: -3px; border-right: none; border-top: none; }
-        .pixel-corner.br { bottom: -3px; right: -3px; border-left: none; border-top: none; }
 
         /* Responsive */
         @media (max-width: 768px) {
             .hero h1 {
-                font-size: 2rem;
+                font-size: 2.5rem;
+                letter-spacing: 3px;
             }
 
             .hero p {
-                font-size: 1.2rem;
+                font-size: 1.1rem;
             }
 
             .cta-button {
-                font-size: 0.8rem;
+                font-size: 0.9rem;
                 padding: 1rem 2rem;
             }
 
             nav ul {
-                gap: 1rem;
+                gap: 1.5rem;
             }
 
             nav a {
-                font-size: 0.6rem;
+                font-size: 0.75rem;
             }
 
             .section-title {
@@ -518,123 +508,90 @@
             .logo {
                 font-size: 1rem;
             }
-        }
 
-        /* Color Scheme Variants */
-        .color-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1001;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.7rem;
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            box-shadow: 0 0 10px var(--glow);
-        }
+            nav {
+                padding: 0 1.5rem;
+            }
 
-        .color-toggle:hover {
-            background: var(--primary);
-            color: var(--bg-dark);
+            .hero, .features, .about {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="pixel-bg"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
 
     <header>
         <nav>
             <div class="logo">KLYRA</div>
             <ul>
-                <li><a href="#home">HOME</a></li>
-                <li><a href="#features">FEATURES</a></li>
-                <li><a href="#about">ABOUT</a></li>
-                <li><a href="#play">PLAY</a></li>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#play">Play</a></li>
             </ul>
         </nav>
     </header>
 
     <section id="home" class="hero">
-        <h1>[ KLYRA ]</h1>
-        <p>>>> EMBARK ON AN EPIC MULTIPLAYER ROGUELIKE ADVENTURE. TEAM UP WITH FRIENDS, BATTLE FIERCE ENEMIES, AND CONQUER PROCEDURALLY GENERATED DUNGEONS IN THIS THRILLING COOPERATIVE EXPERIENCE.</p>
-        <a href="#play" class="cta-button">> START_GAME &lt;</a>
+        <div class="subtitle">Multiplayer Roguelike</div>
+        <h1>KLYRA</h1>
+        <p>Embark on an epic multiplayer roguelike adventure. Team up with friends, battle fierce enemies, and conquer procedurally generated dungeons in this thrilling cooperative experience.</p>
+        <a href="#play" class="cta-button">Start Adventure</a>
 
         <div class="stats">
             <div class="stat-box">
                 <div class="stat-number">∞</div>
-                <div class="stat-label">DUNGEONS</div>
+                <div class="stat-label">Dungeons</div>
             </div>
             <div class="stat-box">
                 <div class="stat-number">4</div>
-                <div class="stat-label">PLAYERS</div>
+                <div class="stat-label">Players</div>
             </div>
             <div class="stat-box">
                 <div class="stat-number">1</div>
-                <div class="stat-label">LIFE</div>
+                <div class="stat-label">Life</div>
             </div>
         </div>
     </section>
 
     <section id="features" class="features">
         <div class="container">
-            <h2 class="section-title">[ FEATURES ]</h2>
+            <h2 class="section-title">Features</h2>
             <div class="features-grid">
                 <div class="feature-card">
-                    <div class="pixel-corner tl"></div>
-                    <div class="pixel-corner tr"></div>
-                    <div class="pixel-corner bl"></div>
-                    <div class="pixel-corner br"></div>
                     <div class="feature-icon">🎮</div>
-                    <h3>MULTIPLAYER_CO-OP</h3>
-                    <p>> Team up with friends online and coordinate your strategies to overcome challenging dungeons together.</p>
+                    <h3>Multiplayer Co-op</h3>
+                    <p>Team up with friends online and coordinate your strategies to overcome challenging dungeons together.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="pixel-corner tl"></div>
-                    <div class="pixel-corner tr"></div>
-                    <div class="pixel-corner bl"></div>
-                    <div class="pixel-corner br"></div>
                     <div class="feature-icon">🗺️</div>
-                    <h3>PROC_GENERATION</h3>
-                    <p>> Every playthrough is unique with randomly generated dungeons, enemies, and loot. No two runs are ever the same.</p>
+                    <h3>Procedural Generation</h3>
+                    <p>Every playthrough is unique with randomly generated dungeons, enemies, and loot. No two runs are ever the same.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="pixel-corner tl"></div>
-                    <div class="pixel-corner tr"></div>
-                    <div class="pixel-corner bl"></div>
-                    <div class="pixel-corner br"></div>
                     <div class="feature-icon">⚔️</div>
-                    <h3>TACTICAL_COMBAT</h3>
-                    <p>> Master turn-based combat with strategic positioning, abilities, and team coordination to defeat powerful foes.</p>
+                    <h3>Tactical Combat</h3>
+                    <p>Master turn-based combat with strategic positioning, abilities, and team coordination to defeat powerful foes.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="pixel-corner tl"></div>
-                    <div class="pixel-corner tr"></div>
-                    <div class="pixel-corner bl"></div>
-                    <div class="pixel-corner br"></div>
                     <div class="feature-icon">💎</div>
-                    <h3>RICH_LOOT_SYSTEM</h3>
-                    <p>> Discover legendary weapons, armor, and artifacts with unique properties to customize your playstyle.</p>
+                    <h3>Rich Loot System</h3>
+                    <p>Discover legendary weapons, armor, and artifacts with unique properties to customize your playstyle.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="pixel-corner tl"></div>
-                    <div class="pixel-corner tr"></div>
-                    <div class="pixel-corner bl"></div>
-                    <div class="pixel-corner br"></div>
                     <div class="feature-icon">🎭</div>
-                    <h3>MULTIPLE_CLASSES</h3>
-                    <p>> Choose from diverse character classes, each with unique abilities and playstyles to master.</p>
+                    <h3>Multiple Classes</h3>
+                    <p>Choose from diverse character classes, each with unique abilities and playstyles to master.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="pixel-corner tl"></div>
-                    <div class="pixel-corner tr"></div>
-                    <div class="pixel-corner bl"></div>
-                    <div class="pixel-corner br"></div>
                     <div class="feature-icon">🔄</div>
-                    <h3>PERMANENT_PROG</h3>
-                    <p>> Unlock new abilities and upgrades that persist between runs, making each attempt stronger than the last.</p>
+                    <h3>Permanent Progression</h3>
+                    <p>Unlock new abilities and upgrades that persist between runs, making each attempt stronger than the last.</p>
                 </div>
             </div>
         </div>
@@ -643,69 +600,23 @@
     <section id="about" class="about">
         <div class="container">
             <div class="about-content">
-                <h2>[ ABOUT_KLYRA ]</h2>
+                <h2>About Klyra</h2>
                 <p>
-                    >> Klyra is a thrilling multiplayer roguelike that combines the addictive nature of procedurally generated dungeons with the excitement of cooperative gameplay.
+                    Klyra is a thrilling multiplayer roguelike that combines the addictive nature of procedurally generated dungeons with the excitement of cooperative gameplay.
                 </p>
                 <p>
-                    >> Gather your party, delve into dangerous dungeons filled with monsters and treasures, and work together to overcome seemingly impossible odds.
+                    Gather your party, delve into dangerous dungeons filled with monsters and treasures, and work together to overcome seemingly impossible odds.
                 </p>
                 <p>
-                    >> With permadeath mechanics that keep the stakes high and persistent progression that rewards your determination, every run is a new story waiting to be told.
-                </p>
-                <p>
-                    >> Whether you're a roguelike veteran or new to the genre, Klyra offers an accessible yet deeply engaging experience that will keep you coming back for just one more run.
+                    With permadeath mechanics that keep the stakes high and persistent progression that rewards your determination, every run is a new story waiting to be told.
                 </p>
             </div>
         </div>
     </section>
 
     <footer>
-        <p>[ (C) 2025 KLYRA - ALL_RIGHTS_RESERVED ]</p>
-        <p style="margin-top: 0.5rem; font-size: 0.6rem;">PRESS_START_TO_PLAY</p>
+        <p>© 2025 Klyra. All rights reserved.</p>
+        <p style="margin-top: 0.5rem; opacity: 0.5;">Crafted with precision.</p>
     </footer>
-
-    <button class="color-toggle" onclick="toggleTheme()">THEME</button>
-
-    <script>
-        let themes = [
-            { primary: '#00ff00', secondary: '#ff00ff', accent: '#00ffff', name: 'GREEN' },
-            { primary: '#ff8800', secondary: '#ff0000', accent: '#ffff00', name: 'AMBER' },
-            { primary: '#00ffff', secondary: '#0088ff', accent: '#ff00ff', name: 'CYAN' },
-            { primary: '#ffffff', secondary: '#aaaaaa', accent: '#666666', name: 'MONO' }
-        ];
-        let currentTheme = 0;
-
-        function toggleTheme() {
-            currentTheme = (currentTheme + 1) % themes.length;
-            let theme = themes[currentTheme];
-            document.documentElement.style.setProperty('--primary', theme.primary);
-            document.documentElement.style.setProperty('--secondary', theme.secondary);
-            document.documentElement.style.setProperty('--accent', theme.accent);
-
-            // Update glow color
-            let rgb = hexToRgb(theme.primary);
-            document.documentElement.style.setProperty('--glow', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`);
-        }
-
-        function hexToRgb(hex) {
-            let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
-            } : null;
-        }
-
-        // Glitch effect on title randomly
-        setInterval(() => {
-            if (Math.random() > 0.95) {
-                document.querySelector('.hero h1').style.animation = 'none';
-                setTimeout(() => {
-                    document.querySelector('.hero h1').style.animation = 'glitchTitle 5s infinite';
-                }, 100);
-            }
-        }, 2000);
-    </script>
 </body>
 </html>
