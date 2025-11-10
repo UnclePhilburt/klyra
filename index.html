@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Klyra - An immersive multiplayer roguelike adventure. Team up with friends and conquer procedurally generated dungeons.">
-    <title>Klyra - Multiplayer Roguelike</title>
+    <title>KLYRA - Multiplayer Roguelike</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,24 +15,111 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #00ff00;
+            --secondary: #ff00ff;
+            --accent: #00ffff;
+            --bg-dark: #0a0a0a;
+            --bg-grid: #1a1a1a;
+            --text: #00ff00;
+            --glow: rgba(0, 255, 0, 0.5);
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e4e4e4;
+            font-family: 'VT323', monospace;
+            background: var(--bg-dark);
+            color: var(--text);
             line-height: 1.6;
             overflow-x: hidden;
+            position: relative;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        /* CRT Screen Effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0.15),
+                    rgba(0, 0, 0, 0.15) 1px,
+                    transparent 1px,
+                    transparent 2px
+                );
+            pointer-events: none;
+            z-index: 9999;
+            animation: scanlines 8s linear infinite;
+        }
+
+        /* CRT Curve Effect */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(10px); }
+        }
+
+        /* Flickering Effect */
+        @keyframes flicker {
+            0% { opacity: 0.97; }
+            50% { opacity: 1; }
+            100% { opacity: 0.97; }
+        }
+
+        body {
+            animation: flicker 0.15s infinite alternate;
+        }
+
+        /* Glitch Effect */
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        /* Pixel Grid Background */
+        .pixel-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: -1;
         }
 
         /* Header */
         header {
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            padding: 1.5rem 0;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 0;
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
-            border-bottom: 2px solid #0f3460;
+            border-bottom: 3px solid var(--primary);
+            box-shadow: 0 0 20px var(--glow);
         }
 
         nav {
@@ -42,12 +132,19 @@
         }
 
         .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #e94560 0%, #f39c12 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-shadow:
+                0 0 10px var(--glow),
+                0 0 20px var(--glow),
+                0 0 30px var(--glow);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { text-shadow: 0 0 10px var(--glow), 0 0 20px var(--glow); }
+            50% { text-shadow: 0 0 20px var(--glow), 0 0 30px var(--glow), 0 0 40px var(--glow); }
         }
 
         nav ul {
@@ -57,14 +154,32 @@
         }
 
         nav a {
-            color: #e4e4e4;
+            font-family: 'Press Start 2P', cursive;
+            color: var(--text);
             text-decoration: none;
-            transition: color 0.3s;
-            font-weight: 500;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+            position: relative;
         }
 
         nav a:hover {
-            color: #e94560;
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+
+        nav a:hover::after {
+            width: 100%;
         }
 
         /* Hero Section */
@@ -83,55 +198,121 @@
         .hero::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 50% 50%, rgba(233, 69, 96, 0.1) 0%, transparent 50%);
-            pointer-events: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(circle, rgba(0, 255, 0, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
         .hero h1 {
+            font-family: 'Press Start 2P', cursive;
             font-size: 4rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #e94560 0%, #f39c12 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: fadeInUp 1s ease-out;
+            margin-bottom: 2rem;
+            color: var(--primary);
+            text-shadow:
+                3px 3px 0 var(--secondary),
+                6px 6px 0 var(--accent),
+                0 0 20px var(--glow);
+            animation: glitchTitle 5s infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes glitchTitle {
+            0%, 90%, 100% { transform: translate(0); }
+            91% { transform: translate(-5px, -5px); }
+            92% { transform: translate(5px, 5px); }
+            93% { transform: translate(-3px, 3px); }
+            94% { transform: translate(3px, -3px); }
         }
 
         .hero p {
             font-size: 1.5rem;
             max-width: 700px;
-            margin: 0 auto 2rem;
-            color: #b8b8b8;
-            animation: fadeInUp 1s ease-out 0.2s both;
+            margin: 0 auto 3rem;
+            color: var(--text);
+            text-shadow: 0 0 5px var(--glow);
+            line-height: 1.8;
+            position: relative;
+            z-index: 1;
         }
 
         .cta-button {
+            font-family: 'Press Start 2P', cursive;
             display: inline-block;
-            padding: 1rem 3rem;
-            background: linear-gradient(135deg, #e94560 0%, #d63031 100%);
-            color: white;
+            padding: 1.5rem 3rem;
+            background: var(--bg-dark);
+            color: var(--primary);
             text-decoration: none;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            transition: transform 0.3s, box-shadow 0.3s;
-            animation: fadeInUp 1s ease-out 0.4s both;
-            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3);
+            border: 4px solid var(--primary);
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-shadow:
+                0 0 10px var(--glow),
+                inset 0 0 10px rgba(0, 255, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary);
+            transition: left 0.3s;
+            z-index: -1;
         }
 
         .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(233, 69, 96, 0.5);
+            color: var(--bg-dark);
+            box-shadow:
+                0 0 20px var(--glow),
+                0 0 30px var(--glow);
+            transform: scale(1.05);
+        }
+
+        .cta-button:hover::before {
+            left: 0;
+        }
+
+        .cta-button:active {
+            transform: scale(0.95);
+        }
+
+        /* ASCII Art Decoration */
+        .ascii-art {
+            font-family: 'VT323', monospace;
+            color: var(--primary);
+            opacity: 0.3;
+            font-size: 0.8rem;
+            line-height: 1;
+            position: absolute;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
         }
 
         /* Features Section */
         .features {
             padding: 6rem 2rem;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 3px solid var(--primary);
+            border-bottom: 3px solid var(--primary);
         }
 
         .container {
@@ -140,13 +321,15 @@
         }
 
         .section-title {
+            font-family: 'Press Start 2P', cursive;
             text-align: center;
             font-size: 2.5rem;
-            margin-bottom: 3rem;
-            background: linear-gradient(135deg, #e94560 0%, #f39c12 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            margin-bottom: 4rem;
+            color: var(--secondary);
+            text-shadow:
+                2px 2px 0 var(--primary),
+                4px 4px 0 var(--accent),
+                0 0 20px rgba(255, 0, 255, 0.5);
         }
 
         .features-grid {
@@ -156,149 +339,302 @@
         }
 
         .feature-card {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.7);
             padding: 2rem;
-            border-radius: 15px;
-            border: 1px solid rgba(233, 69, 96, 0.2);
-            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+            border: 3px solid var(--primary);
+            position: relative;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px var(--glow);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: var(--primary);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
         .feature-card:hover {
-            transform: translateY(-10px);
-            border-color: rgba(233, 69, 96, 0.6);
-            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3);
+            transform: translate(-5px, -5px);
+            box-shadow:
+                5px 5px 0 var(--secondary),
+                0 0 20px var(--glow);
+        }
+
+        .feature-card:hover::before {
+            opacity: 0.1;
         }
 
         .feature-icon {
             font-size: 3rem;
             margin-bottom: 1rem;
+            filter:
+                drop-shadow(0 0 5px var(--primary))
+                drop-shadow(0 0 10px var(--primary));
         }
 
         .feature-card h3 {
-            font-size: 1.5rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.2rem;
             margin-bottom: 1rem;
-            color: #e94560;
+            color: var(--accent);
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
         }
 
         .feature-card p {
-            color: #b8b8b8;
-            line-height: 1.8;
+            font-size: 1.3rem;
+            color: var(--text);
+            line-height: 1.6;
         }
 
         /* About Section */
         .about {
             padding: 6rem 2rem;
+            position: relative;
         }
 
         .about-content {
             max-width: 800px;
             margin: 0 auto;
             text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 3rem;
+            border: 3px dashed var(--primary);
+            box-shadow: 0 0 30px var(--glow);
+        }
+
+        .about-content h2 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--secondary);
+            text-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
         }
 
         .about-content p {
-            font-size: 1.2rem;
-            color: #b8b8b8;
+            font-size: 1.4rem;
+            color: var(--text);
             margin-bottom: 1.5rem;
             line-height: 1.8;
         }
 
+        /* Stats Display */
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .stat-box {
+            font-family: 'Press Start 2P', cursive;
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid var(--accent);
+            padding: 1.5rem;
+            text-align: center;
+            min-width: 150px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--glow);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--accent);
+            margin-top: 0.5rem;
+        }
+
         /* Footer */
         footer {
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.9);
             text-align: center;
             padding: 2rem;
-            border-top: 2px solid #0f3460;
+            border-top: 3px solid var(--primary);
+            box-shadow: 0 0 20px var(--glow);
         }
 
         footer p {
-            color: #b8b8b8;
+            font-family: 'Press Start 2P', cursive;
+            color: var(--text);
+            font-size: 0.8rem;
+            text-shadow: 0 0 5px var(--glow);
         }
 
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Pixel Corners */
+        .pixel-corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--primary);
         }
+
+        .pixel-corner.tl { top: -3px; left: -3px; border-right: none; border-bottom: none; }
+        .pixel-corner.tr { top: -3px; right: -3px; border-left: none; border-bottom: none; }
+        .pixel-corner.bl { bottom: -3px; left: -3px; border-right: none; border-top: none; }
+        .pixel-corner.br { bottom: -3px; right: -3px; border-left: none; border-top: none; }
 
         /* Responsive */
         @media (max-width: 768px) {
             .hero h1 {
-                font-size: 2.5rem;
+                font-size: 2rem;
             }
 
             .hero p {
                 font-size: 1.2rem;
             }
 
+            .cta-button {
+                font-size: 0.8rem;
+                padding: 1rem 2rem;
+            }
+
             nav ul {
                 gap: 1rem;
+            }
+
+            nav a {
+                font-size: 0.6rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
             }
 
             .features-grid {
                 grid-template-columns: 1fr;
             }
+
+            .logo {
+                font-size: 1rem;
+            }
+        }
+
+        /* Color Scheme Variants */
+        .color-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--glow);
+        }
+
+        .color-toggle:hover {
+            background: var(--primary);
+            color: var(--bg-dark);
         }
     </style>
 </head>
 <body>
+    <div class="pixel-bg"></div>
+
     <header>
         <nav>
             <div class="logo">KLYRA</div>
             <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#play">Play</a></li>
+                <li><a href="#home">HOME</a></li>
+                <li><a href="#features">FEATURES</a></li>
+                <li><a href="#about">ABOUT</a></li>
+                <li><a href="#play">PLAY</a></li>
             </ul>
         </nav>
     </header>
 
     <section id="home" class="hero">
-        <h1>KLYRA</h1>
-        <p>Embark on an epic multiplayer roguelike adventure. Team up with friends, battle fierce enemies, and conquer procedurally generated dungeons in this thrilling cooperative experience.</p>
-        <a href="#play" class="cta-button">Start Your Adventure</a>
+        <h1>[ KLYRA ]</h1>
+        <p>>>> EMBARK ON AN EPIC MULTIPLAYER ROGUELIKE ADVENTURE. TEAM UP WITH FRIENDS, BATTLE FIERCE ENEMIES, AND CONQUER PROCEDURALLY GENERATED DUNGEONS IN THIS THRILLING COOPERATIVE EXPERIENCE.</p>
+        <a href="#play" class="cta-button">> START_GAME &lt;</a>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">DUNGEONS</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">4</div>
+                <div class="stat-label">PLAYERS</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">1</div>
+                <div class="stat-label">LIFE</div>
+            </div>
+        </div>
     </section>
 
     <section id="features" class="features">
         <div class="container">
-            <h2 class="section-title">Game Features</h2>
+            <h2 class="section-title">[ FEATURES ]</h2>
             <div class="features-grid">
                 <div class="feature-card">
+                    <div class="pixel-corner tl"></div>
+                    <div class="pixel-corner tr"></div>
+                    <div class="pixel-corner bl"></div>
+                    <div class="pixel-corner br"></div>
                     <div class="feature-icon">🎮</div>
-                    <h3>Multiplayer Co-op</h3>
-                    <p>Team up with friends online and coordinate your strategies to overcome challenging dungeons together.</p>
+                    <h3>MULTIPLAYER_CO-OP</h3>
+                    <p>> Team up with friends online and coordinate your strategies to overcome challenging dungeons together.</p>
                 </div>
                 <div class="feature-card">
+                    <div class="pixel-corner tl"></div>
+                    <div class="pixel-corner tr"></div>
+                    <div class="pixel-corner bl"></div>
+                    <div class="pixel-corner br"></div>
                     <div class="feature-icon">🗺️</div>
-                    <h3>Procedural Generation</h3>
-                    <p>Every playthrough is unique with randomly generated dungeons, enemies, and loot. No two runs are ever the same.</p>
+                    <h3>PROC_GENERATION</h3>
+                    <p>> Every playthrough is unique with randomly generated dungeons, enemies, and loot. No two runs are ever the same.</p>
                 </div>
                 <div class="feature-card">
+                    <div class="pixel-corner tl"></div>
+                    <div class="pixel-corner tr"></div>
+                    <div class="pixel-corner bl"></div>
+                    <div class="pixel-corner br"></div>
                     <div class="feature-icon">⚔️</div>
-                    <h3>Tactical Combat</h3>
-                    <p>Master turn-based combat with strategic positioning, abilities, and team coordination to defeat powerful foes.</p>
+                    <h3>TACTICAL_COMBAT</h3>
+                    <p>> Master turn-based combat with strategic positioning, abilities, and team coordination to defeat powerful foes.</p>
                 </div>
                 <div class="feature-card">
+                    <div class="pixel-corner tl"></div>
+                    <div class="pixel-corner tr"></div>
+                    <div class="pixel-corner bl"></div>
+                    <div class="pixel-corner br"></div>
                     <div class="feature-icon">💎</div>
-                    <h3>Rich Loot System</h3>
-                    <p>Discover legendary weapons, armor, and artifacts with unique properties to customize your playstyle.</p>
+                    <h3>RICH_LOOT_SYSTEM</h3>
+                    <p>> Discover legendary weapons, armor, and artifacts with unique properties to customize your playstyle.</p>
                 </div>
                 <div class="feature-card">
+                    <div class="pixel-corner tl"></div>
+                    <div class="pixel-corner tr"></div>
+                    <div class="pixel-corner bl"></div>
+                    <div class="pixel-corner br"></div>
                     <div class="feature-icon">🎭</div>
-                    <h3>Multiple Classes</h3>
-                    <p>Choose from diverse character classes, each with unique abilities and playstyles to master.</p>
+                    <h3>MULTIPLE_CLASSES</h3>
+                    <p>> Choose from diverse character classes, each with unique abilities and playstyles to master.</p>
                 </div>
                 <div class="feature-card">
+                    <div class="pixel-corner tl"></div>
+                    <div class="pixel-corner tr"></div>
+                    <div class="pixel-corner bl"></div>
+                    <div class="pixel-corner br"></div>
                     <div class="feature-icon">🔄</div>
-                    <h3>Permanent Progression</h3>
-                    <p>Unlock new abilities and upgrades that persist between runs, making each attempt stronger than the last.</p>
+                    <h3>PERMANENT_PROG</h3>
+                    <p>> Unlock new abilities and upgrades that persist between runs, making each attempt stronger than the last.</p>
                 </div>
             </div>
         </div>
@@ -306,23 +642,70 @@
 
     <section id="about" class="about">
         <div class="container">
-            <h2 class="section-title">About Klyra</h2>
             <div class="about-content">
+                <h2>[ ABOUT_KLYRA ]</h2>
                 <p>
-                    Klyra is a thrilling multiplayer roguelike that combines the addictive nature of procedurally generated dungeons with the excitement of cooperative gameplay.
+                    >> Klyra is a thrilling multiplayer roguelike that combines the addictive nature of procedurally generated dungeons with the excitement of cooperative gameplay.
                 </p>
                 <p>
-                    Gather your party, delve into dangerous dungeons filled with monsters and treasures, and work together to overcome seemingly impossible odds. With permadeath mechanics that keep the stakes high and persistent progression that rewards your determination, every run is a new story waiting to be told.
+                    >> Gather your party, delve into dangerous dungeons filled with monsters and treasures, and work together to overcome seemingly impossible odds.
                 </p>
                 <p>
-                    Whether you're a roguelike veteran or new to the genre, Klyra offers an accessible yet deeply engaging experience that will keep you coming back for just one more run.
+                    >> With permadeath mechanics that keep the stakes high and persistent progression that rewards your determination, every run is a new story waiting to be told.
+                </p>
+                <p>
+                    >> Whether you're a roguelike veteran or new to the genre, Klyra offers an accessible yet deeply engaging experience that will keep you coming back for just one more run.
                 </p>
             </div>
         </div>
     </section>
 
     <footer>
-        <p>&copy; 2025 Klyra. All rights reserved.</p>
+        <p>[ (C) 2025 KLYRA - ALL_RIGHTS_RESERVED ]</p>
+        <p style="margin-top: 0.5rem; font-size: 0.6rem;">PRESS_START_TO_PLAY</p>
     </footer>
+
+    <button class="color-toggle" onclick="toggleTheme()">THEME</button>
+
+    <script>
+        let themes = [
+            { primary: '#00ff00', secondary: '#ff00ff', accent: '#00ffff', name: 'GREEN' },
+            { primary: '#ff8800', secondary: '#ff0000', accent: '#ffff00', name: 'AMBER' },
+            { primary: '#00ffff', secondary: '#0088ff', accent: '#ff00ff', name: 'CYAN' },
+            { primary: '#ffffff', secondary: '#aaaaaa', accent: '#666666', name: 'MONO' }
+        ];
+        let currentTheme = 0;
+
+        function toggleTheme() {
+            currentTheme = (currentTheme + 1) % themes.length;
+            let theme = themes[currentTheme];
+            document.documentElement.style.setProperty('--primary', theme.primary);
+            document.documentElement.style.setProperty('--secondary', theme.secondary);
+            document.documentElement.style.setProperty('--accent', theme.accent);
+
+            // Update glow color
+            let rgb = hexToRgb(theme.primary);
+            document.documentElement.style.setProperty('--glow', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`);
+        }
+
+        function hexToRgb(hex) {
+            let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        // Glitch effect on title randomly
+        setInterval(() => {
+            if (Math.random() > 0.95) {
+                document.querySelector('.hero h1').style.animation = 'none';
+                setTimeout(() => {
+                    document.querySelector('.hero h1').style.animation = 'glitchTitle 5s infinite';
+                }, 100);
+            }
+        }, 2000);
+    </script>
 </body>
 </html>
