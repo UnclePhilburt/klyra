@@ -55,122 +55,135 @@ class MenuScene extends Phaser.Scene {
         `;
         document.body.appendChild(this.usernameInput);
 
-        // Clean dark background
-        this.cameras.main.setBackgroundColor('#0f0f1a');
+        // Bright white/cream background with subtle pattern
+        this.cameras.main.setBackgroundColor('#f5f5f5');
 
-        // Left side - Character display
-        const charX = width * 0.3;
-        const charY = height / 2;
+        // Add colorful decorative elements
+        this.createColorfulBackground(width, height);
 
-        // Spotlight effect behind character
-        const spotlight = this.add.graphics();
-        spotlight.fillGradientStyle(0x8b0000, 0x8b0000, 0x2a0000, 0x2a0000, 0.3, 0.3, 0, 0);
-        spotlight.fillEllipse(charX, charY + 50, 400, 500);
+        // Center card with character
+        const cardX = width / 2;
+        const cardY = height / 2 + 20;
 
-        // Character sprite - HUGE
+        // Main card - white with soft shadow
+        const cardBg = this.add.graphics();
+        cardBg.fillStyle(0xffffff, 1);
+        cardBg.fillRoundedRect(cardX - 300, cardY - 200, 600, 400, 24);
+
+        // Card shadow
+        const shadow = this.add.graphics();
+        shadow.fillStyle(0x000000, 0.08);
+        shadow.fillRoundedRect(cardX - 300, cardY - 195, 600, 400, 24);
+
+        // Colorful accent stripe at top
+        const accentStripe = this.add.graphics();
+        const gradient = accentStripe.createLinearGradient(cardX - 300, 0, cardX + 300, 0);
+        gradient.addColorStop(0, '#FF6B6B');
+        gradient.addColorStop(0.33, '#4ECDC4');
+        gradient.addColorStop(0.66, '#FFE66D');
+        gradient.addColorStop(1, '#A8E6CF');
+        accentStripe.fillGradientStyle(0xFF6B6B, 0xA8E6CF, 0x4ECDC4, 0xFFE66D, 1);
+        accentStripe.fillRoundedRect(cardX - 300, cardY - 200, 600, 8, 24, 24, 0, 0);
+
+        // Character display on left side of card
+        const charX = cardX - 150;
+        const charDisplayY = cardY;
+
+        // Colorful circle behind character
+        const charBg = this.add.graphics();
+        charBg.fillStyle(0xFFE66D, 0.2);
+        charBg.fillCircle(charX, charDisplayY, 100);
+
+        // Character sprite
         if (this.textures.exists('malachar')) {
-            this.characterSprite = this.add.sprite(charX, charY, 'malachar');
-            this.characterSprite.setScale(4);
+            this.characterSprite = this.add.sprite(charX, charDisplayY, 'malachar');
+            this.characterSprite.setScale(3);
             if (this.anims.exists('malachar_idle')) {
                 this.characterSprite.play('malachar_idle');
             }
 
-            // Smooth idle breathing animation
+            // Gentle float animation
             this.tweens.add({
                 targets: this.characterSprite,
-                y: charY - 15,
-                scaleX: 4.05,
-                scaleY: 3.95,
-                duration: 3000,
+                y: charDisplayY - 8,
+                duration: 2000,
                 yoyo: true,
                 repeat: -1,
                 ease: 'Sine.easeInOut'
             });
         }
 
-        // Right side - Info panel
-        const panelX = width * 0.65;
-        const panelY = height / 2 - 50;
+        // Right side - Character info
+        const infoX = cardX + 50;
+        const infoY = cardY - 120;
 
-        // Character name - clean typography
-        const nameText = this.add.text(panelX, panelY - 100, 'MALACHAR', {
-            font: 'bold 72px Arial',
-            fill: '#ffffff',
-            letterSpacing: 4
-        });
-        nameText.setOrigin(0, 0.5);
-
-        // Accent line under name
-        const accentLine = this.add.graphics();
-        accentLine.fillStyle(0xff1744, 1);
-        accentLine.fillRect(panelX, panelY - 60, 200, 4);
-
-        // Character role
-        this.add.text(panelX, panelY - 30, 'DARK BERSERKER', {
-            font: '20px Arial',
-            fill: '#888888',
+        // Character name - colorful
+        this.add.text(infoX, infoY, 'MALACHAR', {
+            font: 'bold 48px Arial',
+            fill: '#2C3E50',
             letterSpacing: 2
         });
 
-        // Stats - clean modern layout
-        const statsStartY = panelY + 40;
+        // Colorful underline
+        const underline = this.add.graphics();
+        underline.fillGradientStyle(0xFF6B6B, 0xA8E6CF, 0xFF6B6B, 0xA8E6CF, 1);
+        underline.fillRoundedRect(infoX, infoY + 55, 180, 4, 2);
+
+        // Role tag with bright background
+        const roleTag = this.add.graphics();
+        roleTag.fillStyle(0xFF6B6B, 1);
+        roleTag.fillRoundedRect(infoX, infoY + 75, 160, 32, 16);
+
+        this.add.text(infoX + 80, infoY + 91, 'DARK BERSERKER', {
+            font: 'bold 14px Arial',
+            fill: '#ffffff',
+            letterSpacing: 1
+        }).setOrigin(0.5);
+
+        // Stats with bright colors
+        const statsY = infoY + 130;
         const stats = [
-            { label: 'STRENGTH', value: 16, color: '#ff1744', bar: 0.94 },
-            { label: 'HEALTH', value: 115, color: '#00e676', bar: 0.88 },
-            { label: 'DEFENSE', value: 10, color: '#00b0ff', bar: 0.67 },
-            { label: 'SPEED', value: 9, color: '#ffd600', bar: 0.60 }
+            { label: 'STR', value: '16', color: 0xFF6B6B, bgColor: 0xFFE5E5 },
+            { label: 'HP', value: '115', color: 0xA8E6CF, bgColor: 0xE5F9F2 },
+            { label: 'DEF', value: '10', color: 0x4ECDC4, bgColor: 0xE0F7F6 },
+            { label: 'SPD', value: '9', color: 0xFFE66D, bgColor: 0xFFF8E0 }
         ];
 
         stats.forEach((stat, index) => {
-            const y = statsStartY + (index * 60);
+            const x = infoX + (index * 65);
 
-            // Stat name
-            this.add.text(panelX, y, stat.label, {
-                font: '14px Arial',
-                fill: '#666666',
-                letterSpacing: 1
-            });
+            // Stat bubble
+            const bubble = this.add.graphics();
+            bubble.fillStyle(stat.bgColor, 1);
+            bubble.fillRoundedRect(x, statsY, 55, 70, 12);
 
-            // Stat value
-            this.add.text(panelX + 250, y, stat.value.toString(), {
-                font: 'bold 32px Arial',
-                fill: stat.color
-            }).setOrigin(1, 0);
+            // Stat value - BIG
+            this.add.text(x + 27, statsY + 22, stat.value, {
+                font: 'bold 28px Arial',
+                fill: Phaser.Display.Color.IntegerToRGB(stat.color).rgba
+            }).setOrigin(0.5);
 
-            // Progress bar background
-            const barBg = this.add.graphics();
-            barBg.fillStyle(0x222222, 1);
-            barBg.fillRoundedRect(panelX, y + 30, 250, 6, 3);
-
-            // Progress bar fill with animation
-            const barFillWidth = 250 * stat.bar;
-            const barFill = this.add.rectangle(panelX, y + 30, 0, 6, parseInt(stat.color.replace('#', '0x')));
-            barFill.setOrigin(0, 0);
-
-            // Animate bar fill
-            this.tweens.add({
-                targets: barFill,
-                width: barFillWidth,
-                duration: 1000,
-                delay: 200 + (index * 100),
-                ease: 'Power2'
-            });
+            // Stat label
+            this.add.text(x + 27, statsY + 50, stat.label, {
+                font: 'bold 12px Arial',
+                fill: '#7f8c8d'
+            }).setOrigin(0.5);
         });
 
         this.selectedClass = 'malachar';
         this.selectedDifficulty = 'normal';
 
-        // Play button - clean and simple
-        const playY = height - 80;
+        // Bright colorful PLAY button
+        const playY = cardY + 160;
 
-        const playButtonBg = this.add.graphics();
-        playButtonBg.fillStyle(0xff1744, 1);
-        playButtonBg.fillRoundedRect(panelX, playY - 25, 280, 60, 4);
+        const playBg = this.add.graphics();
+        playBg.fillStyle(0x4ECDC4, 1);
+        playBg.fillRoundedRect(cardX - 120, playY - 30, 240, 60, 30);
 
-        const playButton = this.add.rectangle(panelX + 140, playY, 280, 60, 0x000000, 0);
+        const playButton = this.add.rectangle(cardX, playY, 240, 60, 0x000000, 0);
         playButton.setInteractive({ useHandCursor: true });
 
-        const playText = this.add.text(panelX + 140, playY, 'PLAY NOW', {
+        const playText = this.add.text(cardX, playY, '▶  PLAY NOW', {
             font: 'bold 24px Arial',
             fill: '#ffffff',
             letterSpacing: 2
@@ -178,26 +191,24 @@ class MenuScene extends Phaser.Scene {
         playText.setOrigin(0.5);
 
         playButton.on('pointerover', () => {
-            playButtonBg.clear();
-            playButtonBg.fillStyle(0xff4569, 1);
-            playButtonBg.fillRoundedRect(panelX, playY - 25, 280, 60, 4);
+            playBg.clear();
+            playBg.fillStyle(0x3DBDB4, 1);
+            playBg.fillRoundedRect(cardX - 120, playY - 30, 240, 60, 30);
             this.tweens.add({
-                targets: [playButtonBg],
-                scaleX: 1.02,
-                scaleY: 1.05,
-                duration: 150
+                targets: playText,
+                scale: 1.05,
+                duration: 100
             });
         });
 
         playButton.on('pointerout', () => {
-            playButtonBg.clear();
-            playButtonBg.fillStyle(0xff1744, 1);
-            playButtonBg.fillRoundedRect(panelX, playY - 25, 280, 60, 4);
+            playBg.clear();
+            playBg.fillStyle(0x4ECDC4, 1);
+            playBg.fillRoundedRect(cardX - 120, playY - 30, 240, 60, 30);
             this.tweens.add({
-                targets: [playButtonBg],
-                scaleX: 1,
-                scaleY: 1,
-                duration: 150
+                targets: playText,
+                scale: 1,
+                duration: 100
             });
         });
 
@@ -207,11 +218,36 @@ class MenuScene extends Phaser.Scene {
 
         // Version text
         this.add.text(10, height - 30, 'v2.0', {
-            font: '12px monospace',
-            fill: '#666666'
+            font: '12px Arial',
+            fill: '#95a5a6'
         });
     }
 
+    createColorfulBackground(width, height) {
+        // Floating colorful circles in background
+        const colors = [0xFF6B6B, 0x4ECDC4, 0xFFE66D, 0xA8E6CF, 0x95E1D3];
+
+        for (let i = 0; i < 8; i++) {
+            const x = Math.random() * width;
+            const y = Math.random() * height;
+            const size = 40 + Math.random() * 80;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            const circle = this.add.graphics();
+            circle.fillStyle(color, 0.08);
+            circle.fillCircle(x, y, size);
+
+            // Gentle floating animation
+            this.tweens.add({
+                targets: circle,
+                y: y + 20,
+                duration: 3000 + Math.random() * 2000,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+        }
+    }
 
     startGame() {
         const username = this.usernameInput.value.trim();
