@@ -20,7 +20,8 @@ const GameConfig = {
         rogue: { color: 0x00ff00, name: 'Rogue' },
         archer: { color: 0xffff00, name: 'Archer' },
         paladin: { color: 0xffffff, name: 'Paladin' },
-        necromancer: { color: 0x9d00ff, name: 'Necromancer' }
+        necromancer: { color: 0x9d00ff, name: 'Necromancer' },
+        malachar: { color: 0x8b0000, name: 'Malachar' }
     },
 
     COLORS: {

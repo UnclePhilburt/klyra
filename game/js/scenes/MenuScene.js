@@ -62,14 +62,24 @@ class MenuScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         // Class buttons
-        const classes = ['warrior', 'mage', 'rogue', 'archer', 'paladin', 'necromancer'];
+        const classes = ['warrior', 'mage', 'rogue', 'archer', 'paladin', 'necromancer', 'malachar'];
         const startX = width / 2 - 350;
         const startY = 360;
         this.classButtons = [];
 
         classes.forEach((className, index) => {
-            const x = startX + (index % 3) * 250;
-            const y = startY + Math.floor(index / 3) * 80;
+            // First row: 4 classes, Second row: 3 classes (centered)
+            let x, y;
+            if (index < 4) {
+                // Top row: 4 classes
+                x = startX + (index % 4) * 240;
+                y = startY;
+            } else {
+                // Bottom row: 3 classes (centered)
+                const bottomIndex = index - 4;
+                x = startX + 120 + (bottomIndex * 240);
+                y = startY + 80;
+            }
 
             const classConfig = GameConfig.CLASSES[className];
             const button = this.add.rectangle(x, y, 200, 60, 0x222222);

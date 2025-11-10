@@ -84,7 +84,8 @@ class Player {
             rogue: { strength: 10, defense: 8, speed: 15, health: 90 },
             archer: { strength: 12, defense: 8, speed: 12, health: 100 },
             paladin: { strength: 13, defense: 15, speed: 7, health: 130 },
-            necromancer: { strength: 9, defense: 7, speed: 9, health: 85 }
+            necromancer: { strength: 9, defense: 7, speed: 9, health: 85 },
+            malachar: { strength: 16, defense: 10, speed: 9, health: 115 }
         };
 
         const stats = classStats[characterClass] || classStats.warrior;

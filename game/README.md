@@ -6,7 +6,7 @@ Multiplayer roguelike game built with Phaser 3 and Socket.IO.
 
 - **Phaser 3** game engine
 - **Real-time multiplayer** with Socket.IO
-- **6 character classes** (Warrior, Mage, Rogue, Archer, Paladin, Necromancer)
+- **7 character classes** (Warrior, Mage, Rogue, Archer, Paladin, Necromancer, Malachar)
 - **4 difficulty modes** (Easy, Normal, Hard, Nightmare)
 - **Procedurally generated dungeons**
 - **10-player co-op**
@@ -84,6 +84,7 @@ const GameConfig = {
 | Archer | 100 | 12 | 8 | 12 |
 | Paladin | 130 | 13 | 15 | 7 |
 | Necromancer | 85 | 9 | 7 | 9 |
+| Malachar | 115 | 16 | 10 | 9 |
 
 ## 🗺️ Difficulty Modes
 
