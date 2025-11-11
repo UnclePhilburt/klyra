@@ -46,15 +46,15 @@ class Player {
             const spriteSize = 32; // Target size per sprite (one game tile)
             const scale = spriteSize / 48; // 32/48 = 0.667
 
-            // Create 4 sprites for 2x2 grid
-            this.topLeft = this.scene.add.sprite(x - spriteSize/2, y - spriteSize, textureKey, 0);
-            this.topRight = this.scene.add.sprite(x + spriteSize/2, y - spriteSize, textureKey, 0);
-            this.bottomLeft = this.scene.add.sprite(x - spriteSize/2, y, textureKey, 0);
-            this.bottomRight = this.scene.add.sprite(x + spriteSize/2, y, textureKey, 0);
+            // Create 4 sprites for 2x2 grid with left-bottom origin
+            this.topLeft = this.scene.add.sprite(x - spriteSize, y - spriteSize, textureKey, 0);
+            this.topRight = this.scene.add.sprite(x, y - spriteSize, textureKey, 0);
+            this.bottomLeft = this.scene.add.sprite(x - spriteSize, y, textureKey, 0);
+            this.bottomRight = this.scene.add.sprite(x, y, textureKey, 0);
 
-            // Set origin to center-bottom for consistent ground alignment
+            // Set origin to left-bottom to prevent horizontal shifting
             [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight].forEach(s => {
-                s.setOrigin(0.5, 1.0);
+                s.setOrigin(0, 1.0);
                 s.setScale(scale);
                 s.setDepth(y + 1000);
             });
@@ -300,11 +300,11 @@ class Player {
             const x = this.sprite.x;
             const y = this.sprite.y;
 
-            // Position sprites with center-bottom origin
-            this.topLeft.setPosition(x - spriteSize/2, y - spriteSize);
-            this.topRight.setPosition(x + spriteSize/2, y - spriteSize);
-            this.bottomLeft.setPosition(x - spriteSize/2, y);
-            this.bottomRight.setPosition(x + spriteSize/2, y);
+            // Position sprites with left-bottom origin
+            this.topLeft.setPosition(x - spriteSize, y - spriteSize);
+            this.topRight.setPosition(x, y - spriteSize);
+            this.bottomLeft.setPosition(x - spriteSize, y);
+            this.bottomRight.setPosition(x, y);
 
             [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight].forEach(s => {
                 s.setDepth(spriteDepth);
