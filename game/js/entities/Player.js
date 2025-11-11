@@ -32,6 +32,7 @@ class Player {
             // Use sprite sheet
             this.sprite = this.scene.add.sprite(x, y, textureKey);
             this.sprite.setScale(0.5); // Scale down to fit tile
+            this.sprite.setDepth(y + 1000); // Set initial depth with offset to ensure visibility
             this.scene.physics.add.existing(this.sprite);
 
             // Play idle animation
@@ -39,18 +40,23 @@ class Player {
                 this.sprite.play(`${textureKey}_idle`);
             }
 
+            console.log(`✅ Created sprite for ${this.data.username} using ${textureKey}, depth: ${y + 1000}`);
             this.usingSprite = true;
         } else {
             // Fallback to circle placeholder
+            console.log(`⚠️ No sprite for ${textureKey}, using placeholder for ${this.data.username}`);
             this.sprite = this.scene.add.circle(x, y, 12, classConfig.color);
+            this.sprite.setDepth(y + 1000); // Set initial depth with offset
             this.scene.physics.add.existing(this.sprite);
 
             // Add glow effect
             this.glow = this.scene.add.circle(x, y, 14, classConfig.color, 0.3);
+            this.glow.setDepth(y + 999);
 
             // Add weapon indicator
             this.weapon = this.scene.add.rectangle(x + 15, y, 20, 4, 0xffffff);
             this.weapon.setOrigin(0, 0.5);
+            this.weapon.setDepth(y + 1000);
 
             this.container = this.scene.add.container(0, 0, [this.glow, this.sprite, this.weapon]);
             this.usingSprite = false;
@@ -218,9 +224,14 @@ class Player {
     }
 
     updateElements() {
+        // Update sprite depth for proper Y-sorting
+        const spriteDepth = this.sprite.y + 1000;
+        this.sprite.setDepth(spriteDepth);
+
         if (!this.usingSprite) {
             // Update glow position for circle placeholder
             this.glow.setPosition(this.sprite.x, this.sprite.y);
+            this.glow.setDepth(spriteDepth - 1);
 
             // Update weapon position
             const angle = this.weapon.rotation;
@@ -229,12 +240,16 @@ class Player {
                 this.sprite.x + Math.cos(angle) * distance,
                 this.sprite.y + Math.sin(angle) * distance
             );
+            this.weapon.setDepth(spriteDepth);
         }
 
         // Update name tag and health bar (for all sprite types)
         this.nameTag.setPosition(this.sprite.x, this.sprite.y - 35);
+        this.nameTag.setDepth(spriteDepth + 1); // Above player
         this.healthBarBg.setPosition(this.sprite.x, this.sprite.y - 25);
+        this.healthBarBg.setDepth(spriteDepth + 1); // Above player
         this.healthBar.setPosition(this.sprite.x - 20 + (40 * (this.health / this.maxHealth) / 2), this.sprite.y - 25);
+        this.healthBar.setDepth(spriteDepth + 2); // Above health bar bg
 
         this.updateHealthBar();
     }

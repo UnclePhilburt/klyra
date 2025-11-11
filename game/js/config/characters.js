@@ -90,7 +90,7 @@ const CHARACTERS = {
             class: "Necromancer",
             color: 0x8B008B,
             locked: false,
-            avatar: null
+            avatar: "assets/sprites/malachar.png"
         },
         equipment: {
             startingWeapon: "necro_staff"

@@ -282,43 +282,63 @@ class CharacterSelectManager {
 
         this.characterGrid.innerHTML = '';
 
-        const selectedCharacterId = this.progressionSystem 
-            ? this.progressionSystem.getSelectedCharacter() 
+        const selectedCharacterId = this.progressionSystem
+            ? this.progressionSystem.getSelectedCharacter()
             : 'ALDRIC';
+
+        console.log('🎨 Rendering characters, selected:', selectedCharacterId);
+        console.log('📊 Available characters:', Object.keys(this.characters));
+        console.log('📊 Character system loaded:', !!window.CharacterSystem);
 
         // Create character cards
         for (const charId in this.characters) {
             const char = this.characters[charId];
-            const isUnlocked = this.progressionSystem 
-                ? this.progressionSystem.isCharacterUnlocked(charId) 
+            const isUnlocked = this.progressionSystem
+                ? this.progressionSystem.isCharacterUnlocked(charId)
                 : true; // Default to unlocked if no progression system
             const isSelected = charId === selectedCharacterId;
+
+            console.log(`  - ${charId}: locked=${!isUnlocked}, selected=${isSelected}, color=#${char.display.color.toString(16).padStart(6, '0')}, avatar=${char.display.avatar || 'none'}`);
 
             const card = this.createCharacterCard(char, isUnlocked, isSelected);
             this.characterGrid.appendChild(card);
         }
+
+        console.log('✅ Character cards rendered');
     }
 
     createCharacterCard(char, isUnlocked, isSelected) {
         const card = document.createElement('div');
         card.className = 'character-card';
-        
+
         if (isSelected) card.classList.add('selected');
         if (!isUnlocked) card.classList.add('locked');
+
+        console.log(`    🎴 Creating card for ${char.id}:`, {
+            hasAvatar: !!char.display.avatar,
+            avatarPath: char.display.avatar,
+            color: `#${char.display.color.toString(16).padStart(6, '0')}`,
+            isSelected,
+            isUnlocked
+        });
 
         // Character visual (with avatar if available)
         const visual = document.createElement('div');
         visual.className = 'character-visual';
-        
+
         // Check if character has avatar image
         if (char.display.avatar) {
-            visual.style.backgroundImage = `url('${char.display.avatar}')`;
+            const avatarUrl = `url('${char.display.avatar}')`;
+            visual.style.backgroundImage = avatarUrl;
             visual.style.backgroundSize = 'cover';
             visual.style.backgroundPosition = 'center';
             visual.style.imageRendering = 'pixelated';
+            console.log(`      🖼️ Using avatar image: ${avatarUrl}`);
         } else {
             // Fallback to colored background
-            visual.style.backgroundColor = `#${char.display.color.toString(16).padStart(6, '0')}`;
+            const bgColor = `#${char.display.color.toString(16).padStart(6, '0')}`;
+            visual.style.backgroundColor = bgColor;
+            console.log(`      🎨 Using color background: ${bgColor}`);
         }
 
         // Character name
