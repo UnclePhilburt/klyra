@@ -87,7 +87,7 @@ class BootScene extends Phaser.Scene {
                 return;
             }
 
-            // Idle animation (first row)
+            // Idle animation (row 1: frames 0-7)
             this.anims.create({
                 key: `${char}_idle`,
                 frames: this.anims.generateFrameNumbers(char, { start: 0, end: 7 }),
@@ -95,7 +95,8 @@ class BootScene extends Phaser.Scene {
                 repeat: -1
             });
 
-            // Walk down animation (row 2)
+            // Moving animation (row 2: frames 8-15)
+            // Use the same animation for all movement directions
             this.anims.create({
                 key: `${char}_walk_down`,
                 frames: this.anims.generateFrameNumbers(char, { start: 8, end: 15 }),
@@ -103,39 +104,36 @@ class BootScene extends Phaser.Scene {
                 repeat: -1
             });
 
-            // Walk up animation (row 3)
             this.anims.create({
                 key: `${char}_walk_up`,
-                frames: this.anims.generateFrameNumbers(char, { start: 16, end: 23 }),
+                frames: this.anims.generateFrameNumbers(char, { start: 8, end: 15 }),
                 frameRate: 10,
                 repeat: -1
             });
 
-            // Walk left animation (row 4)
             this.anims.create({
                 key: `${char}_walk_left`,
-                frames: this.anims.generateFrameNumbers(char, { start: 24, end: 31 }),
+                frames: this.anims.generateFrameNumbers(char, { start: 8, end: 15 }),
                 frameRate: 10,
                 repeat: -1
             });
 
-            // Walk right animation (row 5)
             this.anims.create({
                 key: `${char}_walk_right`,
-                frames: this.anims.generateFrameNumbers(char, { start: 32, end: 39 }),
+                frames: this.anims.generateFrameNumbers(char, { start: 8, end: 15 }),
                 frameRate: 10,
                 repeat: -1
             });
 
-            // Attack animation (row 6)
+            // No attack animation - just use idle
             this.anims.create({
                 key: `${char}_attack`,
-                frames: this.anims.generateFrameNumbers(char, { start: 40, end: 47 }),
+                frames: this.anims.generateFrameNumbers(char, { start: 0, end: 7 }),
                 frameRate: 12,
                 repeat: 0
             });
 
-            console.log(`✅ Created animations for ${char}`);
+            console.log(`✅ Created animations for ${char}: idle (0-7) and moving (8-15)`);
         });
     }
 }
