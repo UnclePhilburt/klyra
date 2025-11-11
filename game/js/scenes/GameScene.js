@@ -245,13 +245,14 @@ class GameScene extends Phaser.Scene {
             [64, 65, 66]        // Bottom row (3 tiles wide)
         ];
 
-        // TREE TWO - Top: 35-39, Second: 51-55, Third: 67-71, Fourth: 84-86, Bottom: 100-102
+        // TREE TWO - Top: 35-39, Second: 51-55, Third: 67-71, Fourth: 84-86, Fifth: 100-102, Bottom: 116-118
         const TREE_TWO = [
             [35, 36, 37, 38, 39],   // Top row (5 tiles wide)
             [51, 52, 53, 54, 55],   // Second row (5 tiles wide)
             [67, 68, 69, 70, 71],   // Third row (5 tiles wide)
             [84, 85, 86],           // Fourth row (3 tiles wide)
-            [100, 101, 102]         // Bottom row (3 tiles wide)
+            [100, 101, 102],        // Fifth row (3 tiles wide)
+            [116, 117, 118]         // Bottom row (3 tiles wide)
         ];
 
         // Select tree pattern randomly
@@ -264,7 +265,7 @@ class GameScene extends Phaser.Scene {
             for (let row = 0; row < TREE_TILES.length; row++) {
                 const rowTiles = TREE_TILES[row];
 
-                // For TREE_TWO, offset bottom 2 rows (rows 3 and 4) by 1 tile to center the trunk
+                // For TREE_TWO, offset bottom 3 rows (rows 3, 4, and 5) by 1 tile to center the trunk
                 let xOffset = 0;
                 if (TREE_TILES === TREE_TWO && row >= 3) {
                     xOffset = 1;  // Shift right by 1 tile to center under 5-wide top
