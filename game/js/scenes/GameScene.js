@@ -70,15 +70,8 @@ class GameScene extends Phaser.Scene {
             frameHeight: tileHeight
         });
 
-        // Object/Decoration tilesets
-        // Fantasy_Outside_D contains multi-tile trees (96x96 = 2x2 tiles)
-        this.load.spritesheet('objects_d_trees', 'assets/tilesets/Fantasy_Outside_D.png', {
-            frameWidth: 96,  // Trees are 2 tiles wide (96px)
-            frameHeight: 96  // Trees are 2 tiles tall (96px)
-        });
-
-        // Also load with single tile size for smaller objects
-        this.load.spritesheet('objects_d_small', 'assets/tilesets/Fantasy_Outside_D.png', {
+        // Object/Decoration tilesets - load as individual 48x48 tiles
+        this.load.spritesheet('objects_d', 'assets/tilesets/Fantasy_Outside_D.png', {
             frameWidth: 48,
             frameHeight: 48
         });
@@ -252,85 +245,99 @@ class GameScene extends Phaser.Scene {
         const px = x * tileSize;
         const py = y * tileSize;
 
-        // Map decorations to appropriate spritesheets
-        // Trees are 96x96 multi-tile sprites, small objects are 48x48
-        const DECORATION_MAPPING = {
-            // Grassland decorations - small objects
-            flower: { texture: 'objects_d_small', frame: 32, scale: 0.7, tint: 0xffffff, size: 48 },
-            rock: { texture: 'objects_d_small', frame: 48, scale: 0.8, tint: 0xffffff, size: 48 },
+        // Tree tile patterns: rows of tiles that make up one complete tree
+        // Top row: 1-4, Second: 16-19, Third: 32-34, Fourth: 48-50, Bottom: 64-66
+        const TREE_TILES = [
+            [1, 2, 3, 4],       // Top row (4 tiles wide)
+            [16, 17, 18, 19],   // Second row (4 tiles wide)
+            [32, 33, 34],       // Third row (3 tiles wide)
+            [48, 49, 50],       // Fourth row (3 tiles wide)
+            [64, 65, 66]        // Bottom row (3 tiles wide)
+        ];
 
-            // Forest decorations - trees are 96x96, bushes are 48x48
-            tree: { texture: 'objects_d_trees', frame: 0, scale: 1.0, tint: 0xffffff, size: 96 },
-            bush: { texture: 'objects_d_small', frame: 16, scale: 0.8, tint: 0xffffff, size: 48 },
+        if (type === 'tree' || type === 'magic_tree' || type === 'dead_tree') {
+            // Render multi-tile tree
+            const tint = type === 'magic_tree' ? 0xbb88ff : type === 'dead_tree' ? 0x444444 : 0xffffff;
+            const scale = tileSize / 48;
 
-            // Magic decorations
-            magic_tree: { texture: 'objects_d_trees', frame: 0, scale: 1.0, tint: 0xbb88ff, glow: 0xbb88ff, size: 96 },
-            rune_stone: { texture: 'objects_d_small', frame: 48, scale: 0.9, tint: 0x88ffff, glow: 0x88ffff, size: 48 },
+            for (let row = 0; row < TREE_TILES.length; row++) {
+                const rowTiles = TREE_TILES[row];
+                for (let col = 0; col < rowTiles.length; col++) {
+                    const tileFrame = rowTiles[col];
+                    const tilePx = px + (col * tileSize);
+                    const tilePy = py + (row * tileSize);
 
-            // Dark decorations
-            dead_tree: { texture: 'objects_d_trees', frame: 0, scale: 1.0, tint: 0x444444, size: 96 },
-            skull: { texture: 'objects_d_small', frame: 64, scale: 0.7, tint: 0xcccccc, size: 48 }
+                    const tileSprite = this.add.sprite(tilePx, tilePy, 'objects_d', tileFrame);
+                    tileSprite.setOrigin(0, 0);
+                    tileSprite.setScale(scale);
+                    tileSprite.setTint(tint);
+
+                    this.tileContainer.add(tileSprite);
+
+                    // Add glow for magic trees
+                    if (type === 'magic_tree') {
+                        const glow = this.add.sprite(tilePx, tilePy, 'objects_d', tileFrame);
+                        glow.setOrigin(0, 0);
+                        glow.setScale(scale);
+                        glow.setTint(0xbb88ff);
+                        glow.setAlpha(0.3);
+                        glow.setBlendMode(Phaser.BlendModes.ADD);
+                        this.tileContainer.add(glow);
+                    }
+                }
+            }
+
+            console.log(`✅ Created multi-tile ${type} at ${x},${y}`);
+            return;
+        }
+
+        // Simple single-tile decorations
+        const SIMPLE_DECORATIONS = {
+            flower: { frame: 80, scale: 0.7, tint: 0xffffff },
+            rock: { frame: 96, scale: 0.8, tint: 0xffffff },
+            bush: { frame: 112, scale: 0.8, tint: 0xffffff },
+            rune_stone: { frame: 96, scale: 0.9, tint: 0x88ffff, glow: 0x88ffff },
+            skull: { frame: 128, scale: 0.7, tint: 0xcccccc }
         };
 
-        const decoInfo = DECORATION_MAPPING[type];
+        const decoInfo = SIMPLE_DECORATIONS[type];
         if (!decoInfo) {
             console.warn(`Unknown decoration type: ${type}`);
             return;
         }
 
-        // Check if texture exists
-        if (!this.textures.exists(decoInfo.texture)) {
-            console.error(`Texture ${decoInfo.texture} not loaded for decoration ${type}`);
-            return;
+        const scale = (tileSize / 48) * decoInfo.scale;
+        const decoration = this.add.sprite(px, py, 'objects_d', decoInfo.frame);
+        decoration.setOrigin(0, 0);
+        decoration.setScale(scale);
+        decoration.setTint(decoInfo.tint);
+
+        this.tileContainer.add(decoration);
+
+        // Add glow effect for magical decorations
+        if (decoInfo.glow) {
+            const glowSprite = this.add.sprite(px, py, 'objects_d', decoInfo.frame);
+            glowSprite.setOrigin(0, 0);
+            glowSprite.setScale(scale * 1.1);
+            glowSprite.setTint(decoInfo.glow);
+            glowSprite.setAlpha(0.3);
+            glowSprite.setBlendMode(Phaser.BlendModes.ADD);
+
+            this.tileContainer.add(glowSprite);
+
+            // Pulsing glow animation
+            this.tweens.add({
+                targets: glowSprite,
+                alpha: 0.5,
+                scale: scale * 1.15,
+                duration: 2000,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
         }
 
-        // Add random frame variation (0-2 for trees to avoid going off-sheet)
-        const maxVariation = decoInfo.size === 96 ? 2 : 4;
-        const frameVariation = Math.floor(Math.random() * maxVariation);
-        const finalFrame = decoInfo.frame + frameVariation;
-
-        try {
-            // Create sprite from tileset
-            const decoration = this.add.sprite(px, py, decoInfo.texture, finalFrame);
-            decoration.setOrigin(0, 0);
-
-            // Scale sprite to fit game tiles
-            // Multi-tile sprites (96px) should scale to 2 game tiles (64px)
-            const targetSize = decoInfo.size === 96 ? tileSize * 2 : tileSize;
-            const scale = (targetSize / decoInfo.size) * decoInfo.scale;
-            decoration.setScale(scale);
-            decoration.setTint(decoInfo.tint);
-
-            // Add to tile container for proper layering
-            this.tileContainer.add(decoration);
-
-            console.log(`✅ Created ${type} at ${x},${y} using ${decoInfo.texture} frame ${finalFrame} (${decoInfo.size}px sprite)`);
-
-            // Add glow effect for magical decorations
-            if (decoInfo.glow) {
-                const glowSprite = this.add.sprite(px, py, decoInfo.texture, finalFrame);
-                glowSprite.setOrigin(0, 0);
-                glowSprite.setScale(scale * 1.1);
-                glowSprite.setTint(decoInfo.glow);
-                glowSprite.setAlpha(0.3);
-                glowSprite.setBlendMode(Phaser.BlendModes.ADD);
-
-                this.tileContainer.add(glowSprite);
-
-                // Pulsing glow animation
-                this.tweens.add({
-                    targets: glowSprite,
-                    alpha: 0.5,
-                    scale: scale * 1.15,
-                    duration: 2000,
-                    yoyo: true,
-                    repeat: -1,
-                    ease: 'Sine.easeInOut'
-                });
-            }
-        } catch (error) {
-            console.error(`Failed to create decoration ${type}:`, error);
-        }
+        console.log(`✅ Created ${type} at ${x},${y}`);
     }
 
     createUI() {
