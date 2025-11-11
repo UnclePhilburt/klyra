@@ -111,6 +111,7 @@ canvas {
     justify-content: center;
     align-items: center;
     z-index: 10;
+    pointer-events: none;
 }
 
 #lobbyScreen.hidden {
@@ -156,6 +157,7 @@ canvas {
     justify-content: center;
     align-items: center;
     animation: fadeIn 2s ease-out;
+    pointer-events: auto;
 }
 
 .mystical-gateway .pixel-clouds {
