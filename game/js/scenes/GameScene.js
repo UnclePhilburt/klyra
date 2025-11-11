@@ -70,18 +70,17 @@ class GameScene extends Phaser.Scene {
             frameHeight: tileHeight
         });
 
-        // Object/Decoration tilesets (trees, bushes, rocks, etc.)
-        this.load.spritesheet('objects_b', 'assets/tilesets/Fantasy_Outside_B.png', {
-            frameWidth: tileWidth,
-            frameHeight: tileHeight
+        // Object/Decoration tilesets
+        // Fantasy_Outside_D contains multi-tile trees (96x96 = 2x2 tiles)
+        this.load.spritesheet('objects_d_trees', 'assets/tilesets/Fantasy_Outside_D.png', {
+            frameWidth: 96,  // Trees are 2 tiles wide (96px)
+            frameHeight: 96  // Trees are 2 tiles tall (96px)
         });
-        this.load.spritesheet('objects_c', 'assets/tilesets/Fantasy_Outside_C.png', {
-            frameWidth: tileWidth,
-            frameHeight: tileHeight
-        });
-        this.load.spritesheet('objects_d', 'assets/tilesets/Fantasy_Outside_D.png', {
-            frameWidth: tileWidth,
-            frameHeight: tileHeight
+
+        // Also load with single tile size for smaller objects
+        this.load.spritesheet('objects_d_small', 'assets/tilesets/Fantasy_Outside_D.png', {
+            frameWidth: 48,
+            frameHeight: 48
         });
 
         console.log('✅ All tilesets queued for loading');
@@ -253,23 +252,24 @@ class GameScene extends Phaser.Scene {
         const px = x * tileSize;
         const py = y * tileSize;
 
-        // ONLY use Fantasy_Outside_D for trees
+        // Map decorations to appropriate spritesheets
+        // Trees are 96x96 multi-tile sprites, small objects are 48x48
         const DECORATION_MAPPING = {
-            // Grassland decorations
-            flower: { texture: 'objects_d', frame: 32, scale: 0.7, tint: 0xffffff },
-            rock: { texture: 'objects_d', frame: 48, scale: 0.8, tint: 0xffffff },
+            // Grassland decorations - small objects
+            flower: { texture: 'objects_d_small', frame: 32, scale: 0.7, tint: 0xffffff, size: 48 },
+            rock: { texture: 'objects_d_small', frame: 48, scale: 0.8, tint: 0xffffff, size: 48 },
 
-            // Forest decorations - ALL from objects_d
-            tree: { texture: 'objects_d', frame: 0, scale: 1.0, tint: 0xffffff },
-            bush: { texture: 'objects_d', frame: 16, scale: 0.8, tint: 0xffffff },
+            // Forest decorations - trees are 96x96, bushes are 48x48
+            tree: { texture: 'objects_d_trees', frame: 0, scale: 1.0, tint: 0xffffff, size: 96 },
+            bush: { texture: 'objects_d_small', frame: 16, scale: 0.8, tint: 0xffffff, size: 48 },
 
-            // Magic decorations - trees with magical tints
-            magic_tree: { texture: 'objects_d', frame: 0, scale: 1.0, tint: 0xbb88ff, glow: 0xbb88ff },
-            rune_stone: { texture: 'objects_d', frame: 48, scale: 0.9, tint: 0x88ffff, glow: 0x88ffff },
+            // Magic decorations
+            magic_tree: { texture: 'objects_d_trees', frame: 0, scale: 1.0, tint: 0xbb88ff, glow: 0xbb88ff, size: 96 },
+            rune_stone: { texture: 'objects_d_small', frame: 48, scale: 0.9, tint: 0x88ffff, glow: 0x88ffff, size: 48 },
 
-            // Dark decorations - darker tree versions
-            dead_tree: { texture: 'objects_d', frame: 0, scale: 1.0, tint: 0x444444 },
-            skull: { texture: 'objects_d', frame: 64, scale: 0.7, tint: 0xcccccc }
+            // Dark decorations
+            dead_tree: { texture: 'objects_d_trees', frame: 0, scale: 1.0, tint: 0x444444, size: 96 },
+            skull: { texture: 'objects_d_small', frame: 64, scale: 0.7, tint: 0xcccccc, size: 48 }
         };
 
         const decoInfo = DECORATION_MAPPING[type];
@@ -284,8 +284,9 @@ class GameScene extends Phaser.Scene {
             return;
         }
 
-        // Add random frame variation (0-3 in same row)
-        const frameVariation = Math.floor(Math.random() * 4);
+        // Add random frame variation (0-2 for trees to avoid going off-sheet)
+        const maxVariation = decoInfo.size === 96 ? 2 : 4;
+        const frameVariation = Math.floor(Math.random() * maxVariation);
         const finalFrame = decoInfo.frame + frameVariation;
 
         try {
@@ -293,15 +294,17 @@ class GameScene extends Phaser.Scene {
             const decoration = this.add.sprite(px, py, decoInfo.texture, finalFrame);
             decoration.setOrigin(0, 0);
 
-            // Scale 48px tileset to game size
-            const scale = (tileSize / 48) * decoInfo.scale;
+            // Scale sprite to fit game tiles
+            // Multi-tile sprites (96px) should scale to 2 game tiles (64px)
+            const targetSize = decoInfo.size === 96 ? tileSize * 2 : tileSize;
+            const scale = (targetSize / decoInfo.size) * decoInfo.scale;
             decoration.setScale(scale);
             decoration.setTint(decoInfo.tint);
 
             // Add to tile container for proper layering
             this.tileContainer.add(decoration);
 
-            console.log(`✅ Created ${type} at ${x},${y} using ${decoInfo.texture} frame ${finalFrame}`);
+            console.log(`✅ Created ${type} at ${x},${y} using ${decoInfo.texture} frame ${finalFrame} (${decoInfo.size}px sprite)`);
 
             // Add glow effect for magical decorations
             if (decoInfo.glow) {
