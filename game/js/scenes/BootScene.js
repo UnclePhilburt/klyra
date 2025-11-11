@@ -66,8 +66,8 @@ class BootScene extends Phaser.Scene {
     async create() {
         console.log('🚀 Booting game assets...');
 
-        // Create walking animations for all characters
-        this.createCharacterAnimations();
+        // Malachar uses manual frame animation (2x2 tile character)
+        // No Phaser animations needed
 
         // Don't connect to server - custom menu handles that
         // Just load assets and wait for custom menu to call game.connect()
@@ -75,65 +75,5 @@ class BootScene extends Phaser.Scene {
 
         // Hide Phaser canvas initially (custom menu is shown)
         this.game.canvas.style.display = 'none';
-    }
-
-    createCharacterAnimations() {
-        // Only create animations for sprites that exist
-        const characters = ['malachar'];
-
-        characters.forEach(char => {
-            // Check if sprite sheet loaded
-            if (!this.textures.exists(char)) {
-                return;
-            }
-
-            // Idle animation (row 1: frames 0-7)
-            this.anims.create({
-                key: `${char}_idle`,
-                frames: this.anims.generateFrameNumbers(char, { start: 0, end: 7 }),
-                frameRate: 8,
-                repeat: -1
-            });
-
-            // Moving animation (row 2: frames 8-15)
-            // Use the same animation for all movement directions
-            this.anims.create({
-                key: `${char}_walk_down`,
-                frames: this.anims.generateFrameNumbers(char, { start: 8, end: 15 }),
-                frameRate: 10,
-                repeat: -1
-            });
-
-            this.anims.create({
-                key: `${char}_walk_up`,
-                frames: this.anims.generateFrameNumbers(char, { start: 8, end: 15 }),
-                frameRate: 10,
-                repeat: -1
-            });
-
-            this.anims.create({
-                key: `${char}_walk_left`,
-                frames: this.anims.generateFrameNumbers(char, { start: 8, end: 15 }),
-                frameRate: 10,
-                repeat: -1
-            });
-
-            this.anims.create({
-                key: `${char}_walk_right`,
-                frames: this.anims.generateFrameNumbers(char, { start: 8, end: 15 }),
-                frameRate: 10,
-                repeat: -1
-            });
-
-            // No attack animation - just use idle
-            this.anims.create({
-                key: `${char}_attack`,
-                frames: this.anims.generateFrameNumbers(char, { start: 0, end: 7 }),
-                frameRate: 12,
-                repeat: 0
-            });
-
-            console.log(`✅ Created animations for ${char}: idle (0-7) and moving (8-15)`);
-        });
     }
 }

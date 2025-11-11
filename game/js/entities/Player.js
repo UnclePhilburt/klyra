@@ -29,18 +29,32 @@ class Player {
 
         // Check if sprite sheet exists for this character
         if (this.scene.textures.exists(textureKey)) {
-            // Use sprite sheet
-            this.sprite = this.scene.add.sprite(x, y, textureKey);
-            this.sprite.setScale(0.5); // Scale down to fit tile
-            this.sprite.setDepth(y + 1000); // Set initial depth with offset to ensure visibility
+            // Create 2x2 tile character (multi-sprite)
+            const spriteSize = 32; // Half of 64px frames
+
+            // Create 4 sprites for 2x2 grid
+            this.topLeft = this.scene.add.sprite(x - spriteSize/2, y - spriteSize/2, textureKey, 0);
+            this.topRight = this.scene.add.sprite(x + spriteSize/2, y - spriteSize/2, textureKey, 0);
+            this.bottomLeft = this.scene.add.sprite(x - spriteSize/2, y + spriteSize/2, textureKey, 0);
+            this.bottomRight = this.scene.add.sprite(x + spriteSize/2, y + spriteSize/2, textureKey, 0);
+
+            // Scale all sprites
+            [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight].forEach(s => {
+                s.setScale(0.5);
+                s.setDepth(y + 1000);
+            });
+
+            // Use main sprite reference (center point for physics)
+            this.sprite = this.scene.add.rectangle(x, y, tileSize, tileSize, 0x000000, 0);
+            this.sprite.setDepth(y + 1000);
             this.scene.physics.add.existing(this.sprite);
 
-            // Play idle animation
-            if (this.scene.anims.exists(`${textureKey}_idle`)) {
-                this.sprite.play(`${textureKey}_idle`);
-            }
+            // Animation state
+            this.currentAnimFrame = 0;
+            this.animTimer = 0;
+            this.animState = 'idle';
 
-            console.log(`✅ Created sprite for ${this.data.username} using ${textureKey}, depth: ${y + 1000}`);
+            console.log(`✅ Created 2x2 sprite for ${this.data.username} using ${textureKey}, depth: ${y + 1000}`);
             this.usingSprite = true;
         } else {
             // Fallback to circle placeholder
@@ -63,6 +77,43 @@ class Player {
         }
 
         this.currentDirection = 'down';
+
+        // Malachar idle animation frames (2x2 tiles per frame)
+        this.idleFrames = [
+            { topLeft: 57, topRight: 58, bottomLeft: 113, bottomRight: 114 },
+            { topLeft: 63, topRight: 64, bottomLeft: 119, bottomRight: 120 },
+            { topLeft: 63, topRight: 64, bottomLeft: 119, bottomRight: 120 },
+            { topLeft: 67, topRight: 68, bottomLeft: 123, bottomRight: 124 },
+            { topLeft: 70, topRight: 71, bottomLeft: 126, bottomRight: 127 },
+            { topLeft: 74, topRight: 75, bottomLeft: 130, bottomRight: 131 },
+            { topLeft: 77, topRight: 78, bottomLeft: 133, bottomRight: 134 },
+            { topLeft: 80, topRight: 81, bottomLeft: 136, bottomRight: 137 }
+        ];
+    }
+
+    updateSpriteFrames(frameData) {
+        if (!this.usingSprite || !this.topLeft) return;
+
+        this.topLeft.setFrame(frameData.topLeft);
+        this.topRight.setFrame(frameData.topRight);
+        this.bottomLeft.setFrame(frameData.bottomLeft);
+        this.bottomRight.setFrame(frameData.bottomRight);
+    }
+
+    updateAnimation(delta) {
+        if (!this.usingSprite || !this.topLeft) return;
+
+        this.animTimer += delta;
+        const frameTime = 125; // milliseconds per frame (8 fps)
+
+        if (this.animTimer >= frameTime) {
+            this.animTimer = 0;
+
+            if (this.animState === 'idle') {
+                this.currentAnimFrame = (this.currentAnimFrame + 1) % this.idleFrames.length;
+                this.updateSpriteFrames(this.idleFrames[this.currentAnimFrame]);
+            }
+        }
     }
 
     createNameTag() {
@@ -89,22 +140,9 @@ class Player {
 
         // Update animations and direction
         if (velocityX !== 0 || velocityY !== 0) {
-            // Determine direction for animation
-            let direction = 'down';
-            if (Math.abs(velocityX) > Math.abs(velocityY)) {
-                direction = velocityX > 0 ? 'right' : 'left';
-            } else {
-                direction = velocityY > 0 ? 'down' : 'up';
-            }
+            this.animState = 'moving';
 
-            // Play walking animation if using sprite
-            const textureKey = this.class.toLowerCase();
-            if (this.usingSprite && this.scene.anims.exists(`${textureKey}_walk_${direction}`)) {
-                if (this.currentDirection !== direction) {
-                    this.sprite.play(`${textureKey}_walk_${direction}`);
-                    this.currentDirection = direction;
-                }
-            } else if (!this.usingSprite) {
+            if (!this.usingSprite) {
                 // Update weapon rotation for circle placeholder
                 const angle = Math.atan2(velocityY, velocityX);
                 this.weapon.setRotation(angle);
@@ -121,13 +159,7 @@ class Player {
                 });
             }
         } else {
-            // Play idle animation when stopped
-            const textureKey = this.class.toLowerCase();
-            if (this.usingSprite && this.scene.anims.exists(`${textureKey}_idle`)) {
-                if (!this.sprite.anims.isPlaying || this.sprite.anims.currentAnim.key !== `${textureKey}_idle`) {
-                    this.sprite.play(`${textureKey}_idle`);
-                }
-            }
+            this.animState = 'idle';
         }
 
         this.updateElements();
@@ -149,18 +181,7 @@ class Player {
     }
 
     attack(targetX, targetY) {
-        const textureKey = this.class.toLowerCase();
-        if (this.usingSprite && this.scene.anims.exists(`${textureKey}_attack`)) {
-            // Play attack animation
-            this.sprite.play(`${textureKey}_attack`);
-
-            // Return to idle after attack
-            this.sprite.once('animationcomplete', () => {
-                if (this.scene.anims.exists(`${textureKey}_idle`)) {
-                    this.sprite.play(`${textureKey}_idle`);
-                }
-            });
-        } else if (!this.usingSprite) {
+        if (!this.usingSprite) {
             // Point weapon at target for circle placeholder
             const angle = Phaser.Math.Angle.Between(
                 this.sprite.x,
@@ -180,13 +201,24 @@ class Player {
             });
         }
 
-        // Flash effect for all sprite types
-        this.scene.tweens.add({
-            targets: this.sprite,
-            alpha: 0.5,
-            duration: 50,
-            yoyo: true
-        });
+        // Flash effect for multi-sprite character
+        if (this.usingSprite && this.topLeft) {
+            const targets = [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight];
+            this.scene.tweens.add({
+                targets: targets,
+                alpha: 0.5,
+                duration: 50,
+                yoyo: true
+            });
+        } else if (!this.usingSprite) {
+            // Flash effect for placeholder
+            this.scene.tweens.add({
+                targets: this.sprite,
+                alpha: 0.5,
+                duration: 50,
+                yoyo: true
+            });
+        }
     }
 
     takeDamage(amount) {
@@ -197,10 +229,21 @@ class Player {
         }
 
         // Damage flash
-        this.sprite.setTint(0xff0000);
-        this.scene.time.delayedCall(100, () => {
-            this.sprite.clearTint();
-        });
+        if (this.usingSprite && this.topLeft) {
+            [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight].forEach(s => {
+                s.setTint(0xff0000);
+            });
+            this.scene.time.delayedCall(100, () => {
+                [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight].forEach(s => {
+                    s.clearTint();
+                });
+            });
+        } else if (!this.usingSprite) {
+            this.sprite.setTint(0xff0000);
+            this.scene.time.delayedCall(100, () => {
+                this.sprite.clearTint();
+            });
+        }
 
         this.updateHealthBar();
     }
@@ -209,16 +252,28 @@ class Player {
         this.isAlive = false;
 
         // Death animation
-        this.scene.tweens.add({
-            targets: [this.sprite, this.glow, this.weapon],
-            alpha: 0,
-            duration: 500,
-            onComplete: () => {
-                this.sprite.setVisible(false);
-                this.glow.setVisible(false);
-                this.weapon.setVisible(false);
-            }
-        });
+        if (this.usingSprite && this.topLeft) {
+            const targets = [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight];
+            this.scene.tweens.add({
+                targets: targets,
+                alpha: 0,
+                duration: 500,
+                onComplete: () => {
+                    targets.forEach(s => s.setVisible(false));
+                }
+            });
+        } else if (!this.usingSprite) {
+            this.scene.tweens.add({
+                targets: [this.sprite, this.glow, this.weapon],
+                alpha: 0,
+                duration: 500,
+                onComplete: () => {
+                    this.sprite.setVisible(false);
+                    if (this.glow) this.glow.setVisible(false);
+                    if (this.weapon) this.weapon.setVisible(false);
+                }
+            });
+        }
 
         this.nameTag.setAlpha(0.5);
     }
@@ -228,7 +283,21 @@ class Player {
         const spriteDepth = this.sprite.y + 1000;
         this.sprite.setDepth(spriteDepth);
 
-        if (!this.usingSprite) {
+        if (this.usingSprite && this.topLeft) {
+            // Update all 4 sprite positions for 2x2 character
+            const spriteSize = 32;
+            const x = this.sprite.x;
+            const y = this.sprite.y;
+
+            this.topLeft.setPosition(x - spriteSize/2, y - spriteSize/2);
+            this.topRight.setPosition(x + spriteSize/2, y - spriteSize/2);
+            this.bottomLeft.setPosition(x - spriteSize/2, y + spriteSize/2);
+            this.bottomRight.setPosition(x + spriteSize/2, y + spriteSize/2);
+
+            [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight].forEach(s => {
+                s.setDepth(spriteDepth);
+            });
+        } else if (!this.usingSprite) {
             // Update glow position for circle placeholder
             this.glow.setPosition(this.sprite.x, this.sprite.y);
             this.glow.setDepth(spriteDepth - 1);

@@ -557,6 +557,12 @@ class GameScene extends Phaser.Scene {
 
         this.localPlayer.move(velocityX, velocityY);
 
+        // Update animations
+        this.localPlayer.updateAnimation(delta);
+        Object.values(this.otherPlayers).forEach(player => {
+            player.updateAnimation(delta);
+        });
+
         // Depth sorting - use Y position for proper layering
         // Higher Y = further down screen = higher depth (in front)
         if (this.treeSprites && this.treeSprites.length > 0) {
