@@ -8,7 +8,7 @@
     position: fixed;
     top: 20px;
     left: 20px;
-    background: linear-gradient(135deg, rgba(107, 79, 255, 0.9), rgba(252, 15, 192, 0.9));
+    background: linear-gradient(135deg, rgba(107, 79, 255, 0.95), rgba(252, 15, 192, 0.95));
     border: 3px solid #FFD700;
     padding: 12px 24px;
     border-radius: 10px;
@@ -16,10 +16,13 @@
     font-size: 11px;
     color: #FFFFFF;
     cursor: pointer;
-    z-index: 9999;
+    z-index: 10000;
     box-shadow: 0 0 20px rgba(107, 79, 255, 0.5), 4px 4px 0px rgba(0, 0, 0, 0.3);
     transition: all 0.2s ease;
     image-rendering: pixelated;
+    display: block;
+    opacity: 1;
+    pointer-events: all;
 }
 
 /* Hide buttons when game is active or lobby is hidden */
@@ -46,7 +49,7 @@ body.game-active #settingsBtn,
     position: fixed;
     top: 20px;
     right: 280px;
-    background: linear-gradient(135deg, rgba(107, 79, 255, 0.9), rgba(252, 15, 192, 0.9));
+    background: linear-gradient(135deg, rgba(107, 79, 255, 0.95), rgba(252, 15, 192, 0.95));
     border: 3px solid #FFD700;
     width: 50px;
     height: 50px;
@@ -54,12 +57,14 @@ body.game-active #settingsBtn,
     font-size: 24px;
     color: #FFFFFF;
     cursor: pointer;
-    z-index: 9999;
+    z-index: 10000;
     box-shadow: 0 0 20px rgba(107, 79, 255, 0.5), 4px 4px 0px rgba(0, 0, 0, 0.3);
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 1;
+    pointer-events: all;
 }
 
 #settingsBtn:hover {
