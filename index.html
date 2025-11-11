@@ -994,7 +994,7 @@
                 <div class="stat-label">Players</div>
             </div>
             <div class="stat" data-delay="200">
-                <div class="stat-number" data-target="3">0</div>
+                <div class="stat-number" data-target="6">0</div>
                 <div class="stat-label">Characters</div>
             </div>
         </div>
@@ -1003,42 +1003,83 @@
     <!-- Characters Showcase -->
     <section id="characters" class="features" style="padding-top: 4rem;">
         <h2 class="section-title">Choose Your Fighter</h2>
-        <p style="text-align: center; color: rgba(255,255,255,0.6); margin-bottom: 3rem; font-size: 1.1rem;">Three unique playstyles. Master them all.</p>
-        <div class="features-grid" style="max-width: 1400px; margin: 0 auto; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
-            <div class="character-card interactive" data-theme="malachar" style="border: 2px solid rgba(220, 38, 38, 0.5); background: rgba(220, 38, 38, 0.05);">
-                <span class="feature-icon" style="font-size: 4rem; filter: drop-shadow(0 0 20px rgba(220, 38, 38, 0.8));">💀</span>
-                <h3 style="color: #dc2626;">Malachar</h3>
-                <p style="font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-bottom: 1rem;">NECROMANCER SUMMONER</p>
-                <p>Command an army of undead. Spawn with 1 skeleton minion. 10% chance to raise more on kill. Overwhelm enemies with dark magic.</p>
-                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-around; font-size: 0.85rem;">
-                    <div><strong style="color: #dc2626;">16</strong> STR</div>
-                    <div><strong style="color: #dc2626;">115</strong> HP</div>
-                    <div><strong style="color: #dc2626;">10</strong> DEF</div>
-                    <div><strong style="color: #dc2626;">9</strong> SPD</div>
-                </div>
-            </div>
+        <p style="text-align: center; color: rgba(255,255,255,0.6); margin-bottom: 3rem; font-size: 1.1rem;">Six unique heroes. Master them all.</p>
+        <div class="features-grid" style="max-width: 1400px; margin: 0 auto; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+            <!-- Aldric - Tank -->
             <div class="character-card interactive" data-theme="aldric" style="border: 2px solid rgba(255, 215, 0, 0.5); background: rgba(255, 215, 0, 0.05);">
                 <span class="feature-icon" style="font-size: 4rem; filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));">🛡️</span>
                 <h3 style="color: #ffd700;">Sir Aldric</h3>
                 <p style="font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-bottom: 1rem;">KNIGHT TANK</p>
-                <p>The unbreakable wall. Highest HP and defense. Protect your team with Shield Slam AoE damage. You do not fall.</p>
+                <p>Unwavering defender with iron will. Respawns once per run. Reduces all incoming damage.</p>
                 <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-around; font-size: 0.85rem;">
-                    <div><strong style="color: #ffd700;">14</strong> STR</div>
-                    <div><strong style="color: #ffd700;">150</strong> HP</div>
-                    <div><strong style="color: #ffd700;">18</strong> DEF</div>
-                    <div><strong style="color: #ffd700;">6</strong> SPD</div>
+                    <div><strong style="color: #ffd700;">120</strong> HP</div>
+                    <div><strong style="color: #ffd700;">10</strong> DMG</div>
+                    <div><strong style="color: #ffd700;">180</strong> SPD</div>
                 </div>
             </div>
+
+            <!-- Nyx - Assassin -->
+            <div class="character-card interactive" data-theme="nyx" style="border: 2px solid rgba(34, 139, 34, 0.5); background: rgba(34, 139, 34, 0.05);">
+                <span class="feature-icon" style="font-size: 4rem; filter: drop-shadow(0 0 20px rgba(34, 139, 34, 0.8));">🗡️</span>
+                <h3 style="color: #228B22;">Nyx</h3>
+                <p style="font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-bottom: 1rem;">ROGUE ASSASSIN</p>
+                <p>Swift shadow assassin. 20% crit chance. First attack after dodge always crits.</p>
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-around; font-size: 0.85rem;">
+                    <div><strong style="color: #228B22;">80</strong> HP</div>
+                    <div><strong style="color: #228B22;">15</strong> DMG</div>
+                    <div><strong style="color: #228B22;">220</strong> SPD</div>
+                </div>
+            </div>
+
+            <!-- Malachar - Necromancer -->
+            <div class="character-card interactive" data-theme="malachar" style="border: 2px solid rgba(139, 0, 139, 0.5); background: rgba(139, 0, 139, 0.05);">
+                <span class="feature-icon" style="font-size: 4rem; filter: drop-shadow(0 0 20px rgba(139, 0, 139, 0.8));">💀</span>
+                <h3 style="color: #8B008B;">Malachar</h3>
+                <p style="font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-bottom: 1rem;">NECROMANCER</p>
+                <p>Dark summoner who commands the dead. 5% lifesteal. 15% chance to summon minions.</p>
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-around; font-size: 0.85rem;">
+                    <div><strong style="color: #8B008B;">70</strong> HP</div>
+                    <div><strong style="color: #8B008B;">8</strong> DMG</div>
+                    <div><strong style="color: #8B008B;">170</strong> SPD</div>
+                </div>
+            </div>
+
+            <!-- Thrain - Berserker -->
+            <div class="character-card interactive" data-theme="thrain" style="border: 2px solid rgba(220, 20, 60, 0.5); background: rgba(220, 20, 60, 0.05);">
+                <span class="feature-icon" style="font-size: 4rem; filter: drop-shadow(0 0 20px rgba(220, 20, 60, 0.8));">⚒️</span>
+                <h3 style="color: #DC143C;">Thrain</h3>
+                <p style="font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-bottom: 1rem;">DWARVEN BERSERKER</p>
+                <p>Explosive damage dealer. Gains damage as HP drops. Bloodlust stacks on kill.</p>
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-around; font-size: 0.85rem;">
+                    <div><strong style="color: #DC143C;">100</strong> HP</div>
+                    <div><strong style="color: #DC143C;">18</strong> DMG</div>
+                    <div><strong style="color: #DC143C;">160</strong> SPD</div>
+                </div>
+            </div>
+
+            <!-- Zephira - Mage -->
+            <div class="character-card interactive" data-theme="zephira" style="border: 2px solid rgba(255, 69, 0, 0.5); background: rgba(255, 69, 0, 0.05);">
+                <span class="feature-icon" style="font-size: 4rem; filter: drop-shadow(0 0 20px rgba(255, 69, 0, 0.8));">🌪️</span>
+                <h3 style="color: #FF4500;">Zephira</h3>
+                <p style="font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-bottom: 1rem;">WIND MAGE</p>
+                <p>Devastating spell caster. +40% damage, -20% HP. Attacks bounce to nearby enemies.</p>
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-around; font-size: 0.85rem;">
+                    <div><strong style="color: #FF4500;">60</strong> HP</div>
+                    <div><strong style="color: #FF4500;">20</strong> DMG</div>
+                    <div><strong style="color: #FF4500;">190</strong> SPD</div>
+                </div>
+            </div>
+
+            <!-- Hiroshi - Samurai -->
             <div class="character-card interactive" data-theme="hiroshi" style="border: 2px solid rgba(220, 20, 60, 0.5); background: rgba(220, 20, 60, 0.05);">
                 <span class="feature-icon" style="font-size: 4rem; filter: drop-shadow(0 0 20px rgba(220, 20, 60, 0.8));">⚔️</span>
                 <h3 style="color: #dc143c;">Hiroshi</h3>
                 <p style="font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-bottom: 1rem;">SAMURAI SWORDMASTER</p>
-                <p>Lightning-fast blade dancer. Highest damage and speed. Slice enemies with Blade Flurry combos. Precision is everything.</p>
+                <p>Exiled blade dancer. Every 3rd attack strikes twice. 30% chance to reflect damage.</p>
                 <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-around; font-size: 0.85rem;">
-                    <div><strong style="color: #dc143c;">18</strong> STR</div>
                     <div><strong style="color: #dc143c;">100</strong> HP</div>
-                    <div><strong style="color: #dc143c;">8</strong> DEF</div>
-                    <div><strong style="color: #dc143c;">14</strong> SPD</div>
+                    <div><strong style="color: #dc143c;">18</strong> DMG</div>
+                    <div><strong style="color: #dc143c;">210</strong> SPD</div>
                 </div>
             </div>
         </div>
@@ -1333,17 +1374,35 @@
 
         // ==================== THEME SWITCHING ====================
         const characterThemes = {
-            malachar: {
-                primary: '#dc2626',
-                secondary: '#991b1b',
-                accent: '#fca5a5',
-                glow: 'rgba(220, 38, 38, 0.6)'
-            },
             aldric: {
                 primary: '#ffd700',
                 secondary: '#ffa500',
                 accent: '#ffed4e',
                 glow: 'rgba(255, 215, 0, 0.6)'
+            },
+            nyx: {
+                primary: '#228B22',
+                secondary: '#006400',
+                accent: '#90EE90',
+                glow: 'rgba(34, 139, 34, 0.6)'
+            },
+            malachar: {
+                primary: '#8B008B',
+                secondary: '#4B0082',
+                accent: '#DA70D6',
+                glow: 'rgba(139, 0, 139, 0.6)'
+            },
+            thrain: {
+                primary: '#DC143C',
+                secondary: '#8B0000',
+                accent: '#FF6B6B',
+                glow: 'rgba(220, 20, 60, 0.6)'
+            },
+            zephira: {
+                primary: '#FF4500',
+                secondary: '#FF6347',
+                accent: '#FFA07A',
+                glow: 'rgba(255, 69, 0, 0.6)'
             },
             hiroshi: {
                 primary: '#dc143c',
