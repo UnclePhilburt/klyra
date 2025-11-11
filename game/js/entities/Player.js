@@ -29,6 +29,18 @@ class Player {
 
         // Check if sprite sheet exists for this character
         if (this.scene.textures.exists(textureKey)) {
+            // Malachar idle animation frames (2x2 tiles per frame) - define first
+            this.idleFrames = [
+                { topLeft: 57, topRight: 58, bottomLeft: 113, bottomRight: 114 },
+                { topLeft: 60, topRight: 61, bottomLeft: 116, bottomRight: 117 },
+                { topLeft: 63, topRight: 64, bottomLeft: 119, bottomRight: 120 },
+                { topLeft: 67, topRight: 68, bottomLeft: 123, bottomRight: 124 },
+                { topLeft: 70, topRight: 71, bottomLeft: 126, bottomRight: 127 },
+                { topLeft: 74, topRight: 75, bottomLeft: 130, bottomRight: 131 },
+                { topLeft: 77, topRight: 78, bottomLeft: 133, bottomRight: 134 },
+                { topLeft: 80, topRight: 81, bottomLeft: 136, bottomRight: 137 }
+            ];
+
             // Create 2x2 tile character (multi-sprite)
             const spriteSize = 32; // Half of 64px frames
 
@@ -56,7 +68,11 @@ class Player {
             this.animState = 'idle';
 
             console.log(`✅ Created 2x2 sprite for ${this.data.username} using ${textureKey}, depth: ${y + 1000}`);
+            console.log(`  - Starting at frame: ${this.idleFrames[0].topLeft}-${this.idleFrames[0].topRight} / ${this.idleFrames[0].bottomLeft}-${this.idleFrames[0].bottomRight}`);
             this.usingSprite = true;
+
+            // Set initial animation frame
+            this.updateSpriteFrames(this.idleFrames[0]);
         } else {
             // Fallback to circle placeholder
             console.log(`⚠️ No sprite for ${textureKey}, using placeholder for ${this.data.username}`);
@@ -78,27 +94,19 @@ class Player {
         }
 
         this.currentDirection = 'down';
-
-        // Malachar idle animation frames (2x2 tiles per frame)
-        this.idleFrames = [
-            { topLeft: 57, topRight: 58, bottomLeft: 113, bottomRight: 114 },
-            { topLeft: 60, topRight: 61, bottomLeft: 116, bottomRight: 117 },
-            { topLeft: 63, topRight: 64, bottomLeft: 119, bottomRight: 120 },
-            { topLeft: 67, topRight: 68, bottomLeft: 123, bottomRight: 124 },
-            { topLeft: 70, topRight: 71, bottomLeft: 126, bottomRight: 127 },
-            { topLeft: 74, topRight: 75, bottomLeft: 130, bottomRight: 131 },
-            { topLeft: 77, topRight: 78, bottomLeft: 133, bottomRight: 134 },
-            { topLeft: 80, topRight: 81, bottomLeft: 136, bottomRight: 137 }
-        ];
     }
 
     updateSpriteFrames(frameData) {
         if (!this.usingSprite || !this.topLeft) return;
 
-        this.topLeft.setFrame(frameData.topLeft);
-        this.topRight.setFrame(frameData.topRight);
-        this.bottomLeft.setFrame(frameData.bottomLeft);
-        this.bottomRight.setFrame(frameData.bottomRight);
+        try {
+            this.topLeft.setFrame(frameData.topLeft);
+            this.topRight.setFrame(frameData.topRight);
+            this.bottomLeft.setFrame(frameData.bottomLeft);
+            this.bottomRight.setFrame(frameData.bottomRight);
+        } catch (e) {
+            console.error('❌ Error setting frames:', frameData, e.message);
+        }
     }
 
     updateAnimation(delta) {
