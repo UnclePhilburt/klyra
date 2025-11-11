@@ -410,6 +410,38 @@ class GameScene extends Phaser.Scene {
     }
 
     setupNetworkListeners() {
+        // New player joined
+        networkManager.on('player:joined', (data) => {
+            console.log('🎮 New player joined:', data.player.username);
+
+            // Don't create a sprite for ourselves
+            if (data.player.id !== networkManager.currentPlayer.id) {
+                // Create new player sprite
+                const newPlayer = new Player(this, data.player);
+                this.otherPlayers[data.player.id] = newPlayer;
+
+                // Add tree collisions to new player
+                if (this.treeCollisions) {
+                    this.treeCollisions.forEach(collisionRect => {
+                        this.physics.add.collider(newPlayer.sprite, collisionRect);
+                    });
+                }
+
+                console.log('✅ Created sprite for new player:', data.player.username);
+            }
+        });
+
+        // Player left
+        networkManager.on('player:left', (data) => {
+            console.log('👋 Player left:', data.username);
+
+            const player = this.otherPlayers[data.playerId];
+            if (player) {
+                player.sprite.destroy();
+                delete this.otherPlayers[data.playerId];
+            }
+        });
+
         // Player movement
         networkManager.on('player:moved', (data) => {
             const player = this.otherPlayers[data.playerId];
