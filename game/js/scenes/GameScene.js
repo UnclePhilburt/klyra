@@ -157,9 +157,14 @@ class GameScene extends Phaser.Scene {
 
     createDungeon(dungeonData) {
         const tileSize = GameConfig.GAME.TILE_SIZE;
-        const { width, height, tiles, biomes, decorations } = dungeonData;
+        const { width, height, tiles, biomes, decorations, seed } = dungeonData;
 
         console.log('🎨 Rendering dungeon with tileset sprites...');
+        console.log('🌱 Using seed:', seed);
+
+        // Store seed for consistent random generation
+        this.dungeonSeed = seed;
+        this.seedCounter = 0;
 
         // Create container for tiles
         this.tileContainer = this.add.container(0, 0);
@@ -208,9 +213,9 @@ class GameScene extends Phaser.Scene {
 
                 // NO TINT - render naturally
 
-                // Add slight variety with random frames for same biome
-                if (Math.random() < 0.2) {
-                    const randomOffset = Math.floor(Math.random() * 3);
+                // Add slight variety with seeded random for consistency across clients
+                if (this.seededRandom(this.dungeonSeed) < 0.2) {
+                    const randomOffset = Math.floor(this.seededRandom(this.dungeonSeed) * 3);
                     tileSprite.setFrame(tileInfo.frame + randomOffset);
                 }
 
@@ -233,6 +238,24 @@ class GameScene extends Phaser.Scene {
         this.dungeonTiles = tiles;
 
         console.log(`✅ Dungeon rendered with ${width * height} PNG tiles`);
+    }
+
+    // Seeded random function for consistent random across all clients
+    seededRandom(seedStr) {
+        // Convert seed string to number if needed
+        let seed = 0;
+        if (typeof seedStr === 'string') {
+            for (let i = 0; i < seedStr.length; i++) {
+                seed += seedStr.charCodeAt(i);
+            }
+        } else {
+            seed = seedStr;
+        }
+
+        // Use seed + counter for unique values
+        seed = (seed + this.seedCounter++) * 9301 + 49297;
+        seed = seed % 233280;
+        return seed / 233280;
     }
 
     adjustColor(color, amount) {
@@ -266,8 +289,9 @@ class GameScene extends Phaser.Scene {
             [116, 117, 118]         // Bottom row (3 tiles wide)
         ];
 
-        // Select tree pattern randomly
-        const TREE_TILES = Math.random() < 0.5 ? TREE_ONE : TREE_TWO;
+        // Select tree pattern using seeded random for consistency across clients
+        const treeRandom = this.seededRandom(this.dungeonSeed);
+        const TREE_TILES = treeRandom < 0.5 ? TREE_ONE : TREE_TWO;
 
         if (type === 'tree' || type === 'magic_tree' || type === 'dead_tree') {
             // Render multi-tile tree - NO TINTS
