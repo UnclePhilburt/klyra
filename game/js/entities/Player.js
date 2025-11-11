@@ -52,27 +52,29 @@ class Player {
             const scale = spriteSize / 48; // 32/48 = 0.667
 
             // Create 4 sprites for 2x2 grid
-            // With origin (0,0) and scale 0.667, each sprite occupies exactly 32x32 pixels
-            this.topLeft = this.scene.add.sprite(x - spriteSize, y - spriteSize, textureKey, 0);
-            this.topRight = this.scene.add.sprite(x, y - spriteSize, textureKey, 0);
-            this.bottomLeft = this.scene.add.sprite(x - spriteSize, y, textureKey, 0);
-            this.bottomRight = this.scene.add.sprite(x, y, textureKey, 0);
+            // Anchor at center-bottom (0.5, 1.0) for stable foot position
+            this.topLeft = this.scene.add.sprite(x - spriteSize/2, y - spriteSize, textureKey, 0);
+            this.topRight = this.scene.add.sprite(x + spriteSize/2, y - spriteSize, textureKey, 0);
+            this.bottomLeft = this.scene.add.sprite(x - spriteSize/2, y, textureKey, 0);
+            this.bottomRight = this.scene.add.sprite(x + spriteSize/2, y, textureKey, 0);
 
-            // Set origin to top-left (0,0) to lock all frames to same corner
+            // Set origin to center-bottom (0.5, 1.0) - standard for 2D characters
+            // This keeps the feet planted even if artwork shifts within frames
             [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight].forEach(s => {
-                s.setOrigin(0, 0);
+                s.setOrigin(0.5, 1.0);
                 s.setScale(scale);
                 s.setDepth(y + 1000);
             });
 
             console.log(`🔍 Sprite positioning:`, {
                 center: { x, y },
-                topLeft: { x: x - spriteSize, y: y - spriteSize },
-                topRight: { x: x, y: y - spriteSize },
-                bottomLeft: { x: x - spriteSize, y: y },
-                bottomRight: { x: x, y: y },
+                topLeft: { x: x - spriteSize/2, y: y - spriteSize },
+                topRight: { x: x + spriteSize/2, y: y - spriteSize },
+                bottomLeft: { x: x - spriteSize/2, y: y },
+                bottomRight: { x: x + spriteSize/2, y: y },
                 spriteSize: spriteSize,
-                scale: scale
+                scale: scale,
+                origin: '(0.5, 1.0) - center-bottom'
             });
 
             // Use main sprite reference (center point for physics)
@@ -343,11 +345,11 @@ class Player {
             const x = this.sprite.x;
             const y = this.sprite.y;
 
-            // Position sprites with left-bottom origin
-            this.topLeft.setPosition(x - spriteSize, y - spriteSize);
-            this.topRight.setPosition(x, y - spriteSize);
-            this.bottomLeft.setPosition(x - spriteSize, y);
-            this.bottomRight.setPosition(x, y);
+            // Position sprites with center-bottom origin (0.5, 1.0)
+            this.topLeft.setPosition(x - spriteSize/2, y - spriteSize);
+            this.topRight.setPosition(x + spriteSize/2, y - spriteSize);
+            this.bottomLeft.setPosition(x - spriteSize/2, y);
+            this.bottomRight.setPosition(x + spriteSize/2, y);
 
             [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight].forEach(s => {
                 s.setDepth(spriteDepth);
