@@ -154,37 +154,27 @@ class GameScene extends Phaser.Scene {
         this.tileContainer = this.add.container(0, 0);
 
         // Map biome types to tileset textures and tile indices
-        // RPG Maker A2 tilesets have specific tile positions
+        // NO TINTS - render tiles naturally without color modification
         const BIOME_TILESET_MAP = {
             // Grassland - Use green terrain tiles
-            10: { texture: 'terrain_green', frame: 3, tint: 0xffffff },
-            11: { texture: 'terrain_green', frame: 5, tint: 0xffffff },
-            12: { texture: 'terrain_green', frame: 7, tint: 0xffffff },
+            10: { texture: 'terrain_green', frame: 3 },
+            11: { texture: 'terrain_green', frame: 5 },
+            12: { texture: 'terrain_green', frame: 7 },
 
             // Forest - Use forest tiles
-            20: { texture: 'forest', frame: 3, tint: 0xffffff },
-            21: { texture: 'forest', frame: 5, tint: 0xffffff },
-            22: { texture: 'forest', frame: 7, tint: 0xffffff },
+            20: { texture: 'forest', frame: 3 },
+            21: { texture: 'forest', frame: 5 },
+            22: { texture: 'forest', frame: 7 },
 
-            // Magic Grove - Use base terrain with purple tint
-            30: { texture: 'terrain_base', frame: 3, tint: 0xbb88ff },
-            31: { texture: 'terrain_base', frame: 5, tint: 0xaa77ee },
-            32: { texture: 'terrain_base', frame: 7, tint: 0x9966dd },
+            // Magic Grove - Use purple terrain tileset
+            30: { texture: 'terrain_base', frame: 3 },
+            31: { texture: 'terrain_base', frame: 5 },
+            32: { texture: 'terrain_base', frame: 7 },
 
-            // Dark Woods - Use forest with dark tint
-            40: { texture: 'forest', frame: 10, tint: 0x666666 },
-            41: { texture: 'forest', frame: 12, tint: 0x555555 },
-            42: { texture: 'forest', frame: 14, tint: 0x444444 },
-
-            // Crystal Plains - Use water tiles
-            50: { texture: 'water_base', frame: 2, tint: 0xaaffff },
-            51: { texture: 'water_base', frame: 4, tint: 0x88ddff },
-            52: { texture: 'water_base', frame: 6, tint: 0x66bbff },
-
-            // Void Zone - Use terrain with dark purple tint
-            60: { texture: 'terrain_base', frame: 15, tint: 0x442266 },
-            61: { texture: 'terrain_base', frame: 17, tint: 0x331155 },
-            62: { texture: 'terrain_base', frame: 19, tint: 0x220044 }
+            // Dark Woods - Use darker forest tiles
+            40: { texture: 'forest', frame: 10 },
+            41: { texture: 'forest', frame: 12 },
+            42: { texture: 'forest', frame: 14 }
         };
 
         // Render tiles using individual frames from spritesheets
@@ -195,7 +185,7 @@ class GameScene extends Phaser.Scene {
                 const py = y * tileSize;
 
                 // Get tileset mapping for this biome
-                const tileInfo = BIOME_TILESET_MAP[tile] || { texture: 'terrain_base', frame: 0, tint: 0xffffff };
+                const tileInfo = BIOME_TILESET_MAP[tile] || { texture: 'terrain_base', frame: 0 };
 
                 // Create sprite from specific tile frame in the spritesheet
                 const tileSprite = this.add.sprite(px, py, tileInfo.texture, tileInfo.frame);
@@ -205,7 +195,7 @@ class GameScene extends Phaser.Scene {
                 const scale = tileSize / 48;
                 tileSprite.setScale(scale);
 
-                tileSprite.setTint(tileInfo.tint);
+                // NO TINT - render naturally
 
                 // Add slight variety with random frames for same biome
                 if (Math.random() < 0.2) {
@@ -256,8 +246,7 @@ class GameScene extends Phaser.Scene {
         ];
 
         if (type === 'tree' || type === 'magic_tree' || type === 'dead_tree') {
-            // Render multi-tile tree
-            const tint = type === 'magic_tree' ? 0xbb88ff : type === 'dead_tree' ? 0x444444 : 0xffffff;
+            // Render multi-tile tree - NO TINTS
             const scale = tileSize / 48;
 
             for (let row = 0; row < TREE_TILES.length; row++) {
@@ -270,20 +259,9 @@ class GameScene extends Phaser.Scene {
                     const tileSprite = this.add.sprite(tilePx, tilePy, 'objects_d', tileFrame);
                     tileSprite.setOrigin(0, 0);
                     tileSprite.setScale(scale);
-                    tileSprite.setTint(tint);
+                    // NO TINT - render naturally
 
                     this.tileContainer.add(tileSprite);
-
-                    // Add glow for magic trees
-                    if (type === 'magic_tree') {
-                        const glow = this.add.sprite(tilePx, tilePy, 'objects_d', tileFrame);
-                        glow.setOrigin(0, 0);
-                        glow.setScale(scale);
-                        glow.setTint(0xbb88ff);
-                        glow.setAlpha(0.3);
-                        glow.setBlendMode(Phaser.BlendModes.ADD);
-                        this.tileContainer.add(glow);
-                    }
                 }
             }
 
@@ -291,13 +269,13 @@ class GameScene extends Phaser.Scene {
             return;
         }
 
-        // Simple single-tile decorations
+        // Simple single-tile decorations - NO TINTS
         const SIMPLE_DECORATIONS = {
-            flower: { frame: 80, scale: 0.7, tint: 0xffffff },
-            rock: { frame: 96, scale: 0.8, tint: 0xffffff },
-            bush: { frame: 112, scale: 0.8, tint: 0xffffff },
-            rune_stone: { frame: 96, scale: 0.9, tint: 0x88ffff, glow: 0x88ffff },
-            skull: { frame: 128, scale: 0.7, tint: 0xcccccc }
+            flower: { frame: 80, scale: 0.7 },
+            rock: { frame: 96, scale: 0.8 },
+            bush: { frame: 112, scale: 0.8 },
+            rune_stone: { frame: 96, scale: 0.9 },
+            skull: { frame: 128, scale: 0.7 }
         };
 
         const decoInfo = SIMPLE_DECORATIONS[type];
@@ -310,32 +288,9 @@ class GameScene extends Phaser.Scene {
         const decoration = this.add.sprite(px, py, 'objects_d', decoInfo.frame);
         decoration.setOrigin(0, 0);
         decoration.setScale(scale);
-        decoration.setTint(decoInfo.tint);
+        // NO TINT - render naturally
 
         this.tileContainer.add(decoration);
-
-        // Add glow effect for magical decorations
-        if (decoInfo.glow) {
-            const glowSprite = this.add.sprite(px, py, 'objects_d', decoInfo.frame);
-            glowSprite.setOrigin(0, 0);
-            glowSprite.setScale(scale * 1.1);
-            glowSprite.setTint(decoInfo.glow);
-            glowSprite.setAlpha(0.3);
-            glowSprite.setBlendMode(Phaser.BlendModes.ADD);
-
-            this.tileContainer.add(glowSprite);
-
-            // Pulsing glow animation
-            this.tweens.add({
-                targets: glowSprite,
-                alpha: 0.5,
-                scale: scale * 1.15,
-                duration: 2000,
-                yoyo: true,
-                repeat: -1,
-                ease: 'Sine.easeInOut'
-            });
-        }
 
         console.log(`✅ Created ${type} at ${x},${y}`);
     }
