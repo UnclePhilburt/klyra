@@ -81,7 +81,7 @@ class Player {
         // Malachar idle animation frames (2x2 tiles per frame)
         this.idleFrames = [
             { topLeft: 57, topRight: 58, bottomLeft: 113, bottomRight: 114 },
-            { topLeft: 63, topRight: 64, bottomLeft: 119, bottomRight: 120 },
+            { topLeft: 60, topRight: 61, bottomLeft: 116, bottomRight: 117 },
             { topLeft: 63, topRight: 64, bottomLeft: 119, bottomRight: 120 },
             { topLeft: 67, topRight: 68, bottomLeft: 123, bottomRight: 124 },
             { topLeft: 70, topRight: 71, bottomLeft: 126, bottomRight: 127 },
