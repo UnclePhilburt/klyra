@@ -51,17 +51,10 @@ class BootScene extends Phaser.Scene {
         });
 
         // Load character sprite sheets
-        // Malachar sprite sheet (48x48 frames)
-        // Frame math: 113 - 57 = 56 frames per row
-        // But 2640 / 48 = 55 frames per row
-        // This means there's 1 pixel spacing between each frame!
-        // With spacing: (48+1) * 56 - 1 = 2743, but actual is 2640...
-        // Let me try 1px spacing anyway
+        // Malachar sprite sheet (48x48 frames, 2640x816 = 55 columns x 17 rows)
         this.load.spritesheet('malachar', 'assets/sprites/malachar.png', {
             frameWidth: 48,
-            frameHeight: 48,
-            spacing: 1,
-            margin: 0
+            frameHeight: 48
         });
 
         console.log('📦 Loading sprite: malachar from assets/sprites/malachar.png');
