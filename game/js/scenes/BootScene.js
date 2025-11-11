@@ -51,10 +51,16 @@ class BootScene extends Phaser.Scene {
         });
 
         // Load character sprite sheets
-        // Malachar sprite sheet (48x48 frames, 2640x816 = 55 columns x 17 rows)
+        // Malachar sprite sheet
+        // Actual dimensions: 2720 x 896
+        // User's frame math: 113 - 57 = 56 frames per row
+        // 2720 / 56 = 48.57 per frame slot
+        // Try 48x48 with 1px margin between frames
         this.load.spritesheet('malachar', 'assets/sprites/malachar.png', {
             frameWidth: 48,
-            frameHeight: 48
+            frameHeight: 48,
+            margin: 1,
+            spacing: 0
         });
 
         console.log('📦 Loading sprite: malachar from assets/sprites/malachar.png');

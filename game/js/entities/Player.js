@@ -29,25 +29,22 @@ class Player {
 
         // Check if sprite sheet exists for this character
         if (this.scene.textures.exists(textureKey)) {
-            // ACTUAL spritesheet dimensions: 2720 x 896 (not 2640 x 816!)
-            // Calculate frames per row: 2720 / 48 = 56.67 (wait, that's not clean either...)
-            // But Phaser reports 42 frames per row!
-            // Let me recalculate with 42 frames per row:
-            const FRAMES_PER_ROW = 42;
+            // User's original frame numbers (113 - 57 = 56 frames per row)
+            // Going back to what the user specified originally:
+            const FRAMES_PER_ROW = 56;
 
-            // To get frame directly below: add 42
             this.idleFrames = [
-                { topLeft: 57, topRight: 58, bottomLeft: 99, bottomRight: 100 },   // 57+42=99
-                { topLeft: 60, topRight: 61, bottomLeft: 102, bottomRight: 103 },  // 60+42=102
-                { topLeft: 63, topRight: 64, bottomLeft: 105, bottomRight: 106 },  // 63+42=105
-                { topLeft: 67, topRight: 68, bottomLeft: 109, bottomRight: 110 },  // 67+42=109
-                { topLeft: 70, topRight: 71, bottomLeft: 112, bottomRight: 113 },  // 70+42=112
-                { topLeft: 74, topRight: 75, bottomLeft: 116, bottomRight: 117 },  // 74+42=116
-                { topLeft: 77, topRight: 78, bottomLeft: 119, bottomRight: 120 },  // 77+42=119
-                { topLeft: 80, topRight: 81, bottomLeft: 122, bottomRight: 123 }   // 80+42=122
+                { topLeft: 57, topRight: 58, bottomLeft: 113, bottomRight: 114 },
+                { topLeft: 60, topRight: 61, bottomLeft: 116, bottomRight: 117 },
+                { topLeft: 63, topRight: 64, bottomLeft: 119, bottomRight: 120 },
+                { topLeft: 67, topRight: 68, bottomLeft: 123, bottomRight: 124 },
+                { topLeft: 70, topRight: 71, bottomLeft: 126, bottomRight: 127 },
+                { topLeft: 74, topRight: 75, bottomLeft: 130, bottomRight: 131 },
+                { topLeft: 77, topRight: 78, bottomLeft: 133, bottomRight: 134 },
+                { topLeft: 80, topRight: 81, bottomLeft: 136, bottomRight: 137 }
             ];
 
-            console.log('✅ Frame indices corrected for 42 frames/row:', this.idleFrames[0]);
+            console.log('✅ Using original user frame numbers (56 frames/row):', this.idleFrames[0]);
 
             // Create 2x2 tile character (multi-sprite)
             // Frames are 48x48, scale to 32x32 to match tile size
@@ -91,7 +88,7 @@ class Player {
             console.log(`✅ Created 2x2 sprite for ${this.data.username} using ${textureKey}, depth: ${y + 1000}`);
             console.log(`  - Frame 1: TL=${this.idleFrames[0].topLeft} TR=${this.idleFrames[0].topRight} BL=${this.idleFrames[0].bottomLeft} BR=${this.idleFrames[0].bottomRight}`);
             console.log(`  - Verify layout: TR should be TL+1 (${this.idleFrames[0].topLeft + 1}), BR should be BL+1 (${this.idleFrames[0].bottomLeft + 1})`);
-            console.log(`  - Verify rows: BL should be TL+42 (${this.idleFrames[0].topLeft + 42}), BR should be TR+42 (${this.idleFrames[0].topRight + 42})`);
+            console.log(`  - Verify rows: BL should be TL+56 (${this.idleFrames[0].topLeft + 56}), BR should be TR+56 (${this.idleFrames[0].topRight + 56})`);
             console.log(`  - Actual: BL=${this.idleFrames[0].bottomLeft}, BR=${this.idleFrames[0].bottomRight}`);
             this.usingSprite = true;
 
