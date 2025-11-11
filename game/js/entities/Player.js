@@ -42,7 +42,9 @@ class Player {
             ];
 
             // Create 2x2 tile character (multi-sprite)
-            const spriteSize = 32; // Half of 64px frames
+            // Frames are 48x48, scale to 32x32 to match tile size
+            const spriteSize = 32; // Target size per sprite (one game tile)
+            const scale = spriteSize / 48; // 32/48 = 0.667
 
             // Create 4 sprites for 2x2 grid
             this.topLeft = this.scene.add.sprite(x - spriteSize/2, y - spriteSize, textureKey, 0);
@@ -53,7 +55,7 @@ class Player {
             // Set origin to center-bottom for consistent ground alignment
             [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight].forEach(s => {
                 s.setOrigin(0.5, 1.0);
-                s.setScale(0.5);
+                s.setScale(scale);
                 s.setDepth(y + 1000);
             });
 
