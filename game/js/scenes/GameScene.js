@@ -107,6 +107,10 @@ class GameScene extends Phaser.Scene {
             this.loadingText.destroy();
         }
 
+        // Initialize tree collision array
+        this.treeCollisions = [];
+        this.treeSprites = [];
+
         // Create dungeon
         this.createDungeon(this.gameData.gameState.dungeon);
 
@@ -123,6 +127,13 @@ class GameScene extends Phaser.Scene {
                 this.otherPlayers[playerData.id] = new Player(this, playerData);
             }
         });
+
+        // Add tree collisions to player (after player is created)
+        if (this.localPlayer && this.treeCollisions) {
+            this.treeCollisions.forEach(collisionRect => {
+                this.physics.add.collider(this.localPlayer.sprite, collisionRect);
+            });
+        }
 
         // Create enemies
         this.gameData.gameState.enemies.forEach(enemyData => {
@@ -261,6 +272,11 @@ class GameScene extends Phaser.Scene {
         if (type === 'tree' || type === 'magic_tree' || type === 'dead_tree') {
             // Render multi-tile tree - NO TINTS
             const scale = tileSize / 48;
+            const treeGroup = [];
+
+            // Determine collision tile based on tree type
+            const collisionTile = (TREE_TILES === TREE_TWO) ? 101 : 65;
+            let collisionY = 0;
 
             for (let row = 0; row < TREE_TILES.length; row++) {
                 const rowTiles = TREE_TILES[row];
@@ -282,10 +298,29 @@ class GameScene extends Phaser.Scene {
                     // NO TINT - render naturally
 
                     this.tileContainer.add(tileSprite);
+                    treeGroup.push(tileSprite);
+
+                    // Add collision on specific tile
+                    if (tileFrame === collisionTile) {
+                        collisionY = tilePy + tileSize;  // Bottom of the collision tile
+
+                        // Create invisible collision rectangle
+                        const collisionRect = this.add.rectangle(tilePx, tilePy, tileSize, tileSize, 0xff0000, 0);
+                        this.physics.add.existing(collisionRect, true);  // true = static body
+
+                        // Store for later collision setup (after player is created)
+                        this.treeCollisions.push(collisionRect);
+                    }
                 }
             }
 
-            console.log(`✅ Created multi-tile ${type} at ${x},${y}`);
+            // Store tree sprites with collision Y for depth sorting
+            this.treeSprites.push({
+                sprites: treeGroup,
+                collisionY: collisionY
+            });
+
+            console.log(`✅ Created multi-tile ${type} at ${x},${y} with collision at Y=${collisionY}`);
             return;
         }
 
@@ -455,6 +490,21 @@ class GameScene extends Phaser.Scene {
         }
 
         this.localPlayer.move(velocityX, velocityY);
+
+        // Depth sorting for trees - player layers behind/in front based on Y position
+        if (this.treeSprites && this.treeSprites.length > 0) {
+            const playerY = this.localPlayer.sprite.y;
+
+            this.treeSprites.forEach(tree => {
+                // If player is above the collision tile, render behind tree (lower depth)
+                // If player is below the collision tile, render in front of tree (higher depth)
+                const playerDepth = playerY < tree.collisionY ? 5 : 15;
+                const treeDepth = playerY < tree.collisionY ? 10 : 5;
+
+                this.localPlayer.sprite.setDepth(playerDepth);
+                tree.sprites.forEach(sprite => sprite.setDepth(treeDepth));
+            });
+        }
 
         // Update UI
         this.updateUI();
