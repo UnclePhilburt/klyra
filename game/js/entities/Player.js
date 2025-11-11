@@ -24,16 +24,19 @@ class Player {
         const character = CHARACTERS[this.class] || CHARACTERS.ALDRIC;
         const classConfig = { color: character.display.color };
 
+        // Convert class to lowercase for texture key (sprites are loaded as lowercase)
+        const textureKey = this.class.toLowerCase();
+
         // Check if sprite sheet exists for this character
-        if (this.scene.textures.exists(this.class)) {
+        if (this.scene.textures.exists(textureKey)) {
             // Use sprite sheet
-            this.sprite = this.scene.add.sprite(x, y, this.class);
+            this.sprite = this.scene.add.sprite(x, y, textureKey);
             this.sprite.setScale(0.5); // Scale down to fit tile
             this.scene.physics.add.existing(this.sprite);
 
             // Play idle animation
-            if (this.scene.anims.exists(`${this.class}_idle`)) {
-                this.sprite.play(`${this.class}_idle`);
+            if (this.scene.anims.exists(`${textureKey}_idle`)) {
+                this.sprite.play(`${textureKey}_idle`);
             }
 
             this.usingSprite = true;
@@ -89,9 +92,10 @@ class Player {
             }
 
             // Play walking animation if using sprite
-            if (this.usingSprite && this.scene.anims.exists(`${this.class}_walk_${direction}`)) {
+            const textureKey = this.class.toLowerCase();
+            if (this.usingSprite && this.scene.anims.exists(`${textureKey}_walk_${direction}`)) {
                 if (this.currentDirection !== direction) {
-                    this.sprite.play(`${this.class}_walk_${direction}`);
+                    this.sprite.play(`${textureKey}_walk_${direction}`);
                     this.currentDirection = direction;
                 }
             } else if (!this.usingSprite) {
@@ -112,9 +116,10 @@ class Player {
             }
         } else {
             // Play idle animation when stopped
-            if (this.usingSprite && this.scene.anims.exists(`${this.class}_idle`)) {
-                if (!this.sprite.anims.isPlaying || this.sprite.anims.currentAnim.key !== `${this.class}_idle`) {
-                    this.sprite.play(`${this.class}_idle`);
+            const textureKey = this.class.toLowerCase();
+            if (this.usingSprite && this.scene.anims.exists(`${textureKey}_idle`)) {
+                if (!this.sprite.anims.isPlaying || this.sprite.anims.currentAnim.key !== `${textureKey}_idle`) {
+                    this.sprite.play(`${textureKey}_idle`);
                 }
             }
         }
@@ -138,14 +143,15 @@ class Player {
     }
 
     attack(targetX, targetY) {
-        if (this.usingSprite && this.scene.anims.exists(`${this.class}_attack`)) {
+        const textureKey = this.class.toLowerCase();
+        if (this.usingSprite && this.scene.anims.exists(`${textureKey}_attack`)) {
             // Play attack animation
-            this.sprite.play(`${this.class}_attack`);
+            this.sprite.play(`${textureKey}_attack`);
 
             // Return to idle after attack
             this.sprite.once('animationcomplete', () => {
-                if (this.scene.anims.exists(`${this.class}_idle`)) {
-                    this.sprite.play(`${this.class}_idle`);
+                if (this.scene.anims.exists(`${textureKey}_idle`)) {
+                    this.sprite.play(`${textureKey}_idle`);
                 }
             });
         } else if (!this.usingSprite) {
