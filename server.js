@@ -295,7 +295,7 @@ class Lobby {
             }
         }
 
-        // Add decorations (trees, rocks, crystals, etc.)
+        // Add decorations (trees, rocks, flowers, grass, logs, etc.)
         const decorationCount = Math.floor(width * height * 0.05); // 5% coverage
         for (let i = 0; i < decorationCount; i++) {
             const x = Math.floor(this.seededRandom(seed + i * 1000) * width);
@@ -303,11 +303,41 @@ class Lobby {
             const biome = biomes[y][x];
 
             let decorationType;
-            if (biome === 'grassland') decorationType = this.seededRandom(seed + i) < 0.7 ? 'flower' : 'rock';
-            else if (biome === 'forest') decorationType = this.seededRandom(seed + i) < 0.8 ? 'tree' : 'bush';
-            else if (biome === 'magic') decorationType = this.seededRandom(seed + i) < 0.6 ? 'magic_tree' : 'rune_stone';
-            else if (biome === 'dark') decorationType = this.seededRandom(seed + i) < 0.7 ? 'dead_tree' : 'skull';
-            else decorationType = 'rock'; // Fallback
+            const rand = this.seededRandom(seed + i);
+
+            if (biome === 'grassland') {
+                // Grassland: flowers (40%), grass (30%), rocks (20%), baby trees (10%)
+                if (rand < 0.4) decorationType = 'flower';
+                else if (rand < 0.7) decorationType = 'grass';
+                else if (rand < 0.9) decorationType = 'rock';
+                else decorationType = 'baby_tree';
+            }
+            else if (biome === 'forest') {
+                // Forest: trees (50%), bushes (20%), logs (15%), stumps (10%), grass (5%)
+                if (rand < 0.5) decorationType = 'tree';
+                else if (rand < 0.7) decorationType = 'bush';
+                else if (rand < 0.85) decorationType = 'log';
+                else if (rand < 0.95) decorationType = 'tree_stump';
+                else decorationType = 'grass';
+            }
+            else if (biome === 'magic') {
+                // Magic Grove: magic trees (40%), rune stones (30%), flowers (20%), hollow trunks (10%)
+                if (rand < 0.4) decorationType = 'magic_tree';
+                else if (rand < 0.7) decorationType = 'rune_stone';
+                else if (rand < 0.9) decorationType = 'flower';
+                else decorationType = 'hollow_trunk';
+            }
+            else if (biome === 'dark') {
+                // Dark Woods: dead trees (50%), skulls (20%), logs (20%), rocks (10%)
+                if (rand < 0.5) decorationType = 'dead_tree';
+                else if (rand < 0.7) decorationType = 'skull';
+                else if (rand < 0.9) decorationType = 'log';
+                else decorationType = 'rock';
+            }
+            else {
+                // Fallback for other biomes
+                decorationType = 'rock';
+            }
 
             decorations.push({ x, y, type: decorationType, biome });
         }
