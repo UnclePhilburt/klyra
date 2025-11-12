@@ -29,16 +29,18 @@ class Player {
 
         // Create modular components
         this.spriteRenderer = new PlayerSprite(scene, data.position, this.class);
+
+        // Expose sprite for backward compatibility (MUST be set before creating UI!)
+        this.sprite = this.spriteRenderer.getPhysicsBody();
+        this.usingSprite = this.spriteRenderer.isUsingSprite();
+
+        // Now create UI (needs this.sprite to exist first)
         this.ui = new PlayerUI(scene, this, {
             useSprite: this.spriteRenderer.isUsingSprite(),
             visualOffsetX: 32,
             visualOffsetY: 55,
             yOffset: 105
         });
-
-        // Expose sprite for backward compatibility
-        this.sprite = this.spriteRenderer.getPhysicsBody();
-        this.usingSprite = this.spriteRenderer.isUsingSprite();
     }
 
     // ==================== MOVEMENT ====================
