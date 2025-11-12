@@ -109,12 +109,16 @@ class Player {
         const y = this.sprite.y;
         const spriteSize = 48; // 25% smaller than double size
 
+        // Offset to center character in collision box
+        const offsetX = 32; // Move right 32px
+        const offsetY = 48; // Move down 48px
+
         // Calculate positions
         // Character is 96x96 total (2x2 @ 48px each)
-        const left = x - spriteSize;
-        const right = x;
-        const top = y - spriteSize * 2;
-        const bottom = y - spriteSize;
+        const left = x - spriteSize + offsetX;
+        const right = x + offsetX;
+        const top = y - spriteSize * 2 + offsetY;
+        const bottom = y - spriteSize + offsetY;
         const depth = y + 1000;
 
         // Set positions
@@ -142,9 +146,15 @@ class Player {
     createNameTag() {
         const x = this.sprite.x;
         const yOffset = this.usingSprite ? 105 : 25; // 25% smaller than 140
-        const y = this.sprite.y - yOffset;
 
-        this.nameTag = this.scene.add.text(x, y, this.data.username, {
+        // Apply same offset as sprite (down 48, right 32)
+        const offsetX = this.usingSprite ? 32 : 0;
+        const offsetY = this.usingSprite ? 48 : 0;
+
+        const nameX = x + offsetX;
+        const nameY = this.sprite.y - yOffset + offsetY;
+
+        this.nameTag = this.scene.add.text(nameX, nameY, this.data.username, {
             font: '10px monospace',
             fill: '#ffffff',
             backgroundColor: '#000000',
@@ -152,8 +162,8 @@ class Player {
         }).setOrigin(0.5);
 
         // Health bar above name
-        this.healthBarBg = this.scene.add.rectangle(x, y - 15, 40, 4, 0x000000);
-        this.healthBar = this.scene.add.rectangle(x, y - 15, 40, 4, 0x00ff00);
+        this.healthBarBg = this.scene.add.rectangle(nameX, nameY - 15, 40, 4, 0x000000);
+        this.healthBar = this.scene.add.rectangle(nameX, nameY - 15, 40, 4, 0x00ff00);
     }
 
     move(velocityX, velocityY) {
@@ -316,16 +326,24 @@ class Player {
 
         // Update name tag and health bar
         const yOffset = this.usingSprite ? 105 : 25; // 25% smaller than 140
-        this.nameTag.setPosition(this.sprite.x, this.sprite.y - yOffset);
+
+        // Apply same offset as sprite (down 48, right 32)
+        const offsetX = this.usingSprite ? 32 : 0;
+        const offsetY = this.usingSprite ? 48 : 0;
+
+        const nameX = this.sprite.x + offsetX;
+        const nameY = this.sprite.y - yOffset + offsetY;
+
+        this.nameTag.setPosition(nameX, nameY);
         this.nameTag.setDepth(spriteDepth + 1);
 
-        this.healthBarBg.setPosition(this.sprite.x, this.sprite.y - (yOffset - 10));
+        this.healthBarBg.setPosition(nameX, nameY + 10);
         this.healthBarBg.setDepth(spriteDepth + 1);
 
         const healthPercent = this.health / this.maxHealth;
         this.healthBar.setPosition(
-            this.sprite.x - 20 + (40 * healthPercent / 2),
-            this.sprite.y - (yOffset - 10)
+            nameX - 20 + (40 * healthPercent / 2),
+            nameY + 10
         );
         this.healthBar.setDepth(spriteDepth + 2);
 
