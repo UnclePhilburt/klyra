@@ -153,7 +153,7 @@ class Player {
         const x = this.sprite.x;
         const yOffset = this.usingSprite ? 105 : 25;
 
-        // Apply same offset as sprite (down 55, right 32)
+        // Offset to match visual sprite center (sprite is offset by 32px right)
         const offsetX = this.usingSprite ? 32 : 0;
         const offsetY = this.usingSprite ? 55 : 0;
 
@@ -454,137 +454,153 @@ class Player {
             this.weapon.setDepth(spriteDepth);
         }
 
-        // Update name tag and health bar
+        // Calculate UI positions (properly centered above character)
         const yOffset = this.usingSprite ? 105 : 25;
+        // Offset to match visual sprite center (sprite is offset by 32px right from physics body)
         const offsetX = this.usingSprite ? 32 : 0;
         const offsetY = this.usingSprite ? 55 : 0;
         const nameX = this.sprite.x + offsetX;
         const nameY = this.sprite.y - yOffset + offsetY;
-        
+
         const healthBarY = nameY - 20;
-        const nameWidth = Math.max(80, this.data.username.length * 8 + 20);
-        const nameHeight = 20;
 
-        // Update health bar shadow
-        if (this.healthBarShadow) {
-            this.healthBarShadow.clear();
-            this.healthBarShadow.fillStyle(0x000000, 0.3);
-            this.healthBarShadow.fillRoundedRect(
-                nameX - this.healthBarWidth/2 + 1,
-                healthBarY - this.healthBarHeight/2 + 2,
-                this.healthBarWidth,
-                this.healthBarHeight,
-                this.barRadius
-            );
-            this.healthBarShadow.setDepth(spriteDepth);
+        // Only redraw graphics if position has changed significantly (reduces stuttering)
+        const posChanged = !this.lastUIX || !this.lastUIY ||
+                          Math.abs(nameX - this.lastUIX) > 0.5 ||
+                          Math.abs(nameY - this.lastUIY) > 0.5;
+
+        if (posChanged) {
+            this.lastUIX = nameX;
+            this.lastUIY = nameY;
+
+            const nameWidth = Math.max(80, this.data.username.length * 8 + 20);
+            const nameHeight = 20;
+
+            // Update health bar shadow
+            if (this.healthBarShadow) {
+                this.healthBarShadow.clear();
+                this.healthBarShadow.fillStyle(0x000000, 0.3);
+                this.healthBarShadow.fillRoundedRect(
+                    nameX - this.healthBarWidth/2 + 1,
+                    healthBarY - this.healthBarHeight/2 + 2,
+                    this.healthBarWidth,
+                    this.healthBarHeight,
+                    this.barRadius
+                );
+                this.healthBarShadow.setDepth(spriteDepth);
+            }
+
+            // Update health bar container
+            if (this.healthBarContainer) {
+                this.healthBarContainer.clear();
+                this.healthBarContainer.fillStyle(0x000000, 0.6);
+                this.healthBarContainer.fillRoundedRect(
+                    nameX - this.healthBarWidth/2,
+                    healthBarY - this.healthBarHeight/2,
+                    this.healthBarWidth,
+                    this.healthBarHeight,
+                    this.barRadius
+                );
+                this.healthBarContainer.lineStyle(1, 0x444444, 0.8);
+                this.healthBarContainer.strokeRoundedRect(
+                    nameX - this.healthBarWidth/2,
+                    healthBarY - this.healthBarHeight/2,
+                    this.healthBarWidth,
+                    this.healthBarHeight,
+                    this.barRadius
+                );
+                this.healthBarContainer.setDepth(spriteDepth + 1);
+            }
+
+            // Update glossy overlay
+            if (this.healthBarGloss) {
+                this.healthBarGloss.clear();
+                this.healthBarGloss.fillStyle(0xffffff, 0.15);
+                this.healthBarGloss.fillRoundedRect(
+                    nameX - this.healthBarWidth/2,
+                    healthBarY - this.healthBarHeight/2,
+                    this.healthBarWidth,
+                    this.healthBarHeight * 0.4,
+                    this.barRadius
+                );
+                this.healthBarGloss.setDepth(spriteDepth + 3);
+            }
+
+            // Update name tag shadow
+            if (this.nameTagShadow) {
+                this.nameTagShadow.clear();
+                this.nameTagShadow.fillStyle(0x000000, 0.4);
+                this.nameTagShadow.fillRoundedRect(
+                    nameX - nameWidth/2 + 1,
+                    nameY - nameHeight/2 + 2,
+                    nameWidth,
+                    nameHeight,
+                    6
+                );
+                this.nameTagShadow.setDepth(spriteDepth + 1);
+            }
+
+            // Update name tag background
+            if (this.nameTagBg) {
+                this.nameTagBg.clear();
+                this.nameTagBg.fillStyle(0x0a0a0a, 0.85);
+                this.nameTagBg.fillRoundedRect(
+                    nameX - nameWidth/2,
+                    nameY - nameHeight/2,
+                    nameWidth,
+                    nameHeight,
+                    6
+                );
+                this.nameTagBg.lineStyle(1, 0x555555, 0.6);
+                this.nameTagBg.strokeRoundedRect(
+                    nameX - nameWidth/2,
+                    nameY - nameHeight/2,
+                    nameWidth,
+                    nameHeight,
+                    6
+                );
+                this.nameTagBg.setDepth(spriteDepth + 2);
+            }
+
+            // Update level badge
+            if (this.levelBadge && this.level > 1) {
+                this.levelBadge.clear();
+                this.levelBadge.fillStyle(0x6366f1, 0.9);
+                this.levelBadge.fillRoundedRect(
+                    nameX - nameWidth/2 + 4,
+                    nameY - nameHeight/2 + 4,
+                    22,
+                    12,
+                    4
+                );
+                this.levelBadge.setDepth(spriteDepth + 3);
+            }
+
+            // Update level text
+            if (this.levelText && this.level > 1) {
+                this.levelText.setPosition(nameX - nameWidth/2 + 15, nameY);
+                this.levelText.setDepth(spriteDepth + 4);
+            }
+
+            // Update name tag text
+            this.nameTag.setPosition(nameX, nameY);
+            this.nameTag.setDepth(spriteDepth + 4);
+
+            // Update stored position for health bar
+            this.nameX = nameX;
+            this.healthBarY = healthBarY;
         }
 
-        // Update health bar container
-        if (this.healthBarContainer) {
-            this.healthBarContainer.clear();
-            this.healthBarContainer.fillStyle(0x000000, 0.6);
-            this.healthBarContainer.fillRoundedRect(
-                nameX - this.healthBarWidth/2,
-                healthBarY - this.healthBarHeight/2,
-                this.healthBarWidth,
-                this.healthBarHeight,
-                this.barRadius
-            );
-            this.healthBarContainer.lineStyle(1, 0x444444, 0.8);
-            this.healthBarContainer.strokeRoundedRect(
-                nameX - this.healthBarWidth/2,
-                healthBarY - this.healthBarHeight/2,
-                this.healthBarWidth,
-                this.healthBarHeight,
-                this.barRadius
-            );
-            this.healthBarContainer.setDepth(spriteDepth + 1);
-        }
-
-        // Update stored position for health bar
-        this.nameX = nameX;
-        this.healthBarY = healthBarY;
-
-        // Update health bar (redraws with current health)
+        // Always update health bar depth
         if (this.healthBar) {
             this.healthBar.setDepth(spriteDepth + 2);
         }
 
-        // Update glossy overlay
-        if (this.healthBarGloss) {
-            this.healthBarGloss.clear();
-            this.healthBarGloss.fillStyle(0xffffff, 0.15);
-            this.healthBarGloss.fillRoundedRect(
-                nameX - this.healthBarWidth/2,
-                healthBarY - this.healthBarHeight/2,
-                this.healthBarWidth,
-                this.healthBarHeight * 0.4,
-                this.barRadius
-            );
-            this.healthBarGloss.setDepth(spriteDepth + 3);
+        // Update health bar fill (only when health changes)
+        if (!this.lastHealth || this.health !== this.lastHealth) {
+            this.lastHealth = this.health;
+            this.updateHealthBar();
         }
-
-        // Update name tag shadow
-        if (this.nameTagShadow) {
-            this.nameTagShadow.clear();
-            this.nameTagShadow.fillStyle(0x000000, 0.4);
-            this.nameTagShadow.fillRoundedRect(
-                nameX - nameWidth/2 + 1,
-                nameY - nameHeight/2 + 2,
-                nameWidth,
-                nameHeight,
-                6
-            );
-            this.nameTagShadow.setDepth(spriteDepth + 1);
-        }
-
-        // Update name tag background
-        if (this.nameTagBg) {
-            this.nameTagBg.clear();
-            this.nameTagBg.fillStyle(0x0a0a0a, 0.85);
-            this.nameTagBg.fillRoundedRect(
-                nameX - nameWidth/2,
-                nameY - nameHeight/2,
-                nameWidth,
-                nameHeight,
-                6
-            );
-            this.nameTagBg.lineStyle(1, 0x555555, 0.6);
-            this.nameTagBg.strokeRoundedRect(
-                nameX - nameWidth/2,
-                nameY - nameHeight/2,
-                nameWidth,
-                nameHeight,
-                6
-            );
-            this.nameTagBg.setDepth(spriteDepth + 2);
-        }
-
-        // Update level badge
-        if (this.levelBadge && this.level > 1) {
-            this.levelBadge.clear();
-            this.levelBadge.fillStyle(0x6366f1, 0.9);
-            this.levelBadge.fillRoundedRect(
-                nameX - nameWidth/2 + 4,
-                nameY - nameHeight/2 + 4,
-                22,
-                12,
-                4
-            );
-            this.levelBadge.setDepth(spriteDepth + 3);
-        }
-
-        // Update level text
-        if (this.levelText && this.level > 1) {
-            this.levelText.setPosition(nameX - nameWidth/2 + 15, nameY);
-            this.levelText.setDepth(spriteDepth + 4);
-        }
-
-        // Update name tag text
-        this.nameTag.setPosition(nameX, nameY);
-        this.nameTag.setDepth(spriteDepth + 4);
-
-        this.updateHealthBar();
     }
 
     updateHealthBar() {
