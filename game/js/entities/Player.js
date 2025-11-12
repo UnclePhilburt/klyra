@@ -39,7 +39,7 @@ class Player {
             useSprite: this.spriteRenderer.isUsingSprite(),
             visualOffsetX: 32,
             visualOffsetY: 55,
-            yOffset: 105
+            yOffset: 105,
             isLocalPlayer: isLocalPlayer
         });
     }
