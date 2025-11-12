@@ -27,23 +27,17 @@ class Player {
 
         // Check if sprite sheet exists for this character
         if (this.scene.textures.exists(textureKey)) {
-            console.log(`✅ Creating 2x2 sprite character: ${this.data.username} (${textureKey})`);
-            console.log(`🎬 Using sprite-swapping animation (no setFrame calls)`);
+            console.log(`✅ Creating 2x2 static sprite: ${this.data.username} (${textureKey})`);
 
-            // Frame configuration (56 frames per row)
-            const FRAMES_PER_ROW = 56;
-
-            // Idle animation frames (8 frames total)
-            const frameData = [
-                { topLeft: 57, topRight: 58, bottomLeft: 113, bottomRight: 114 },
-                { topLeft: 60, topRight: 61, bottomLeft: 116, bottomRight: 117 },
-                { topLeft: 63, topRight: 64, bottomLeft: 119, bottomRight: 120 },
-                { topLeft: 67, topRight: 68, bottomLeft: 123, bottomRight: 124 },
-                { topLeft: 70, topRight: 71, bottomLeft: 126, bottomRight: 127 },
-                { topLeft: 74, topRight: 75, bottomLeft: 130, bottomRight: 131 },
-                { topLeft: 77, topRight: 78, bottomLeft: 133, bottomRight: 134 },
-                { topLeft: 80, topRight: 81, bottomLeft: 136, bottomRight: 137 }
-            ];
+            // Static frames - no animation
+            // Upper body: tile 64, 65
+            // Lower body: tile 120, 121
+            const frames = {
+                topLeft: 64,
+                topRight: 65,
+                bottomLeft: 120,
+                bottomRight: 121
+            };
 
             // Each frame is 48x48, we want 32x32 (one game tile per sprite)
             const scale = 32 / 48; // 0.667
@@ -56,43 +50,27 @@ class Player {
             this.sprite = this.physicsBody;
             this.sprite.setDepth(y + 1000);
 
-            // Create 8 sets of 4 sprites (32 sprites total - one set per animation frame)
-            // We'll show/hide sets instead of calling setFrame()
-            this.spriteSets = [];
+            // Create 4 visual sprites (static, no animation)
+            this.topLeft = this.scene.add.sprite(0, 0, textureKey, frames.topLeft);
+            this.topRight = this.scene.add.sprite(0, 0, textureKey, frames.topRight);
+            this.bottomLeft = this.scene.add.sprite(0, 0, textureKey, frames.bottomLeft);
+            this.bottomRight = this.scene.add.sprite(0, 0, textureKey, frames.bottomRight);
 
-            for (let i = 0; i < frameData.length; i++) {
-                const frames = frameData[i];
+            // Set origin and scale
+            [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight].forEach(s => {
+                s.setOrigin(0, 0);
+                s.setScale(scale);
+            });
 
-                const set = {
-                    topLeft: this.scene.add.sprite(0, 0, textureKey, frames.topLeft),
-                    topRight: this.scene.add.sprite(0, 0, textureKey, frames.topRight),
-                    bottomLeft: this.scene.add.sprite(0, 0, textureKey, frames.bottomLeft),
-                    bottomRight: this.scene.add.sprite(0, 0, textureKey, frames.bottomRight)
-                };
-
-                // Set origin and scale for all sprites in this set
-                [set.topLeft, set.topRight, set.bottomLeft, set.bottomRight].forEach(s => {
-                    s.setOrigin(0, 0);
-                    s.setScale(scale);
-                    s.setVisible(i === 0); // Only first frame visible initially
-                });
-
-                this.spriteSets.push(set);
-            }
-
-            // Position all sprites
+            // Position them initially
             this.updateSpritePositions();
-
-            // Animation state
-            this.currentAnimFrame = 0;
-            this.animTimer = 0;
-            this.animState = 'idle';
 
             this.usingSprite = true;
 
-            console.log(`✅ Created ${frameData.length} animation frames (${frameData.length * 4} sprites total)`);
-            console.log(`  - Frame 0 visible, others hidden`);
-            console.log(`  - NO setFrame() calls - just show/hide sprite sets`);
+            console.log(`✅ Static 2x2 sprite created`);
+            console.log(`  - Upper body: tiles ${frames.topLeft}, ${frames.topRight}`);
+            console.log(`  - Lower body: tiles ${frames.bottomLeft}, ${frames.bottomRight}`);
+            console.log(`  - NO ANIMATION - completely static`);
 
         } else {
             // Fallback to circle placeholder
@@ -118,7 +96,7 @@ class Player {
     }
 
     updateSpritePositions() {
-        if (!this.usingSprite || !this.spriteSets) return;
+        if (!this.usingSprite || !this.topLeft) return;
 
         const x = this.sprite.x;
         const y = this.sprite.y;
@@ -131,51 +109,21 @@ class Player {
         const bottom = y - spriteSize;
         const depth = y + 1000;
 
-        // Update ALL sprite sets to the same position
-        // (they're all at the same spot, just different frames)
-        for (let i = 0; i < this.spriteSets.length; i++) {
-            const set = this.spriteSets[i];
+        // Set positions
+        this.topLeft.setPosition(left, top);
+        this.topRight.setPosition(right, top);
+        this.bottomLeft.setPosition(left, bottom);
+        this.bottomRight.setPosition(right, bottom);
 
-            set.topLeft.setPosition(left, top);
-            set.topRight.setPosition(right, top);
-            set.bottomLeft.setPosition(left, bottom);
-            set.bottomRight.setPosition(right, bottom);
-
-            set.topLeft.setDepth(depth);
-            set.topRight.setDepth(depth);
-            set.bottomLeft.setDepth(depth);
-            set.bottomRight.setDepth(depth);
-        }
+        // Set depth
+        this.topLeft.setDepth(depth);
+        this.topRight.setDepth(depth);
+        this.bottomLeft.setDepth(depth);
+        this.bottomRight.setDepth(depth);
     }
 
     updateAnimation(delta) {
-        if (!this.usingSprite || !this.spriteSets) return;
-
-        this.animTimer += delta;
-        const frameTime = 125; // 8 fps
-
-        if (this.animTimer >= frameTime) {
-            this.animTimer = 0;
-
-            if (this.animState === 'idle') {
-                // Hide current frame
-                const currentSet = this.spriteSets[this.currentAnimFrame];
-                currentSet.topLeft.setVisible(false);
-                currentSet.topRight.setVisible(false);
-                currentSet.bottomLeft.setVisible(false);
-                currentSet.bottomRight.setVisible(false);
-
-                // Move to next frame
-                this.currentAnimFrame = (this.currentAnimFrame + 1) % this.spriteSets.length;
-
-                // Show new frame
-                const newSet = this.spriteSets[this.currentAnimFrame];
-                newSet.topLeft.setVisible(true);
-                newSet.topRight.setVisible(true);
-                newSet.bottomLeft.setVisible(true);
-                newSet.bottomRight.setVisible(true);
-            }
-        }
+        // No animation - static sprite
     }
 
     createNameTag() {
@@ -211,13 +159,6 @@ class Player {
             this.weapon.setRotation(angle);
         }
 
-        // Update animation state
-        if (velocityX !== 0 || velocityY !== 0) {
-            this.animState = 'moving'; // Could add walking frames later
-        } else {
-            this.animState = 'idle';
-        }
-
         // Send position to server (throttled)
         if (velocityX !== 0 || velocityY !== 0) {
             const now = Date.now();
@@ -248,12 +189,10 @@ class Player {
                 (dx / distance) * speed,
                 (dy / distance) * speed
             );
-            this.animState = 'moving';
         } else {
             this.sprite.body.setVelocity(0, 0);
             this.sprite.x = targetX;
             this.sprite.y = targetY;
-            this.animState = 'idle';
         }
 
         // Update sprite positions
@@ -283,25 +222,17 @@ class Player {
             });
         }
 
-        // Flash effect on current visible frame
-        if (this.usingSprite && this.spriteSets) {
-            const currentSet = this.spriteSets[this.currentAnimFrame];
-            const targets = [currentSet.topLeft, currentSet.topRight, currentSet.bottomLeft, currentSet.bottomRight];
+        // Flash effect
+        const targets = this.usingSprite && this.topLeft
+            ? [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight]
+            : [this.sprite];
 
-            this.scene.tweens.add({
-                targets: targets,
-                alpha: 0.5,
-                duration: 50,
-                yoyo: true
-            });
-        } else if (!this.usingSprite) {
-            this.scene.tweens.add({
-                targets: [this.sprite],
-                alpha: 0.5,
-                duration: 50,
-                yoyo: true
-            });
-        }
+        this.scene.tweens.add({
+            targets: targets,
+            alpha: 0.5,
+            duration: 50,
+            yoyo: true
+        });
     }
 
     takeDamage(amount) {
@@ -311,21 +242,15 @@ class Player {
             this.die();
         }
 
-        // Damage flash on current visible frame
-        if (this.usingSprite && this.spriteSets) {
-            const currentSet = this.spriteSets[this.currentAnimFrame];
-            const targets = [currentSet.topLeft, currentSet.topRight, currentSet.bottomLeft, currentSet.bottomRight];
+        // Damage flash
+        const targets = this.usingSprite && this.topLeft
+            ? [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight]
+            : [this.sprite];
 
-            targets.forEach(s => s.setTint(0xff0000));
-            this.scene.time.delayedCall(100, () => {
-                targets.forEach(s => s.clearTint());
-            });
-        } else if (!this.usingSprite) {
-            this.sprite.setTint(0xff0000);
-            this.scene.time.delayedCall(100, () => {
-                this.sprite.clearTint();
-            });
-        }
+        targets.forEach(s => s.setTint(0xff0000));
+        this.scene.time.delayedCall(100, () => {
+            targets.forEach(s => s.clearTint());
+        });
 
         this.updateHealthBar();
     }
@@ -333,32 +258,19 @@ class Player {
     die() {
         this.isAlive = false;
 
-        // Death animation - fade out ALL sprite sets
-        if (this.usingSprite && this.spriteSets) {
-            const allSprites = [];
-            this.spriteSets.forEach(set => {
-                allSprites.push(set.topLeft, set.topRight, set.bottomLeft, set.bottomRight);
-            });
+        // Death animation
+        const targets = this.usingSprite && this.topLeft
+            ? [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight]
+            : [this.sprite, this.glow, this.weapon].filter(x => x);
 
-            this.scene.tweens.add({
-                targets: allSprites,
-                alpha: 0,
-                duration: 500,
-                onComplete: () => {
-                    allSprites.forEach(s => s.setVisible(false));
-                }
-            });
-        } else if (!this.usingSprite) {
-            const targets = [this.sprite, this.glow, this.weapon].filter(x => x);
-            this.scene.tweens.add({
-                targets: targets,
-                alpha: 0,
-                duration: 500,
-                onComplete: () => {
-                    targets.forEach(s => s.setVisible(false));
-                }
-            });
-        }
+        this.scene.tweens.add({
+            targets: targets,
+            alpha: 0,
+            duration: 500,
+            onComplete: () => {
+                targets.forEach(s => s.setVisible(false));
+            }
+        });
 
         this.nameTag.setAlpha(0.5);
     }
