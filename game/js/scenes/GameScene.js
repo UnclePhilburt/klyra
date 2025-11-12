@@ -12,37 +12,9 @@ class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        // Load tileset PNG files as spritesheets
-        console.log('📦 Loading PNG tilesets as spritesheets...');
-
-        // Load each tileset as a spritesheet
-        // Frame size is 48x48 (original tile size in the PNG)
-        const tilesets = [
-            { key: 'grass', path: 'assets/tilesets/grass.png' },
-            { key: 'dirt', path: 'assets/tilesets/dirt.png' },
-            { key: 'stone', path: 'assets/tilesets/stone.png' },
-            { key: 'sand', path: 'assets/tilesets/sand.png' },
-            { key: 'water', path: 'assets/tilesets/water.png' },
-            { key: 'lava', path: 'assets/tilesets/lava.png' },
-            { key: 'ice', path: 'assets/tilesets/ice.png' },
-            { key: 'tree', path: 'assets/decorations/tree.png' },
-            { key: 'rock', path: 'assets/decorations/rock.png' },
-            { key: 'flower', path: 'assets/decorations/flower.png' },
-            { key: 'bush', path: 'assets/decorations/bush.png' },
-            { key: 'chest', path: 'assets/decorations/chest.png' },
-            { key: 'magic_tree', path: 'assets/decorations/magic_tree.png' },
-            { key: 'rune_stone', path: 'assets/decorations/rune_stone.png' },
-            { key: 'dead_tree', path: 'assets/decorations/dead_tree.png' }
-        ];
-
-        tilesets.forEach(tileset => {
-            this.load.spritesheet(tileset.key, tileset.path, {
-                frameWidth: 48,
-                frameHeight: 48
-            });
-        });
-
-        console.log('✅ All tilesets queued for loading');
+        // TODO: Asset loading disabled - files don't exist yet
+        // Will use colored placeholder tiles instead
+        console.log('⚠️ Skipping tileset loading (using placeholders)');
     }
 
     create() {
@@ -61,8 +33,8 @@ class GameScene extends Phaser.Scene {
             this.initializeGame();
         });
 
-        // If gameData already exists (from init), initialize immediately
-        if (this.gameData) {
+        // If gameData already exists (from init) and has gameState, initialize immediately
+        if (this.gameData && this.gameData.gameState) {
             this.initializeGame();
         }
     }
@@ -135,18 +107,18 @@ class GameScene extends Phaser.Scene {
         // Create container for tiles
         this.tileContainer = this.add.container(0, 0);
 
-        // Map biome types to tileset textures and tile indices
-        const biomeToTileset = {
-            grass: { texture: 'grass', tileIndex: 0 },
-            dirt: { texture: 'dirt', tileIndex: 0 },
-            stone: { texture: 'stone', tileIndex: 0 },
-            sand: { texture: 'sand', tileIndex: 0 },
-            water: { texture: 'water', tileIndex: 0 },
-            lava: { texture: 'lava', tileIndex: 0 },
-            ice: { texture: 'ice', tileIndex: 0 }
+        // Map biome types to colors (using placeholders instead of sprites)
+        const biomeToColor = {
+            grass: 0x228B22,  // Forest green
+            dirt: 0x8B4513,   // Brown
+            stone: 0x808080,  // Gray
+            sand: 0xF4A460,   // Sandy brown
+            water: 0x4169E1,  // Royal blue
+            lava: 0xFF4500,   // Orange red
+            ice: 0xADD8E6     // Light blue
         };
 
-        // Render ground tiles
+        // Render ground tiles as colored rectangles
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
                 const index = y * width + x;
@@ -156,20 +128,18 @@ class GameScene extends Phaser.Scene {
                 // Skip if no biome
                 if (!biome) continue;
 
-                const tileInfo = biomeToTileset[biome];
-                if (!tileInfo) continue;
+                const color = biomeToColor[biome];
+                if (color === undefined) continue;
 
                 const px = x * tileSize;
                 const py = y * tileSize;
 
-                // Create sprite from tileset
-                const scale = tileSize / 48; // Scale 48x48 tiles to 32x32
-                const tileSprite = this.add.sprite(px, py, tileInfo.texture, tileInfo.tileIndex);
-                tileSprite.setOrigin(0, 0);
-                tileSprite.setScale(scale);
-                tileSprite.setDepth(0); // Ground tiles at depth 0
+                // Create colored rectangle as placeholder tile
+                const tileRect = this.add.rectangle(px, py, tileSize, tileSize, color);
+                tileRect.setOrigin(0, 0);
+                tileRect.setDepth(0); // Ground tiles at depth 0
 
-                this.tileContainer.add(tileSprite);
+                this.tileContainer.add(tileRect);
             }
         }
 
@@ -192,120 +162,71 @@ class GameScene extends Phaser.Scene {
         const px = x * tileSize;
         const py = y * tileSize;
 
-        // Tree tile patterns: rows of tiles that make up complete trees
-        // TREE ONE - Top: 0-3, Second: 16-19, Third: 32-34, Fourth: 48-50, Bottom: 64-66
-        const TREE_ONE = [
-            [0, 1, 2, 3],       // Top row (4 tiles wide)
-            [16, 17, 18, 19],   // Second row (4 tiles wide)
-            [32, 33, 34],       // Third row (3 tiles wide)
-            [48, 49, 50],       // Fourth row (3 tiles wide)
-            [64, 65, 66]        // Bottom row (3 tiles wide)
-        ];
+        // Use colored shapes as placeholders for decorations
+        const decorationColors = {
+            tree: 0x228B22,        // Forest green
+            magic_tree: 0x9370DB,  // Medium purple
+            dead_tree: 0x8B4513,   // Saddle brown
+            rock: 0x696969,        // Dim gray
+            flower: 0xFF69B4,      // Hot pink
+            bush: 0x90EE90,        // Light green
+            chest: 0xDAA520,       // Goldenrod
+            rune_stone: 0x4169E1   // Royal blue
+        };
 
-        // TREE TWO - Top: 35-39, Second: 51-55, Third: 67-71, Fourth: 84-86, Fifth: 100-102, Bottom: 116-118
-        const TREE_TWO = [
-            [35, 36, 37, 38, 39],   // Top row (5 tiles wide)
-            [51, 52, 53, 54, 55],   // Second row (5 tiles wide)
-            [67, 68, 69, 70, 71],   // Third row (5 tiles wide)
-            [84, 85, 86],           // Fourth row (3 tiles wide)
-            [100, 101, 102],        // Fifth row (3 tiles wide)
-            [116, 117, 118]         // Bottom row (3 tiles wide)
-        ];
-
-        // Select tree pattern using seeded random for consistency across clients
-        const treeRandom = this.seededRandom(this.dungeonSeed);
-        const TREE_TILES = treeRandom < 0.5 ? TREE_ONE : TREE_TWO;
+        const color = decorationColors[type] || 0x888888;
 
         if (type === 'tree' || type === 'magic_tree' || type === 'dead_tree') {
-            // Render multi-tile tree - NO TINTS
-            const scale = tileSize / 48;
-            const treeGroup = [];
+            // Simple tree: trunk + foliage
+            // Trunk (bottom)
+            const trunk = this.add.rectangle(
+                px + tileSize / 2,
+                py + tileSize,
+                tileSize / 2,
+                tileSize,
+                0x8B4513
+            );
+            trunk.setDepth(py + tileSize * 2);
 
-            // Determine collision tile based on tree type
-            const collisionTile = (TREE_TILES === TREE_TWO) ? 101 : 65;
-            let collisionY = 0;
+            // Foliage (top)
+            const foliage = this.add.circle(
+                px + tileSize / 2,
+                py + tileSize / 2,
+                tileSize,
+                color
+            );
+            foliage.setDepth(py + tileSize * 2);
 
-            for (let row = 0; row < TREE_TILES.length; row++) {
-                const rowTiles = TREE_TILES[row];
+            // Collision rectangle at trunk
+            const collisionRect = this.add.rectangle(
+                px + tileSize / 2,
+                py + tileSize + 10,
+                tileSize / 2,
+                tileSize / 2,
+                0xff0000,
+                0
+            );
+            this.physics.add.existing(collisionRect, true);
 
-                // For TREE_TWO, offset bottom 3 rows (rows 3, 4, and 5) by 1 tile to center the trunk
-                let xOffset = 0;
-                if (TREE_TILES === TREE_TWO && row >= 3) {
-                    xOffset = 1;  // Shift right by 1 tile to center under 5-wide top
-                }
+            // Debug outline
+            collisionRect.setStrokeStyle(2, 0xff0000, 1);
+            collisionRect.setDepth(9999);
+            collisionRect.setVisible(true);
 
-                for (let col = 0; col < rowTiles.length; col++) {
-                    const tileFrame = rowTiles[col];
-                    const tilePx = px + (col + xOffset) * tileSize;
-                    const tilePy = py + row * tileSize;
-
-                    const tileSprite = this.add.sprite(tilePx, tilePy, type, tileFrame);
-                    tileSprite.setOrigin(0, 0);
-                    tileSprite.setScale(scale);
-                    tileSprite.setDepth(tilePy + tileSize); // Depth based on bottom of tile for Y-sorting
-
-                    // Don't add to tileContainer - add directly to scene for proper depth sorting
-                    // this.tileContainer.add(tileSprite);
-                    treeGroup.push(tileSprite);
-
-                    // Add collision on specific tile
-                    if (tileFrame === collisionTile) {
-                        collisionY = tilePy;  // Top of the collision tile for depth sorting
-
-                        // Create collision rectangle at the tile's actual position
-                        // Use tilePx which already has xOffset applied for TREE_TWO
-                        // Different Y offsets for different tree types
-                        let collisionYOffset;
-                        if (TREE_TILES === TREE_TWO) {
-                            // Tree 2: move down 20 pixels from base position (was 35, moved up 15)
-                            collisionYOffset = tilePy - (tileSize / 4) + 20;
-                        } else {
-                            // Tree 1: move down 20 pixels from base position
-                            collisionYOffset = tilePy - (tileSize / 4) + 20;
-                        }
-
-                        const collisionRect = this.add.rectangle(
-                            tilePx + (tileSize / 2),  // Center X of tile
-                            collisionYOffset,
-                            tileSize,
-                            tileSize,
-                            0xff0000,
-                            0
-                        );
-                        this.physics.add.existing(collisionRect, true);  // true = static body
-
-                        // Debug: visualize tree collision box with red outline
-                        collisionRect.setStrokeStyle(2, 0xff0000, 1);
-                        collisionRect.setDepth(9999); // Always on top
-                        // Respect dev settings visibility (will be set later in setupControls)
-                        collisionRect.setVisible(true); // Default visible, will be updated by dev menu
-
-                        // Store for later collision setup (after player is created)
-                        this.treeCollisions.push(collisionRect);
-                    }
-                }
-            }
-
-            // Store tree sprites with collision Y for depth sorting
+            this.treeCollisions.push(collisionRect);
             this.treeSprites.push({
-                sprites: treeGroup,
-                collisionY: collisionY
+                sprites: [trunk, foliage],
+                collisionY: py + tileSize
             });
 
-            console.log(`✅ Created multi-tile ${type} at ${x},${y} with collision at Y=${collisionY}`);
+            console.log(`✅ Created placeholder ${type} at ${x},${y}`);
 
         } else {
-            // Simple single-tile decorations
-            const scale = tileSize / 48;
-            const decoSprite = this.add.sprite(px, py, type, 0);
-            decoSprite.setOrigin(0, 0);
-            decoSprite.setScale(scale);
-            decoSprite.setDepth(py + tileSize);
+            // Simple single-tile decorations as circles
+            const deco = this.add.circle(px + tileSize / 2, py + tileSize / 2, tileSize / 3, color);
+            deco.setDepth(py + tileSize);
 
-            // Don't add to tileContainer - add directly to scene
-            // this.tileContainer.add(decoSprite);
-
-            console.log(`✅ Created ${type} at ${x},${y}`);
+            console.log(`✅ Created placeholder ${type} at ${x},${y}`);
         }
     }
 
