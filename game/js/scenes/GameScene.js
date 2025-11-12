@@ -8,7 +8,11 @@ class GameScene extends Phaser.Scene {
     }
 
     init(data) {
-        this.gameData = data;
+        // Data structure: { username, selectedCharacter, gameData }
+        // Extract the nested gameData
+        this.gameData = data.gameData || data;
+        this.username = data.username;
+        this.selectedCharacter = data.selectedCharacter;
     }
 
     preload() {
