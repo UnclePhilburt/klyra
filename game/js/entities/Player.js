@@ -138,6 +138,13 @@ class Player {
 
     // ==================== UPDATE LOOP ====================
 
+    updateAnimation(delta) {
+        // Stub for animation updates
+        // Current implementation uses static sprite frames
+        // Future: Implement walk/run animations here
+        // Could delegate to: this.spriteRenderer.updateAnimation(delta, velocityX, velocityY)
+    }
+
     updateElements() {
         // Update sprite rendering
         if (this.usingSprite) {
