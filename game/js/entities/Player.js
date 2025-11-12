@@ -39,11 +39,12 @@ class Player {
                 bottomRight: 121
             };
 
-            // Each frame is 48x48, we want 32x32 (one game tile per sprite)
-            const scale = 32 / 48; // 0.667
+            // Each frame is 48x48, we want 64x64 per sprite (double size)
+            const scale = 64 / 48; // 1.333 (2x the original 0.667)
 
             // Create invisible physics rectangle (this is what actually moves)
-            this.physicsBody = this.scene.add.rectangle(x, y, tileSize, tileSize, 0x000000, 0);
+            // 2x2 tiles = 64x64 collision box
+            this.physicsBody = this.scene.add.rectangle(x, y, tileSize * 2, tileSize * 2, 0x000000, 0);
             this.scene.physics.add.existing(this.physicsBody);
 
             // This is our main "sprite" reference
@@ -67,10 +68,11 @@ class Player {
 
             this.usingSprite = true;
 
-            console.log(`✅ Static 2x2 sprite created`);
+            console.log(`✅ Static 2x2 sprite created (DOUBLE SIZE)`);
             console.log(`  - Upper body: tiles ${frames.topLeft}, ${frames.topRight}`);
             console.log(`  - Lower body: tiles ${frames.bottomLeft}, ${frames.bottomRight}`);
-            console.log(`  - NO ANIMATION - completely static`);
+            console.log(`  - Scale: ${scale} (64x64 per sprite, 128x128 total)`);
+            console.log(`  - Collision box: 64x64 (2x2 tiles)`);
 
         } else {
             // Fallback to circle placeholder
@@ -100,9 +102,10 @@ class Player {
 
         const x = this.sprite.x;
         const y = this.sprite.y;
-        const spriteSize = 32;
+        const spriteSize = 64; // Double size (was 32)
 
         // Calculate positions
+        // Character is 128x128 total (2x2 @ 64px each)
         const left = x - spriteSize;
         const right = x;
         const top = y - spriteSize * 2;
@@ -128,7 +131,8 @@ class Player {
 
     createNameTag() {
         const x = this.sprite.x;
-        const y = this.sprite.y - 25;
+        const yOffset = this.usingSprite ? 140 : 25; // Match updateElements offset
+        const y = this.sprite.y - yOffset;
 
         this.nameTag = this.scene.add.text(x, y, this.data.username, {
             font: '10px monospace',
@@ -301,7 +305,7 @@ class Player {
         }
 
         // Update name tag and health bar
-        const yOffset = this.usingSprite ? 75 : 25;
+        const yOffset = this.usingSprite ? 140 : 25; // Increased for double-size sprite
         this.nameTag.setPosition(this.sprite.x, this.sprite.y - yOffset);
         this.nameTag.setDepth(spriteDepth + 1);
 
