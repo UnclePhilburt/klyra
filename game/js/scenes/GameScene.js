@@ -561,26 +561,36 @@ class GameScene extends Phaser.Scene {
     createDevMenu() {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
+        const centerX = width / 2;
+        const centerY = height / 2;
 
-        // Dev menu container
-        this.devMenuContainer = this.add.container(width / 2, height / 2);
-        this.devMenuContainer.setScrollFactor(0);
-        this.devMenuContainer.setDepth(10000);
-        this.devMenuContainer.setVisible(false);
+        // Store all dev menu elements for visibility toggling
+        this.devMenuElements = [];
 
         // Background
-        const bg = this.add.rectangle(0, 0, 400, 200, 0x000000, 0.9);
+        const bg = this.add.rectangle(centerX, centerY, 400, 200, 0x000000, 0.9);
         bg.setStrokeStyle(2, 0x00ff00);
+        bg.setScrollFactor(0);
+        bg.setDepth(10000);
+        bg.setVisible(false);
+        this.devMenuElements.push(bg);
 
         // Title
-        const title = this.add.text(0, -80, 'DEV SETTINGS', {
+        const title = this.add.text(centerX, centerY - 80, 'DEV SETTINGS', {
             font: '20px monospace',
             fill: '#00ff00'
         }).setOrigin(0.5);
+        title.setScrollFactor(0);
+        title.setDepth(10001);
+        title.setVisible(false);
+        this.devMenuElements.push(title);
 
         // Collision boxes toggle button
-        const toggleButton = this.add.rectangle(0, -30, 350, 40, 0x222222, 1);
+        const toggleButton = this.add.rectangle(centerX, centerY - 30, 350, 40, 0x222222, 1);
         toggleButton.setStrokeStyle(2, 0x00ff00);
+        toggleButton.setScrollFactor(0);
+        toggleButton.setDepth(10001);
+        toggleButton.setVisible(false);
         toggleButton.setInteractive({ useHandCursor: true });
         toggleButton.on('pointerdown', () => {
             this.toggleCollisionBoxes();
@@ -591,25 +601,40 @@ class GameScene extends Phaser.Scene {
         toggleButton.on('pointerout', () => {
             toggleButton.setStrokeStyle(2, 0x00ff00);
         });
+        this.devMenuElements.push(toggleButton);
+        this.devToggleButton = toggleButton;
 
-        this.collisionToggleText = this.add.text(0, -30, 'Collision Boxes: ON', {
+        this.collisionToggleText = this.add.text(centerX, centerY - 30, 'Collision Boxes: ON', {
             font: '16px monospace',
             fill: '#ffffff'
         }).setOrigin(0.5);
+        this.collisionToggleText.setScrollFactor(0);
+        this.collisionToggleText.setDepth(10002);
+        this.collisionToggleText.setVisible(false);
+        this.devMenuElements.push(this.collisionToggleText);
 
         // Instructions
-        const instructions = this.add.text(0, 20, 'Click options to toggle\nPress ` to close', {
+        const instructions = this.add.text(centerX, centerY + 20, 'Click options to toggle\nPress ` to close', {
             font: '12px monospace',
             fill: '#888888',
             align: 'center'
         }).setOrigin(0.5);
+        instructions.setScrollFactor(0);
+        instructions.setDepth(10001);
+        instructions.setVisible(false);
+        this.devMenuElements.push(instructions);
 
-        this.devMenuContainer.add([bg, title, toggleButton, this.collisionToggleText, instructions]);
+        this.devMenuVisible = false;
     }
 
     toggleDevMenu() {
-        if (this.devMenuContainer) {
-            this.devMenuContainer.setVisible(!this.devMenuContainer.visible);
+        this.devMenuVisible = !this.devMenuVisible;
+
+        // Toggle visibility of all dev menu elements
+        if (this.devMenuElements) {
+            this.devMenuElements.forEach(element => {
+                element.setVisible(this.devMenuVisible);
+            });
         }
     }
 
