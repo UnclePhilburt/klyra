@@ -41,14 +41,16 @@ class Player {
 
             // Each frame is 48x48, we want 48x48 per sprite (25% smaller than double)
             const scale = 48 / 48; // 1.0
-            const collisionSize = 48; // 1.5 tiles
+            const collisionWidth = 48;
+            const collisionHeight = 24; // Half height - bottom half only
 
             // Create invisible physics rectangle (this is what actually moves)
-            this.physicsBody = this.scene.add.rectangle(x, y, collisionSize, collisionSize, 0x000000, 0);
+            // Position it lower since we only want bottom half collision
+            this.physicsBody = this.scene.add.rectangle(x, y + 12, collisionWidth, collisionHeight, 0x000000, 0);
             this.scene.physics.add.existing(this.physicsBody);
 
             // Debug: visualize collision box
-            this.collisionDebug = this.scene.add.rectangle(x, y, collisionSize, collisionSize, 0x00ff00, 0);
+            this.collisionDebug = this.scene.add.rectangle(x, y + 12, collisionWidth, collisionHeight, 0x00ff00, 0);
             this.collisionDebug.setStrokeStyle(2, 0x00ff00, 1);
             this.collisionDebug.setDepth(9999); // Always on top
             // Respect dev settings visibility
@@ -81,7 +83,7 @@ class Player {
             console.log(`  - Upper body: tiles ${frames.topLeft}, ${frames.topRight}`);
             console.log(`  - Lower body: tiles ${frames.bottomLeft}, ${frames.bottomRight}`);
             console.log(`  - Scale: ${scale} (48x48 per sprite, 96x96 total)`);
-            console.log(`  - Collision box: ${collisionSize}x${collisionSize} (GREEN OUTLINE)`);
+            console.log(`  - Collision box: ${collisionWidth}x${collisionHeight} rectangle (GREEN OUTLINE - bottom half only)`);
 
         } else {
             // Fallback to circle placeholder
@@ -137,9 +139,9 @@ class Player {
         this.bottomLeft.setDepth(depth);
         this.bottomRight.setDepth(depth);
 
-        // Update collision debug box position
+        // Update collision debug box position (offset +12 for bottom half)
         if (this.collisionDebug) {
-            this.collisionDebug.setPosition(x, y);
+            this.collisionDebug.setPosition(x, y + 12);
         }
     }
 

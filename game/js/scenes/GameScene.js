@@ -578,17 +578,24 @@ class GameScene extends Phaser.Scene {
             fill: '#00ff00'
         }).setOrigin(0.5);
 
-        // Collision boxes toggle
+        // Collision boxes toggle button
+        const toggleButton = this.add.rectangle(0, -30, 350, 40, 0x222222, 1);
+        toggleButton.setStrokeStyle(2, 0x00ff00);
+        toggleButton.setInteractive({ useHandCursor: true });
+        toggleButton.on('pointerdown', () => {
+            this.toggleCollisionBoxes();
+        });
+        toggleButton.on('pointerover', () => {
+            toggleButton.setStrokeStyle(2, 0x00ffff);
+        });
+        toggleButton.on('pointerout', () => {
+            toggleButton.setStrokeStyle(2, 0x00ff00);
+        });
+
         this.collisionToggleText = this.add.text(0, -30, 'Collision Boxes: ON', {
             font: '16px monospace',
             fill: '#ffffff'
         }).setOrigin(0.5);
-
-        // Make it interactive
-        this.collisionToggleText.setInteractive({ useHandCursor: true });
-        this.collisionToggleText.on('pointerdown', () => {
-            this.toggleCollisionBoxes();
-        });
 
         // Instructions
         const instructions = this.add.text(0, 20, 'Click options to toggle\nPress ` to close', {
@@ -597,7 +604,7 @@ class GameScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5);
 
-        this.devMenuContainer.add([bg, title, this.collisionToggleText, instructions]);
+        this.devMenuContainer.add([bg, title, toggleButton, this.collisionToggleText, instructions]);
     }
 
     toggleDevMenu() {
