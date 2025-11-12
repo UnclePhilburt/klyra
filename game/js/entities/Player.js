@@ -39,13 +39,18 @@ class Player {
                 bottomRight: 121
             };
 
-            // Each frame is 48x48, we want 64x64 per sprite (double size)
-            const scale = 64 / 48; // 1.333 (2x the original 0.667)
+            // Each frame is 48x48, we want 48x48 per sprite (25% smaller than double)
+            const scale = 48 / 48; // 1.0
+            const collisionSize = 48; // 1.5 tiles
 
             // Create invisible physics rectangle (this is what actually moves)
-            // 2x2 tiles = 64x64 collision box
-            this.physicsBody = this.scene.add.rectangle(x, y, tileSize * 2, tileSize * 2, 0x000000, 0);
+            this.physicsBody = this.scene.add.rectangle(x, y, collisionSize, collisionSize, 0x000000, 0);
             this.scene.physics.add.existing(this.physicsBody);
+
+            // Debug: visualize collision box
+            this.collisionDebug = this.scene.add.rectangle(x, y, collisionSize, collisionSize, 0x00ff00, 0);
+            this.collisionDebug.setStrokeStyle(2, 0x00ff00, 1);
+            this.collisionDebug.setDepth(9999); // Always on top
 
             // This is our main "sprite" reference
             this.sprite = this.physicsBody;
@@ -68,11 +73,11 @@ class Player {
 
             this.usingSprite = true;
 
-            console.log(`✅ Static 2x2 sprite created (DOUBLE SIZE)`);
+            console.log(`✅ Static 2x2 sprite created`);
             console.log(`  - Upper body: tiles ${frames.topLeft}, ${frames.topRight}`);
             console.log(`  - Lower body: tiles ${frames.bottomLeft}, ${frames.bottomRight}`);
-            console.log(`  - Scale: ${scale} (64x64 per sprite, 128x128 total)`);
-            console.log(`  - Collision box: 64x64 (2x2 tiles)`);
+            console.log(`  - Scale: ${scale} (48x48 per sprite, 96x96 total)`);
+            console.log(`  - Collision box: ${collisionSize}x${collisionSize} (GREEN OUTLINE)`);
 
         } else {
             // Fallback to circle placeholder
@@ -102,10 +107,10 @@ class Player {
 
         const x = this.sprite.x;
         const y = this.sprite.y;
-        const spriteSize = 64; // Double size (was 32)
+        const spriteSize = 48; // 25% smaller than double size
 
         // Calculate positions
-        // Character is 128x128 total (2x2 @ 64px each)
+        // Character is 96x96 total (2x2 @ 48px each)
         const left = x - spriteSize;
         const right = x;
         const top = y - spriteSize * 2;
@@ -123,6 +128,11 @@ class Player {
         this.topRight.setDepth(depth);
         this.bottomLeft.setDepth(depth);
         this.bottomRight.setDepth(depth);
+
+        // Update collision debug box position
+        if (this.collisionDebug) {
+            this.collisionDebug.setPosition(x, y);
+        }
     }
 
     updateAnimation(delta) {
@@ -131,7 +141,7 @@ class Player {
 
     createNameTag() {
         const x = this.sprite.x;
-        const yOffset = this.usingSprite ? 140 : 25; // Match updateElements offset
+        const yOffset = this.usingSprite ? 105 : 25; // 25% smaller than 140
         const y = this.sprite.y - yOffset;
 
         this.nameTag = this.scene.add.text(x, y, this.data.username, {
@@ -305,7 +315,7 @@ class Player {
         }
 
         // Update name tag and health bar
-        const yOffset = this.usingSprite ? 140 : 25; // Increased for double-size sprite
+        const yOffset = this.usingSprite ? 105 : 25; // 25% smaller than 140
         this.nameTag.setPosition(this.sprite.x, this.sprite.y - yOffset);
         this.nameTag.setDepth(spriteDepth + 1);
 

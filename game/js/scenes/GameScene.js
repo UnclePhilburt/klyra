@@ -329,7 +329,7 @@ class GameScene extends Phaser.Scene {
                     if (tileFrame === collisionTile) {
                         collisionY = tilePy;  // Top of the collision tile for depth sorting
 
-                        // Create invisible collision rectangle at the tile's actual position
+                        // Create collision rectangle at the tile's actual position
                         // Use tilePx which already has xOffset applied for TREE_TWO
                         // Shift Y up by quarter tile to better match visual trunk position
                         const collisionRect = this.add.rectangle(
@@ -341,6 +341,10 @@ class GameScene extends Phaser.Scene {
                             0
                         );
                         this.physics.add.existing(collisionRect, true);  // true = static body
+
+                        // Debug: visualize tree collision box with red outline
+                        collisionRect.setStrokeStyle(2, 0xff0000, 1);
+                        collisionRect.setDepth(9999); // Always on top
 
                         // Store for later collision setup (after player is created)
                         this.treeCollisions.push(collisionRect);
