@@ -587,87 +587,6 @@ class Player {
         this.updateHealthBar();
     }
 
-
-        // Update depth for Y-sorting
-        const spriteDepth = this.sprite.y + 1000;
-        this.sprite.setDepth(spriteDepth);
-
-        if (!this.usingSprite && this.glow && this.weapon) {
-            // Update glow position for circle placeholder
-            this.glow.setPosition(this.sprite.x, this.sprite.y);
-            this.glow.setDepth(spriteDepth - 1);
-
-            // Update weapon position
-            const angle = this.weapon.rotation;
-            const distance = 15;
-            this.weapon.setPosition(
-                this.sprite.x + Math.cos(angle) * distance,
-                this.sprite.y + Math.sin(angle) * distance
-            );
-            this.weapon.setDepth(spriteDepth);
-        }
-
-        // Update name tag and health bar
-        const yOffset = this.usingSprite ? 105 : 25;
-
-        // Apply same offset as sprite (down 55, right 32)
-        const offsetX = this.usingSprite ? 32 : 0;
-        const offsetY = this.usingSprite ? 55 : 0;
-
-        const nameX = this.sprite.x + offsetX;
-        const nameY = this.sprite.y - yOffset + offsetY;
-
-        const healthBarWidth = 60;
-        const healthBarHeight = 8;
-        const healthBarY = nameY - 18;
-
-        // Update name tag background
-        if (this.nameTagBg) {
-            this.nameTagBg.clear();
-            this.nameTagBg.fillStyle(0x000000, 0.7);
-            this.nameTagBg.fillRoundedRect(
-                nameX - 40,
-                nameY - 10,
-                80,
-                18,
-                4
-            );
-            this.nameTagBg.lineStyle(1, 0x444444, 1);
-            this.nameTagBg.strokeRoundedRect(
-                nameX - 40,
-                nameY - 10,
-                80,
-                18,
-                4
-            );
-            this.nameTagBg.setDepth(spriteDepth + 1);
-        }
-
-        // Update name tag text
-        this.nameTag.setPosition(nameX, nameY);
-        this.nameTag.setDepth(spriteDepth + 2);
-
-        // Update health bar border
-        if (this.healthBarBorder) {
-            this.healthBarBorder.setPosition(nameX, healthBarY);
-            this.healthBarBorder.setDepth(spriteDepth + 1);
-        }
-
-        // Update health bar background
-        this.healthBarBg.setPosition(nameX, healthBarY);
-        this.healthBarBg.setDepth(spriteDepth + 2);
-
-        // Update health bar fill
-        const healthPercent = this.health / this.maxHealth;
-        this.healthBar.setPosition(
-            nameX - (healthBarWidth / 2) + (healthBarWidth * healthPercent / 2),
-            healthBarY
-        );
-        this.healthBar.setDepth(spriteDepth + 3);
-
-        this.updateHealthBar();
-    }
-
     updateHealthBar() {
         if (!this.healthBar) return;
 
@@ -723,9 +642,5 @@ class Player {
                 repeat: 0
             });
         }
-    }
-
-        }
-        this.healthBar.setFillStyle(color);
     }
 }
