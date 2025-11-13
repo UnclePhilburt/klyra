@@ -1194,11 +1194,19 @@ class GameScene extends Phaser.Scene {
                 const tweensAfter = this.tweens.getTweens().length;
                 const graphicsAfter = this.children.list.filter(c => c.type === 'Graphics').length;
 
-                // Console log only - NO visual effects
+                // Level up effects for local player
                 if (data.playerId === networkManager.currentPlayer.id) {
                     console.log(`🎉 LEVEL UP! Level ${data.level} | HP: ${data.health}/${data.maxHealth} | STR: ${data.stats.strength} | DEF: ${data.stats.defense}`);
                     console.log(`📊 DIAGNOSTIC - Tweens: ${tweensBefore} → ${tweensAfter} (Δ${tweensAfter - tweensBefore})`);
                     console.log(`📊 DIAGNOSTIC - Graphics: ${graphicsBefore} → ${graphicsAfter} (Δ${graphicsAfter - graphicsBefore})`);
+
+                    // Visual level-up effect
+                    if (this.visualEffectsManager) {
+                        this.visualEffectsManager.createLevelUpEffect(
+                            player.sprite.x,
+                            player.sprite.y
+                        );
+                    }
 
                     // Show skill selector!
                     if (this.skillSelector) {
@@ -1281,13 +1289,43 @@ class GameScene extends Phaser.Scene {
                     delete this.wolves[data.enemyId];
                 }
 
-                // Check if killer is Malachar with dark_harvest passive
+                // Check if killer is Malachar with special passives
                 if (data.killedBy) {
                     const killer = data.killedBy === networkManager.currentPlayer.id
                         ? this.localPlayer
                         : this.otherPlayers[data.killedBy];
 
                     if (killer && killer.class === 'MALACHAR') {
+                        // Heal on kill effects
+                        let totalHeal = 0;
+
+                        // Flat heal per kill
+                        if (killer.healPerKill) {
+                            totalHeal += killer.healPerKill;
+                        }
+
+                        // Percentage heal per kill
+                        if (killer.healOnKillPercent) {
+                            totalHeal += Math.floor(killer.maxHealth * killer.healOnKillPercent);
+                        }
+
+                        // Apply healing
+                        if (totalHeal > 0 && killer === this.localPlayer) {
+                            killer.health = Math.min(killer.maxHealth, killer.health + totalHeal);
+                            if (killer.ui) {
+                                killer.ui.updateHealthBar();
+                            }
+
+                            // Visual heal effect
+                            if (this.visualEffectsManager) {
+                                this.visualEffectsManager.createHealEffect(
+                                    killer.sprite.x,
+                                    killer.sprite.y,
+                                    totalHeal
+                                );
+                            }
+                        }
+
                         // 15% chance to summon minion (dark_harvest passive)
                         if (Math.random() < 0.15) {
                             this.spawnMinion(deathX, deathY, data.killedBy);

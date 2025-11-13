@@ -268,10 +268,18 @@ class SkillSelector {
 
         // Handle special case for spawn_minion effect (used throughout skill tree)
         if (skill.effect === 'spawn_minion') {
+            const spawnX = player.sprite.x + 60;
+            const spawnY = player.sprite.y;
+
+            // Visual effect for summoning
+            if (this.scene.visualEffectsManager) {
+                this.scene.visualEffectsManager.createMinionSummonEffect(spawnX, spawnY);
+            }
+
             // Spawn another permanent minion
             this.scene.spawnMinion(
-                player.sprite.x + 60,
-                player.sprite.y,
+                spawnX,
+                spawnY,
                 player.data.id,
                 true // permanent
             );
