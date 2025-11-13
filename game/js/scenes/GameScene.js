@@ -44,6 +44,13 @@ class GameScene extends Phaser.Scene {
             this.modernHUD = null;
         }
 
+        // Destroy skill selector
+        if (this.skillSelector) {
+            console.log('🧹 Destroying SkillSelector');
+            this.skillSelector.destroy();
+            this.skillSelector = null;
+        }
+
         console.log('🧹 GameScene cleanup complete');
     }
 
@@ -578,6 +585,9 @@ class GameScene extends Phaser.Scene {
     createUI() {
         // Create modern HUD system
         this.modernHUD = new ModernHUD(this, this.localPlayer);
+
+        // Create skill selector system
+        this.skillSelector = new SkillSelector(this);
     }
 
     setupControls() {
@@ -762,6 +772,11 @@ class GameScene extends Phaser.Scene {
                     console.log(`🎉 LEVEL UP! Level ${data.level} | HP: ${data.health}/${data.maxHealth} | STR: ${data.stats.strength} | DEF: ${data.stats.defense}`);
                     console.log(`📊 DIAGNOSTIC - Tweens: ${tweensBefore} → ${tweensAfter} (Δ${tweensAfter - tweensBefore})`);
                     console.log(`📊 DIAGNOSTIC - Graphics: ${graphicsBefore} → ${graphicsAfter} (Δ${graphicsAfter - graphicsBefore})`);
+
+                    // Show skill selector!
+                    if (this.skillSelector) {
+                        this.skillSelector.show(player.class, data.level);
+                    }
                 }
             }
         });
@@ -1293,7 +1308,14 @@ class GameScene extends Phaser.Scene {
 
     spawnMinion(x, y, ownerId, isPermanent = false) {
         const minionId = `minion_${this.minionIdCounter++}`;
-        this.minions[minionId] = new Minion(this, x, y, ownerId, isPermanent, minionId);
+        const minion = new Minion(this, x, y, ownerId, isPermanent, minionId);
+        this.minions[minionId] = minion;
+
+        // Apply damage multiplier from skills (if local player owns this minion)
+        if (ownerId === networkManager.currentPlayer.id && this.localPlayer && this.localPlayer.minionDamageMultiplier) {
+            minion.damage *= this.localPlayer.minionDamageMultiplier;
+            console.log(`⚡ Applied damage multiplier: ${this.localPlayer.minionDamageMultiplier}x (damage: ${minion.damage})`);
+        }
 
         const minionType = isPermanent ? 'permanent companion' : 'temporary minion';
         console.log(`🔮 Spawned ${minionType} [${minionId}] for owner ${ownerId} at (${x.toFixed(0)}, ${y.toFixed(0)})`);
