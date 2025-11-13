@@ -268,17 +268,27 @@ class Lobby {
 
         // Spawn items in this chunk
         const itemsPerChunk = this.getItemsPerChunk();
+        const itemTypes = [
+            { type: 'health_potion', rarity: 'common', effect: { health: 30 } },
+            { type: 'mana_potion', rarity: 'common', effect: { mana: 50 } },
+            { type: 'strength_potion', rarity: 'uncommon', effect: { strength: 5 } },
+            { type: 'defense_potion', rarity: 'uncommon', effect: { defense: 5 } }
+        ];
+
         for (let i = 0; i < itemsPerChunk; i++) {
             const localX = Math.floor(Math.random() * (this.CHUNK_SIZE - 2)) + 1;
             const localY = Math.floor(Math.random() * (this.CHUNK_SIZE - 2)) + 1;
             const worldX = chunkX * this.CHUNK_SIZE + localX;
             const worldY = chunkY * this.CHUNK_SIZE + localY;
 
+            const itemData = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+
             const item = {
                 id: `${this.id}_item_${chunkX}_${chunkY}_${i}_${Date.now()}`,
-                type: ['health_potion', 'strength_potion', 'defense_potion'][Math.floor(Math.random() * 3)],
+                type: itemData.type,
+                rarity: itemData.rarity,
+                effect: itemData.effect,
                 position: { x: worldX, y: worldY },
-                effect: this.getItemEffect(Math.random() < 0.5 ? 'health_potion' : 'strength_potion'),
                 chunkX,
                 chunkY
             };
