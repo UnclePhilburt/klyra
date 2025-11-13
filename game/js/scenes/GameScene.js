@@ -211,12 +211,6 @@ class GameScene extends Phaser.Scene {
                 const scale = tileSize / 48;
                 tileSprite.setScale(scale);
 
-                // Add slight variety with seeded random for consistency across clients
-                if (this.seededRandom(this.dungeonSeed) < 0.2) {
-                    const randomOffset = Math.floor(this.seededRandom(this.dungeonSeed) * 3);
-                    tileSprite.setFrame(tileInfo.frame + randomOffset);
-                }
-
                 this.tileContainer.add(tileSprite);
             }
         }
