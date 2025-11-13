@@ -398,12 +398,12 @@ class Lobby {
 
     spawnEnemies(count) {
         const enemyTypes = [
-            { type: 'goblin', speed: 80 },
-            { type: 'orc', speed: 60 },
-            { type: 'skeleton', speed: 100 },
-            { type: 'troll', speed: 50 },
-            { type: 'demon', speed: 70 },
-            { type: 'wolf', speed: 120 }
+            { type: 'goblin', speed: 80, sightRange: 10, damage: 8 },
+            { type: 'orc', speed: 60, sightRange: 8, damage: 12 },
+            { type: 'skeleton', speed: 100, sightRange: 12, damage: 10 },
+            { type: 'troll', speed: 50, sightRange: 6, damage: 15 },
+            { type: 'demon', speed: 70, sightRange: 15, damage: 14 },
+            { type: 'wolf', speed: 50, sightRange: 12, damage: 10 } // Reduced from 120 to 50
         ];
 
         for (let i = 0; i < count; i++) {
@@ -416,8 +416,9 @@ class Lobby {
                 position: spawnPos,
                 health: 25,
                 maxHealth: 25,
-                damage: 10,
+                damage: enemyTemplate.damage,
                 speed: enemyTemplate.speed,
+                sightRange: enemyTemplate.sightRange, // Sight range in tiles
                 isAlive: true,
                 lastMove: Date.now(),
                 target: null, // Current target (player or minion)
@@ -514,11 +515,19 @@ class Lobby {
                     Math.pow(player.position.y - enemy.position.y, 2)
                 );
 
+                // Check if player is within sight range OR has aggro (enemy remembers them)
+                const hasAggro = enemy.aggro && enemy.aggro.has(player.id);
+                const inSightRange = dist <= enemy.sightRange;
+
+                if (!hasAggro && !inSightRange) {
+                    return; // Player is too far and hasn't attacked this enemy
+                }
+
                 // Base aggro (closer = higher aggro)
                 let aggroValue = 100 / (dist + 1);
 
-                // Add bonus aggro from damage taken
-                if (enemy.aggro && enemy.aggro.has(player.id)) {
+                // Add bonus aggro from damage taken (enemy remembers who hurt them)
+                if (hasAggro) {
                     aggroValue += enemy.aggro.get(player.id);
                 }
 
