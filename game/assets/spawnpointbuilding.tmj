@@ -528,48 +528,216 @@
  "tileheight":48,
  "tilesets":[
         {
+         "columns":52,
          "firstgid":1,
-         "source":"..\/..\/..\/Users\/CodyW\/Downloads\/A2 - Terrain And Misc.tsx"
+         "image":"..\/..\/..\/Users\/CodyW\/OneDrive\/Desktop\/Fantasy Exterior - Other Engines\/A2 - Terrain And Misc.png",
+         "imageheight":1920,
+         "imagewidth":2496,
+         "margin":0,
+         "name":"A2 - Terrain And Misc",
+         "spacing":0,
+         "tilecount":2080,
+         "tileheight":48,
+         "tilewidth":48
         }, 
         {
+         "columns":8,
          "firstgid":2081,
-         "source":"..\/..\/..\/Users\/CodyW\/Downloads\/Fantasy_Outside_A5.tsx"
+         "image":"..\/..\/..\/Users\/CodyW\/OneDrive\/Desktop\/Fantasy Exterior - Other Engines\/Fantasy_Outside_A5.png",
+         "imageheight":768,
+         "imagewidth":384,
+         "margin":0,
+         "name":"Fantasy_Outside_A5",
+         "spacing":0,
+         "tilecount":128,
+         "tileheight":48,
+         "tilewidth":48
         }, 
         {
          "firstgid":2209,
          "source":"..\/..\/..\/Users\/CodyW\/OneDrive\/Documents\/Klyra\/a2_terrain_base.tsx"
         }, 
         {
+         "columns":36,
          "firstgid":4289,
-         "source":"..\/..\/..\/Users\/CodyW\/Downloads\/A1 - Liquids And Misc.tsx"
+         "image":"..\/..\/..\/Users\/CodyW\/OneDrive\/Desktop\/Fantasy Exterior - Other Engines\/A1 - Liquids And Misc.png",
+         "imageheight":2304,
+         "imagewidth":1728,
+         "margin":0,
+         "name":"A1 - Liquids And Misc",
+         "spacing":0,
+         "tilecount":1728,
+         "tileheight":48,
+         "tilewidth":48
         }, 
         {
+         "columns":16,
          "firstgid":6017,
-         "source":"..\/..\/..\/Users\/CodyW\/Downloads\/A3 - Walls And Floors.tsx"
+         "image":"..\/..\/..\/Users\/CodyW\/OneDrive\/Desktop\/Fantasy Exterior - Other Engines\/A3 - Walls And Floors.png",
+         "imageheight":1536,
+         "imagewidth":768,
+         "margin":0,
+         "name":"A3 - Walls And Floors",
+         "spacing":0,
+         "tilecount":512,
+         "tileheight":48,
+         "tilewidth":48
         }, 
         {
+         "columns":23,
          "firstgid":6529,
-         "source":"..\/..\/..\/Users\/CodyW\/Downloads\/A4 - Walls.tsx"
+         "image":"..\/..\/..\/Users\/CodyW\/OneDrive\/Desktop\/Fantasy Exterior - Other Engines\/A4 - Walls.png",
+         "imageheight":1488,
+         "imagewidth":1104,
+         "margin":0,
+         "name":"A4 - Walls",
+         "spacing":0,
+         "tilecount":713,
+         "tileheight":48,
+         "tilewidth":48
         }, 
         {
+         "columns":12,
          "firstgid":7242,
-         "source":"..\/..\/..\/Users\/CodyW\/OneDrive\/Documents\/Klyra\/Fantasy_door1.tsx"
+         "image":"tilesets\/Fantasy_door1.png",
+         "imageheight":768,
+         "imagewidth":576,
+         "margin":0,
+         "name":"Fantasy_door1",
+         "spacing":0,
+         "tilecount":192,
+         "tileheight":48,
+         "tilewidth":48
         }, 
         {
+         "columns":12,
          "firstgid":7434,
-         "source":"..\/..\/..\/Users\/CodyW\/OneDrive\/Documents\/Klyra\/Fantasy_door2.tsx"
+         "image":"tilesets\/Fantasy_door2.png",
+         "imageheight":768,
+         "imagewidth":576,
+         "margin":0,
+         "name":"Fantasy_door2",
+         "spacing":0,
+         "tilecount":192,
+         "tileheight":48,
+         "tilewidth":48
         }, 
         {
+         "columns":9,
          "firstgid":7626,
-         "source":"..\/..\/..\/Users\/CodyW\/OneDrive\/Documents\/Klyra\/Gate_Cathedral1.tsx"
+         "image":"tilesets\/Gate_Cathedral1.png",
+         "imageheight":768,
+         "imagewidth":432,
+         "margin":0,
+         "name":"Gate_Cathedral1",
+         "spacing":0,
+         "tilecount":144,
+         "tileheight":48,
+         "tilewidth":48
         }, 
         {
+         "columns":16,
          "firstgid":7770,
-         "source":"..\/..\/..\/Users\/CodyW\/OneDrive\/Documents\/Klyra\/Fantasy_Outside_D.tsx"
+         "image":"tilesets\/Fantasy_Outside_D.png",
+         "imageheight":768,
+         "imagewidth":768,
+         "margin":0,
+         "name":"Fantasy_Outside_D",
+         "spacing":0,
+         "tilecount":256,
+         "tileheight":48,
+         "tilewidth":48
         }, 
         {
+         "columns":16,
          "firstgid":8026,
-         "source":"..\/..\/..\/Users\/CodyW\/OneDrive\/Documents\/Klyra\/Fantasy_Outside_C.tsx"
+         "image":"tilesets\/Fantasy_Outside_C.png",
+         "imageheight":768,
+         "imagewidth":768,
+         "margin":0,
+         "name":"Fantasy_Outside_C",
+         "spacing":0,
+         "tilecount":256,
+         "tileheight":48,
+         "tilewidth":48
+        }, 
+        {
+         "columns":52,
+         "firstgid":8282,
+         "image":"..\/..\/..\/Users\/CodyW\/OneDrive\/Desktop\/Fantasy Exterior - Other Engines\/A2 - Terrain And Misc.png",
+         "imageheight":1920,
+         "imagewidth":2496,
+         "margin":0,
+         "name":"A2 - Terrain And Misc",
+         "spacing":0,
+         "tilecount":2080,
+         "tileheight":48,
+         "tilewidth":48
+        }, 
+        {
+         "columns":52,
+         "firstgid":10362,
+         "image":"..\/..\/..\/Users\/CodyW\/OneDrive\/Desktop\/Fantasy Exterior - Other Engines\/A2 - Terrain And Misc.png",
+         "imageheight":1920,
+         "imagewidth":2496,
+         "margin":0,
+         "name":"A2 - Terrain And Misc",
+         "spacing":0,
+         "tilecount":2080,
+         "tileheight":48,
+         "tilewidth":48
+        }, 
+        {
+         "columns":39,
+         "firstgid":12442,
+         "image":"..\/..\/..\/Users\/CodyW\/OneDrive\/Desktop\/Fantasy Exterior - Other Engines\/A2_extended_forest_terrain.png",
+         "imageheight":720,
+         "imagewidth":1872,
+         "margin":0,
+         "name":"A2_extended_forest_terrain",
+         "spacing":0,
+         "tilecount":585,
+         "tileheight":48,
+         "tilewidth":48
+        }, 
+        {
+         "columns":39,
+         "firstgid":13027,
+         "image":"..\/..\/..\/Users\/CodyW\/OneDrive\/Desktop\/Fantasy Exterior - Other Engines\/A2_extended_forest_terrain.png",
+         "imageheight":720,
+         "imagewidth":1872,
+         "margin":0,
+         "name":"A2_extended_forest_terrain",
+         "spacing":0,
+         "tilecount":585,
+         "tileheight":48,
+         "tilewidth":48
+        }, 
+        {
+         "columns":12,
+         "firstgid":13612,
+         "image":"tilesets\/redbiome\/Big_Trees_red.png",
+         "imageheight":1152,
+         "imagewidth":576,
+         "margin":0,
+         "name":"Big_Trees_red",
+         "spacing":0,
+         "tilecount":288,
+         "tileheight":48,
+         "tilewidth":48
+        }, 
+        {
+         "columns":16,
+         "firstgid":13900,
+         "image":"..\/..\/..\/Users\/CodyW\/OneDrive\/Desktop\/Fantasy Exterior - Other Engines\/RedEdition\/Fantasy_Outside_D_red.png",
+         "imageheight":768,
+         "imagewidth":768,
+         "margin":0,
+         "name":"Fantasy_Outside_D_red",
+         "spacing":0,
+         "tilecount":256,
+         "tileheight":48,
+         "tilewidth":48
         }],
  "tilewidth":48,
  "type":"map",
