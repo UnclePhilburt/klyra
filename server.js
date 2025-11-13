@@ -285,15 +285,26 @@ class Lobby {
         const biomes = Array(height).fill(null).map(() => Array(width).fill(null));
         const decorations = [];
 
-        // Biome definitions - distinct and separate (matches client)
+        // Calculate randomized biome distribution from seed (matches client)
+        const weight1 = this.seededRandom(seed + 1234) * 40 + 15; // 15-55%
+        const weight2 = this.seededRandom(seed + 5678) * 40 + 15; // 15-55%
+        const weight3 = this.seededRandom(seed + 9012) * 40 + 15; // 15-55%
+
+        // Normalize to 100%
+        const total = weight1 + weight2 + weight3;
+        const greenThreshold = weight1 / total;
+        const darkGreenThreshold = greenThreshold + (weight2 / total);
+
+        // Biome definitions - 3 biomes with 12 tile variations each
         const BIOMES = {
-            GRASSLAND: { id: 'grassland', tiles: [10, 11, 12], weight: 0.4 },  // Green only
-            FOREST: { id: 'forest', tiles: [20, 21, 22], weight: 0.3 },        // Dark green
-            DESERT: { id: 'desert', tiles: [30, 31, 32], weight: 0.15 },       // Red/orange
-            DARK_WOODS: { id: 'dark', tiles: [40, 41, 42], weight: 0.15 }      // Dark/spooky
+            GREEN: { id: 'green', tiles: [10,11,12,13,14,15,16,17,18,19,20,21] },           // terrain_green 104-115
+            DARK_GREEN: { id: 'dark_green', tiles: [30,31,32,33,34,35,36,37,38,39,40,41] }, // forest_extended 78-89
+            RED: { id: 'red', tiles: [50,51,52,53,54,55,56,57,58,59,60,61] }                // forest_extended 468-479
         };
 
         const biomeStats = {};
+
+        console.log(`🌍 Server biome distribution: Green=${(greenThreshold*100).toFixed(1)}% DarkGreen=${((darkGreenThreshold-greenThreshold)*100).toFixed(1)}% Red=${((1-darkGreenThreshold)*100).toFixed(1)}%`);
 
         // Generate biome map using multiple octaves of noise with LOWER frequencies for larger regions
         for (let y = 0; y < height; y++) {
@@ -305,12 +316,11 @@ class Lobby {
 
                 const combinedNoise = (noise1 * 0.6 + noise2 * 0.3 + noise3 * 0.1);
 
-                // Determine biome based on noise value - clear boundaries to prevent mixing
+                // Determine biome using randomized thresholds
                 let selectedBiome;
-                if (combinedNoise < 0.4) selectedBiome = BIOMES.GRASSLAND;      // 40% grassland (green only)
-                else if (combinedNoise < 0.7) selectedBiome = BIOMES.FOREST;    // 30% forest
-                else if (combinedNoise < 0.85) selectedBiome = BIOMES.DESERT;   // 15% desert (red)
-                else selectedBiome = BIOMES.DARK_WOODS;                         // 15% dark woods
+                if (combinedNoise < greenThreshold) selectedBiome = BIOMES.GREEN;
+                else if (combinedNoise < darkGreenThreshold) selectedBiome = BIOMES.DARK_GREEN;
+                else selectedBiome = BIOMES.RED;
 
                 biomes[y][x] = selectedBiome.id;
 
