@@ -125,7 +125,7 @@ class Player {
     }
 }
 
-// Lobby class
+// Lobby class with infinite chunk-based world
 class Lobby {
     constructor(difficulty = 'normal') {
         this.id = uuidv4();
@@ -137,16 +137,21 @@ class Lobby {
             floor: 1,
             enemies: [],
             items: [],
-            dungeon: null,
             startTime: Date.now(),
             endTime: null
         };
         this.createdAt = Date.now();
         this.readyPlayers = new Set();
-        this.votes = new Map(); // For voting systems
+        this.votes = new Map();
 
-        // Generate dungeon immediately when lobby is created
-        this.generateDungeon();
+        // Infinite world with chunks
+        this.CHUNK_SIZE = 50; // 50x50 tiles per chunk
+        this.CHUNK_RENDER_DISTANCE = 2; // Load chunks within 2 chunks of players
+        this.chunks = new Map(); // Format: "chunkX,chunkY" -> chunkData
+        this.worldSeed = `${this.id}-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+
+        // Generate initial spawn chunks (0,0 and surrounding)
+        this.generateInitialChunks();
         metrics.totalGames++;
     }
 
@@ -189,60 +194,169 @@ class Lobby {
         }
     }
 
-    generateDungeon() {
-        const size = this.getDungeonSize();
+    generateInitialChunks() {
+        // Generate spawn area: 3x3 chunks centered at (0,0)
+        for (let cx = -1; cx <= 1; cx++) {
+            for (let cy = -1; cy <= 1; cy++) {
+                this.generateChunk(cx, cy);
+            }
+        }
+        console.log(`🗺️ Generated infinite world for room ${this.id.slice(0, 8)} (chunk-based, ${this.difficulty})`);
+        console.log(`   Seed: ${this.worldSeed}`);
+        console.log(`   Initial chunks: 3x3 around spawn (0,0)`);
+    }
 
-        // Generate unique seed based on lobby ID + timestamp for unique procedural worlds
-        const uniqueSeed = `${this.id}-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    getChunkKey(chunkX, chunkY) {
+        return `${chunkX},${chunkY}`;
+    }
 
-        // Generate fantasy world with biomes instead of dungeon
-        const worldData = this.generateFantasyWorld(size.width, size.height, uniqueSeed);
+    getChunkCoords(worldX, worldY) {
+        return {
+            chunkX: Math.floor(worldX / this.CHUNK_SIZE),
+            chunkY: Math.floor(worldY / this.CHUNK_SIZE)
+        };
+    }
 
-        this.gameState.dungeon = {
-            width: size.width,
-            height: size.height,
+    generateChunk(chunkX, chunkY) {
+        const key = this.getChunkKey(chunkX, chunkY);
+
+        // Don't regenerate existing chunks
+        if (this.chunks.has(key)) return this.chunks.get(key);
+
+        // Generate chunk seed from world seed and chunk coords
+        const chunkSeed = this.worldSeed + `_${chunkX}_${chunkY}`;
+        const seed = chunkSeed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+        // Generate chunk terrain
+        const worldData = this.generateFantasyWorld(this.CHUNK_SIZE, this.CHUNK_SIZE, chunkSeed);
+
+        const chunk = {
+            chunkX,
+            chunkY,
             tiles: worldData.tiles,
             biomes: worldData.biomes,
             decorations: worldData.decorations,
-            seed: uniqueSeed
+            enemies: [],
+            items: [],
+            generated: Date.now()
         };
 
-        console.log(`🗺️  Generated unique fantasy world for room ${this.id.slice(0, 8)} (${size.width}x${size.height}, ${this.difficulty})`);
-        console.log(`   Biomes: ${worldData.biomeStats.join(', ')}`);
+        // Spawn enemies in this chunk
+        const enemiesPerChunk = this.getEnemiesPerChunk();
+        for (let i = 0; i < enemiesPerChunk; i++) {
+            const localX = Math.floor(Math.random() * (this.CHUNK_SIZE - 4)) + 2;
+            const localY = Math.floor(Math.random() * (this.CHUNK_SIZE - 4)) + 2;
+            const worldX = chunkX * this.CHUNK_SIZE + localX;
+            const worldY = chunkY * this.CHUNK_SIZE + localY;
 
-        // Spawn enemies based on difficulty
-        const enemyCount = this.getEnemyCount();
-        this.spawnEnemies(enemyCount);
+            const enemy = {
+                id: `${this.id}_enemy_${chunkX}_${chunkY}_${i}_${Date.now()}`,
+                type: 'wolf',
+                position: { x: worldX, y: worldY },
+                health: 100,
+                maxHealth: 100,
+                damage: 10,
+                speed: 80,
+                isAlive: true,
+                chunkX,
+                chunkY
+            };
 
-        // Spawn items
-        const itemCount = this.getItemCount();
-        this.spawnItems(itemCount);
+            chunk.enemies.push(enemy);
+            this.gameState.enemies.push(enemy);
+        }
+
+        // Spawn items in this chunk
+        const itemsPerChunk = this.getItemsPerChunk();
+        for (let i = 0; i < itemsPerChunk; i++) {
+            const localX = Math.floor(Math.random() * (this.CHUNK_SIZE - 2)) + 1;
+            const localY = Math.floor(Math.random() * (this.CHUNK_SIZE - 2)) + 1;
+            const worldX = chunkX * this.CHUNK_SIZE + localX;
+            const worldY = chunkY * this.CHUNK_SIZE + localY;
+
+            const item = {
+                id: `${this.id}_item_${chunkX}_${chunkY}_${i}_${Date.now()}`,
+                type: ['health_potion', 'strength_potion', 'defense_potion'][Math.floor(Math.random() * 3)],
+                position: { x: worldX, y: worldY },
+                effect: this.getItemEffect(Math.random() < 0.5 ? 'health_potion' : 'strength_potion'),
+                chunkX,
+                chunkY
+            };
+
+            chunk.items.push(item);
+            this.gameState.items.push(item);
+        }
+
+        this.chunks.set(key, chunk);
+        console.log(`✨ Generated chunk (${chunkX}, ${chunkY}) with ${enemiesPerChunk} enemies and ${itemsPerChunk} items`);
+
+        return chunk;
     }
 
-    getDungeonSize() {
-        const sizes = {
-            easy: { width: 150, height: 150 },
-            normal: { width: 200, height: 200 },
-            hard: { width: 250, height: 250 },
-            nightmare: { width: 300, height: 300 }
-        };
-        return sizes[this.difficulty] || sizes.normal;
-    }
-
-    getEnemyCount() {
+    getEnemiesPerChunk() {
         const counts = {
-            easy: 20,      // 4x larger world, more enemies
-            normal: 35,    // Scaled up proportionally
-            hard: 50,
-            nightmare: 70
+            easy: 3,
+            normal: 5,
+            hard: 7,
+            nightmare: 10
         };
-        return Math.floor((counts[this.difficulty] || 35) * (1 + this.gameState.floor * 0.2));
+        return Math.floor((counts[this.difficulty] || 5) * (1 + this.gameState.floor * 0.1));
     }
 
-    getItemCount() {
-        // More items for larger world
-        return Math.floor(30 + this.gameState.floor * 3);
+    getItemsPerChunk() {
+        return Math.floor(4 + this.gameState.floor * 0.5);
     }
+
+    // Check and generate chunks around active players
+    updateChunks() {
+        const playerChunks = new Set();
+
+        // Get all player chunk positions
+        this.players.forEach(player => {
+            const { chunkX, chunkY } = this.getChunkCoords(player.position.x, player.position.y);
+
+            // Generate chunks in render distance
+            for (let dx = -this.CHUNK_RENDER_DISTANCE; dx <= this.CHUNK_RENDER_DISTANCE; dx++) {
+                for (let dy = -this.CHUNK_RENDER_DISTANCE; dy <= this.CHUNK_RENDER_DISTANCE; dy++) {
+                    const nearChunkX = chunkX + dx;
+                    const nearChunkY = chunkY + dy;
+                    const key = this.getChunkKey(nearChunkX, nearChunkY);
+                    playerChunks.add(key);
+
+                    if (!this.chunks.has(key)) {
+                        this.generateChunk(nearChunkX, nearChunkY);
+                    }
+                }
+            }
+        });
+
+        // Optional: Unload distant chunks (commented out for now to keep all generated chunks)
+        // this.unloadDistantChunks(playerChunks);
+    }
+
+    // Get all currently loaded chunks for sending to clients
+    getLoadedChunksData() {
+        const chunksData = {
+            chunkSize: this.CHUNK_SIZE,
+            chunks: []
+        };
+
+        this.chunks.forEach((chunk, key) => {
+            chunksData.chunks.push({
+                chunkX: chunk.chunkX,
+                chunkY: chunk.chunkY,
+                tiles: chunk.tiles,
+                biomes: chunk.biomes,
+                decorations: chunk.decorations
+            });
+        });
+
+        return chunksData;
+    }
+
+    // Removed getDungeonSize - infinite world with chunks
+    // Removed getEnemyCount - enemies spawn per chunk
+    // Removed getItemCount - items spawn per chunk
 
     // Seeded random number generator for consistent procedural generation
     seededRandom(seed) {
@@ -359,9 +473,9 @@ class Lobby {
 
     getSpawnPoints() {
         const points = [];
-        const { width, height } = this.getDungeonSize();
-        const centerX = Math.floor(width / 2);
-        const centerY = Math.floor(height / 2);
+        // Spawn at world origin (0,0) which is the center of chunk (0,0)
+        const centerX = Math.floor(this.CHUNK_SIZE / 2);
+        const centerY = Math.floor(this.CHUNK_SIZE / 2);
         const radius = 5;
 
         for (let i = 0; i < this.maxPlayers; i++) {
@@ -374,97 +488,6 @@ class Lobby {
         return points;
     }
 
-    getEdgeSpawnPosition() {
-        const { width, height } = this.getDungeonSize();
-        const edge = Math.floor(Math.random() * 4); // 0=top, 1=right, 2=bottom, 3=left
-
-        let x, y;
-        switch(edge) {
-            case 0: // Top edge
-                x = Math.floor(Math.random() * (width - 4)) + 2;
-                y = 1;
-                break;
-            case 1: // Right edge
-                x = width - 2;
-                y = Math.floor(Math.random() * (height - 4)) + 2;
-                break;
-            case 2: // Bottom edge
-                x = Math.floor(Math.random() * (width - 4)) + 2;
-                y = height - 2;
-                break;
-            case 3: // Left edge
-                x = 1;
-                y = Math.floor(Math.random() * (height - 4)) + 2;
-                break;
-        }
-
-        return { x, y };
-    }
-
-    spawnEnemies(count) {
-        // Only spawn wolves for now (other enemies will be added when sprites are ready)
-        for (let i = 0; i < count; i++) {
-            const spawnPos = this.getEdgeSpawnPosition();
-
-            this.gameState.enemies.push({
-                id: uuidv4(),
-                type: 'wolf',
-                position: spawnPos,
-                health: 25,
-                maxHealth: 25,
-                damage: 10,
-                speed: 50,
-                sightRange: 12, // Sight range in tiles
-                isAlive: true,
-                lastMove: Date.now(),
-                target: null, // Current target (player or minion)
-                aggro: new Map() // Track aggro from different sources
-            });
-
-            console.log(`🐺 Spawned wolf at edge position:`, spawnPos);
-        }
-    }
-
-    spawnItems(count) {
-        const itemTypes = [
-            { type: 'health_potion', rarity: 'common', effect: { health: 30 } },
-            { type: 'mana_potion', rarity: 'common', effect: { mana: 50 } },
-            { type: 'strength_potion', rarity: 'uncommon', effect: { strength: 5 } },
-            { type: 'sword', rarity: 'uncommon', effect: { damage: 10 } },
-            { type: 'shield', rarity: 'uncommon', effect: { defense: 8 } },
-            { type: 'armor', rarity: 'rare', effect: { defense: 15 } },
-            { type: 'legendary_sword', rarity: 'legendary', effect: { damage: 25 } },
-            { type: 'key', rarity: 'special', effect: { unlocks: 'door' } },
-            { type: 'treasure', rarity: 'rare', effect: { gold: 100 } }
-        ];
-
-        for (let i = 0; i < count; i++) {
-            const item = itemTypes[Math.floor(Math.random() * itemTypes.length)];
-            this.gameState.items.push({
-                id: uuidv4(),
-                type: item.type,
-                rarity: item.rarity,
-                effect: item.effect,
-                position: this.getRandomFloorPosition()
-            });
-        }
-    }
-
-    getRandomFloorPosition() {
-        if (!this.gameState.dungeon) return { x: 25, y: 25 };
-
-        // Try to find a floor tile
-        for (let attempt = 0; attempt < 100; attempt++) {
-            const x = Math.floor(Math.random() * this.gameState.dungeon.width);
-            const y = Math.floor(Math.random() * this.gameState.dungeon.height);
-
-            if (this.gameState.dungeon.tiles[y]?.[x] === 0) {
-                return { x, y };
-            }
-        }
-
-        return { x: 25, y: 25 }; // Fallback
-    }
 
     broadcast(event, data) {
         this.players.forEach(player => {
@@ -754,11 +777,15 @@ io.on('connection', (socket) => {
                 .filter(p => !p.isReconnecting)
                 .map(p => p.toJSON());
 
+            // Send chunk data instead of full dungeon
+            const chunksData = lobby.getLoadedChunksData();
+
             socket.emit('game:start', {
                 lobbyId: lobby.id,
                 player: player.toJSON(),
                 players: activePlayers,
                 gameState: lobby.gameState,
+                chunks: chunksData,
                 difficulty: lobby.difficulty,
                 playerCount: lobby.players.size,
                 maxPlayers: lobby.maxPlayers
@@ -797,6 +824,17 @@ io.on('connection', (socket) => {
 
             player.position = data.position;
             player.updateActivity();
+
+            // Check and generate new chunks based on player movement
+            const beforeChunkCount = lobby.chunks.size;
+            lobby.updateChunks();
+            const afterChunkCount = lobby.chunks.size;
+
+            // If new chunks were generated, send them to all players
+            if (afterChunkCount > beforeChunkCount) {
+                const chunksData = lobby.getLoadedChunksData();
+                lobby.broadcast('chunks:updated', chunksData);
+            }
 
             socket.to(lobby.id).emit('player:moved', {
                 playerId: player.id,
