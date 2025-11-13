@@ -144,14 +144,12 @@ class Lobby {
         this.readyPlayers = new Set();
         this.votes = new Map();
 
-        // Infinite world with chunks
-        this.CHUNK_SIZE = 50; // 50x50 tiles per chunk
-        this.CHUNK_RENDER_DISTANCE = 2; // Load chunks within 2 chunks of players
-        this.chunks = new Map(); // Format: "chunkX,chunkY" -> chunkData
+        // Large static world - generated once
+        this.WORLD_SIZE = 1000; // 1000x1000 tiles (massive world)
         this.worldSeed = `${this.id}-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
-        // Generate initial spawn chunks (0,0 and surrounding)
-        this.generateInitialChunks();
+        // Generate the entire world once
+        this.world = this.generateCompleteWorld();
         metrics.totalGames++;
     }
 
@@ -194,80 +192,36 @@ class Lobby {
         }
     }
 
-    generateInitialChunks() {
-        // Generate spawn area: 3x3 chunks centered at (0,0)
-        for (let cx = -1; cx <= 1; cx++) {
-            for (let cy = -1; cy <= 1; cy++) {
-                this.generateChunk(cx, cy);
-            }
-        }
-        console.log(`🗺️ Generated infinite world for room ${this.id.slice(0, 8)} (chunk-based, ${this.difficulty})`);
-        console.log(`   Seed: ${this.worldSeed}`);
-        console.log(`   Initial chunks: 3x3 around spawn (0,0)`);
-    }
+    generateCompleteWorld() {
+        console.log(`🗺️ Generating static world for room ${this.id.slice(0, 8)}...`);
+        const startTime = Date.now();
 
-    getChunkKey(chunkX, chunkY) {
-        return `${chunkX},${chunkY}`;
-    }
+        // Generate terrain
+        const worldData = this.generateFantasyWorld(this.WORLD_SIZE, this.WORLD_SIZE, this.worldSeed);
 
-    getChunkCoords(worldX, worldY) {
-        return {
-            chunkX: Math.floor(worldX / this.CHUNK_SIZE),
-            chunkY: Math.floor(worldY / this.CHUNK_SIZE)
-        };
-    }
-
-    generateChunk(chunkX, chunkY) {
-        const key = this.getChunkKey(chunkX, chunkY);
-
-        // Don't regenerate existing chunks
-        if (this.chunks.has(key)) return this.chunks.get(key);
-
-        // Generate chunk seed from world seed and chunk coords
-        const chunkSeed = this.worldSeed + `_${chunkX}_${chunkY}`;
-        const seed = chunkSeed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-
-        // Generate chunk terrain
-        const worldData = this.generateFantasyWorld(this.CHUNK_SIZE, this.CHUNK_SIZE, chunkSeed);
-
-        const chunk = {
-            chunkX,
-            chunkY,
-            tiles: worldData.tiles,
-            biomes: worldData.biomes,
-            decorations: worldData.decorations,
-            enemies: [],
-            items: [],
-            generated: Date.now()
-        };
-
-        // Spawn enemies in this chunk
-        const enemiesPerChunk = this.getEnemiesPerChunk();
-        for (let i = 0; i < enemiesPerChunk; i++) {
-            const localX = Math.floor(Math.random() * (this.CHUNK_SIZE - 4)) + 2;
-            const localY = Math.floor(Math.random() * (this.CHUNK_SIZE - 4)) + 2;
-            const worldX = chunkX * this.CHUNK_SIZE + localX;
-            const worldY = chunkY * this.CHUNK_SIZE + localY;
+        // Spawn enemies throughout the world
+        const enemyCount = Math.floor(this.WORLD_SIZE * this.WORLD_SIZE * 0.01); // 1% of tiles have enemies
+        for (let i = 0; i < enemyCount; i++) {
+            const x = Math.floor(Math.random() * (this.WORLD_SIZE - 4)) + 2;
+            const y = Math.floor(Math.random() * (this.WORLD_SIZE - 4)) + 2;
 
             const enemy = {
-                id: `${this.id}_enemy_${chunkX}_${chunkY}_${i}_${Date.now()}`,
+                id: `${this.id}_enemy_${i}_${Date.now()}`,
                 type: 'wolf',
-                position: { x: worldX, y: worldY },
+                position: { x, y },
                 health: 100,
                 maxHealth: 100,
                 damage: 10,
                 speed: 80,
                 isAlive: true,
-                chunkX,
-                chunkY
+                sightRange: 15
             };
 
-            chunk.enemies.push(enemy);
             this.gameState.enemies.push(enemy);
         }
 
-        // Spawn items in this chunk
-        const itemsPerChunk = this.getItemsPerChunk();
+        // Spawn items throughout the world
+        const itemCount = Math.floor(this.WORLD_SIZE * this.WORLD_SIZE * 0.005); // 0.5% of tiles have items
         const itemTypes = [
             { type: 'health_potion', rarity: 'common', effect: { health: 30 } },
             { type: 'mana_potion', rarity: 'common', effect: { mana: 50 } },
@@ -275,121 +229,42 @@ class Lobby {
             { type: 'defense_potion', rarity: 'uncommon', effect: { defense: 5 } }
         ];
 
-        for (let i = 0; i < itemsPerChunk; i++) {
-            const localX = Math.floor(Math.random() * (this.CHUNK_SIZE - 2)) + 1;
-            const localY = Math.floor(Math.random() * (this.CHUNK_SIZE - 2)) + 1;
-            const worldX = chunkX * this.CHUNK_SIZE + localX;
-            const worldY = chunkY * this.CHUNK_SIZE + localY;
+        for (let i = 0; i < itemCount; i++) {
+            const x = Math.floor(Math.random() * (this.WORLD_SIZE - 2)) + 1;
+            const y = Math.floor(Math.random() * (this.WORLD_SIZE - 2)) + 1;
 
             const itemData = itemTypes[Math.floor(Math.random() * itemTypes.length)];
 
             const item = {
-                id: `${this.id}_item_${chunkX}_${chunkY}_${i}_${Date.now()}`,
+                id: `${this.id}_item_${i}_${Date.now()}`,
                 type: itemData.type,
                 rarity: itemData.rarity,
                 effect: itemData.effect,
-                position: { x: worldX, y: worldY },
-                chunkX,
-                chunkY
+                position: { x, y }
             };
 
-            chunk.items.push(item);
             this.gameState.items.push(item);
         }
 
-        this.chunks.set(key, chunk);
-        console.log(`✨ Generated chunk (${chunkX}, ${chunkY}) with ${enemiesPerChunk} enemies and ${itemsPerChunk} items`);
+        const elapsed = Date.now() - startTime;
+        console.log(`✅ World generated in ${elapsed}ms`);
+        console.log(`   Size: ${this.WORLD_SIZE}x${this.WORLD_SIZE} tiles`);
+        console.log(`   Enemies: ${enemyCount}`);
+        console.log(`   Items: ${itemCount}`);
+        console.log(`   Decorations: ${worldData.decorations.length}`);
+        console.log(`   Biomes: ${worldData.biomeStats.join(', ')}`);
 
-        return chunk;
-    }
-
-    getEnemiesPerChunk() {
-        const counts = {
-            easy: 3,
-            normal: 5,
-            hard: 7,
-            nightmare: 10
+        return {
+            size: this.WORLD_SIZE,
+            tiles: worldData.tiles,
+            biomes: worldData.biomes,
+            decorations: worldData.decorations
         };
-        return Math.floor((counts[this.difficulty] || 5) * (1 + this.gameState.floor * 0.1));
     }
 
-    getItemsPerChunk() {
-        return Math.floor(4 + this.gameState.floor * 0.5);
+    getWorldData() {
+        return this.world;
     }
-
-    // Check and generate chunks around active players
-    updateChunks() {
-        const playerChunks = new Set();
-        const newChunks = new Set(); // Track newly generated chunks
-        const startingChunkCount = this.chunks.size;
-
-        // Get all player chunk positions
-        this.players.forEach(player => {
-            const { chunkX, chunkY } = this.getChunkCoords(player.position.x, player.position.y);
-
-            // Log when player enters new chunk
-            const playerChunkKey = `${chunkX},${chunkY}`;
-            if (player.lastChunk !== playerChunkKey) {
-                console.log(`🚶 ${player.username} entered chunk (${chunkX}, ${chunkY}) at position (${player.position.x}, ${player.position.y})`);
-                player.lastChunk = playerChunkKey;
-            }
-
-            // Generate chunks in render distance
-            for (let dx = -this.CHUNK_RENDER_DISTANCE; dx <= this.CHUNK_RENDER_DISTANCE; dx++) {
-                for (let dy = -this.CHUNK_RENDER_DISTANCE; dy <= this.CHUNK_RENDER_DISTANCE; dy++) {
-                    const nearChunkX = chunkX + dx;
-                    const nearChunkY = chunkY + dy;
-                    const key = this.getChunkKey(nearChunkX, nearChunkY);
-                    playerChunks.add(key);
-
-                    if (!this.chunks.has(key)) {
-                        this.generateChunk(nearChunkX, nearChunkY);
-                        newChunks.add(key); // Track this as newly generated
-                    }
-                }
-            }
-        });
-
-        const endingChunkCount = this.chunks.size;
-        if (endingChunkCount > startingChunkCount) {
-            console.log(`📊 Chunks: ${startingChunkCount} → ${endingChunkCount} (+${endingChunkCount - startingChunkCount})`);
-        }
-
-        // Optional: Unload distant chunks (commented out for now to keep all generated chunks)
-        // this.unloadDistantChunks(playerChunks);
-
-        return newChunks; // Return set of newly generated chunk keys
-    }
-
-    // Get all currently loaded chunks for sending to clients
-    // If chunkKeys is provided, only return those specific chunks
-    getLoadedChunksData(chunkKeys = null) {
-        const chunksData = {
-            chunkSize: this.CHUNK_SIZE,
-            chunks: []
-        };
-
-        this.chunks.forEach((chunk, key) => {
-            // If chunkKeys filter is provided, only include chunks in that set
-            if (chunkKeys && !chunkKeys.has(key)) {
-                return; // Skip this chunk
-            }
-
-            chunksData.chunks.push({
-                chunkX: chunk.chunkX,
-                chunkY: chunk.chunkY,
-                tiles: chunk.tiles,
-                biomes: chunk.biomes,
-                decorations: chunk.decorations
-            });
-        });
-
-        return chunksData;
-    }
-
-    // Removed getDungeonSize - infinite world with chunks
-    // Removed getEnemyCount - enemies spawn per chunk
-    // Removed getItemCount - items spawn per chunk
 
     // Seeded random number generator for consistent procedural generation
     seededRandom(seed) {
@@ -506,9 +381,9 @@ class Lobby {
 
     getSpawnPoints() {
         const points = [];
-        // Spawn at world origin (0,0) which is the center of chunk (0,0)
-        const centerX = Math.floor(this.CHUNK_SIZE / 2);
-        const centerY = Math.floor(this.CHUNK_SIZE / 2);
+        // Spawn at world center
+        const centerX = Math.floor(this.WORLD_SIZE / 2);
+        const centerY = Math.floor(this.WORLD_SIZE / 2);
         const radius = 5;
 
         for (let i = 0; i < this.maxPlayers; i++) {
@@ -741,12 +616,12 @@ function findOrCreateLobby(difficulty = 'normal') {
 }
 
 // Validation helpers
-function isValidPosition(position) {
+function isValidPosition(position, worldSize = 1000) {
     return position &&
            typeof position.x === 'number' &&
            typeof position.y === 'number' &&
-           position.x >= 0 && position.x < 100 &&
-           position.y >= 0 && position.y < 100;
+           position.x >= 0 && position.x < worldSize &&
+           position.y >= 0 && position.y < worldSize;
 }
 
 function sanitizeMessage(message) {
@@ -810,15 +685,15 @@ io.on('connection', (socket) => {
                 .filter(p => !p.isReconnecting)
                 .map(p => p.toJSON());
 
-            // Send chunk data instead of full dungeon
-            const chunksData = lobby.getLoadedChunksData();
+            // Send world data
+            const worldData = lobby.getWorldData();
 
             socket.emit('game:start', {
                 lobbyId: lobby.id,
                 player: player.toJSON(),
                 players: activePlayers,
                 gameState: lobby.gameState,
-                chunks: chunksData,
+                world: worldData,
                 difficulty: lobby.difficulty,
                 playerCount: lobby.players.size,
                 maxPlayers: lobby.maxPlayers
@@ -857,17 +732,6 @@ io.on('connection', (socket) => {
 
             player.position = data.position;
             player.updateActivity();
-
-            // Check and generate new chunks based on player movement
-            const newChunkKeys = lobby.updateChunks();
-
-            // If new chunks were generated, send ONLY the new chunks to all players
-            if (newChunkKeys.size > 0) {
-                console.log(`✨ Generated ${newChunkKeys.size} new chunks! Total: ${lobby.chunks.size}`);
-                const chunksData = lobby.getLoadedChunksData(newChunkKeys);
-                lobby.broadcast('chunks:updated', chunksData);
-                console.log(`📡 Broadcasted ${chunksData.chunks.length} NEW chunks to all players (not all ${lobby.chunks.size} chunks)`);
-            }
 
             socket.to(lobby.id).emit('player:moved', {
                 playerId: player.id,

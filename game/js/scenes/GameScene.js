@@ -27,7 +27,7 @@ class GameScene extends Phaser.Scene {
             'player:damaged', 'player:levelup', 'player:died',
             'enemy:spawned', 'enemy:damaged', 'enemy:moved', 'enemy:killed',
             'minion:damaged',
-            'item:spawned', 'item:collected', 'chat:message', 'chunks:updated'
+            'item:spawned', 'item:collected', 'chat:message'
         ];
 
         eventsToClear.forEach(event => {
@@ -174,12 +174,8 @@ class GameScene extends Phaser.Scene {
         this.treeCollisions = [];
         this.treeSprites = [];
 
-        // Initialize chunk system
-        this.chunks = new Map();
-        this.CHUNK_SIZE = this.gameData.chunks.chunkSize || 50;
-
-        // Create world from chunks
-        this.loadChunks(this.gameData.chunks);
+        // Create world from world data
+        this.renderWorld(this.gameData.world);
 
         // Create local player
         const myData = this.gameData.players.find(p => p.id === networkManager.currentPlayer.id);
@@ -259,27 +255,12 @@ class GameScene extends Phaser.Scene {
         this.setupNetworkListeners();
     }
 
-    loadChunks(chunksData) {
-        chunksData.chunks.forEach(chunk => {
-            this.renderChunk(chunk);
-        });
-    }
-
-    renderChunk(chunk) {
-        const key = `${chunk.chunkX},${chunk.chunkY}`;
-
-        // Skip if already rendered
-        if (this.chunks.has(key)) {
-            return;
-        }
+    renderWorld(world) {
+        console.log(`🗺️ Rendering world: ${world.size}x${world.size} tiles`);
+        const startTime = Date.now();
 
         const tileSize = GameConfig.GAME.TILE_SIZE;
-        const { chunkX, chunkY, tiles, biomes, decorations } = chunk;
-        const chunkSize = tiles.length;
-
-        // Calculate world offset for this chunk
-        const worldOffsetX = chunkX * this.CHUNK_SIZE * tileSize;
-        const worldOffsetY = chunkY * this.CHUNK_SIZE * tileSize;
+        const { size, tiles, biomes, decorations } = world;
 
         // Create tile container if it doesn't exist
         if (!this.tileContainer) {
@@ -313,11 +294,11 @@ class GameScene extends Phaser.Scene {
         const tileTypes = {};
         let missingCount = 0;
 
-        for (let y = 0; y < chunkSize; y++) {
-            for (let x = 0; x < chunkSize; x++) {
+        for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
                 const tile = tiles[y][x];
-                const px = worldOffsetX + (x * tileSize);
-                const py = worldOffsetY + (y * tileSize);
+                const px = x * tileSize;
+                const py = y * tileSize;
 
                 // Track tile type
                 tileTypes[tile] = (tileTypes[tile] || 0) + 1;
@@ -368,37 +349,25 @@ class GameScene extends Phaser.Scene {
 
         // Only log if there are issues
         if (missingCount > 0) {
-            console.error(`❌ Chunk (${chunkX}, ${chunkY}) FAILED to render ${missingCount} tiles!`);
-            console.error(`Tile types in chunk:`, tileTypes);
+            console.error(`❌ World FAILED to render ${missingCount} tiles!`);
+            console.error(`Tile types in world:`, tileTypes);
             console.error(`Loaded textures:`, this.textures.list);
         }
 
-        // Render decorations with multi-tile support (convert to world coordinates)
+        // Render decorations
         decorations.forEach(deco => {
-            const worldX = chunkX * this.CHUNK_SIZE + deco.x;
-            const worldY = chunkY * this.CHUNK_SIZE + deco.y;
-            this.renderDecoration(worldX, worldY, deco.type);
+            this.renderDecoration(deco.x, deco.y, deco.type);
         });
 
-        // Mark chunk as loaded
-        this.chunks.set(key, chunk);
+        // Set world bounds based on actual world size
+        const worldPixelWidth = size * tileSize;
+        const worldPixelHeight = size * tileSize;
+        this.physics.world.setBounds(0, 0, worldPixelWidth, worldPixelHeight);
+        this.cameras.main.setBounds(0, 0, worldPixelWidth, worldPixelHeight);
 
-        // Expand world bounds dynamically as chunks load
-        this.expandWorldBounds();
-    }
-
-    expandWorldBounds() {
-        // For infinite world: Remove all bounds!
-        // Players can move anywhere, chunks generate on-demand
-
-        // Set extremely large bounds for physics (essentially infinite)
-        const INFINITE = 1000000; // 1 million pixels in each direction
-        this.physics.world.setBounds(-INFINITE, -INFINITE, INFINITE * 2, INFINITE * 2);
-
-        // Remove camera bounds entirely - follow player anywhere
-        this.cameras.main.removeBounds();
-
-        console.log('🌍 World bounds: INFINITE (no limits!)');
+        const elapsed = Date.now() - startTime;
+        console.log(`✅ World rendered in ${elapsed}ms`);
+        console.log(`   Bounds: ${worldPixelWidth}x${worldPixelHeight} pixels (${size}x${size} tiles)`);
     }
 
     seededRandom(seed) {
@@ -720,18 +689,13 @@ class GameScene extends Phaser.Scene {
             'player:damaged', 'player:levelup', 'player:died',
             'enemy:spawned', 'enemy:damaged', 'enemy:moved', 'enemy:killed',
             'minion:damaged',
-            'item:spawned', 'item:collected', 'chat:message', 'chunks:updated'
+            'item:spawned', 'item:collected', 'chat:message'
         ];
 
         eventsToClear.forEach(event => {
             if (networkManager.callbacks[event]) {
                 networkManager.callbacks[event] = [];
             }
-        });
-
-        // Listen for new chunks as world generates
-        networkManager.on('chunks:updated', (chunksData) => {
-            this.loadChunks(chunksData);
         });
 
         // New player joined
