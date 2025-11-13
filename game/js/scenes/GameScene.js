@@ -245,9 +245,9 @@ class GameScene extends Phaser.Scene {
             return ((noise ^ (noise >> 16)) & 0x7fffffff) / 0x7fffffff;
         };
 
-        // Get smart tile based on chunk regions (keeps tile sets together)
+        // Get smart tile based on chunk regions (uses ONE tile per chunk)
         const getSmartTile = (x, y, tileSets, seed) => {
-            // Create large chunk-based regions (16x16) that use the same tile set
+            // Create large chunk-based regions (16x16) that use the same tile
             const chunkX = Math.floor(x / 16);
             const chunkY = Math.floor(y / 16);
 
@@ -256,9 +256,10 @@ class GameScene extends Phaser.Scene {
             const setIndex = Math.floor(setNoise * tileSets.length);
             const selectedSet = tileSets[setIndex];
 
-            // Now randomly pick a tile from within this ONE set
-            const tileNoise = noise2D(x, y, seed + 1000);
-            const tileIndex = Math.floor(tileNoise * selectedSet.length);
+            // Pick ONE tile from this set for the entire chunk (use first/middle tile as "center fill")
+            // Most autotile sets have center fill tiles at the beginning
+            const tileNoise = noise2D(chunkX, chunkY, seed + 1000);
+            const tileIndex = Math.floor(tileNoise * Math.min(4, selectedSet.length)); // Only use first 4 tiles (usually center fills)
 
             return selectedSet[tileIndex];
         };
