@@ -350,17 +350,20 @@ class GameScene extends Phaser.Scene {
             RED: { tiles: [50,51,52,53,54,55,56,57,58,59,60,61], id: 'red' }                // forest_extended 468-479
         };
 
-        // Generate biome using noise - MUCH larger scale to prevent mixing
-        const noise1 = this.noise2D(x * 0.005, y * 0.005, seed);        // Very large regions
-        const noise2 = this.noise2D(x * 0.01, y * 0.01, seed + 1000);   // Medium regions
-        const noise3 = this.noise2D(x * 0.02, y * 0.02, seed + 2000);   // Small variation
-        const combinedNoise = (noise1 * 0.7 + noise2 * 0.2 + noise3 * 0.1);
+        // Generate biome using noise - MASSIVE regions with hard boundaries
+        const noise1 = this.noise2D(x * 0.001, y * 0.001, seed);        // Huge regions
+        const noise2 = this.noise2D(x * 0.003, y * 0.003, seed + 1000); // Large variation
+        const combinedNoise = (noise1 * 0.85 + noise2 * 0.15); // Mostly use huge regions
 
-        // Determine biome using randomized thresholds
+        // Add buffer zones to thresholds to create clearer boundaries (0.05 buffer)
+        const greenThreshold = this.biomeDistribution.green - 0.025;
+        const darkGreenThreshold = this.biomeDistribution.darkGreen + 0.025;
+
+        // Determine biome with buffered thresholds for clearer separation
         let selectedBiome;
-        if (combinedNoise < this.biomeDistribution.green) {
+        if (combinedNoise < greenThreshold) {
             selectedBiome = BIOMES.GREEN;
-        } else if (combinedNoise < this.biomeDistribution.darkGreen) {
+        } else if (combinedNoise < darkGreenThreshold) {
             selectedBiome = BIOMES.DARK_GREEN;
         } else {
             selectedBiome = BIOMES.RED;
