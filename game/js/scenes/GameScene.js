@@ -273,13 +273,16 @@ class GameScene extends Phaser.Scene {
         const key = `${chunk.chunkX},${chunk.chunkY}`;
 
         // Skip if already rendered
-        if (this.chunks.has(key)) return;
+        if (this.chunks.has(key)) {
+            console.log(`⏭️ Chunk (${chunk.chunkX}, ${chunk.chunkY}) already rendered, skipping`);
+            return;
+        }
 
         const tileSize = GameConfig.GAME.TILE_SIZE;
         const { chunkX, chunkY, tiles, biomes, decorations } = chunk;
         const chunkSize = tiles.length; // Should be 50x50
 
-        console.log(`🎨 Rendering chunk (${chunkX}, ${chunkY}) - ${chunkSize}x${chunkSize} tiles`);
+        console.log(`🎨 Rendering chunk (${chunkX}, ${chunkY}) - ${chunkSize}x${chunkSize} tiles at world (${chunkX * this.CHUNK_SIZE * tileSize}, ${chunkY * this.CHUNK_SIZE * tileSize})`);
 
         // Calculate world offset for this chunk
         const worldOffsetX = chunkX * this.CHUNK_SIZE * tileSize;
@@ -314,6 +317,9 @@ class GameScene extends Phaser.Scene {
         };
 
         // Render tiles using individual frames from spritesheets
+        let tilesRendered = 0;
+        let unknownTiles = 0;
+
         for (let y = 0; y < chunkSize; y++) {
             for (let x = 0; x < chunkSize; x++) {
                 const tile = tiles[y][x];
@@ -324,7 +330,8 @@ class GameScene extends Phaser.Scene {
                 const tileInfo = BIOME_TILESET_MAP[tile];
 
                 if (!tileInfo) {
-                    console.warn(`Unknown tile type: ${tile} at chunk(${chunkX},${chunkY}) local(${x},${y})`);
+                    console.warn(`❌ Unknown tile type: ${tile} at chunk(${chunkX},${chunkY}) local(${x},${y}) world(${Math.floor(px/tileSize)},${Math.floor(py/tileSize)})`);
+                    unknownTiles++;
                     continue;
                 }
 
@@ -337,13 +344,20 @@ class GameScene extends Phaser.Scene {
                 tileSprite.setScale(scale);
 
                 this.tileContainer.add(tileSprite);
+                tilesRendered++;
             }
         }
 
-        // Render decorations with multi-tile support (adjusted for world coordinates)
+        if (unknownTiles > 0) {
+            console.warn(`⚠️ Chunk (${chunkX}, ${chunkY}) had ${unknownTiles} unknown tiles! Rendered ${tilesRendered}/${chunkSize * chunkSize}`);
+        }
+
+        // Render decorations with multi-tile support (convert to world coordinates)
         decorations.forEach(deco => {
-            // Decorations are stored in chunk-local coordinates, no need to adjust
-            this.renderDecoration(deco.x, deco.y, deco.type);
+            // Convert chunk-local coordinates to world coordinates
+            const worldX = chunkX * this.CHUNK_SIZE + deco.x;
+            const worldY = chunkY * this.CHUNK_SIZE + deco.y;
+            this.renderDecoration(worldX, worldY, deco.type);
         });
 
         // Mark chunk as loaded
@@ -352,7 +366,7 @@ class GameScene extends Phaser.Scene {
         // Expand world bounds dynamically as chunks load
         this.expandWorldBounds();
 
-        console.log(`✅ Chunk (${chunkX}, ${chunkY}) rendered with ${chunkSize * chunkSize} tiles`);
+        console.log(`✅ Chunk (${chunkX}, ${chunkY}) complete: ${tilesRendered} tiles + ${decorations.length} decorations`);
     }
 
     expandWorldBounds() {
