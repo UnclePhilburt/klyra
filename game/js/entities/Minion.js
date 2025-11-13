@@ -17,7 +17,7 @@ class Minion {
 
         // AI state
         this.target = null;
-        this.followDistance = 150; // Stay within this distance of owner
+        this.followDistance = 80; // Stay within this distance of owner
 
         this.createSprite(x, y);
         this.setupAI();
@@ -36,9 +36,10 @@ class Minion {
         // Play idle animation
         this.sprite.play('minion_idle');
 
-        // Add dark aura glow (brighter for permanent minions)
-        const glowAlpha = this.isPermanent ? 0.5 : 0.3;
-        this.glow = this.scene.add.circle(x, y, 18, 0x8B008B, glowAlpha);
+        // Add dark aura glow (subtle effect)
+        const glowAlpha = this.isPermanent ? 0.15 : 0.1;
+        const glowSize = this.isPermanent ? 12 : 10;
+        this.glow = this.scene.add.circle(x, y, glowSize, 0x8B008B, glowAlpha);
 
         // Minion label
         const labelText = this.isPermanent ? 'COMPANION' : 'MINION';
@@ -130,18 +131,32 @@ class Minion {
             owner.sprite.y
         );
 
-        // Follow if too far from owner
+        // Follow if too far from owner (with smaller threshold for stopping)
         if (distance > this.followDistance) {
             this.scene.physics.moveToObject(this.sprite, owner.sprite, this.moveSpeed);
             // Play walk animation
             if (this.sprite.anims.currentAnim?.key !== 'minion_walk') {
                 this.sprite.play('minion_walk');
             }
-        } else {
+        } else if (distance < 40) {
+            // Too close - stop completely
             this.sprite.body.setVelocity(0, 0);
             // Play idle animation
             if (this.sprite.anims.currentAnim?.key !== 'minion_idle') {
                 this.sprite.play('minion_idle');
+            }
+        } else {
+            // In sweet spot - match owner's velocity for smooth following
+            if (owner.sprite.body.velocity.x !== 0 || owner.sprite.body.velocity.y !== 0) {
+                this.sprite.body.setVelocity(owner.sprite.body.velocity.x * 0.9, owner.sprite.body.velocity.y * 0.9);
+                if (this.sprite.anims.currentAnim?.key !== 'minion_walk') {
+                    this.sprite.play('minion_walk');
+                }
+            } else {
+                this.sprite.body.setVelocity(0, 0);
+                if (this.sprite.anims.currentAnim?.key !== 'minion_idle') {
+                    this.sprite.play('minion_idle');
+                }
             }
         }
     }
