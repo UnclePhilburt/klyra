@@ -120,6 +120,15 @@ class GameScene extends Phaser.Scene {
             frameHeight: 48
         });
 
+        // Fantasy_Outside_A5 tileset for spawn building
+        this.load.spritesheet('fantasy_outside_a5', 'assets/tilesets/Fantasy_Outside_A5.png', {
+            frameWidth: 48,
+            frameHeight: 48
+        });
+
+        // Load spawn point building Tiled map
+        this.load.tilemapTiledJSON('spawnMap', 'assets/spawnpointbuilding.tmj');
+
         // Red biome trees - 48x48 tiles, 12 columns x 24 rows
         this.load.spritesheet('red_trees', 'assets/tilesets/redbiome/Big_Trees_red.png', {
             frameWidth: 48,
@@ -1021,11 +1030,11 @@ class GameScene extends Phaser.Scene {
         // Get spawn location from world data
         const worldSize = this.gameData.world.size;
         const tileSize = GameConfig.GAME.TILE_SIZE;
-        const spawnX = (worldSize / 2) * tileSize;
-        const spawnY = (worldSize / 2) * tileSize;
+        const worldCenterX = (worldSize / 2) * tileSize;
+        const worldCenterY = (worldSize / 2) * tileSize;
         const safeZoneRadius = 800; // pixels
 
-        console.log(`✨ Creating spawn point at (${spawnX}, ${spawnY})`);
+        console.log(`✨ Creating spawn point at world center (${worldCenterX}, ${worldCenterY})`);
 
         // Create particle texture if it doesn't exist
         if (!this.textures.exists('particle')) {
@@ -1036,50 +1045,85 @@ class GameScene extends Phaser.Scene {
             graphics.destroy();
         }
 
-        // Create container for spawn point elements
-        this.spawnPointContainer = this.add.container(0, 0);
-        this.spawnPointContainer.setDepth(50); // Above ground, below players
+        // === LOAD TILED MAP FOR SPAWN BUILDING ===
+        const map = this.make.tilemap({ key: 'spawnMap' });
 
-        // 1. GLOWING PLATFORM - Multi-layered circular platform
-        const platformLayers = [
-            { radius: 200, color: 0x8b5cf6, alpha: 0.15 },
-            { radius: 170, color: 0x6b4fcc, alpha: 0.2 },
-            { radius: 140, color: 0x5b3faa, alpha: 0.25 },
-            { radius: 110, color: 0x4b2f88, alpha: 0.3 }
-        ];
+        // Map is 50x50 tiles, each tile is 48px source but we use 32px game tiles
+        const mapWidthTiles = 50;
+        const mapHeightTiles = 50;
+        const mapWidthPx = mapWidthTiles * tileSize;
+        const mapHeightPx = mapHeightTiles * tileSize;
 
-        platformLayers.forEach((layer, index) => {
-            const circle = this.add.graphics();
-            circle.fillStyle(layer.color, layer.alpha);
-            circle.fillCircle(spawnX, spawnY, layer.radius);
-            circle.setDepth(0);
+        // Position map so its center aligns with world center
+        const mapOffsetX = worldCenterX - (mapWidthPx / 2);
+        const mapOffsetY = worldCenterY - (mapHeightPx / 2);
 
-            // Pulsing animation
-            this.tweens.add({
-                targets: circle,
-                alpha: layer.alpha + 0.1,
-                scaleX: 1.05,
-                scaleY: 1.05,
-                duration: 2000 + (index * 200),
-                yoyo: true,
-                repeat: -1,
-                ease: 'Sine.easeInOut'
-            });
+        console.log(`📍 Spawn map: ${mapWidthTiles}x${mapHeightTiles} tiles (${mapWidthPx}x${mapHeightPx}px)`);
+        console.log(`📍 Map positioned at offset (${mapOffsetX}, ${mapOffsetY})`);
 
-            this.spawnPointContainer.add(circle);
+        // Add tilesets (order matters - must match TMJ file order)
+        const tileset1 = map.addTilesetImage('A2 - Terrain And Misc', 'terrain_misc');
+        const tileset2 = map.addTilesetImage('Fantasy_Outside_A5', 'fantasy_outside_a5');
+
+        // Create layers from the map
+        const groundLayer = map.createLayer('Ground', [tileset1, tileset2], mapOffsetX, mapOffsetY);
+        if (groundLayer) {
+            const scale = tileSize / 48; // Scale from 48px tileset to 32px game tiles
+            groundLayer.setScale(scale);
+            groundLayer.setDepth(-1); // Ground layer
+        }
+
+        // Check for other layers and create them
+        const layerNames = ['Decorations', 'Objects', 'Collision'];
+        layerNames.forEach(layerName => {
+            const layer = map.createLayer(layerName, [tileset1, tileset2], mapOffsetX, mapOffsetY);
+            if (layer) {
+                const scale = tileSize / 48;
+                layer.setScale(scale);
+                layer.setDepth(layerName === 'Collision' ? 100 : 1); // Collision on top for debugging
+            }
         });
 
-        // 2. SAFE ZONE BORDER - Glowing ring at edge
+        // Spawn point is now at the CENTER of the map (tile 25, 25)
+        const spawnX = worldCenterX; // Center of map
+        const spawnY = worldCenterY; // Center of map
+        console.log(`👤 Player spawn at map center: (${spawnX}, ${spawnY})`);
+
+        // Create container for spawn point visual effects (on top of building)
+        this.spawnPointContainer = this.add.container(0, 0);
+        this.spawnPointContainer.setDepth(100); // Above building
+
+        // 1. SUBTLE MAGICAL GLOW - Small glowing circle at center
+        const glow = this.add.graphics();
+        glow.fillStyle(0xfbbf24, 0.2); // Golden glow
+        glow.fillCircle(spawnX, spawnY, 60);
+        glow.setDepth(2);
+
+        // Gentle pulsing
+        this.tweens.add({
+            targets: glow,
+            alpha: 0.4,
+            scaleX: 1.1,
+            scaleY: 1.1,
+            duration: 2000,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        this.spawnPointContainer.add(glow);
+
+        // 2. SAFE ZONE BORDER - Subtle glowing ring at edge
         const borderRing = this.add.graphics();
-        borderRing.lineStyle(4, 0x8b5cf6, 0.6);
+        borderRing.lineStyle(2, 0x8b5cf6, 0.3);
         borderRing.strokeCircle(spawnX, spawnY, safeZoneRadius);
         borderRing.setDepth(1);
 
-        // Pulsing border
+        // Gentle pulsing border
         this.tweens.add({
             targets: borderRing,
-            alpha: 0.3,
-            duration: 2000,
+            alpha: 0.15,
+            duration: 3000,
             yoyo: true,
             repeat: -1,
             ease: 'Sine.easeInOut'
@@ -1087,106 +1131,33 @@ class GameScene extends Phaser.Scene {
 
         this.spawnPointContainer.add(borderRing);
 
-        // 3. MAGICAL RUNES - 8 runes around the platform
-        const runeSymbols = ['⚡', '🔮', '✨', '💫', '⭐', '🌟', '💎', '🔯'];
-        const runeRadius = 180;
-
-        for (let i = 0; i < 8; i++) {
-            const angle = (Math.PI * 2 / 8) * i;
-            const runeX = spawnX + Math.cos(angle) * runeRadius;
-            const runeY = spawnY + Math.sin(angle) * runeRadius;
-
-            const rune = this.add.text(runeX, runeY, runeSymbols[i], {
-                fontSize: '32px',
-                fill: '#8b5cf6',
-                stroke: '#ffffff',
-                strokeThickness: 2
-            }).setOrigin(0.5).setDepth(2);
-
-            // Floating animation
-            this.tweens.add({
-                targets: rune,
-                y: runeY - 10,
-                alpha: 0.5,
-                duration: 2000 + (i * 100),
-                yoyo: true,
-                repeat: -1,
-                ease: 'Sine.easeInOut'
-            });
-
-            // Rotation
-            this.tweens.add({
-                targets: rune,
-                angle: 360,
-                duration: 8000,
-                repeat: -1,
-                ease: 'Linear'
-            });
-
-            this.spawnPointContainer.add(rune);
-        }
-
-        // 4. CENTRAL BEACON - Glowing pillar of light
-        const beacon = this.add.graphics();
-        beacon.fillStyle(0xfbbf24, 0.3);
-        beacon.fillRect(spawnX - 5, spawnY - 100, 10, 200);
-        beacon.setDepth(1);
-
-        this.tweens.add({
-            targets: beacon,
-            alpha: 0.1,
-            scaleX: 1.3,
-            duration: 1500,
-            yoyo: true,
-            repeat: -1,
-            ease: 'Sine.easeInOut'
-        });
-
-        this.spawnPointContainer.add(beacon);
-
-        // 5. PARTICLE EFFECTS - Ambient magical particles
+        // 3. SUBTLE PARTICLE EFFECTS - Gentle magical sparkles
         if (this.textures.exists('particle')) {
-            // Upward floating particles
-            const upwardParticles = this.add.particles(spawnX, spawnY, 'particle', {
-                speed: { min: 20, max: 50 },
-                scale: { start: 0.3, end: 0 },
-                alpha: { start: 0.6, end: 0 },
-                tint: [0x8b5cf6, 0xec4899, 0xfbbf24],
-                lifespan: 2000,
-                frequency: 100,
+            // Gentle upward floating sparkles
+            const sparkles = this.add.particles(spawnX, spawnY, 'particle', {
+                speed: { min: 10, max: 30 },
+                scale: { start: 0.2, end: 0 },
+                alpha: { start: 0.4, end: 0 },
+                tint: [0xfbbf24, 0x8b5cf6],
+                lifespan: 3000,
+                frequency: 300,
                 quantity: 1,
                 angle: { min: -100, max: -80 }, // Upward
-                gravityY: -30,
+                gravityY: -20,
                 blendMode: 'ADD'
             });
-            upwardParticles.setDepth(3);
+            sparkles.setDepth(3);
 
-            // Circling particles
-            const circlingParticles = this.add.particles(spawnX, spawnY, 'particle', {
-                speed: { min: 30, max: 60 },
-                scale: { start: 0.4, end: 0 },
-                alpha: { start: 0.8, end: 0 },
-                tint: [0x8b5cf6, 0x6b4fcc],
-                lifespan: 3000,
-                frequency: 150,
-                quantity: 1,
-                angle: { min: 0, max: 360 },
-                blendMode: 'ADD',
-                radial: true
-            });
-            circlingParticles.setDepth(3);
-
-            this.spawnPointContainer.add(upwardParticles);
-            this.spawnPointContainer.add(circlingParticles);
+            this.spawnPointContainer.add(sparkles);
         }
 
-        // 6. WELCOME TEXT - Floating above spawn
-        const welcomeText = this.add.text(spawnX, spawnY - 250, '⚔️ SAFE ZONE ⚔️', {
+        // 4. WELCOME TEXT - Floating above spawn
+        const welcomeText = this.add.text(spawnX, spawnY - 150, '⚔️ SAFE ZONE ⚔️', {
             fontFamily: 'Press Start 2P, monospace',
-            fontSize: '20px',
+            fontSize: '16px',
             fill: '#fbbf24',
             stroke: '#000000',
-            strokeThickness: 4,
+            strokeThickness: 3,
             shadow: {
                 offsetX: 2,
                 offsetY: 2,
@@ -1194,14 +1165,14 @@ class GameScene extends Phaser.Scene {
                 blur: 4,
                 fill: true
             }
-        }).setOrigin(0.5).setDepth(100);
+        }).setOrigin(0.5).setDepth(101);
 
-        // Pulsing glow effect
+        // Gentle pulsing
         this.tweens.add({
             targets: welcomeText,
-            alpha: 0.7,
-            scale: 1.05,
-            duration: 1500,
+            alpha: 0.8,
+            scale: 1.02,
+            duration: 2000,
             yoyo: true,
             repeat: -1,
             ease: 'Sine.easeInOut'
