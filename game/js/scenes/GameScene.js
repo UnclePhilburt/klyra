@@ -359,34 +359,45 @@ class GameScene extends Phaser.Scene {
         const decoSeed = seed + x * 7919 + y * 6563; // Prime numbers for distribution
         const decoChance = this.seededRandom(decoSeed);
 
-        // 0.5% chance for decoration (same as server)
-        if (decoChance > 0.005) return null;
-
         // Get biome for this tile
         const biome = this.biomeCache[`${x},${y}`] || 'grassland';
+
+        // Different spawn rates per biome for variety
+        let spawnChance;
+        if (biome === 'grassland') spawnChance = 0.03; // 3% - lots of flowers/grass
+        else if (biome === 'forest') spawnChance = 0.04; // 4% - dense forest
+        else if (biome === 'magic') spawnChance = 0.025; // 2.5% - mysterious
+        else if (biome === 'dark') spawnChance = 0.02; // 2% - sparse
+
+        if (decoChance > spawnChance) return null;
+
         const rand = this.seededRandom(decoSeed + 1000);
 
         let decorationType;
         if (biome === 'grassland') {
-            if (rand < 0.4) decorationType = 'flower';
-            else if (rand < 0.7) decorationType = 'grass';
-            else if (rand < 0.9) decorationType = 'rock';
+            // Grassland: lots of flowers and grass
+            if (rand < 0.5) decorationType = 'flower';
+            else if (rand < 0.8) decorationType = 'grass';
+            else if (rand < 0.95) decorationType = 'rock';
             else decorationType = 'baby_tree';
         } else if (biome === 'forest') {
-            if (rand < 0.5) decorationType = 'tree';
-            else if (rand < 0.7) decorationType = 'bush';
-            else if (rand < 0.85) decorationType = 'log';
-            else if (rand < 0.95) decorationType = 'tree_stump';
+            // Forest: lots of trees and vegetation
+            if (rand < 0.4) decorationType = 'tree';
+            else if (rand < 0.6) decorationType = 'bush';
+            else if (rand < 0.75) decorationType = 'log';
+            else if (rand < 0.9) decorationType = 'tree_stump';
             else decorationType = 'grass';
         } else if (biome === 'magic') {
-            if (rand < 0.4) decorationType = 'magic_tree';
-            else if (rand < 0.7) decorationType = 'rune_stone';
-            else if (rand < 0.9) decorationType = 'flower';
+            // Magic Grove: mystical decorations
+            if (rand < 0.35) decorationType = 'magic_tree';
+            else if (rand < 0.6) decorationType = 'rune_stone';
+            else if (rand < 0.85) decorationType = 'flower';
             else decorationType = 'hollow_trunk';
         } else if (biome === 'dark') {
-            if (rand < 0.5) decorationType = 'dead_tree';
-            else if (rand < 0.7) decorationType = 'skull';
-            else if (rand < 0.9) decorationType = 'log';
+            // Dark Woods: spooky stuff
+            if (rand < 0.4) decorationType = 'dead_tree';
+            else if (rand < 0.6) decorationType = 'skull';
+            else if (rand < 0.85) decorationType = 'log';
             else decorationType = 'rock';
         }
 
@@ -496,7 +507,9 @@ class GameScene extends Phaser.Scene {
         ];
 
         // Select tree pattern using seeded random for consistency across clients
-        const treeRandom = this.seededRandom(this.dungeonSeed);
+        const seed = this.worldSeed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const treeSeed = seed + x * 1009 + y * 2003; // Unique seed per position
+        const treeRandom = this.seededRandom(treeSeed);
         const TREE_TILES = treeRandom < 0.5 ? TREE_ONE : TREE_TWO;
 
         if (type === 'tree' || type === 'magic_tree' || type === 'dead_tree') {
@@ -576,8 +589,6 @@ class GameScene extends Phaser.Scene {
                 collisionY: collisionY
             });
 
-            console.log(`✅ Created multi-tile ${type} at ${x},${y} with collision at Y=${collisionY}`);
-
         } else {
             // Enhanced decoration system with variety
             const scale = tileSize / 48;
@@ -640,24 +651,27 @@ class GameScene extends Phaser.Scene {
 
             let decoInfo;
 
+            // Select variant based on type using position-based seed
+            const variantSeed = seed + x * 503 + y * 1009; // Unique per position
+
             // Select variant based on type
             if (type === 'rock') {
-                const variant = Math.floor(this.seededRandom(this.dungeonSeed) * ROCK_VARIANTS.length);
+                const variant = Math.floor(this.seededRandom(variantSeed) * ROCK_VARIANTS.length);
                 decoInfo = ROCK_VARIANTS[variant];
             } else if (type === 'bush') {
-                const variant = Math.floor(this.seededRandom(this.dungeonSeed) * BUSH_VARIANTS.length);
+                const variant = Math.floor(this.seededRandom(variantSeed) * BUSH_VARIANTS.length);
                 decoInfo = BUSH_VARIANTS[variant];
             } else if (type === 'flower') {
-                const variant = Math.floor(this.seededRandom(this.dungeonSeed) * FLOWER_VARIANTS.length);
+                const variant = Math.floor(this.seededRandom(variantSeed) * FLOWER_VARIANTS.length);
                 decoInfo = FLOWER_VARIANTS[variant];
             } else if (type === 'grass') {
-                const variant = Math.floor(this.seededRandom(this.dungeonSeed) * GRASS_VARIANTS.length);
+                const variant = Math.floor(this.seededRandom(variantSeed) * GRASS_VARIANTS.length);
                 decoInfo = GRASS_VARIANTS[variant];
             } else if (type === 'log') {
-                const variant = Math.floor(this.seededRandom(this.dungeonSeed) * LOG_VARIANTS.length);
+                const variant = Math.floor(this.seededRandom(variantSeed) * LOG_VARIANTS.length);
                 decoInfo = LOG_VARIANTS[variant];
             } else if (type === 'tree_stump') {
-                const variant = Math.floor(this.seededRandom(this.dungeonSeed) * TREE_STUMP_VARIANTS.length);
+                const variant = Math.floor(this.seededRandom(variantSeed) * TREE_STUMP_VARIANTS.length);
                 decoInfo = TREE_STUMP_VARIANTS[variant];
             } else {
                 decoInfo = OTHER_DECORATIONS[type];
@@ -710,8 +724,6 @@ class GameScene extends Phaser.Scene {
                 bottomSprite.setDepth(py + tileSize * 2);
                 this.tileContainer.add(bottomSprite);
             }
-
-            console.log(`✅ Created ${type} at ${x},${y} with ${frames.length} tile(s)`);
         }
     }
 
