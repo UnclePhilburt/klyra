@@ -22,9 +22,9 @@ class Minion {
 
         // AI state
         this.target = null;
-        this.followDistance = 200; // Maximum distance from owner before returning
-        this.roamRadius = 150; // How far to wander when exploring
-        this.seekRadius = 250; // How far to look for enemies
+        this.followDistance = 350; // Maximum distance from owner before returning (increased)
+        this.roamRadius = 250; // How far to wander when exploring (increased)
+        this.seekRadius = 350; // How far to look for enemies (increased)
 
         // Wandering behavior
         this.wanderTarget = null;
@@ -33,6 +33,14 @@ class Minion {
 
         // State machine
         this.state = 'idle'; // idle, wandering, seeking, attacking, following
+
+        // Aggro management
+        this.aggroedEnemies = new Set(); // Track enemies currently targeting this minion
+        this.maxAggro = Phaser.Math.Between(3, 5); // Random 3-5 enemy limit per minion
+
+        // Formation positioning
+        this.formationOffset = { x: 0, y: 0 }; // Offset for surrounding target
+        this.formationAngle = Math.random() * Math.PI * 2; // Random starting angle
 
         this.createSprite(x, y);
         this.setupAI();
@@ -153,6 +161,20 @@ class Minion {
     }
 
     findNearestEnemy(searchRadius) {
+        // Check if we're at aggro limit
+        if (this.aggroedEnemies.size >= this.maxAggro) {
+            // Already tanking max enemies, only target ones we're already fighting
+            const alreadyTargeted = Array.from(this.aggroedEnemies)
+                .map(id => this.scene.enemies[id] || this.scene.wolves[id])
+                .filter(e => e && e.isAlive);
+
+            if (alreadyTargeted.length > 0) {
+                return alreadyTargeted[0]; // Continue fighting current targets
+            } else {
+                this.aggroedEnemies.clear(); // All current targets dead, reset
+            }
+        }
+
         // Combine both enemies and wolves
         const allEnemies = [
             ...Object.values(this.scene.enemies || {}),
@@ -182,6 +204,11 @@ class Minion {
             }
         });
 
+        // Add new target to aggro list
+        if (nearestEnemy && nearestEnemy.data && nearestEnemy.data.id) {
+            this.aggroedEnemies.add(nearestEnemy.data.id);
+        }
+
         return nearestEnemy;
     }
 
@@ -192,15 +219,28 @@ class Minion {
         if (!this.wanderTarget || now - this.wanderCooldown > this.wanderDelay) {
             this.wanderCooldown = now;
 
-            // Random point near owner
-            const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * this.roamRadius;
+            // Try to find a wander position that's not near other minions
+            let attempts = 0;
+            let validPosition = false;
+            let targetPosition = null;
 
-            this.wanderTarget = {
-                x: owner.sprite.x + Math.cos(angle) * distance,
-                y: owner.sprite.y + Math.sin(angle) * distance
-            };
+            while (!validPosition && attempts < 10) {
+                // Random point near owner
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * this.roamRadius;
 
+                targetPosition = {
+                    x: owner.sprite.x + Math.cos(angle) * distance,
+                    y: owner.sprite.y + Math.sin(angle) * distance
+                };
+
+                // Check if too close to other minions (anti-clustering)
+                validPosition = this.isPositionClearOfMinions(targetPosition, 80); // 80px minimum distance
+                attempts++;
+            }
+
+            // Use the position (even if not perfect after 10 tries)
+            this.wanderTarget = targetPosition;
             this.state = 'wandering';
         }
 
@@ -213,6 +253,9 @@ class Minion {
         );
 
         if (distToTarget > 20) {
+            // Check for nearby minions and steer away slightly
+            this.avoidNearbyMinions();
+
             // Move at 70% speed when wandering (more casual)
             const wanderSpeed = this.moveSpeed * 0.7;
             this.scene.physics.moveToObject(this.sprite, this.wanderTarget, wanderSpeed);
@@ -229,6 +272,58 @@ class Minion {
             // Play idle animation
             if (this.sprite.anims.currentAnim?.key !== 'minion_idle') {
                 this.sprite.play('minion_idle');
+            }
+        }
+    }
+
+    isPositionClearOfMinions(position, minDistance) {
+        const allMinions = this.getAllMinionsInScene();
+
+        for (const minion of allMinions) {
+            if (minion === this) continue;
+
+            const distance = Phaser.Math.Distance.Between(
+                position.x,
+                position.y,
+                minion.sprite.x,
+                minion.sprite.y
+            );
+
+            if (distance < minDistance) {
+                return false; // Too close to another minion
+            }
+        }
+
+        return true; // Position is clear
+    }
+
+    avoidNearbyMinions() {
+        const allMinions = this.getAllMinionsInScene();
+        const personalSpace = 60; // Minimum distance to maintain
+
+        for (const minion of allMinions) {
+            if (minion === this || !minion.sprite || !minion.sprite.body) continue;
+
+            const distance = Phaser.Math.Distance.Between(
+                this.sprite.x,
+                this.sprite.y,
+                minion.sprite.x,
+                minion.sprite.y
+            );
+
+            // If too close, apply repulsion force
+            if (distance < personalSpace && distance > 0) {
+                const angle = Math.atan2(
+                    this.sprite.y - minion.sprite.y,
+                    this.sprite.x - minion.sprite.x
+                );
+
+                // Push away from nearby minion
+                const repulsionStrength = (personalSpace - distance) / personalSpace;
+                const pushForce = 30 * repulsionStrength;
+
+                this.sprite.body.velocity.x += Math.cos(angle) * pushForce;
+                this.sprite.body.velocity.y += Math.sin(angle) * pushForce;
             }
         }
     }
@@ -250,16 +345,19 @@ class Minion {
             return;
         }
 
+        // Calculate formation position for surrounding target
+        const formationPosition = this.calculateFormationPosition(enemy);
+
         const distance = Phaser.Math.Distance.Between(
             this.sprite.x,
             this.sprite.y,
-            enemy.sprite.x,
-            enemy.sprite.y
+            formationPosition.x,
+            formationPosition.y
         );
 
-        // Move towards enemy if out of range
-        if (distance > this.attackRange) {
-            this.scene.physics.moveToObject(this.sprite, enemy.sprite, this.moveSpeed);
+        // Move towards formation position if not in position
+        if (distance > 20) {
+            this.scene.physics.moveToObject(this.sprite, formationPosition, this.moveSpeed);
             // Play walk animation
             if (this.sprite.anims.currentAnim?.key !== 'minion_walk') {
                 this.sprite.play('minion_walk');
@@ -267,9 +365,16 @@ class Minion {
         } else {
             this.sprite.body.setVelocity(0, 0);
 
-            // Attack if cooldown is ready
+            // Attack if cooldown is ready and in range of enemy
+            const distToEnemy = Phaser.Math.Distance.Between(
+                this.sprite.x,
+                this.sprite.y,
+                enemy.sprite.x,
+                enemy.sprite.y
+            );
+
             const now = Date.now();
-            if (now - this.lastAttackTime > this.attackCooldown) {
+            if (distToEnemy <= this.attackRange && now - this.lastAttackTime > this.attackCooldown) {
                 this.performAttack(enemy);
                 this.lastAttackTime = now;
             } else {
@@ -280,6 +385,55 @@ class Minion {
                 }
             }
         }
+    }
+
+    calculateFormationPosition(target) {
+        // Find all minions in scene attacking the same target
+        const allMinions = this.getAllMinionsInScene();
+        const minionsAttackingTarget = allMinions.filter(m =>
+            m.isAlive && m.target === target && m !== this
+        );
+
+        // If alone, just attack from current angle
+        if (minionsAttackingTarget.length === 0) {
+            const angle = Math.atan2(
+                this.sprite.y - target.sprite.y,
+                this.sprite.x - target.sprite.x
+            );
+            return {
+                x: target.sprite.x + Math.cos(angle) * this.attackRange * 0.8,
+                y: target.sprite.y + Math.sin(angle) * this.attackRange * 0.8
+            };
+        }
+
+        // Multiple minions: surround formation
+        const totalMinions = minionsAttackingTarget.length + 1; // +1 for this minion
+        const myIndex = this.getMinionIndex(allMinions);
+        const angleStep = (Math.PI * 2) / totalMinions;
+        const myAngle = angleStep * myIndex;
+
+        // Position around target in a circle
+        const formationRadius = this.attackRange * 0.8;
+        return {
+            x: target.sprite.x + Math.cos(myAngle) * formationRadius,
+            y: target.sprite.y + Math.sin(myAngle) * formationRadius
+        };
+    }
+
+    getAllMinionsInScene() {
+        // Get all minions from the scene (minions is an object, not array)
+        if (!this.scene.minions) return [this];
+        return Object.values(this.scene.minions).filter(m => m && m.isAlive);
+    }
+
+    getMinionIndex(allMinions) {
+        // Get stable index based on minionId
+        const sortedMinions = allMinions.sort((a, b) => {
+            if (a.minionId < b.minionId) return -1;
+            if (a.minionId > b.minionId) return 1;
+            return 0;
+        });
+        return sortedMinions.indexOf(this);
     }
 
     performAttack(enemy) {
