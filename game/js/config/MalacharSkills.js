@@ -36,13 +36,13 @@ const MalacharSkillTree = {
     // Level 2: Growing Power
     2: [
         {
-            id: 'pack_mentality',
-            name: 'Pack Mentality',
-            description: 'All minions deal +5% damage per nearby minion',
-            icon: '🐺',
+            id: 'summon_shade_2',
+            name: 'Summon Shade',
+            description: 'Gain a 2nd permanent minion',
+            icon: '👻',
             path: 'legion',
             rarity: 'uncommon',
-            effect: { packDamageBonus: 0.05 }
+            effect: 'spawn_minion'
         },
         {
             id: 'titans_constitution',
