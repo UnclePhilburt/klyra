@@ -645,7 +645,41 @@ class GameScene extends Phaser.Scene {
             this.enemies[data.enemy.id] = new Enemy(this, data.enemy);
         });
 
-        // Enemy died
+        // Enemy damaged
+        networkManager.on('enemy:damaged', (data) => {
+            const enemy = this.enemies[data.enemyId];
+            if (enemy) {
+                enemy.takeDamage(data.damage);
+            }
+        });
+
+        // Enemy killed
+        networkManager.on('enemy:killed', (data) => {
+            const enemy = this.enemies[data.enemyId];
+            if (enemy) {
+                const deathX = enemy.sprite.x;
+                const deathY = enemy.sprite.y;
+
+                enemy.die();
+                delete this.enemies[data.enemyId];
+
+                // Check if killer is Malachar with dark_harvest passive
+                if (data.killedBy) {
+                    const killer = data.killedBy === networkManager.currentPlayer.id
+                        ? this.localPlayer
+                        : this.otherPlayers[data.killedBy];
+
+                    if (killer && killer.class === 'MALACHAR') {
+                        // 15% chance to summon minion (dark_harvest passive)
+                        if (Math.random() < 0.15) {
+                            this.spawnMinion(deathX, deathY, data.killedBy);
+                        }
+                    }
+                }
+            }
+        });
+
+        // Enemy died (legacy support)
         networkManager.on('enemy:died', (data) => {
             const enemy = this.enemies[data.enemyId];
             if (enemy) {

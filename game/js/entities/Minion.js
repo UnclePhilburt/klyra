@@ -208,6 +208,12 @@ class Minion {
     }
 
     attackEnemy(enemy) {
+        // Check if enemy is still alive
+        if (!enemy.isAlive) {
+            this.target = null;
+            return;
+        }
+
         const distance = Phaser.Math.Distance.Between(
             this.sprite.x,
             this.sprite.y,
@@ -256,8 +262,8 @@ class Minion {
         });
 
         // Deal damage to enemy (emit to server)
-        if (this.scene.networkManager && enemy.data) {
-            this.scene.networkManager.attackEnemy(enemy.data.id, this.damage);
+        if (enemy.data && enemy.data.id) {
+            networkManager.hitEnemy(enemy.data.id, this.damage);
         }
     }
 
