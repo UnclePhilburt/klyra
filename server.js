@@ -486,7 +486,7 @@ class Lobby {
 
             // Find nearest target (player or minion being attacked by)
             let target = null;
-            let targetDistance = Infinity;
+            let maxAggro = 0; // Track highest aggro value (not infinity!)
 
             // Debug: Check if we have players
             if (this.players.size === 0) {
@@ -510,7 +510,7 @@ class Lobby {
                     Math.pow(player.position.y - enemy.position.y, 2)
                 );
 
-                // Base aggro
+                // Base aggro (closer = higher aggro)
                 let aggroValue = 100 / (dist + 1);
 
                 // Add bonus aggro from damage taken
@@ -518,8 +518,9 @@ class Lobby {
                     aggroValue += enemy.aggro.get(player.id);
                 }
 
-                if (aggroValue > targetDistance) {
-                    targetDistance = aggroValue;
+                // Target player with highest aggro
+                if (aggroValue > maxAggro) {
+                    maxAggro = aggroValue;
                     target = { position: player.position, id: player.id };
                 }
             });
