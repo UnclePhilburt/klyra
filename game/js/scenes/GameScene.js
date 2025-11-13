@@ -505,6 +505,13 @@ class GameScene extends Phaser.Scene {
         const minY = Math.max(0, playerTileY - this.RENDER_DISTANCE);
         const maxY = Math.min(this.worldSize - 1, playerTileY + this.RENDER_DISTANCE);
 
+        // Calculate spawn area bounds once (50x50 tile spawn building)
+        const worldSize = this.gameData.world.size;
+        const worldCenterTileX = worldSize / 2;
+        const worldCenterTileY = worldSize / 2;
+        const spawnMapSize = 50;
+        const spawnMargin = spawnMapSize / 2;
+
         // Render visible tiles
         for (let y = minY; y <= maxY; y++) {
             for (let x = minX; x <= maxX; x++) {
@@ -512,6 +519,17 @@ class GameScene extends Phaser.Scene {
 
                 // Skip if already rendered
                 if (this.renderedTiles.has(key)) continue;
+
+                // Check if this tile is within the spawn building area
+                const isInSpawnArea = (
+                    x >= (worldCenterTileX - spawnMargin) &&
+                    x < (worldCenterTileX + spawnMargin) &&
+                    y >= (worldCenterTileY - spawnMargin) &&
+                    y < (worldCenterTileY + spawnMargin)
+                );
+
+                // Skip rendering procedural terrain in spawn area (Tiled map handles it)
+                if (isInSpawnArea) continue;
 
                 // Generate tile on-demand
                 const tile = this.getTileType(x, y);
@@ -541,7 +559,7 @@ class GameScene extends Phaser.Scene {
                     // Silent fail for performance
                 }
 
-                // Generate decorations on-demand
+                // Generate decorations on-demand (already outside spawn area due to continue above)
                 const decoration = this.getDecoration(x, y);
                 if (decoration && !this.renderedDecorations.has(key)) {
                     this.renderDecoration(x, y, decoration);
