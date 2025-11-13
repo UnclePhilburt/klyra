@@ -256,14 +256,18 @@ class GameScene extends Phaser.Scene {
     }
 
     renderWorld(world) {
-        console.log(`🗺️ Setting up world: ${world.size}x${world.size} tiles`);
+        console.log(`🗺️ Generating world from seed: ${world.seed}`);
         const startTime = Date.now();
 
         const tileSize = GameConfig.GAME.TILE_SIZE;
 
-        // Store world data for viewport-based rendering
-        this.worldData = world;
+        // Generate world from seed (same algorithm as server)
+        this.worldSeed = world.seed;
+        this.worldSize = world.size;
+
+        // Store for viewport-based rendering (don't pre-generate all tiles)
         this.renderedTiles = new Map(); // Track rendered tiles
+        this.renderedDecorations = new Set(); // Track rendered decorations
         this.RENDER_DISTANCE = 25; // Render 25 tiles in each direction from camera
 
         // Map biome types to tileset textures and tile indices
@@ -294,18 +298,6 @@ class GameScene extends Phaser.Scene {
             this.tileContainer = this.add.container(0, 0);
         }
 
-        // Render decorations (only near spawn area initially)
-        const spawnX = Math.floor(world.size / 2);
-        const spawnY = Math.floor(world.size / 2);
-
-        world.decorations.forEach(deco => {
-            // Only render decorations within 30 tiles of spawn
-            const dist = Math.abs(deco.x - spawnX) + Math.abs(deco.y - spawnY);
-            if (dist < 30) {
-                this.renderDecoration(deco.x, deco.y, deco.type);
-            }
-        });
-
         // Set world bounds based on actual world size
         const worldPixelWidth = world.size * tileSize;
         const worldPixelHeight = world.size * tileSize;
@@ -315,11 +307,49 @@ class GameScene extends Phaser.Scene {
         const elapsed = Date.now() - startTime;
         console.log(`✅ World setup complete in ${elapsed}ms`);
         console.log(`   Bounds: ${worldPixelWidth}x${worldPixelHeight} pixels (${world.size}x${world.size} tiles)`);
-        console.log(`   Using viewport-based rendering (renders ${this.RENDER_DISTANCE}x${this.RENDER_DISTANCE} tiles around camera)`);
+        console.log(`   Using on-demand generation (renders ${this.RENDER_DISTANCE} tiles around camera)`);
+    }
+
+    // Perlin-like noise for terrain generation (same as server)
+    noise2D(x, y, seed) {
+        const n = x + y * 57 + seed * 131;
+        let noise = Math.sin(n) * 43758.5453;
+        return noise - Math.floor(noise);
+    }
+
+    // Generate tile type for position (same algorithm as server)
+    getTileType(x, y) {
+        // Convert seed string to number
+        const seed = this.worldSeed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+        // Biome definitions
+        const BIOMES = {
+            GRASSLAND: { tiles: [10, 11, 12] },
+            FOREST: { tiles: [20, 21, 22] },
+            MAGIC_GROVE: { tiles: [30, 31, 32] },
+            DARK_WOODS: { tiles: [40, 41, 42] }
+        };
+
+        // Generate biome using noise
+        const noise1 = this.noise2D(x * 0.02, y * 0.02, seed);
+        const noise2 = this.noise2D(x * 0.04, y * 0.04, seed + 1000);
+        const noise3 = this.noise2D(x * 0.08, y * 0.08, seed + 2000);
+        const combinedNoise = (noise1 * 0.6 + noise2 * 0.3 + noise3 * 0.1);
+
+        // Determine biome
+        let selectedBiome;
+        if (combinedNoise < 0.35) selectedBiome = BIOMES.GRASSLAND;
+        else if (combinedNoise < 0.7) selectedBiome = BIOMES.FOREST;
+        else if (combinedNoise < 0.85) selectedBiome = BIOMES.MAGIC_GROVE;
+        else selectedBiome = BIOMES.DARK_WOODS;
+
+        // Select tile variation
+        const tileVariation = Math.floor(this.seededRandom(seed + x * 100 + y) * selectedBiome.tiles.length);
+        return selectedBiome.tiles[tileVariation];
     }
 
     updateVisibleTiles() {
-        if (!this.worldData || !this.localPlayer) return;
+        if (!this.worldSeed || !this.localPlayer) return;
 
         const tileSize = GameConfig.GAME.TILE_SIZE;
         const playerTileX = Math.floor(this.localPlayer.sprite.x / tileSize);
@@ -327,9 +357,9 @@ class GameScene extends Phaser.Scene {
 
         // Calculate visible tile range
         const minX = Math.max(0, playerTileX - this.RENDER_DISTANCE);
-        const maxX = Math.min(this.worldData.size - 1, playerTileX + this.RENDER_DISTANCE);
+        const maxX = Math.min(this.worldSize - 1, playerTileX + this.RENDER_DISTANCE);
         const minY = Math.max(0, playerTileY - this.RENDER_DISTANCE);
-        const maxY = Math.min(this.worldData.size - 1, playerTileY + this.RENDER_DISTANCE);
+        const maxY = Math.min(this.worldSize - 1, playerTileY + this.RENDER_DISTANCE);
 
         // Render visible tiles
         for (let y = minY; y <= maxY; y++) {
@@ -339,7 +369,8 @@ class GameScene extends Phaser.Scene {
                 // Skip if already rendered
                 if (this.renderedTiles.has(key)) continue;
 
-                const tile = this.worldData.tiles[y][x];
+                // Generate tile on-demand
+                const tile = this.getTileType(x, y);
                 const px = x * tileSize;
                 const py = y * tileSize;
 
@@ -368,7 +399,7 @@ class GameScene extends Phaser.Scene {
             }
         }
 
-        // Optional: Clean up tiles far from player (keep memory manageable)
+        // Clean up tiles far from player (keep memory manageable)
         const CLEANUP_DISTANCE = this.RENDER_DISTANCE * 2;
         this.renderedTiles.forEach((sprite, key) => {
             const [x, y] = key.split(',').map(Number);
@@ -382,8 +413,8 @@ class GameScene extends Phaser.Scene {
     }
 
     seededRandom(seed) {
-        // Simple seeded random using sin
-        const x = Math.sin(this.seedCounter++) * 10000;
+        // Simple seeded random using sin (stateless)
+        const x = Math.sin(seed) * 10000;
         return x - Math.floor(x);
     }
 

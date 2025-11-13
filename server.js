@@ -193,11 +193,8 @@ class Lobby {
     }
 
     generateCompleteWorld() {
-        console.log(`🗺️ Generating static world for room ${this.id.slice(0, 8)}...`);
+        console.log(`🗺️ Generating world metadata for room ${this.id.slice(0, 8)}...`);
         const startTime = Date.now();
-
-        // Generate terrain
-        const worldData = this.generateFantasyWorld(this.WORLD_SIZE, this.WORLD_SIZE, this.worldSeed);
 
         // Spawn enemies throughout the world
         const enemyCount = Math.floor(this.WORLD_SIZE * this.WORLD_SIZE * 0.01); // 1% of tiles have enemies
@@ -247,18 +244,16 @@ class Lobby {
         }
 
         const elapsed = Date.now() - startTime;
-        console.log(`✅ World generated in ${elapsed}ms`);
+        console.log(`✅ World metadata generated in ${elapsed}ms`);
         console.log(`   Size: ${this.WORLD_SIZE}x${this.WORLD_SIZE} tiles`);
         console.log(`   Enemies: ${enemyCount}`);
         console.log(`   Items: ${itemCount}`);
-        console.log(`   Decorations: ${worldData.decorations.length}`);
-        console.log(`   Biomes: ${worldData.biomeStats.join(', ')}`);
+        console.log(`   Seed: ${this.worldSeed} (client will generate terrain)`);
 
+        // Don't send tiles/biomes/decorations - client generates them from seed
         return {
             size: this.WORLD_SIZE,
-            tiles: worldData.tiles,
-            biomes: worldData.biomes,
-            decorations: worldData.decorations
+            seed: this.worldSeed
         };
     }
 
