@@ -417,11 +417,11 @@ class GameScene extends Phaser.Scene {
         // Get biome for this tile
         const biome = this.biomeCache[`${x},${y}`] || 'green';
 
-        // Different spawn rates per biome for variety
+        // Different spawn rates per biome - INCREASED for dense decoration
         let spawnChance;
-        if (biome === 'green') spawnChance = 0.03; // 3% - lots of flowers/grass
-        else if (biome === 'dark_green') spawnChance = 0.04; // 4% - dense forest
-        else if (biome === 'red') spawnChance = 0.03; // 3% - red biome with red trees/flora
+        if (biome === 'green') spawnChance = 0.08; // 8% - lots of flowers/grass
+        else if (biome === 'dark_green') spawnChance = 0.12; // 12% - very dense forest
+        else if (biome === 'red') spawnChance = 0.15; // 15% - DENSE red biome
 
         if (decoChance > spawnChance) return null;
 
@@ -435,23 +435,23 @@ class GameScene extends Phaser.Scene {
             else if (rand < 0.95) decorationType = 'rock';
             else decorationType = 'baby_tree';
         } else if (biome === 'dark_green') {
-            // Dark Green: dense forest with lots of trees
-            if (rand < 0.4) decorationType = 'tree';
-            else if (rand < 0.6) decorationType = 'bush';
-            else if (rand < 0.75) decorationType = 'log';
-            else if (rand < 0.9) decorationType = 'tree_stump';
+            // Dark Green: very dense forest with lots of trees
+            if (rand < 0.45) decorationType = 'tree';
+            else if (rand < 0.65) decorationType = 'bush';
+            else if (rand < 0.80) decorationType = 'log';
+            else if (rand < 0.92) decorationType = 'tree_stump';
             else decorationType = 'grass';
         } else if (biome === 'red') {
-            // Red biome: red trees + red decorations
-            if (rand < 0.20) decorationType = 'red_tree';           // 20% - big trees
-            else if (rand < 0.35) decorationType = 'red_flower';    // 15% - flowers
-            else if (rand < 0.50) decorationType = 'red_grass';     // 15% - grass
-            else if (rand < 0.63) decorationType = 'red_bush';      // 13% - bushes
-            else if (rand < 0.73) decorationType = 'red_mushroom';  // 10% - mushrooms
-            else if (rand < 0.81) decorationType = 'red_log';       // 8% - logs
-            else if (rand < 0.88) decorationType = 'red_stone';     // 7% - stones
-            else if (rand < 0.93) decorationType = 'red_stump';     // 5% - stumps
-            else if (rand < 0.97) decorationType = 'red_trunk';     // 4% - tree trunks
+            // Red biome: LOTS of red trees + red decorations
+            if (rand < 0.30) decorationType = 'red_tree';           // 30% - MORE big trees
+            else if (rand < 0.45) decorationType = 'red_flower';    // 15% - flowers
+            else if (rand < 0.58) decorationType = 'red_grass';     // 13% - grass
+            else if (rand < 0.70) decorationType = 'red_bush';      // 12% - bushes
+            else if (rand < 0.80) decorationType = 'red_mushroom';  // 10% - mushrooms
+            else if (rand < 0.87) decorationType = 'red_log';       // 7% - logs
+            else if (rand < 0.92) decorationType = 'red_stone';     // 5% - stones
+            else if (rand < 0.95) decorationType = 'red_stump';     // 3% - stumps
+            else if (rand < 0.97) decorationType = 'red_trunk';     // 2% - tree trunks
             else decorationType = 'red_baby_tree';                  // 3% - baby trees
         }
 
