@@ -2140,5 +2140,19 @@ if (typeof window !== 'undefined') {
     window.MalacharSkillTree = MalacharSkillTree;
     window.getSkillsForLevel = getSkillsForLevel;
     window.getSkillById = getSkillById;
-    console.log('✅ MalacharSkillTree loaded with', Object.keys(MalacharSkillTree).length, 'levels');
+
+    const levelCount = Object.keys(MalacharSkillTree).length;
+    console.log(`✅ MalacharSkillTree loaded with ${levelCount} levels (levels 1-${levelCount})`);
+
+    // Test a few levels to verify data integrity
+    const testLevel = 2;
+    const testSkills = window.getSkillsForLevel(testLevel);
+    console.log(`🧪 Test: Level ${testLevel} has ${testSkills ? testSkills.length : 0} skills:`, testSkills ? testSkills.map(s => s.name).join(', ') : 'none');
+
+    // Verify globals are accessible
+    console.log(`🔍 Globals check:`, {
+        MalacharSkillTree: typeof window.MalacharSkillTree !== 'undefined',
+        getSkillsForLevel: typeof window.getSkillsForLevel === 'function',
+        getSkillById: typeof window.getSkillById === 'function'
+    });
 }

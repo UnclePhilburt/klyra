@@ -527,8 +527,16 @@ class SkillSelector {
 
     getAvailableSkills(playerClass, currentLevel) {
         // Debug logging
-        console.log(`🔍 SkillSelector - playerClass: "${playerClass}", currentLevel: ${currentLevel}`);
-        console.log(`🔍 MalacharSkillTree exists: ${typeof MalacharSkillTree !== 'undefined'}`);
+        console.log(`\n🔍 ======= SKILL SELECTOR DEBUG =======`);
+        console.log(`📊 Player Class: "${playerClass}" (type: ${typeof playerClass})`);
+        console.log(`📊 Current Level: ${currentLevel}`);
+        console.log(`📊 Local Player Data:`, this.scene.localPlayer ? {
+            class: this.scene.localPlayer.class,
+            dataClass: this.scene.localPlayer.data ? this.scene.localPlayer.data.class : 'no data',
+            characterId: this.scene.localPlayer.data ? this.scene.localPlayer.data.characterId : 'no data'
+        } : 'no local player');
+        console.log(`📊 MalacharSkillTree exists: ${typeof MalacharSkillTree !== 'undefined'}`);
+        console.log(`📊 window.getSkillsForLevel exists: ${typeof window.getSkillsForLevel === 'function'}`);
 
         // Load skills from MalacharSkillTree (only for Malachar class)
         // Check both the ID and display name variations
@@ -537,19 +545,26 @@ class SkillSelector {
                           playerClass === 'Necromancer' ||
                           (this.scene.localPlayer && this.scene.localPlayer.data && this.scene.localPlayer.data.characterId === 'MALACHAR');
 
+        console.log(`✔️ Is Malachar check: ${isMalachar}`);
+
         if (isMalachar && typeof MalacharSkillTree !== 'undefined' && typeof window.getSkillsForLevel === 'function') {
             // Get skills for this specific level
             const levelSkills = window.getSkillsForLevel(currentLevel);
             console.log(`✅ Found ${levelSkills ? levelSkills.length : 0} skills for level ${currentLevel}`);
 
             if (levelSkills && levelSkills.length > 0) {
+                console.log(`✅ Returning skills:`, levelSkills.map(s => s.name));
+                console.log(`======= END SKILL SELECTOR DEBUG =======\n`);
                 return levelSkills;
             } else {
                 console.warn(`⚠️ No skills found for level ${currentLevel} in MalacharSkillTree`);
+                console.warn(`⚠️ Available levels in skill tree:`, Object.keys(MalacharSkillTree));
             }
         } else {
             console.log(`ℹ️ Not Malachar or skill tree not loaded - using fallback skills`);
+            console.log(`ℹ️ Reason: ${!isMalachar ? 'Not Malachar' : typeof MalacharSkillTree === 'undefined' ? 'SkillTree not loaded' : 'getSkillsForLevel not a function'}`);
         }
+        console.log(`======= END SKILL SELECTOR DEBUG =======\n`);
 
         // Fallback to basic skills if no skill tree available
         const allSkills = {
