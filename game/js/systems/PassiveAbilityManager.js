@@ -50,7 +50,12 @@ class PassiveAbilityManager {
 
     updateCombatState() {
         // Check if player is in combat (enemies nearby)
-        const enemies = Object.values(this.scene.enemies || {});
+        // Combine both enemies and wolves
+        const enemies = [
+            ...Object.values(this.scene.enemies || {}),
+            ...Object.values(this.scene.wolves || {})
+        ];
+
         const nearbyEnemies = enemies.filter(enemy => {
             if (!enemy || !enemy.sprite) return false;
             const dist = Phaser.Math.Distance.Between(
@@ -469,7 +474,12 @@ class PassiveAbilityManager {
     // Utility functions
 
     findNearestEnemy() {
-        const enemies = Object.values(this.scene.enemies || {});
+        // Combine both enemies and wolves
+        const enemies = [
+            ...Object.values(this.scene.enemies || {}),
+            ...Object.values(this.scene.wolves || {})
+        ];
+
         let nearest = null;
         let minDist = Infinity;
 
@@ -496,7 +506,12 @@ class PassiveAbilityManager {
     }
 
     getEnemiesNear(x, y, radius) {
-        const enemies = Object.values(this.scene.enemies || {});
+        // Combine both enemies and wolves
+        const enemies = [
+            ...Object.values(this.scene.enemies || {}),
+            ...Object.values(this.scene.wolves || {})
+        ];
+
         return enemies.filter(enemy => {
             if (!enemy || !enemy.sprite) return false;
             const dist = Phaser.Math.Distance.Between(x, y, enemy.sprite.x, enemy.sprite.y);
