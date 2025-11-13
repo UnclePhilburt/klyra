@@ -221,26 +221,27 @@ class Lobby {
 
     getDungeonSize() {
         const sizes = {
-            easy: { width: 40, height: 40 },
-            normal: { width: 50, height: 50 },
-            hard: { width: 60, height: 60 },
-            nightmare: { width: 70, height: 70 }
+            easy: { width: 150, height: 150 },
+            normal: { width: 200, height: 200 },
+            hard: { width: 250, height: 250 },
+            nightmare: { width: 300, height: 300 }
         };
         return sizes[this.difficulty] || sizes.normal;
     }
 
     getEnemyCount() {
         const counts = {
-            easy: 5,
-            normal: 8,
-            hard: 12,
-            nightmare: 15
+            easy: 20,      // 4x larger world, more enemies
+            normal: 35,    // Scaled up proportionally
+            hard: 50,
+            nightmare: 70
         };
-        return Math.floor((counts[this.difficulty] || 8) * (1 + this.gameState.floor * 0.2));
+        return Math.floor((counts[this.difficulty] || 35) * (1 + this.gameState.floor * 0.2));
     }
 
     getItemCount() {
-        return Math.floor(10 + this.gameState.floor * 2);
+        // More items for larger world
+        return Math.floor(30 + this.gameState.floor * 3);
     }
 
     // Seeded random number generator for consistent procedural generation
@@ -358,12 +359,16 @@ class Lobby {
 
     getSpawnPoints() {
         const points = [];
+        const { width, height } = this.getDungeonSize();
+        const centerX = Math.floor(width / 2);
+        const centerY = Math.floor(height / 2);
         const radius = 5;
+
         for (let i = 0; i < this.maxPlayers; i++) {
             const angle = (2 * Math.PI * i) / this.maxPlayers;
             points.push({
-                x: Math.round(25 + radius * Math.cos(angle)),
-                y: Math.round(25 + radius * Math.sin(angle))
+                x: Math.round(centerX + radius * Math.cos(angle)),
+                y: Math.round(centerY + radius * Math.sin(angle))
             });
         }
         return points;
