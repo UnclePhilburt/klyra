@@ -243,8 +243,8 @@ class Lobby {
                 id: `${this.id}_enemy_${regionKey}_${i}`,
                 type: 'wolf',
                 position: { x, y },
-                health: 100,
-                maxHealth: 100,
+                health: 30,
+                maxHealth: 30,
                 damage: 10,
                 speed: 80,
                 isAlive: true,
@@ -915,6 +915,12 @@ io.on('connection', (socket) => {
             if (!enemy || !enemy.isAlive) return;
 
             const damage = data.damage || player.stats.strength;
+
+            // Debug: Log minion attacks to troubleshoot damage issues
+            if (data.attackerId && data.attackerId.startsWith('minion_')) {
+                console.log(`🔮 Minion attack: ${data.attackerId} dealt ${damage} damage to ${data.enemyId} (health: ${enemy.health} -> ${enemy.health - damage})`);
+            }
+
             enemy.health -= damage;
             player.updateActivity();
 

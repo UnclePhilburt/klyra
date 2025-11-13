@@ -5,9 +5,9 @@ class Minion {
         this.ownerId = ownerId; // The player who summoned this minion
         this.minionId = minionId; // Unique ID for this minion
         this.isPermanent = isPermanent; // Permanent minions don't despawn
-        this.health = 30;
-        this.maxHealth = 30;
-        this.damage = 5;
+        this.health = 50;
+        this.maxHealth = 50;
+        this.damage = 15;
         this.isAlive = true;
         this.moveSpeed = 150;
         this.attackRange = 100;
