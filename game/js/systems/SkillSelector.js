@@ -45,7 +45,7 @@ class SkillSelector {
             strokeThickness: 2,
             backgroundColor: '#0a0a0fdd',
             padding: { x: 16, y: 8 }
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(2001);
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(10000);
 
         // Add subtle glow to instruction text
         this.instructionText.setShadow(0, 0, 20, '#8b5cf6', true, true);
@@ -78,7 +78,7 @@ class SkillSelector {
         const bg = this.scene.add.rectangle(x, y, width, height, 0x0a0a0f, 0.85);
         bg.setStrokeStyle(2, 0x8b5cf6, 0.3); // Purple border with transparency
         bg.setScrollFactor(0);
-        bg.setDepth(2001);
+        bg.setDepth(10000);
         card.elements.push(bg);
         card.background = bg;
 
@@ -86,7 +86,7 @@ class SkillSelector {
         const innerGlow = this.scene.add.rectangle(x, y, width - 4, height - 4, 0x8b5cf6, 0.05);
         innerGlow.setStrokeStyle(1, 0xffffff, 0.05);
         innerGlow.setScrollFactor(0);
-        innerGlow.setDepth(2001);
+        innerGlow.setDepth(10001);
         card.elements.push(innerGlow);
         card.innerGlow = innerGlow;
 
@@ -100,7 +100,7 @@ class SkillSelector {
             strokeThickness: 2,
             wordWrap: { width: width - 30 },
             align: 'center'
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(2002);
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
         name.setShadow(0, 0, 15, '#8b5cf6', false, true); // Purple glow
         card.elements.push(name);
 
@@ -113,7 +113,7 @@ class SkillSelector {
             wordWrap: { width: width - 35 },
             align: 'center',
             lineSpacing: 4
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(2002);
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
         card.elements.push(desc);
 
         return card;
