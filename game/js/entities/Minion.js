@@ -342,6 +342,17 @@ class Minion {
     update() {
         if (!this.isAlive) return;
 
+        // Update sprite facing direction based on velocity
+        if (this.sprite && this.sprite.body) {
+            if (this.sprite.body.velocity.x < -10) {
+                // Moving left - flip sprite
+                this.sprite.setFlipX(true);
+            } else if (this.sprite.body.velocity.x > 10) {
+                // Moving right - don't flip
+                this.sprite.setFlipX(false);
+            }
+        }
+
         // Update positions of UI elements
         if (this.sprite && this.sprite.active) {
             this.glow.setPosition(this.sprite.x, this.sprite.y);
