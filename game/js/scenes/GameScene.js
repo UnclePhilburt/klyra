@@ -172,25 +172,25 @@ class GameScene extends Phaser.Scene {
 
         // Map biome types to tileset textures and tile indices
         const BIOME_TILESET_MAP = {
-            // Grassland - Use green terrain tiles
+            // Grassland - Use green terrain tiles with variety
             10: { texture: 'terrain_green', frame: 0 },
-            11: { texture: 'terrain_green', frame: 0 },
-            12: { texture: 'terrain_green', frame: 0 },
+            11: { texture: 'terrain_green', frame: 1 },
+            12: { texture: 'terrain_green', frame: 2 },
 
-            // Forest - Use forest tiles
+            // Forest - Use forest tiles with variety
             20: { texture: 'forest', frame: 0 },
-            21: { texture: 'forest', frame: 0 },
-            22: { texture: 'forest', frame: 0 },
+            21: { texture: 'forest', frame: 1 },
+            22: { texture: 'forest', frame: 2 },
 
-            // Magic Grove - Use purple terrain tileset
+            // Magic Grove - Use purple terrain tileset with variety
             30: { texture: 'terrain_base', frame: 0 },
-            31: { texture: 'terrain_base', frame: 0 },
-            32: { texture: 'terrain_base', frame: 0 },
+            31: { texture: 'terrain_base', frame: 1 },
+            32: { texture: 'terrain_base', frame: 2 },
 
-            // Dark Woods - Use darker forest tiles
-            40: { texture: 'forest', frame: 0 },
-            41: { texture: 'forest', frame: 0 },
-            42: { texture: 'forest', frame: 0 }
+            // Dark Woods - Use darker forest tiles with variety
+            40: { texture: 'forest', frame: 3 },
+            41: { texture: 'forest', frame: 4 },
+            42: { texture: 'forest', frame: 5 }
         };
 
         // Render tiles using individual frames from spritesheets
