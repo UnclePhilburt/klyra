@@ -320,10 +320,18 @@ class Lobby {
     // Check and generate chunks around active players
     updateChunks() {
         const playerChunks = new Set();
+        const startingChunkCount = this.chunks.size;
 
         // Get all player chunk positions
         this.players.forEach(player => {
             const { chunkX, chunkY } = this.getChunkCoords(player.position.x, player.position.y);
+
+            // Log when player enters new chunk
+            const playerChunkKey = `${chunkX},${chunkY}`;
+            if (player.lastChunk !== playerChunkKey) {
+                console.log(`🚶 ${player.username} entered chunk (${chunkX}, ${chunkY}) at position (${player.position.x}, ${player.position.y})`);
+                player.lastChunk = playerChunkKey;
+            }
 
             // Generate chunks in render distance
             for (let dx = -this.CHUNK_RENDER_DISTANCE; dx <= this.CHUNK_RENDER_DISTANCE; dx++) {
@@ -339,6 +347,11 @@ class Lobby {
                 }
             }
         });
+
+        const endingChunkCount = this.chunks.size;
+        if (endingChunkCount > startingChunkCount) {
+            console.log(`📊 Chunks: ${startingChunkCount} → ${endingChunkCount} (+${endingChunkCount - startingChunkCount})`);
+        }
 
         // Optional: Unload distant chunks (commented out for now to keep all generated chunks)
         // this.unloadDistantChunks(playerChunks);
@@ -842,8 +855,11 @@ io.on('connection', (socket) => {
 
             // If new chunks were generated, send them to all players
             if (afterChunkCount > beforeChunkCount) {
+                const newChunks = afterChunkCount - beforeChunkCount;
+                console.log(`✨ Generated ${newChunks} new chunks! Total: ${afterChunkCount}`);
                 const chunksData = lobby.getLoadedChunksData();
                 lobby.broadcast('chunks:updated', chunksData);
+                console.log(`📡 Broadcasted ${chunksData.chunks.length} chunks to all players`);
             }
 
             socket.to(lobby.id).emit('player:moved', {

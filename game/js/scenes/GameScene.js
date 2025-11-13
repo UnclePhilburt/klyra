@@ -356,34 +356,17 @@ class GameScene extends Phaser.Scene {
     }
 
     expandWorldBounds() {
-        // Calculate bounds from all loaded chunks
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        // For infinite world: Remove all bounds!
+        // Players can move anywhere, chunks generate on-demand
 
-        this.chunks.forEach((chunk, key) => {
-            const chunkMinX = chunk.chunkX * this.CHUNK_SIZE;
-            const chunkMinY = chunk.chunkY * this.CHUNK_SIZE;
-            const chunkMaxX = chunkMinX + this.CHUNK_SIZE;
-            const chunkMaxY = chunkMinY + this.CHUNK_SIZE;
+        // Set extremely large bounds for physics (essentially infinite)
+        const INFINITE = 1000000; // 1 million pixels in each direction
+        this.physics.world.setBounds(-INFINITE, -INFINITE, INFINITE * 2, INFINITE * 2);
 
-            minX = Math.min(minX, chunkMinX);
-            minY = Math.min(minY, chunkMinY);
-            maxX = Math.max(maxX, chunkMaxX);
-            maxY = Math.max(maxY, chunkMaxY);
-        });
+        // Remove camera bounds entirely - follow player anywhere
+        this.cameras.main.removeBounds();
 
-        const tileSize = GameConfig.GAME.TILE_SIZE;
-        this.physics.world.setBounds(
-            minX * tileSize,
-            minY * tileSize,
-            (maxX - minX) * tileSize,
-            (maxX - minX) * tileSize
-        );
-        this.cameras.main.setBounds(
-            minX * tileSize,
-            minY * tileSize,
-            (maxX - minX) * tileSize,
-            (maxY - minY) * tileSize
-        );
+        console.log('🌍 World bounds: INFINITE (no limits!)');
     }
 
     seededRandom(seed) {
