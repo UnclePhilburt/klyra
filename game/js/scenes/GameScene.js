@@ -654,10 +654,10 @@ class GameScene extends Phaser.Scene {
 
             const RED_TREE_3 = [
                 [148, 149, 150, 151],       // Row 1 (4 tiles wide)
-                [161, 162, 163, 164],       // Row 2 (4 tiles wide)
+                [160, 161, 162, 163],       // Row 2 (4 tiles wide) - FIXED
                 [172, 173, 174, 175],       // Row 3 (4 tiles wide)
                 [184, 185, 186, 187],       // Row 4 (4 tiles wide)
-                [195, 196, 197, 198, 199],  // Row 5 (5 tiles wide)
+                [196, 197, 198, 199],       // Row 5 (4 tiles wide) - FIXED
                 [208, 209, 210, 211]        // Row 6 (4 tiles wide)
             ];
 
