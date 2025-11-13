@@ -1390,8 +1390,15 @@ class GameScene extends Phaser.Scene {
 
             // Log performance breakdown
             const elapsed = Date.now() - this.lastPerfLog;
-            console.log(`⏱️ Update Loop (${elapsed}ms): Player=${this.perfTimings.player.toFixed(1)}ms UI=${this.perfTimings.ui.toFixed(1)}ms HUD=${this.perfTimings.hud.toFixed(1)}ms Minions=${this.perfTimings.minions.toFixed(1)}ms Enemies=${this.perfTimings.enemies.toFixed(1)}ms Wolves=${this.perfTimings.wolves.toFixed(1)}ms Other=${this.perfTimings.other.toFixed(1)}ms`);
+            const avgFrameTime = this.frameTimes && this.frameTimes.length > 0
+                ? (this.frameTimes.reduce((a,b) => a+b, 0) / this.frameTimes.length).toFixed(1)
+                : 0;
+            const maxFrameTime = this.frameTimes && this.frameTimes.length > 0
+                ? Math.max(...this.frameTimes).toFixed(1)
+                : 0;
+            console.log(`⏱️ Update Loop (${elapsed}ms): Player=${this.perfTimings.player.toFixed(1)}ms UI=${this.perfTimings.ui.toFixed(1)}ms HUD=${this.perfTimings.hud.toFixed(1)}ms Minions=${this.perfTimings.minions.toFixed(1)}ms Enemies=${this.perfTimings.enemies.toFixed(1)}ms Wolves=${this.perfTimings.wolves.toFixed(1)}ms Other=${this.perfTimings.other.toFixed(1)}ms | AvgFrame=${avgFrameTime}ms MaxFrame=${maxFrameTime}ms`);
             this.perfTimings = { player: 0, ui: 0, hud: 0, minions: 0, enemies: 0, wolves: 0, other: 0, frameCount: 0 };
+            this.frameTimes = [];
             this.lastPerfLog = Date.now();
         }
 
@@ -1464,5 +1471,16 @@ class GameScene extends Phaser.Scene {
         }
 
         this.perfTimings.other += (performance.now() - t7);
+
+        // DIAGNOSTIC: Track total frame time
+        const totalFrameTime = performance.now() - perfStart;
+        if (!this.frameTimes) this.frameTimes = [];
+        this.frameTimes.push(totalFrameTime);
+        if (this.frameTimes.length > 60) this.frameTimes.shift();
+
+        // Log slow frames immediately
+        if (totalFrameTime > 50) {
+            console.error(`🐌 SLOW FRAME: ${totalFrameTime.toFixed(1)}ms (Player=${(performance.now() - t1).toFixed(1)}ms tracked, Untracked=${(totalFrameTime - (performance.now() - perfStart)).toFixed(1)}ms)`);
+        }
     }
 }

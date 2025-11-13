@@ -80,6 +80,9 @@ class Minion {
     updateAI() {
         if (!this.isAlive) return;
 
+        // DIAGNOSTIC: Track AI update time
+        const aiStart = performance.now();
+
         // Check lifespan (only for temporary minions)
         if (!this.isPermanent && Date.now() - this.spawnTime > this.lifespan) {
             this.despawn();
@@ -135,6 +138,12 @@ class Minion {
         } else {
             // Priority 3: Explore and wander
             this.wanderAround(owner);
+        }
+
+        // DIAGNOSTIC: Log if AI update is slow
+        const aiTime = performance.now() - aiStart;
+        if (aiTime > 5) {
+            console.warn(`⚠️ SLOW MINION AI: ${aiTime.toFixed(1)}ms (state: ${this.state}, permanent: ${this.isPermanent})`);
         }
     }
 
