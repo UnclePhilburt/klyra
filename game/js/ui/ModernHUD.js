@@ -255,8 +255,24 @@ class ModernHUD {
     update() {
         if (!this.player) return;
 
+        // DIAGNOSTIC: Track how many times each update is called
+        if (!this.updateCounts) {
+            this.updateCounts = { health: 0, xp: 0, stats: 0, total: 0 };
+            this.lastLogTime = Date.now();
+        }
+        this.updateCounts.total++;
+
+        // Log every 60 calls (1 second at 60fps)
+        if (this.updateCounts.total % 60 === 0) {
+            const elapsed = Date.now() - this.lastLogTime;
+            console.log(`🔍 HUD Updates/sec: Health=${this.updateCounts.health} XP=${this.updateCounts.xp} Stats=${this.updateCounts.stats} (${elapsed}ms)`);
+            this.updateCounts = { health: 0, xp: 0, stats: 0, total: 0 };
+            this.lastLogTime = Date.now();
+        }
+
         // Only update health orb if health changed (CRITICAL FPS FIX)
         if (this.player.health !== this.lastHealth || this.player.maxHealth !== this.lastMaxHealth) {
+            this.updateCounts.health++;
             this.updateHealthOrb();
             this.lastHealth = this.player.health;
             this.lastMaxHealth = this.player.maxHealth;
@@ -264,6 +280,7 @@ class ModernHUD {
 
         // Only update XP bar if XP/level changed
         if (this.player.experience !== this.lastExperience || this.player.level !== this.lastLevel) {
+            this.updateCounts.xp++;
             this.updateXPBar();
             this.lastExperience = this.player.experience;
             this.lastLevel = this.player.level;
@@ -275,6 +292,7 @@ class ModernHUD {
             this.player.stats.defense !== this.lastStats.defense;
 
         if (statsChanged) {
+            this.updateCounts.stats++;
             this.updateStats();
             this.lastStats = { ...this.player.stats };
         }
