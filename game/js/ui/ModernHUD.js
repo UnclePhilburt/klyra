@@ -27,6 +27,13 @@ class ModernHUD {
         this.healthPulseTween = null;
         this.xpShimmerTween = null;
 
+        // Cache for optimization - CRITICAL FPS FIX
+        this.lastHealth = null;
+        this.lastMaxHealth = null;
+        this.lastLevel = null;
+        this.lastExperience = null;
+        this.lastStats = null;
+
         this.create();
     }
 
@@ -248,9 +255,29 @@ class ModernHUD {
     update() {
         if (!this.player) return;
 
-        this.updateHealthOrb();
-        this.updateXPBar();
-        this.updateStats();
+        // Only update health orb if health changed (CRITICAL FPS FIX)
+        if (this.player.health !== this.lastHealth || this.player.maxHealth !== this.lastMaxHealth) {
+            this.updateHealthOrb();
+            this.lastHealth = this.player.health;
+            this.lastMaxHealth = this.player.maxHealth;
+        }
+
+        // Only update XP bar if XP/level changed
+        if (this.player.experience !== this.lastExperience || this.player.level !== this.lastLevel) {
+            this.updateXPBar();
+            this.lastExperience = this.player.experience;
+            this.lastLevel = this.player.level;
+        }
+
+        // Only update stats if they changed
+        const statsChanged = !this.lastStats ||
+            this.player.stats.strength !== this.lastStats.strength ||
+            this.player.stats.defense !== this.lastStats.defense;
+
+        if (statsChanged) {
+            this.updateStats();
+            this.lastStats = { ...this.player.stats };
+        }
     }
 
     updateHealthOrb() {
