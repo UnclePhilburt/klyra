@@ -49,6 +49,101 @@ class PassiveAbilityManager {
         });
         console.log(`✨ Added passive ability: ${skill.name}`, skill.effect);
         console.log(`📊 Total passive abilities: ${this.passiveAbilities.length}`);
+
+        // Create visual effects for auras
+        const effect = skill.effect;
+        const vfx = this.getVisualEffects();
+
+        // Curse Aura - Purple slow aura
+        if (effect.curseAura && !this.activeAuras.has('curse')) {
+            vfx.createAura('curse', {
+                radius: (effect.curseAura.radius || 4) * 32,
+                color: 0x8b5cf6,
+                alpha: 0.15,
+                strokeColor: 0x8b5cf6,
+                strokeAlpha: 0.4,
+                pulseSpeed: 2000
+            });
+            this.activeAuras.add('curse');
+        }
+
+        // Life Drain Aura - Green drain aura
+        if (effect.lifeDrainAura && !this.activeAuras.has('lifedrain')) {
+            vfx.createAura('lifedrain', {
+                radius: (effect.lifeDrainAura.radius || 4) * 32,
+                color: 0x10b981,
+                alpha: 0.2,
+                strokeColor: 0x10b981,
+                strokeAlpha: 0.5,
+                pulseSpeed: 1500
+            });
+            this.activeAuras.add('lifedrain');
+        }
+
+        // Damage Aura - Red damage aura
+        if (effect.damageAura && !this.activeAuras.has('damage')) {
+            vfx.createAura('damage', {
+                radius: (effect.damageAura.radius || 4) * 32,
+                color: 0xef4444,
+                alpha: 0.18,
+                strokeColor: 0xef4444,
+                strokeAlpha: 0.6,
+                pulseSpeed: 1000
+            });
+            this.activeAuras.add('damage');
+        }
+
+        // Plague Aura - Toxic green aura
+        if (effect.plagueAura && !this.activeAuras.has('plague')) {
+            vfx.createAura('plague', {
+                radius: (effect.plagueAura.radius || 3) * 32,
+                color: 0x84cc16,
+                alpha: 0.2,
+                strokeColor: 0x84cc16,
+                strokeAlpha: 0.5,
+                pulseSpeed: 1800
+            });
+            this.activeAuras.add('plague');
+        }
+
+        // Hex Aura - Dark purple hex aura
+        if (effect.hexAura && !this.activeAuras.has('hex')) {
+            vfx.createAura('hex', {
+                radius: (effect.hexAura.radius || 5) * 32,
+                color: 0x5b21b6,
+                alpha: 0.16,
+                strokeColor: 0x5b21b6,
+                strokeAlpha: 0.4,
+                pulseSpeed: 2200
+            });
+            this.activeAuras.add('hex');
+        }
+
+        // Time Slow Aura - Cyan time dilation
+        if (effect.timeSlow && !this.activeAuras.has('timeslow')) {
+            vfx.createAura('timeslow', {
+                radius: (effect.timeSlow.radius || 5) * 32,
+                color: 0x06b6d4,
+                alpha: 0.14,
+                strokeColor: 0x06b6d4,
+                strokeAlpha: 0.3,
+                pulseSpeed: 3000
+            });
+            this.activeAuras.add('timeslow');
+        }
+
+        // Dread Aura - Black fear aura
+        if (effect.dreadAura && !this.activeAuras.has('dread')) {
+            vfx.createAura('dread', {
+                radius: (effect.dreadAura.radius || 6) * 32,
+                color: 0x1f1f1f,
+                alpha: 0.25,
+                strokeColor: 0x4b5563,
+                strokeAlpha: 0.5,
+                pulseSpeed: 2500
+            });
+            this.activeAuras.add('dread');
+        }
     }
 
     update() {
@@ -56,6 +151,11 @@ class PassiveAbilityManager {
 
         // Update combat state
         this.updateCombatState();
+
+        // Update visual effects
+        if (this.scene.visualEffectsManager) {
+            this.scene.visualEffectsManager.update();
+        }
 
         // Process each passive ability
         this.passiveAbilities.forEach(ability => {
@@ -215,7 +315,27 @@ class PassiveAbilityManager {
             if (nearestEnemy) {
                 const damage = ability.effect.shadowVolley.damage || 15;
                 console.log(`⚡ Shadow Volley firing! Damage: ${damage}, Target:`, nearestEnemy);
-                this.fireShadowBolt(nearestEnemy, damage);
+
+                // Use new visual effects manager
+                const vfx = this.getVisualEffects();
+                vfx.createShadowBolt(
+                    this.player.sprite.x,
+                    this.player.sprite.y,
+                    nearestEnemy.sprite.x,
+                    nearestEnemy.sprite.y,
+                    damage,
+                    (enemy, dmg) => {
+                        // Hit callback - deal damage
+                        if (enemy.data && enemy.data.id && typeof networkManager !== 'undefined') {
+                            const playerPosition = {
+                                x: Math.floor(this.player.sprite.x / 32),
+                                y: Math.floor(this.player.sprite.y / 32)
+                            };
+                            networkManager.hitEnemy(enemy.data.id, dmg, this.player.data.id, playerPosition);
+                        }
+                    }
+                );
+
                 this.cooldowns.set(cooldownKey, now);
             } else {
                 console.log(`⚡ Shadow Volley ready but no enemies found`);
@@ -320,7 +440,27 @@ class PassiveAbilityManager {
             const radius = ability.effect.voidEruption.radius || 8;
             const damage = ability.effect.voidEruption.damage || 200;
 
-            this.createExplosion(this.player.sprite.x, this.player.sprite.y, radius, damage, 0x9d4edd);
+            // Use new visual effects
+            const vfx = this.getVisualEffects();
+            vfx.createVoidExplosion(
+                this.player.sprite.x,
+                this.player.sprite.y,
+                radius * 32,
+                damage
+            );
+
+            // Deal damage to all enemies in radius
+            const enemies = this.getEnemiesInRadius(radius);
+            enemies.forEach(enemy => {
+                if (enemy.data && enemy.data.id && typeof networkManager !== 'undefined') {
+                    const playerPosition = {
+                        x: Math.floor(this.player.sprite.x / 32),
+                        y: Math.floor(this.player.sprite.y / 32)
+                    };
+                    networkManager.hitEnemy(enemy.data.id, damage, this.player.data.id, playerPosition);
+                }
+            });
+
             this.cooldowns.set(cooldownKey, now);
         }
     }
