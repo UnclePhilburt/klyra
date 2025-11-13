@@ -661,7 +661,8 @@ class GameScene extends Phaser.Scene {
                 const targetX = data.position.x * tileSize + tileSize / 2;
                 const targetY = data.position.y * tileSize + tileSize / 2;
 
-                // Smooth movement
+                // Update position
+                enemy.data.position = data.position;
                 enemy.sprite.x = targetX;
                 enemy.sprite.y = targetY;
             }
@@ -1213,6 +1214,13 @@ class GameScene extends Phaser.Scene {
         Object.values(this.minions).forEach(minion => {
             if (minion.isAlive) {
                 minion.update();
+            }
+        });
+
+        // Update enemies
+        Object.values(this.enemies).forEach(enemy => {
+            if (enemy.isAlive) {
+                enemy.update();
             }
         });
 

@@ -369,20 +369,20 @@ class Lobby {
         let x, y;
         switch(edge) {
             case 0: // Top edge
-                x = Math.floor(Math.random() * width);
-                y = -2;
+                x = Math.floor(Math.random() * (width - 4)) + 2;
+                y = 1;
                 break;
             case 1: // Right edge
-                x = width + 2;
-                y = Math.floor(Math.random() * height);
+                x = width - 2;
+                y = Math.floor(Math.random() * (height - 4)) + 2;
                 break;
             case 2: // Bottom edge
-                x = Math.floor(Math.random() * width);
-                y = height + 2;
+                x = Math.floor(Math.random() * (width - 4)) + 2;
+                y = height - 2;
                 break;
             case 3: // Left edge
-                x = -2;
-                y = Math.floor(Math.random() * height);
+                x = 1;
+                y = Math.floor(Math.random() * (height - 4)) + 2;
                 break;
         }
 
@@ -400,11 +400,12 @@ class Lobby {
 
         for (let i = 0; i < count; i++) {
             const enemyTemplate = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+            const spawnPos = this.getEdgeSpawnPosition();
 
             this.gameState.enemies.push({
                 id: uuidv4(),
                 type: enemyTemplate.type,
-                position: this.getEdgeSpawnPosition(),
+                position: spawnPos,
                 health: 25,
                 maxHealth: 25,
                 damage: 10,
@@ -414,6 +415,8 @@ class Lobby {
                 target: null, // Current target (player or minion)
                 aggro: new Map() // Track aggro from different sources
             });
+
+            console.log(`🧟 Spawned ${enemyTemplate.type} at edge position:`, spawnPos);
         }
     }
 
@@ -467,6 +470,7 @@ class Lobby {
     updateEnemies() {
         const tileSize = 32;
         const now = Date.now();
+        let movedCount = 0;
 
         this.gameState.enemies.forEach(enemy => {
             if (!enemy.isAlive) return;
@@ -474,6 +478,7 @@ class Lobby {
             // Update every 100ms
             if (now - enemy.lastMove < 100) return;
             enemy.lastMove = now;
+            movedCount++;
 
             // Find nearest target (player or minion being attacked by)
             let target = null;
@@ -549,6 +554,11 @@ class Lobby {
                 }
             }
         });
+
+        // Debug log (only if enemies moved)
+        if (movedCount > 0 && Math.random() < 0.01) { // Log 1% of the time
+            console.log(`🎯 Updated ${movedCount} enemies in lobby ${this.id.slice(0, 8)}`);
+        }
     }
 
     toJSON() {
