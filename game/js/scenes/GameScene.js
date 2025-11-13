@@ -46,6 +46,10 @@ class GameScene extends Phaser.Scene {
             frameWidth: tileWidth,
             frameHeight: tileHeight
         });
+        this.load.spritesheet('terrain_misc', 'assets/tilesets/A2 - Terrain And Misc.png', {
+            frameWidth: tileWidth,
+            frameHeight: tileHeight
+        });
 
         // Water tilesets (A1 format - animated)
         this.load.spritesheet('water_base', 'assets/tilesets/a1_water_base.png', {
@@ -201,24 +205,24 @@ class GameScene extends Phaser.Scene {
         // Map biome types to tileset textures and tile variation arrays
         const BIOME_TILESET_MAP = {
             // Grassland - Use grass variations from A2
-            10: { texture: 'forest_extended', variations: GRASS_VARIATIONS },
-            11: { texture: 'forest_extended', variations: GRASS_VARIATIONS },
-            12: { texture: 'forest_extended', variations: GRASS_VARIATIONS },
+            10: { texture: 'terrain_misc', variations: GRASS_VARIATIONS },
+            11: { texture: 'terrain_misc', variations: GRASS_VARIATIONS },
+            12: { texture: 'terrain_misc', variations: GRASS_VARIATIONS },
 
             // Forest - Use dirt/grass mix variations
-            20: { texture: 'forest_extended', variations: DIRT_GRASS_MIX_VARIATIONS },
-            21: { texture: 'forest_extended', variations: DIRT_GRASS_MIX_VARIATIONS },
-            22: { texture: 'forest_extended', variations: DIRT_GRASS_MIX_VARIATIONS },
+            20: { texture: 'terrain_misc', variations: DIRT_GRASS_MIX_VARIATIONS },
+            21: { texture: 'terrain_misc', variations: DIRT_GRASS_MIX_VARIATIONS },
+            22: { texture: 'terrain_misc', variations: DIRT_GRASS_MIX_VARIATIONS },
 
             // Magic Grove - Use grass variations
-            30: { texture: 'forest_extended', variations: GRASS_VARIATIONS },
-            31: { texture: 'forest_extended', variations: GRASS_VARIATIONS },
-            32: { texture: 'forest_extended', variations: GRASS_VARIATIONS },
+            30: { texture: 'terrain_misc', variations: GRASS_VARIATIONS },
+            31: { texture: 'terrain_misc', variations: GRASS_VARIATIONS },
+            32: { texture: 'terrain_misc', variations: GRASS_VARIATIONS },
 
             // Dark Woods - Use dirt variations
-            40: { texture: 'forest_extended', variations: DIRT_VARIATIONS },
-            41: { texture: 'forest_extended', variations: DIRT_VARIATIONS },
-            42: { texture: 'forest_extended', variations: DIRT_VARIATIONS }
+            40: { texture: 'terrain_misc', variations: DIRT_VARIATIONS },
+            41: { texture: 'terrain_misc', variations: DIRT_VARIATIONS },
+            42: { texture: 'terrain_misc', variations: DIRT_VARIATIONS }
         };
 
         // Flower patch variations (overlays placed on top of grass tiles)
@@ -236,7 +240,7 @@ class GameScene extends Phaser.Scene {
                 const py = y * tileSize;
 
                 // Get tileset mapping for this biome
-                const tileInfo = BIOME_TILESET_MAP[tile] || { texture: 'forest_extended', variations: GRASS_VARIATIONS };
+                const tileInfo = BIOME_TILESET_MAP[tile] || { texture: 'terrain_misc', variations: GRASS_VARIATIONS };
 
                 // Randomly select a tile variation from the array
                 const variationIndex = Math.floor(this.seededRandom(this.dungeonSeed) * tileInfo.variations.length);
@@ -257,7 +261,7 @@ class GameScene extends Phaser.Scene {
                     const patchIndex = Math.floor(this.seededRandom(this.dungeonSeed) * FLOWER_PATCH_VARIATIONS.length);
                     const patchFrame = FLOWER_PATCH_VARIATIONS[patchIndex];
 
-                    const patchSprite = this.add.sprite(px, py, 'forest_extended', patchFrame);
+                    const patchSprite = this.add.sprite(px, py, 'terrain_misc', patchFrame);
                     patchSprite.setOrigin(0, 0);
                     patchSprite.setScale(scale);
                     this.tileContainer.add(patchSprite);
