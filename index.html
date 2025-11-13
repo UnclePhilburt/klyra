@@ -6,8 +6,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="description" content="KLYRA - Epic 2D pixel multiplayer roguelite. Explore vast open worlds with up to 10 players. Permadeath never felt so good.">
-    <title>KLYRA - Multiplayer Roguelite</title>
+    <meta name="description" content="KLYRA - In Development. The next generation 2D pixel multiplayer roguelite. 10-player co-op, infinite procedural worlds. Coming 2025.">
+    <title>KLYRA - Multiplayer Roguelite [In Development]</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -120,6 +120,8 @@
         header {
             position: fixed;
             top: 0;
+            left: 0;
+            right: 0;
             width: 100%;
             padding: 1.5rem 4rem;
             display: flex;
@@ -211,18 +213,27 @@
         .mobile-menu-toggle {
             display: none;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
             gap: 5px;
             background: none;
             border: none;
             padding: 0.5rem;
+            cursor: pointer;
+            position: relative;
+            z-index: 1002;
+            width: 40px;
+            height: 40px;
+            margin-left: auto;
         }
 
         .mobile-menu-toggle span {
             display: block;
             width: 25px;
-            height: 2px;
+            height: 3px;
             background: var(--text-primary);
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 2px;
         }
 
         /* Hero Section */
@@ -987,7 +998,7 @@
                 <li><a href="characters.html">Characters</a></li>
                 <li><a href="lore.html">Lore</a></li>
                 <li><a href="#features">Features</a></li>
-                <li><a href="game/" class="cta-nav">Play Now</a></li>
+                <li><a href="game/" class="cta-nav">Try Alpha</a></li>
             </ul>
         </nav>
     </header>
@@ -996,35 +1007,35 @@
     <section id="home" class="hero">
         <div class="hero-badge">
             <span class="badge-dot"></span>
-            <span>Now Live - Join the Battle</span>
+            <span>In Development - Coming 2025</span>
         </div>
 
         <h1 class="hero-title">
-            Die. Respawn.<br>
-            <span class="gradient-text">Conquer.</span>
+            The Next Generation<br>
+            <span class="gradient-text">Roguelite</span>
         </h1>
 
         <p class="hero-subtitle">
-            Experience the ultimate 2D pixel multiplayer roguelite. Team up with 10 players, explore procedurally generated worlds, and embrace the permadeath loop. Every death makes you stronger.
+            We're building the ultimate 2D pixel multiplayer roguelite from the ground up. 10-player co-op, procedurally generated worlds, and meaningful permadeath. Follow our journey as we craft something special.
         </p>
 
         <div class="hero-cta">
-            <a href="game/" class="btn btn-primary">Enter the Void</a>
-            <a href="#features" class="btn btn-secondary">Explore Features</a>
+            <a href="game/" class="btn btn-primary">Try Early Alpha</a>
+            <a href="#features" class="btn btn-secondary">See What's Coming</a>
         </div>
 
         <div class="stats">
             <div class="stat">
                 <div class="stat-number" data-target="∞">∞</div>
-                <div class="stat-label">Dungeons</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number" data-target="10">10</div>
-                <div class="stat-label">Players</div>
+                <div class="stat-label">Worlds to Explore</div>
             </div>
             <div class="stat">
                 <div class="stat-number" data-target="6">6</div>
-                <div class="stat-label">Characters</div>
+                <div class="stat-label">Playable Heroes</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">Q2</div>
+                <div class="stat-label">2025 Release</div>
             </div>
         </div>
     </section>
@@ -1032,10 +1043,10 @@
     <!-- Features Section -->
     <section id="features" class="features">
         <div class="section-header fade-in">
-            <div class="section-tag">Why Play Klyra</div>
-            <h2 class="section-title">Built for Chaos</h2>
+            <div class="section-tag">In Development</div>
+            <h2 class="section-title">What We're Building</h2>
             <p class="section-subtitle">
-                A multiplayer roguelite designed to push your limits with every run
+                A multiplayer roguelite designed to redefine co-op chaos and permadeath
             </p>
         </div>
 
@@ -1118,12 +1129,12 @@
     <section class="cta-section">
         <div class="cta-container fade-in">
             <div class="cta-content">
-                <h2 class="cta-title">Ready to Face Your Fate?</h2>
+                <h2 class="cta-title">Join the Journey</h2>
                 <p class="cta-description">
-                    Join thousands of players in the ultimate test of skill, strategy, and survival. Your legend begins now.
+                    We're building KLYRA in public. Try the early alpha, meet our heroes, and watch as we craft the ultimate multiplayer roguelite experience.
                 </p>
                 <div class="hero-cta">
-                    <a href="game/" class="btn btn-primary">Start Playing Free</a>
+                    <a href="game/" class="btn btn-primary">Try Alpha Build</a>
                     <a href="characters.html" class="btn btn-secondary">Meet the Heroes</a>
                 </div>
             </div>
@@ -1133,7 +1144,7 @@
     <!-- Footer -->
     <footer>
         <p>© 2025 KLYRA. Built with Phaser 3 & Socket.IO.</p>
-        <p style="margin-top: 0.5rem; opacity: 0.5;">Prepare to die. A lot.</p>
+        <p style="margin-top: 0.5rem; opacity: 0.5;">Early Alpha - In Active Development</p>
     </footer>
 
     <script>
