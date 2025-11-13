@@ -260,13 +260,9 @@ class GameScene extends Phaser.Scene {
     }
 
     loadChunks(chunksData) {
-        console.log(`🗺️ Loading ${chunksData.chunks.length} chunks...`);
-
         chunksData.chunks.forEach(chunk => {
             this.renderChunk(chunk);
         });
-
-        console.log(`✅ Loaded ${chunksData.chunks.length} chunks for infinite world`);
     }
 
     renderChunk(chunk) {
@@ -274,15 +270,12 @@ class GameScene extends Phaser.Scene {
 
         // Skip if already rendered
         if (this.chunks.has(key)) {
-            console.log(`⏭️ Chunk (${chunk.chunkX}, ${chunk.chunkY}) already rendered, skipping`);
             return;
         }
 
         const tileSize = GameConfig.GAME.TILE_SIZE;
         const { chunkX, chunkY, tiles, biomes, decorations } = chunk;
-        const chunkSize = tiles.length; // Should be 50x50
-
-        console.log(`🎨 Rendering chunk (${chunkX}, ${chunkY}) - ${chunkSize}x${chunkSize} tiles at world (${chunkX * this.CHUNK_SIZE * tileSize}, ${chunkY * this.CHUNK_SIZE * tileSize})`);
+        const chunkSize = tiles.length;
 
         // Calculate world offset for this chunk
         const worldOffsetX = chunkX * this.CHUNK_SIZE * tileSize;
@@ -316,9 +309,9 @@ class GameScene extends Phaser.Scene {
             42: { texture: 'forest_extended', frame: 2 }
         };
 
-        // Render tiles using individual frames from spritesheets
-        let tilesRendered = 0;
-        let unknownTiles = 0;
+        // Track tile type frequencies for debugging
+        const tileTypes = {};
+        let missingCount = 0;
 
         for (let y = 0; y < chunkSize; y++) {
             for (let x = 0; x < chunkSize; x++) {
@@ -326,35 +319,62 @@ class GameScene extends Phaser.Scene {
                 const px = worldOffsetX + (x * tileSize);
                 const py = worldOffsetY + (y * tileSize);
 
+                // Track tile type
+                tileTypes[tile] = (tileTypes[tile] || 0) + 1;
+
                 // Get tileset mapping for this biome
                 const tileInfo = BIOME_TILESET_MAP[tile];
 
                 if (!tileInfo) {
-                    console.warn(`❌ Unknown tile type: ${tile} at chunk(${chunkX},${chunkY}) local(${x},${y}) world(${Math.floor(px/tileSize)},${Math.floor(py/tileSize)})`);
-                    unknownTiles++;
+                    missingCount++;
+                    // Render a placeholder so we can see the issue
+                    const placeholder = this.add.rectangle(px, py, tileSize, tileSize, 0xff00ff);
+                    placeholder.setOrigin(0, 0);
+                    this.tileContainer.add(placeholder);
+                    continue;
+                }
+
+                // Check if texture exists
+                if (!this.textures.exists(tileInfo.texture)) {
+                    console.error(`❌ TEXTURE MISSING: '${tileInfo.texture}' for tile ${tile}`);
+                    missingCount++;
+                    // Render a red placeholder
+                    const placeholder = this.add.rectangle(px, py, tileSize, tileSize, 0xff0000);
+                    placeholder.setOrigin(0, 0);
+                    this.tileContainer.add(placeholder);
                     continue;
                 }
 
                 // Create sprite from specific tile frame in the spritesheet
-                const tileSprite = this.add.sprite(px, py, tileInfo.texture, tileInfo.frame);
-                tileSprite.setOrigin(0, 0);
+                try {
+                    const tileSprite = this.add.sprite(px, py, tileInfo.texture, tileInfo.frame);
+                    tileSprite.setOrigin(0, 0);
 
-                // Scale to game tile size (48px tileset -> 32px game tile)
-                const scale = tileSize / 48;
-                tileSprite.setScale(scale);
+                    // Scale to game tile size (48px tileset -> 32px game tile)
+                    const scale = tileSize / 48;
+                    tileSprite.setScale(scale);
 
-                this.tileContainer.add(tileSprite);
-                tilesRendered++;
+                    this.tileContainer.add(tileSprite);
+                } catch (error) {
+                    console.error(`❌ ERROR creating tile sprite:`, error, `tile=${tile}, texture=${tileInfo.texture}, frame=${tileInfo.frame}`);
+                    missingCount++;
+                    // Render a yellow placeholder
+                    const placeholder = this.add.rectangle(px, py, tileSize, tileSize, 0xffff00);
+                    placeholder.setOrigin(0, 0);
+                    this.tileContainer.add(placeholder);
+                }
             }
         }
 
-        if (unknownTiles > 0) {
-            console.warn(`⚠️ Chunk (${chunkX}, ${chunkY}) had ${unknownTiles} unknown tiles! Rendered ${tilesRendered}/${chunkSize * chunkSize}`);
+        // Only log if there are issues
+        if (missingCount > 0) {
+            console.error(`❌ Chunk (${chunkX}, ${chunkY}) FAILED to render ${missingCount} tiles!`);
+            console.error(`Tile types in chunk:`, tileTypes);
+            console.error(`Loaded textures:`, this.textures.list);
         }
 
         // Render decorations with multi-tile support (convert to world coordinates)
         decorations.forEach(deco => {
-            // Convert chunk-local coordinates to world coordinates
             const worldX = chunkX * this.CHUNK_SIZE + deco.x;
             const worldY = chunkY * this.CHUNK_SIZE + deco.y;
             this.renderDecoration(worldX, worldY, deco.type);
@@ -365,8 +385,6 @@ class GameScene extends Phaser.Scene {
 
         // Expand world bounds dynamically as chunks load
         this.expandWorldBounds();
-
-        console.log(`✅ Chunk (${chunkX}, ${chunkY}) complete: ${tilesRendered} tiles + ${decorations.length} decorations`);
     }
 
     expandWorldBounds() {
@@ -713,15 +731,11 @@ class GameScene extends Phaser.Scene {
 
         // Listen for new chunks as world generates
         networkManager.on('chunks:updated', (chunksData) => {
-            console.log(`🗺️ Received ${chunksData.chunks.length} chunk updates`);
             this.loadChunks(chunksData);
         });
 
-        console.log('🔧 Cleared old network listeners to prevent duplicates');
-
         // New player joined
         networkManager.on('player:joined', (data) => {
-            console.log('🎮 New player joined:', data.player.username);
 
             // Don't create a sprite for ourselves
             if (data.player.id !== networkManager.currentPlayer.id) {
@@ -746,13 +760,11 @@ class GameScene extends Phaser.Scene {
                     });
                 }
 
-                console.log('✅ Created sprite for new player:', data.player.username);
             }
         });
 
         // Player left
         networkManager.on('player:left', (data) => {
-            console.log('👋 Player left:', data.username);
 
             const player = this.otherPlayers[data.playerId];
             if (player) {
@@ -843,7 +855,6 @@ class GameScene extends Phaser.Scene {
         networkManager.on('enemy:spawned', (data) => {
             if (data.enemy.type === 'wolf') {
                 this.wolves[data.enemy.id] = new Wolf(this, data.enemy);
-                console.log(`🐺 Spawned new wolf ${data.enemy.id} at grid (${data.enemy.position.x}, ${data.enemy.position.y})`);
             } else {
                 this.enemies[data.enemy.id] = new Enemy(this, data.enemy);
             }
