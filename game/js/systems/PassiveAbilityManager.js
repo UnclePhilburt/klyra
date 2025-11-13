@@ -21,6 +21,8 @@ class PassiveAbilityManager {
             callback: () => this.update(),
             loop: true
         });
+
+        console.log('✅ PassiveAbilityManager initialized for player:', player.data.username);
     }
 
     addPassiveAbility(skill) {
@@ -30,7 +32,8 @@ class PassiveAbilityManager {
             effect: skill.effect,
             path: skill.path
         });
-        console.log(`✨ Added passive ability: ${skill.name}`);
+        console.log(`✨ Added passive ability: ${skill.name}`, skill.effect);
+        console.log(`📊 Total passive abilities: ${this.passiveAbilities.length}`);
     }
 
     update() {
@@ -191,8 +194,11 @@ class PassiveAbilityManager {
             const nearestEnemy = this.findNearestEnemy();
             if (nearestEnemy) {
                 const damage = ability.effect.shadowVolley.damage || 15;
+                console.log(`⚡ Shadow Volley firing! Damage: ${damage}, Target:`, nearestEnemy);
                 this.fireShadowBolt(nearestEnemy, damage);
                 this.cooldowns.set(cooldownKey, now);
+            } else {
+                console.log(`⚡ Shadow Volley ready but no enemies found`);
             }
         }
     }
