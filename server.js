@@ -523,6 +523,11 @@ class Lobby {
             const dy = target.position.y - enemy.position.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
+            // Debug: Log first enemy movement occasionally
+            if (movedCount === 1 && Math.random() < 0.05) {
+                console.log(`🧟 ${enemy.type} at (${enemy.position.x.toFixed(1)}, ${enemy.position.y.toFixed(1)}) targeting (${target.position.x.toFixed(1)}, ${target.position.y.toFixed(1)}), dist: ${distance.toFixed(1)}`);
+            }
+
             if (distance > 1) {
                 const moveDistance = enemy.speed / 100; // Grid tiles per update (100ms)
                 enemy.position.x += (dx / distance) * moveDistance;

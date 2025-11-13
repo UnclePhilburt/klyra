@@ -695,6 +695,12 @@ class GameScene extends Phaser.Scene {
         // Enemy moved
         networkManager.on('enemy:moved', (data) => {
             const enemy = this.enemies[data.enemyId] || this.wolves[data.enemyId];
+
+            // Debug: Log occasionally to verify events are received
+            if (Math.random() < 0.01) {
+                console.log(`📡 Received enemy:moved for ${data.enemyId}, found enemy: ${!!enemy}`);
+            }
+
             if (enemy && enemy.sprite) {
                 const tileSize = GameConfig.GAME.TILE_SIZE;
                 const targetX = data.position.x * tileSize + tileSize / 2;
@@ -704,6 +710,11 @@ class GameScene extends Phaser.Scene {
                 enemy.data.position = data.position;
                 enemy.sprite.x = targetX;
                 enemy.sprite.y = targetY;
+            } else if (!enemy) {
+                // Debug: Enemy not found
+                if (Math.random() < 0.02) {
+                    console.warn(`⚠️ enemy:moved event for unknown enemy ${data.enemyId}`);
+                }
             }
         });
 
@@ -1187,7 +1198,7 @@ class GameScene extends Phaser.Scene {
         this.minions[minionId] = new Minion(this, x, y, ownerId, isPermanent);
 
         const minionType = isPermanent ? 'permanent companion' : 'temporary minion';
-        console.log(`🔮 Malachar summoned ${minionType} at ${x}, ${y}`);
+        console.log(`🔮 Spawned ${minionType} [${minionId}] for owner ${ownerId} at (${x.toFixed(0)}, ${y.toFixed(0)})`);
 
         // Show spawn effect
         const spawnCircle = this.add.circle(x, y, 30, 0x8B008B, 0.6);

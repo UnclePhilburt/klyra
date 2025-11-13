@@ -330,6 +330,9 @@ class Minion {
     die() {
         this.isAlive = false;
 
+        // Debug log death
+        console.log(`💀 Minion died (permanent: ${this.isPermanent}, health: ${this.health})`);
+
         // Death animation - fade out
         this.scene.tweens.add({
             targets: [this.sprite, this.glow, this.label, this.healthBar, this.healthBarBg],
@@ -344,6 +347,9 @@ class Minion {
     despawn() {
         // Peaceful despawn (lifespan ended)
         this.isAlive = false;
+
+        // Debug log despawn reason
+        console.log(`🔮 Minion despawning (permanent: ${this.isPermanent})`);
 
         this.scene.tweens.add({
             targets: [this.sprite, this.glow, this.label, this.healthBar, this.healthBarBg],
