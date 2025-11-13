@@ -395,7 +395,8 @@ class Lobby {
             { type: 'orc', speed: 60 },
             { type: 'skeleton', speed: 100 },
             { type: 'troll', speed: 50 },
-            { type: 'demon', speed: 70 }
+            { type: 'demon', speed: 70 },
+            { type: 'wolf', speed: 120 }
         ];
 
         for (let i = 0; i < count; i++) {

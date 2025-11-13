@@ -1,11 +1,12 @@
-// Enemy Entity
-class Enemy {
+// Wolf Enemy Entity
+class Wolf {
     constructor(scene, data) {
         this.scene = scene;
         this.data = data;
         this.health = data.health;
         this.maxHealth = data.maxHealth;
         this.isAlive = data.isAlive;
+        this.damage = data.damage || 8;
 
         this.createSprite();
     }
@@ -15,7 +16,7 @@ class Enemy {
         const x = this.data.position.x * tileSize + tileSize / 2;
         const y = this.data.position.y * tileSize + tileSize / 2;
 
-        // Create sprite (skullwolf)
+        // Create wolf sprite
         this.sprite = this.scene.add.sprite(x, y, 'skullwolf', 0);
         this.sprite.setOrigin(0.5);
         this.sprite.setScale(1.0); // 64x64 at 1:1 scale
@@ -28,22 +29,11 @@ class Enemy {
         // Track last position for movement detection
         this.lastX = x;
 
-        // Add glow effect
-        this.glow = this.scene.add.circle(x, y, 8, 0xff0000, 0.1);
+        // Add red glow effect
+        this.glow = this.scene.add.circle(x, y, 8, 0xff0000, 0.15);
 
-        // Enemy colors based on type (for health bar tinting)
-        const enemyColors = {
-            goblin: 0x00ff00,
-            orc: 0xff8800,
-            skeleton: 0xaaaaaa,
-            troll: 0x8b4513,
-            demon: 0xff0000
-        };
-
-        const color = enemyColors[this.data.type] || 0xff0000;
-
-        // Type label
-        this.label = this.scene.add.text(x, y - 40, this.data.type.toUpperCase(), {
+        // Wolf label
+        this.label = this.scene.add.text(x, y - 40, 'SKULLWOLF', {
             font: '8px monospace',
             fill: '#ff0000',
             backgroundColor: '#000000',
@@ -127,11 +117,11 @@ class Enemy {
             alpha: 0,
             duration: 300,
             onComplete: () => {
-                this.sprite.destroy();
-                this.glow.destroy();
-                this.label.destroy();
-                this.healthBar.destroy();
-                this.healthBarBg.destroy();
+                if (this.sprite) this.sprite.destroy();
+                if (this.glow) this.glow.destroy();
+                if (this.label) this.label.destroy();
+                if (this.healthBar) this.healthBar.destroy();
+                if (this.healthBarBg) this.healthBarBg.destroy();
             }
         });
     }

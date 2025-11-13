@@ -4,6 +4,7 @@ class GameScene extends Phaser.Scene {
         super({ key: 'GameScene' });
         this.otherPlayers = {};
         this.enemies = {};
+        this.wolves = {};
         this.items = {};
         this.minions = {};
         this.minionIdCounter = 0;
@@ -79,6 +80,12 @@ class GameScene extends Phaser.Scene {
             frameHeight: 48
         });
 
+        // Enemy sprites
+        this.load.spritesheet('skullwolf', 'assets/sprites/skullwolf.png', {
+            frameWidth: 64,
+            frameHeight: 64
+        });
+
         console.log('✅ All tilesets queued for loading');
     }
 
@@ -109,6 +116,23 @@ class GameScene extends Phaser.Scene {
         if (this.loadingText) {
             this.loadingText.destroy();
         }
+
+        // Create enemy animations
+        this.anims.create({
+            key: 'skullwolf_idle',
+            frames: this.anims.generateFrameNumbers('skullwolf', { start: 0, end: 5 }),
+            frameRate: 8,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'skullwolf_walk',
+            frames: this.anims.generateFrameNumbers('skullwolf', { start: 6, end: 10 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        console.log('✅ Created enemy animations: skullwolf');
 
         // Initialize tree collision array
         this.treeCollisions = [];
@@ -161,7 +185,11 @@ class GameScene extends Phaser.Scene {
 
         // Create enemies
         this.gameData.gameState.enemies.forEach(enemyData => {
-            this.enemies[enemyData.id] = new Enemy(this, enemyData);
+            if (enemyData.type === 'wolf') {
+                this.wolves[enemyData.id] = new Wolf(this, enemyData);
+            } else {
+                this.enemies[enemyData.id] = new Enemy(this, enemyData);
+            }
         });
 
         // Create items
@@ -642,12 +670,16 @@ class GameScene extends Phaser.Scene {
 
         // Enemy spawned
         networkManager.on('enemy:spawned', (data) => {
-            this.enemies[data.enemy.id] = new Enemy(this, data.enemy);
+            if (data.enemy.type === 'wolf') {
+                this.wolves[data.enemy.id] = new Wolf(this, data.enemy);
+            } else {
+                this.enemies[data.enemy.id] = new Enemy(this, data.enemy);
+            }
         });
 
         // Enemy damaged
         networkManager.on('enemy:damaged', (data) => {
-            const enemy = this.enemies[data.enemyId];
+            const enemy = this.enemies[data.enemyId] || this.wolves[data.enemyId];
             if (enemy) {
                 enemy.takeDamage(data.damage);
             }
@@ -655,7 +687,7 @@ class GameScene extends Phaser.Scene {
 
         // Enemy moved
         networkManager.on('enemy:moved', (data) => {
-            const enemy = this.enemies[data.enemyId];
+            const enemy = this.enemies[data.enemyId] || this.wolves[data.enemyId];
             if (enemy && enemy.sprite) {
                 const tileSize = GameConfig.GAME.TILE_SIZE;
                 const targetX = data.position.x * tileSize + tileSize / 2;
@@ -679,13 +711,19 @@ class GameScene extends Phaser.Scene {
 
         // Enemy killed
         networkManager.on('enemy:killed', (data) => {
-            const enemy = this.enemies[data.enemyId];
+            const enemy = this.enemies[data.enemyId] || this.wolves[data.enemyId];
             if (enemy) {
                 const deathX = enemy.sprite.x;
                 const deathY = enemy.sprite.y;
 
                 enemy.die();
-                delete this.enemies[data.enemyId];
+
+                // Delete from correct collection
+                if (this.enemies[data.enemyId]) {
+                    delete this.enemies[data.enemyId];
+                } else if (this.wolves[data.enemyId]) {
+                    delete this.wolves[data.enemyId];
+                }
 
                 // Check if killer is Malachar with dark_harvest passive
                 if (data.killedBy) {
@@ -1120,8 +1158,14 @@ class GameScene extends Phaser.Scene {
                 enemy.sprite.destroy();
             }
         });
+        Object.values(this.wolves).forEach(wolf => {
+            if (wolf.sprite) {
+                wolf.sprite.destroy();
+            }
+        });
         this.enemies = {};
-        console.log('🧹 Cleared all enemies');
+        this.wolves = {};
+        console.log('🧹 Cleared all enemies and wolves');
     }
 
     healPlayer() {
@@ -1221,6 +1265,13 @@ class GameScene extends Phaser.Scene {
         Object.values(this.enemies).forEach(enemy => {
             if (enemy.isAlive) {
                 enemy.update();
+            }
+        });
+
+        // Update wolves
+        Object.values(this.wolves).forEach(wolf => {
+            if (wolf.isAlive) {
+                wolf.update();
             }
         });
 
