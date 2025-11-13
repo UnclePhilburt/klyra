@@ -526,14 +526,29 @@ class SkillSelector {
     }
 
     getAvailableSkills(playerClass, currentLevel) {
+        // Debug logging
+        console.log(`🔍 SkillSelector - playerClass: "${playerClass}", currentLevel: ${currentLevel}`);
+        console.log(`🔍 MalacharSkillTree exists: ${typeof MalacharSkillTree !== 'undefined'}`);
+
         // Load skills from MalacharSkillTree (only for Malachar class)
-        if (playerClass === 'MALACHAR' && typeof MalacharSkillTree !== 'undefined') {
+        // Check both the ID and display name variations
+        const isMalachar = playerClass === 'MALACHAR' ||
+                          playerClass === 'Malachar' ||
+                          playerClass === 'Necromancer' ||
+                          (this.scene.localPlayer && this.scene.localPlayer.data && this.scene.localPlayer.data.characterId === 'MALACHAR');
+
+        if (isMalachar && typeof MalacharSkillTree !== 'undefined') {
             // Get skills for this specific level
             const levelSkills = getSkillsForLevel(currentLevel);
+            console.log(`✅ Found ${levelSkills ? levelSkills.length : 0} skills for level ${currentLevel}`);
 
             if (levelSkills && levelSkills.length > 0) {
                 return levelSkills;
+            } else {
+                console.warn(`⚠️ No skills found for level ${currentLevel} in MalacharSkillTree`);
             }
+        } else {
+            console.log(`ℹ️ Not Malachar or skill tree not loaded - using fallback skills`);
         }
 
         // Fallback to basic skills if no skill tree available

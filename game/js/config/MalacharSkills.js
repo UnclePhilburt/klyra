@@ -2134,3 +2134,11 @@ function getSkillById(skillId) {
     }
     return null;
 }
+
+// Export for global access
+if (typeof window !== 'undefined') {
+    window.MalacharSkillTree = MalacharSkillTree;
+    window.getSkillsForLevel = getSkillsForLevel;
+    window.getSkillById = getSkillById;
+    console.log('✅ MalacharSkillTree loaded with', Object.keys(MalacharSkillTree).length, 'levels');
+}
