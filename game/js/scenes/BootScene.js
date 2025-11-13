@@ -101,8 +101,9 @@ class BootScene extends Phaser.Scene {
 
         // Create minion animations
         // 5 rows x 13 columns, 64x64px
-        // Row 4 (index 3): idle animation, 4 frames (frames 39-42)
+        // Row 1 (index 0): attack animation, 13 frames (frames 0-12)
         // Row 3 (index 2): walking animation, 12 frames (frames 26-37)
+        // Row 4 (index 3): idle animation, 4 frames (frames 39-42)
 
         this.anims.create({
             key: 'minion_idle',
@@ -118,7 +119,14 @@ class BootScene extends Phaser.Scene {
             repeat: -1
         });
 
-        console.log('✅ Created minion animations: idle (frames 39-42), walk (frames 26-37)');
+        this.anims.create({
+            key: 'minion_attack',
+            frames: this.anims.generateFrameNumbers('malacharminion', { start: 0, end: 12 }),
+            frameRate: 16,
+            repeat: 0 // Play once, don't loop
+        });
+
+        console.log('✅ Created minion animations: idle (frames 39-42), walk (frames 26-37), attack (frames 0-12)');
 
         // Don't connect to server - custom menu handles that
         // Just load assets and wait for custom menu to call game.connect()

@@ -252,21 +252,33 @@ class Minion {
             }
         } else {
             this.sprite.body.setVelocity(0, 0);
-            // Play idle animation when attacking
-            if (this.sprite.anims.currentAnim?.key !== 'minion_idle') {
-                this.sprite.play('minion_idle');
-            }
 
             // Attack if cooldown is ready
             const now = Date.now();
             if (now - this.lastAttackTime > this.attackCooldown) {
                 this.performAttack(enemy);
                 this.lastAttackTime = now;
+            } else {
+                // Only play idle if not currently attacking
+                const currentAnim = this.sprite.anims.currentAnim?.key;
+                if (currentAnim !== 'minion_attack' && currentAnim !== 'minion_idle') {
+                    this.sprite.play('minion_idle');
+                }
             }
         }
     }
 
     performAttack(enemy) {
+        // Play attack animation
+        this.sprite.play('minion_attack');
+
+        // When attack animation completes, return to idle
+        this.sprite.once('animationcomplete', () => {
+            if (this.isAlive && this.sprite && this.sprite.active) {
+                this.sprite.play('minion_idle');
+            }
+        });
+
         // Visual attack effect
         const attackLine = this.scene.add.line(
             0, 0,
