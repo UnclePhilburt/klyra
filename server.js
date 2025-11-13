@@ -392,8 +392,12 @@ class Lobby {
     }
 
 
-    broadcast(event, data) {
+    broadcast(event, data, filter = null) {
         this.players.forEach(player => {
+            // Interest management: filter irrelevant updates
+            if (filter && !filter(player, data)) {
+                return; // Skip this player
+            }
             io.to(player.id).emit(event, data);
         });
     }
@@ -519,10 +523,17 @@ class Lobby {
                 enemy.position.x += (dx / distance) * moveDistance;
                 enemy.position.y += (dy / distance) * moveDistance;
 
-                // Broadcast enemy movement
+                // Broadcast enemy movement (with interest management)
                 this.broadcast('enemy:moved', {
                     enemyId: enemy.id,
                     position: enemy.position
+                }, (player, data) => {
+                    // Only send to players within 50 tiles
+                    const dist = Math.sqrt(
+                        Math.pow(player.position.x - data.position.x, 2) +
+                        Math.pow(player.position.y - data.position.y, 2)
+                    );
+                    return dist < 50;
                 });
             }
 
@@ -706,7 +717,53 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Handle player movement
+    // Handle batched updates
+    socket.on('batch:update', (updates) => {
+        try {
+            const player = players.get(socket.id);
+            if (!player || !player.lobbyId) return;
+
+            const lobby = lobbies.get(player.lobbyId);
+            if (!lobby || lobby.status !== 'active') return;
+
+            // Process each update in the batch
+            updates.forEach(update => {
+                if (update.type === 'move') {
+                    // Handle delta or absolute position
+                    if (update.data.delta) {
+                        player.position.x += update.data.delta.x;
+                        player.position.y += update.data.delta.y;
+                    } else if (update.data.position) {
+                        player.position = update.data.position;
+                    }
+
+                    // Validate position
+                    if (!isValidPosition(player.position)) {
+                        return;
+                    }
+
+                    player.updateActivity();
+
+                    // Interest management: only send to nearby players
+                    lobby.broadcast('player:moved', {
+                        playerId: player.id,
+                        position: player.position
+                    }, (p, data) => {
+                        if (p.id === player.id) return false; // Don't send to self
+                        const dist = Math.sqrt(
+                            Math.pow(p.position.x - data.position.x, 2) +
+                            Math.pow(p.position.y - data.position.y, 2)
+                        );
+                        return dist < 50; // Only within 50 tiles
+                    });
+                }
+            });
+        } catch (error) {
+            console.error('Error in batch:update:', error);
+        }
+    });
+
+    // Handle player movement (legacy support)
     socket.on('player:move', (data) => {
         try {
             if (!checkRateLimit(socket.id, 'move')) return;

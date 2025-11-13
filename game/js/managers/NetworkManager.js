@@ -7,6 +7,17 @@ class NetworkManager {
         this.lobbyId = null;
         this.players = new Map();
         this.callbacks = {};
+
+        // Batching system
+        this.updateQueue = [];
+        this.lastBatchTime = 0;
+        this.BATCH_INTERVAL = 50; // Send batches every 50ms
+
+        // Delta compression
+        this.lastPosition = null;
+
+        // Start batch sender
+        this.startBatchSender();
     }
 
     connect() {
@@ -174,9 +185,42 @@ class NetworkManager {
         this.socket.emit('player:ready');
     }
 
-    // Send player movement
+    // Batch sender (runs continuously)
+    startBatchSender() {
+        setInterval(() => {
+            if (this.updateQueue.length > 0 && this.connected) {
+                // Send all queued updates at once
+                this.socket.emit('batch:update', this.updateQueue);
+                this.updateQueue = [];
+            }
+        }, this.BATCH_INTERVAL);
+    }
+
+    // Queue update for batching
+    queueUpdate(type, data) {
+        this.updateQueue.push({ type, data, timestamp: Date.now() });
+    }
+
+    // Send player movement (with delta compression)
     movePlayer(position) {
-        this.socket.emit('player:move', { position });
+        // Delta compression: only send if position changed significantly
+        if (this.lastPosition) {
+            const dx = position.x - this.lastPosition.x;
+            const dy = position.y - this.lastPosition.y;
+
+            // Only send if moved at least 1 tile
+            if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
+                return; // Skip redundant update
+            }
+
+            // Send delta instead of absolute position
+            this.queueUpdate('move', { delta: { x: dx, y: dy } });
+        } else {
+            // First update: send absolute position
+            this.queueUpdate('move', { position });
+        }
+
+        this.lastPosition = { ...position };
     }
 
     // Send attack
