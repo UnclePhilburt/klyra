@@ -1201,6 +1201,12 @@ class GameScene extends Phaser.Scene {
         // === SETUP COLLISION FOR LAYERS WITH CUSTOM PROPERTIES ===
         console.log('🔒 Setting up collision for castle layers...');
         createdLayers.forEach(layer => {
+            // Skip door layer - players need to walk through it
+            if (layer.layer.name === 'door') {
+                console.log(`  🚪 Skipping collision for door layer (walkable)`);
+                return;
+            }
+
             // Check if layer has collision property set to true
             const layerData = map.getLayer(layer.layer.name);
             if (layerData && layerData.properties) {
