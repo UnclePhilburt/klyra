@@ -341,6 +341,7 @@ class GameScene extends Phaser.Scene {
             };
 
             console.log(`🌍 World biome distribution: Green=${(green*100).toFixed(1)}% DarkGreen=${(darkGreen*100).toFixed(1)}% Red=${((1-green-darkGreen)*100).toFixed(1)}%`);
+            console.log(`📊 Biome thresholds: green=${this.biomeDistribution.green.toFixed(3)}, darkGreen=${this.biomeDistribution.darkGreen.toFixed(3)}`);
         }
 
         // Biome definitions with 12 tile variations each
@@ -359,6 +360,12 @@ class GameScene extends Phaser.Scene {
         const greenThreshold = this.biomeDistribution.green - 0.025;
         const darkGreenThreshold = this.biomeDistribution.darkGreen + 0.025;
 
+        // DEBUG: Log thresholds once
+        if (!this.debugThresholdLogged) {
+            console.log(`🎯 Buffered thresholds: green<${greenThreshold.toFixed(3)}, darkGreen<${darkGreenThreshold.toFixed(3)}, red>=${darkGreenThreshold.toFixed(3)}`);
+            this.debugThresholdLogged = true;
+        }
+
         // Determine biome with buffered thresholds for clearer separation
         let selectedBiome;
         if (combinedNoise < greenThreshold) {
@@ -371,12 +378,21 @@ class GameScene extends Phaser.Scene {
 
         // Select tile variation (12 variations per biome)
         const tileVariation = Math.floor(this.seededRandom(seed + x * 100 + y) * selectedBiome.tiles.length);
+        const tileId = selectedBiome.tiles[tileVariation];
+
+        // DEBUG: Log first 20 tiles to see what's happening
+        if (!this.debugTileCount) this.debugTileCount = 0;
+        if (this.debugTileCount < 20) {
+            const tileMapping = this.BIOME_TILESET_MAP[tileId];
+            console.log(`🔍 Tile (${x},${y}): noise=${combinedNoise.toFixed(3)}, biome=${selectedBiome.id}, tileId=${tileId}, texture=${tileMapping?.texture}, frame=${tileMapping?.frame}`);
+            this.debugTileCount++;
+        }
 
         // Store biome for decoration generation
         if (!this.biomeCache) this.biomeCache = {};
         this.biomeCache[`${x},${y}`] = selectedBiome.id;
 
-        return selectedBiome.tiles[tileVariation];
+        return tileId;
     }
 
     // Generate decoration for tile (client-side procedural)
