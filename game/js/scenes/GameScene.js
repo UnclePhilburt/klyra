@@ -120,6 +120,12 @@ class GameScene extends Phaser.Scene {
             frameHeight: 48
         });
 
+        // Red biome trees - 48x48 tiles, 12 columns x 24 rows
+        this.load.spritesheet('red_trees', 'assets/tilesets/redbiome/Big_Trees_red.png', {
+            frameWidth: 48,
+            frameHeight: 48
+        });
+
         // Enemy sprites
         this.load.spritesheet('skullwolf', 'assets/sprites/skullwolf.png', {
             frameWidth: 64,
@@ -430,11 +436,8 @@ class GameScene extends Phaser.Scene {
             else if (rand < 0.9) decorationType = 'tree_stump';
             else decorationType = 'grass';
         } else if (biome === 'red') {
-            // Red: dead trees, red flora, rocks
-            if (rand < 0.35) decorationType = 'dead_tree';
-            else if (rand < 0.6) decorationType = 'rock';
-            else if (rand < 0.8) decorationType = 'log';
-            else decorationType = 'skull';
+            // Red: ONLY red trees from Big_Trees_red.png
+            decorationType = 'red_tree';
         }
 
         return decorationType;
@@ -620,6 +623,131 @@ class GameScene extends Phaser.Scene {
             }
 
             // Store tree sprites with collision Y for depth sorting
+            this.treeSprites.push({
+                sprites: treeGroup,
+                collisionY: collisionY
+            });
+
+        } else if (type === 'red_tree') {
+            // RED BIOME TREES - Multi-tile trees from Big_Trees_red.png
+            const scale = tileSize / 48;
+            const treeGroup = [];
+
+            // Define all 4 red tree types
+            const RED_TREE_1 = [
+                [9, 10],              // Row 1 (2 tiles wide)
+                [21, 22],             // Row 2 (2 tiles wide)
+                [32, 33, 34, 35],     // Row 3 (4 tiles wide)
+                [44, 45, 46, 47],     // Row 4 (4 tiles wide)
+                [56, 57, 58, 59],     // Row 5 (4 tiles wide)
+                [68, 69, 70, 71]      // Row 6 (4 tiles wide)
+            ];
+
+            const RED_TREE_2 = [
+                [80, 81, 82, 83],     // Row 1 (4 tiles wide)
+                [92, 93, 94, 95],     // Row 2 (4 tiles wide)
+                [104, 105, 106, 107], // Row 3 (4 tiles wide)
+                [116, 117, 118, 119], // Row 4 (4 tiles wide)
+                [128, 129, 130, 131], // Row 5 (4 tiles wide)
+                [140, 141, 142, 143]  // Row 6 (4 tiles wide)
+            ];
+
+            const RED_TREE_3 = [
+                [148, 149, 150, 151],       // Row 1 (4 tiles wide)
+                [161, 162, 163, 164],       // Row 2 (4 tiles wide)
+                [172, 173, 174, 175],       // Row 3 (4 tiles wide)
+                [184, 185, 186, 187],       // Row 4 (4 tiles wide)
+                [195, 196, 197, 198, 199],  // Row 5 (5 tiles wide)
+                [208, 209, 210, 211]        // Row 6 (4 tiles wide)
+            ];
+
+            const RED_TREE_4 = [
+                [224, 225, 226, 227], // Row 1 (4 tiles wide)
+                [236, 237, 238, 239], // Row 2 (4 tiles wide)
+                [248, 249, 250, 251], // Row 3 (4 tiles wide)
+                [260, 261, 262, 263], // Row 4 (4 tiles wide)
+                [272, 273, 274, 275], // Row 5 (4 tiles wide)
+                [284, 285, 286, 287]  // Row 6 (4 tiles wide)
+            ];
+
+            // Randomly select one of the 4 tree types
+            const seed = this.worldSeed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const treeSeed = seed + x * 1009 + y * 2003;
+            const treeRandom = this.seededRandom(treeSeed);
+
+            let TREE_TILES;
+            let collisionRow, collisionCol;
+
+            if (treeRandom < 0.25) {
+                TREE_TILES = RED_TREE_1;
+                collisionRow = 5; // Bottom row
+                collisionCol = 1; // Middle of 4-wide bottom
+            } else if (treeRandom < 0.5) {
+                TREE_TILES = RED_TREE_2;
+                collisionRow = 5; // Bottom row
+                collisionCol = 1; // Middle of 4-wide bottom
+            } else if (treeRandom < 0.75) {
+                TREE_TILES = RED_TREE_3;
+                collisionRow = 5; // Bottom row
+                collisionCol = 1; // Middle of 4-wide bottom
+            } else {
+                TREE_TILES = RED_TREE_4;
+                collisionRow = 5; // Bottom row
+                collisionCol = 1; // Middle of 4-wide bottom
+            }
+
+            let collisionY = 0;
+
+            // Render all tree tiles
+            for (let row = 0; row < TREE_TILES.length; row++) {
+                const rowTiles = TREE_TILES[row];
+
+                // Center offset for narrower rows (like RED_TREE_1 rows 1-2)
+                let xOffset = 0;
+                const maxWidth = Math.max(...TREE_TILES.map(r => r.length));
+                if (rowTiles.length < maxWidth) {
+                    xOffset = Math.floor((maxWidth - rowTiles.length) / 2);
+                }
+
+                for (let col = 0; col < rowTiles.length; col++) {
+                    const tileFrame = rowTiles[col];
+                    const tilePx = px + ((col + xOffset) * tileSize);
+                    const tilePy = py + (row * tileSize);
+
+                    const tileSprite = this.add.sprite(tilePx, tilePy, 'red_trees', tileFrame);
+                    tileSprite.setOrigin(0, 0);
+                    tileSprite.setScale(scale);
+                    tileSprite.setDepth(tilePy + tileSize);
+
+                    treeGroup.push(tileSprite);
+
+                    // Add collision on the specified tile
+                    if (row === collisionRow && col === collisionCol) {
+                        collisionY = tilePy;
+
+                        const collisionRect = this.add.rectangle(
+                            tilePx + (tileSize / 2),
+                            tilePy - (tileSize / 4) + 20,
+                            tileSize,
+                            tileSize,
+                            0xff0000,
+                            0
+                        );
+                        this.physics.add.existing(collisionRect, true);
+
+                        // Debug visualization
+                        collisionRect.setStrokeStyle(2, 0xff0000, 1);
+                        collisionRect.setDepth(9999);
+                        if (this.devSettings) {
+                            collisionRect.setVisible(this.devSettings.showCollisionBoxes);
+                        }
+
+                        this.treeCollisions.push(collisionRect);
+                    }
+                }
+            }
+
+            // Store red tree sprites
             this.treeSprites.push({
                 sprites: treeGroup,
                 collisionY: collisionY
