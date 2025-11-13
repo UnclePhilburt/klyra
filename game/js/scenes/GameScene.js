@@ -1231,24 +1231,26 @@ class GameScene extends Phaser.Scene {
         // Remove collision from any tiles where doors exist
         if (this.doorLayer && this.castleCollisionLayers) {
             console.log('🚪 Removing collision from door tile positions...');
-            const mapWidth = map.width;
-            const mapHeight = map.height;
 
-            for (let y = 0; y < mapHeight; y++) {
-                for (let x = 0; x < mapWidth; x++) {
-                    const doorTile = this.doorLayer.getTileAt(x, y);
-                    if (doorTile && doorTile.index > 0) {
-                        // There's a door tile here, remove collision from this position on all collision layers
-                        this.castleCollisionLayers.forEach(collisionLayer => {
-                            const tile = collisionLayer.getTileAt(x, y);
-                            if (tile) {
-                                tile.setCollision(false);
-                            }
-                        });
-                    }
+            // Collect door positions efficiently (only iterates over non-empty tiles)
+            const doorPositions = [];
+            this.doorLayer.forEachTile(tile => {
+                if (tile.index > 0) {
+                    doorPositions.push({ x: tile.x, y: tile.y });
                 }
-            }
-            console.log('✅ Door entry areas cleared of collision');
+            });
+
+            // Only process the specific door positions (much faster than scanning entire 50x50 map)
+            doorPositions.forEach(pos => {
+                this.castleCollisionLayers.forEach(collisionLayer => {
+                    const tile = collisionLayer.getTileAt(pos.x, pos.y);
+                    if (tile) {
+                        tile.setCollision(false);
+                    }
+                });
+            });
+
+            console.log(`✅ Cleared collision at ${doorPositions.length} door positions`);
         }
 
         // Spawn point is now at the CENTER of the map (tile 25, 25)
