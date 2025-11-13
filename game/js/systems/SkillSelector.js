@@ -6,62 +6,69 @@ class SkillSelector {
         this.selectedSkills = []; // Skills the player has chosen
 
         // UI elements
-        this.overlay = null;
         this.cards = [];
-        this.titleText = null;
+        this.selectedIndex = 1; // Start with middle card selected
+        this.keyboardControls = null;
+        this.instructionText = null;
     }
 
     show(playerClass, currentLevel) {
         if (this.isActive) return;
         this.isActive = true;
 
-        // Pause the game
-        this.scene.physics.pause();
+        // DON'T pause the game - let gameplay continue!
 
         const width = this.scene.cameras.main.width;
         const height = this.scene.cameras.main.height;
-
-        // Dark overlay
-        this.overlay = this.scene.add.rectangle(0, 0, width, height, 0x000000, 0.85);
-        this.overlay.setOrigin(0, 0);
-        this.overlay.setScrollFactor(0);
-        this.overlay.setDepth(2000);
-
-        // Title
-        this.titleText = this.scene.add.text(width / 2, 80, 'LEVEL UP! Choose Your Power', {
-            fontFamily: 'Arial',
-            fontSize: '32px',
-            fontStyle: 'bold',
-            fill: '#fbbf24',
-            stroke: '#000000',
-            strokeThickness: 4
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(2001);
 
         // Get available skills for this class and level
         const availableSkills = this.getAvailableSkills(playerClass, currentLevel);
 
         // Show 3 random skill cards
         const skillChoices = this.selectRandomSkills(availableSkills, 3);
-        const cardWidth = 250;
-        const cardHeight = 350;
-        const spacing = 30;
+        const cardWidth = 220;
+        const cardHeight = 300;
+        const spacing = 40;
         const totalWidth = (cardWidth * 3) + (spacing * 2);
         const startX = (width - totalWidth) / 2;
-        const startY = 180;
+
+        // Cards poke out from bottom of screen
+        const bottomY = height - 40; // Cards mostly off-screen, peeking up
+
+        // Instruction text at bottom
+        this.instructionText = this.scene.add.text(width / 2, height - cardHeight - 50, 'LEVEL UP! [Q/E] Move | [SPACE] Select', {
+            fontFamily: 'Arial',
+            fontSize: '18px',
+            fontStyle: 'bold',
+            fill: '#fbbf24',
+            stroke: '#000000',
+            strokeThickness: 3,
+            backgroundColor: '#000000aa',
+            padding: { x: 10, y: 5 }
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(2001);
 
         skillChoices.forEach((skill, index) => {
             const x = startX + (cardWidth / 2) + (index * (cardWidth + spacing));
-            const y = startY + cardHeight / 2;
+            const y = bottomY;
 
-            const card = this.createSkillCard(skill, x, y, cardWidth, cardHeight);
+            const card = this.createSkillCard(skill, x, y, cardWidth, cardHeight, index);
             this.cards.push(card);
         });
+
+        // Setup keyboard controls
+        this.setupKeyboardControls();
+
+        // Highlight the initially selected card (middle one)
+        this.updateCardSelection();
     }
 
-    createSkillCard(skill, x, y, width, height) {
+    createSkillCard(skill, x, y, width, height, index) {
         const card = {
             skill: skill,
-            elements: []
+            elements: [],
+            index: index,
+            baseY: y,
+            baseX: x
         };
 
         // Card background
@@ -69,24 +76,8 @@ class SkillSelector {
         bg.setStrokeStyle(3, 0x6366f1, 1);
         bg.setScrollFactor(0);
         bg.setDepth(2001);
-        bg.setInteractive({ useHandCursor: true });
         card.elements.push(bg);
-
-        // Hover effect
-        bg.on('pointerover', () => {
-            bg.setStrokeStyle(5, 0xfbbf24, 1);
-            bg.setScale(1.05);
-        });
-
-        bg.on('pointerout', () => {
-            bg.setStrokeStyle(3, 0x6366f1, 1);
-            bg.setScale(1.0);
-        });
-
-        // Click to select
-        bg.on('pointerdown', () => {
-            this.selectSkill(skill);
-        });
+        card.background = bg;
 
         // Skill icon/emoji
         const icon = this.scene.add.text(x, y - 120, skill.icon, {
@@ -137,6 +128,83 @@ class SkillSelector {
         return card;
     }
 
+    setupKeyboardControls() {
+        // Create keyboard inputs
+        this.keyQ = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
+        this.keyE = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+        this.keySpace = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+        // Listen for key presses
+        this.keyQ.on('down', () => {
+            if (this.isActive) {
+                this.moveSelection(-1); // Move left
+            }
+        });
+
+        this.keyE.on('down', () => {
+            if (this.isActive) {
+                this.moveSelection(1); // Move right
+            }
+        });
+
+        this.keySpace.on('down', () => {
+            if (this.isActive) {
+                this.confirmSelection();
+            }
+        });
+    }
+
+    moveSelection(direction) {
+        // Update selected index
+        this.selectedIndex += direction;
+
+        // Wrap around
+        if (this.selectedIndex < 0) {
+            this.selectedIndex = this.cards.length - 1;
+        } else if (this.selectedIndex >= this.cards.length) {
+            this.selectedIndex = 0;
+        }
+
+        // Update visuals
+        this.updateCardSelection();
+    }
+
+    updateCardSelection() {
+        // Update all cards
+        this.cards.forEach((card, index) => {
+            const isSelected = index === this.selectedIndex;
+
+            if (isSelected) {
+                // Selected card: raise up, glow effect
+                this.scene.tweens.add({
+                    targets: card.elements,
+                    y: card.baseY - 80, // Raise up by 80px
+                    duration: 200,
+                    ease: 'Power2'
+                });
+                card.background.setStrokeStyle(5, 0xfbbf24, 1);
+                card.background.setScale(1.05);
+            } else {
+                // Unselected card: lower down, normal style
+                this.scene.tweens.add({
+                    targets: card.elements,
+                    y: card.baseY,
+                    duration: 200,
+                    ease: 'Power2'
+                });
+                card.background.setStrokeStyle(3, 0x6366f1, 1);
+                card.background.setScale(1.0);
+            }
+        });
+    }
+
+    confirmSelection() {
+        const selectedCard = this.cards[this.selectedIndex];
+        if (selectedCard) {
+            this.selectSkill(selectedCard.skill);
+        }
+    }
+
     selectSkill(skill) {
         console.log(`✨ Selected skill: ${skill.name}`);
 
@@ -149,8 +217,7 @@ class SkillSelector {
         // Hide UI
         this.hide();
 
-        // Resume game
-        this.scene.physics.resume();
+        // Game already running - no need to resume!
     }
 
     applySkill(skill) {
@@ -514,14 +581,33 @@ class SkillSelector {
     }
 
     hide() {
-        if (this.overlay) this.overlay.destroy();
-        if (this.titleText) this.titleText.destroy();
+        // Destroy instruction text
+        if (this.instructionText) {
+            this.instructionText.destroy();
+            this.instructionText = null;
+        }
 
+        // Destroy all cards
         this.cards.forEach(card => {
             card.elements.forEach(element => element.destroy());
         });
 
+        // Cleanup keyboard controls
+        if (this.keyQ) {
+            this.keyQ.removeAllListeners();
+            this.keyQ = null;
+        }
+        if (this.keyE) {
+            this.keyE.removeAllListeners();
+            this.keyE = null;
+        }
+        if (this.keySpace) {
+            this.keySpace.removeAllListeners();
+            this.keySpace = null;
+        }
+
         this.cards = [];
+        this.selectedIndex = 1;
         this.isActive = false;
     }
 
