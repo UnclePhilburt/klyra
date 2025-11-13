@@ -305,15 +305,15 @@ class GameScene extends Phaser.Scene {
             21: { texture: 'forest', frame: 1 },
             22: { texture: 'forest', frame: 2 },
 
-            // Magic Grove - Use purple terrain tileset with variety
-            30: { texture: 'terrain_base', frame: 0 },
-            31: { texture: 'terrain_base', frame: 1 },
-            32: { texture: 'terrain_base', frame: 2 },
+            // Magic Grove - Use red/purple terrain tileset with variety
+            30: { texture: 'terrain_red', frame: 0 },
+            31: { texture: 'terrain_red', frame: 1 },
+            32: { texture: 'terrain_red', frame: 2 },
 
-            // Dark Woods - Use darker forest tiles with variety
-            40: { texture: 'forest', frame: 3 },
-            41: { texture: 'forest', frame: 4 },
-            42: { texture: 'forest', frame: 5 }
+            // Dark Woods - Use extended forest tiles with variety
+            40: { texture: 'forest_extended', frame: 0 },
+            41: { texture: 'forest_extended', frame: 1 },
+            42: { texture: 'forest_extended', frame: 2 }
         };
 
         // Render tiles using individual frames from spritesheets
