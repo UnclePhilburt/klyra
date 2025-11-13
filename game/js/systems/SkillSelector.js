@@ -35,17 +35,20 @@ class SkillSelector {
         // Cards poke out from bottom of screen
         const bottomY = height - 40; // Cards mostly off-screen, peeking up
 
-        // Instruction text at bottom
+        // Instruction text at bottom - modern glassmorphism style
         this.instructionText = this.scene.add.text(width / 2, height - cardHeight - 50, 'LEVEL UP! [Q/E] Move | [SPACE] Select', {
-            fontFamily: 'Arial',
-            fontSize: '18px',
-            fontStyle: 'bold',
-            fill: '#fbbf24',
+            fontFamily: 'Inter, Arial, sans-serif',
+            fontSize: '16px',
+            fontStyle: '600',
+            fill: '#ffffff',
             stroke: '#000000',
-            strokeThickness: 3,
-            backgroundColor: '#000000aa',
-            padding: { x: 10, y: 5 }
+            strokeThickness: 2,
+            backgroundColor: '#0a0a0fdd',
+            padding: { x: 16, y: 8 }
         }).setOrigin(0.5).setScrollFactor(0).setDepth(2001);
+
+        // Add subtle glow to instruction text
+        this.instructionText.setShadow(0, 0, 20, '#8b5cf6', true, true);
 
         skillChoices.forEach((skill, index) => {
             const x = startX + (cardWidth / 2) + (index * (cardWidth + spacing));
@@ -71,34 +74,45 @@ class SkillSelector {
             baseX: x
         };
 
-        // Card background
-        const bg = this.scene.add.rectangle(x, y, width, height, 0x1a1a2e, 1);
-        bg.setStrokeStyle(3, 0x6366f1, 1);
+        // Card background - modern glassmorphism with transparency
+        const bg = this.scene.add.rectangle(x, y, width, height, 0x0a0a0f, 0.85);
+        bg.setStrokeStyle(2, 0x8b5cf6, 0.3); // Purple border with transparency
         bg.setScrollFactor(0);
         bg.setDepth(2001);
         card.elements.push(bg);
         card.background = bg;
 
-        // Skill name at TOP of card
+        // Add inner glow container (for glassmorphism effect simulation)
+        const innerGlow = this.scene.add.rectangle(x, y, width - 4, height - 4, 0x8b5cf6, 0.05);
+        innerGlow.setStrokeStyle(1, 0xffffff, 0.05);
+        innerGlow.setScrollFactor(0);
+        innerGlow.setDepth(2001);
+        card.elements.push(innerGlow);
+        card.innerGlow = innerGlow;
+
+        // Skill name at TOP of card - modern gradient text
         const name = this.scene.add.text(x, y - 130, skill.name, {
-            fontFamily: 'Arial',
-            fontSize: '18px',
-            fontStyle: 'bold',
-            fill: '#fbbf24',
+            fontFamily: 'Inter, Space Grotesk, Arial, sans-serif',
+            fontSize: '19px',
+            fontStyle: '700',
+            fill: '#ffffff',
             stroke: '#000000',
-            strokeThickness: 3,
-            wordWrap: { width: width - 20 },
+            strokeThickness: 2,
+            wordWrap: { width: width - 30 },
             align: 'center'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(2002);
+        name.setShadow(0, 0, 15, '#8b5cf6', false, true); // Purple glow
         card.elements.push(name);
 
         // Skill description in CENTER of card
         const desc = this.scene.add.text(x, y, skill.description, {
-            fontFamily: 'Arial',
+            fontFamily: 'Inter, Arial, sans-serif',
             fontSize: '13px',
-            fill: '#cccccc',
-            wordWrap: { width: width - 30 },
-            align: 'center'
+            fontStyle: '400',
+            fill: '#a1a1aa',
+            wordWrap: { width: width - 35 },
+            align: 'center',
+            lineSpacing: 4
         }).setOrigin(0.5).setScrollFactor(0).setDepth(2002);
         card.elements.push(desc);
 
@@ -147,42 +161,69 @@ class SkillSelector {
     }
 
     updateCardSelection() {
-        // Update all cards
+        // Update all cards with modern effects
         this.cards.forEach((card, index) => {
             const isSelected = index === this.selectedIndex;
 
             if (isSelected) {
-                // Selected card: raise up, glow effect
+                // Selected card: raise up with glow and gradient border
                 card.elements.forEach((element, i) => {
                     const targetY = i === 0 ? card.baseY - 80 : // background
-                                   i === 1 ? card.baseY - 80 - 130 : // name (130px above bg)
+                                   i === 1 ? card.baseY - 80 : // innerGlow
+                                   i === 2 ? card.baseY - 80 - 130 : // name (130px above bg)
                                    card.baseY - 80; // description (at bg position)
 
                     this.scene.tweens.add({
                         targets: element,
                         y: targetY,
-                        duration: 200,
-                        ease: 'Power2'
+                        duration: 250,
+                        ease: 'Cubic.easeOut' // Smooth cubic-bezier easing
                     });
                 });
-                card.background.setStrokeStyle(5, 0xfbbf24, 1);
-                card.background.setScale(1.05);
+
+                // Modern gradient border glow
+                card.background.setStrokeStyle(3, 0xec4899, 0.9); // Pink gradient accent
+                this.scene.tweens.add({
+                    targets: card.background,
+                    scaleX: 1.03,
+                    scaleY: 1.03,
+                    duration: 250,
+                    ease: 'Cubic.easeOut'
+                });
+
+                // Inner glow effect for glassmorphism
+                card.innerGlow.setFillStyle(0xec4899, 0.15);
+                card.innerGlow.setStrokeStyle(1, 0xec4899, 0.4);
+
             } else {
-                // Unselected card: lower down, normal style
+                // Unselected card: lower down with subtle style
                 card.elements.forEach((element, i) => {
                     const targetY = i === 0 ? card.baseY : // background
-                                   i === 1 ? card.baseY - 130 : // name (130px above bg)
+                                   i === 1 ? card.baseY : // innerGlow
+                                   i === 2 ? card.baseY - 130 : // name (130px above bg)
                                    card.baseY; // description (at bg position)
 
                     this.scene.tweens.add({
                         targets: element,
                         y: targetY,
-                        duration: 200,
-                        ease: 'Power2'
+                        duration: 250,
+                        ease: 'Cubic.easeOut'
                     });
                 });
-                card.background.setStrokeStyle(3, 0x6366f1, 1);
-                card.background.setScale(1.0);
+
+                // Subtle purple border
+                card.background.setStrokeStyle(2, 0x8b5cf6, 0.3);
+                this.scene.tweens.add({
+                    targets: card.background,
+                    scaleX: 1.0,
+                    scaleY: 1.0,
+                    duration: 250,
+                    ease: 'Cubic.easeOut'
+                });
+
+                // Reset inner glow
+                card.innerGlow.setFillStyle(0x8b5cf6, 0.05);
+                card.innerGlow.setStrokeStyle(1, 0xffffff, 0.05);
             }
         });
     }
