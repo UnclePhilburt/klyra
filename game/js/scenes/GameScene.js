@@ -75,6 +75,10 @@ class GameScene extends Phaser.Scene {
             frameWidth: tileWidth,
             frameHeight: tileHeight
         });
+        this.load.spritesheet('terrain_misc', 'assets/tilesets/A2 - Terrain And Misc.png', {
+            frameWidth: tileWidth,
+            frameHeight: tileHeight
+        });
 
         // Forest tilesets
         this.load.spritesheet('forest', 'assets/tilesets/a2_forest.png', {
@@ -273,17 +277,17 @@ class GameScene extends Phaser.Scene {
         // Map biome types to tileset textures and tile indices
         this.BIOME_TILESET_MAP = {};
 
-        // Basic Green Biome - terrain_green tiles 104-115
+        // Basic Green Biome - A2 Terrain And Misc tiles 104-115
         for (let i = 0; i < 12; i++) {
-            this.BIOME_TILESET_MAP[10 + i] = { texture: 'terrain_green', frame: 104 + i };
+            this.BIOME_TILESET_MAP[10 + i] = { texture: 'terrain_misc', frame: 104 + i };
         }
 
-        // Dark Green Biome - forest_extended tiles 78-89
+        // Dark Green Biome - A2 Extended Forest Terrain tiles 78-89
         for (let i = 0; i < 12; i++) {
             this.BIOME_TILESET_MAP[30 + i] = { texture: 'forest_extended', frame: 78 + i };
         }
 
-        // Red Biome - forest_extended tiles 468-479
+        // Red Biome - A2 Extended Forest Terrain tiles 468-479
         for (let i = 0; i < 12; i++) {
             this.BIOME_TILESET_MAP[50 + i] = { texture: 'forest_extended', frame: 468 + i };
         }
@@ -346,11 +350,11 @@ class GameScene extends Phaser.Scene {
             RED: { tiles: [50,51,52,53,54,55,56,57,58,59,60,61], id: 'red' }                // forest_extended 468-479
         };
 
-        // Generate biome using noise
-        const noise1 = this.noise2D(x * 0.02, y * 0.02, seed);
-        const noise2 = this.noise2D(x * 0.04, y * 0.04, seed + 1000);
-        const noise3 = this.noise2D(x * 0.08, y * 0.08, seed + 2000);
-        const combinedNoise = (noise1 * 0.6 + noise2 * 0.3 + noise3 * 0.1);
+        // Generate biome using noise - MUCH larger scale to prevent mixing
+        const noise1 = this.noise2D(x * 0.005, y * 0.005, seed);        // Very large regions
+        const noise2 = this.noise2D(x * 0.01, y * 0.01, seed + 1000);   // Medium regions
+        const noise3 = this.noise2D(x * 0.02, y * 0.02, seed + 2000);   // Small variation
+        const combinedNoise = (noise1 * 0.7 + noise2 * 0.2 + noise3 * 0.1);
 
         // Determine biome using randomized thresholds
         let selectedBiome;

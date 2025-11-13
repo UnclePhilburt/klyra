@@ -306,15 +306,15 @@ class Lobby {
 
         console.log(`🌍 Server biome distribution: Green=${(greenThreshold*100).toFixed(1)}% DarkGreen=${((darkGreenThreshold-greenThreshold)*100).toFixed(1)}% Red=${((1-darkGreenThreshold)*100).toFixed(1)}%`);
 
-        // Generate biome map using multiple octaves of noise with LOWER frequencies for larger regions
+        // Generate biome map using multiple octaves of noise - MUCH larger scale to prevent mixing
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
-                // Lower frequencies (0.02, 0.04, 0.08) create larger, more cohesive biome regions
-                const noise1 = this.noise2D(x * 0.02, y * 0.02, seed);
-                const noise2 = this.noise2D(x * 0.04, y * 0.04, seed + 1000);
-                const noise3 = this.noise2D(x * 0.08, y * 0.08, seed + 2000);
+                // Very low frequencies create large biome regions with minimal mixing
+                const noise1 = this.noise2D(x * 0.005, y * 0.005, seed);        // Very large regions
+                const noise2 = this.noise2D(x * 0.01, y * 0.01, seed + 1000);   // Medium regions
+                const noise3 = this.noise2D(x * 0.02, y * 0.02, seed + 2000);   // Small variation
 
-                const combinedNoise = (noise1 * 0.6 + noise2 * 0.3 + noise3 * 0.1);
+                const combinedNoise = (noise1 * 0.7 + noise2 * 0.2 + noise3 * 0.1);
 
                 // Determine biome using randomized thresholds
                 let selectedBiome;
