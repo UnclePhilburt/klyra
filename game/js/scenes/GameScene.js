@@ -196,10 +196,13 @@ class GameScene extends Phaser.Scene {
         this.gameData.gameState.enemies.forEach(enemyData => {
             if (enemyData.type === 'wolf') {
                 this.wolves[enemyData.id] = new Wolf(this, enemyData);
+                console.log(`🐺 Created wolf ${enemyData.id} at grid (${enemyData.position.x}, ${enemyData.position.y})`);
             } else {
                 this.enemies[enemyData.id] = new Enemy(this, enemyData);
             }
         });
+
+        console.log(`📊 Total enemies: ${Object.keys(this.enemies).length}, Total wolves: ${Object.keys(this.wolves).length}`);
 
         // Create items
         this.gameData.gameState.items.forEach(itemData => {
@@ -681,6 +684,7 @@ class GameScene extends Phaser.Scene {
         networkManager.on('enemy:spawned', (data) => {
             if (data.enemy.type === 'wolf') {
                 this.wolves[data.enemy.id] = new Wolf(this, data.enemy);
+                console.log(`🐺 Spawned new wolf ${data.enemy.id} at grid (${data.enemy.position.x}, ${data.enemy.position.y})`);
             } else {
                 this.enemies[data.enemy.id] = new Enemy(this, data.enemy);
             }
@@ -697,9 +701,15 @@ class GameScene extends Phaser.Scene {
         // Enemy moved
         networkManager.on('enemy:moved', (data) => {
             const enemy = this.enemies[data.enemyId] || this.wolves[data.enemyId];
+            const isWolf = !!this.wolves[data.enemyId];
+
+            // Debug: Log wolf movements more frequently
+            if (isWolf && Math.random() < 0.1) {
+                console.log(`🐺 Wolf ${data.enemyId} moved to (${data.position.x.toFixed(1)}, ${data.position.y.toFixed(1)}), found: ${!!enemy}`);
+            }
 
             // Debug: Log occasionally to verify events are received
-            if (Math.random() < 0.01) {
+            if (!isWolf && Math.random() < 0.01) {
                 console.log(`📡 Received enemy:moved for ${data.enemyId}, found enemy: ${!!enemy}`);
             }
 
@@ -707,6 +717,11 @@ class GameScene extends Phaser.Scene {
                 const tileSize = GameConfig.GAME.TILE_SIZE;
                 const targetX = data.position.x * tileSize + tileSize / 2;
                 const targetY = data.position.y * tileSize + tileSize / 2;
+
+                // Debug: Log wolf position updates
+                if (isWolf && Math.random() < 0.05) {
+                    console.log(`🐺 Updating wolf sprite position to pixel (${targetX.toFixed(0)}, ${targetY.toFixed(0)})`);
+                }
 
                 // Update position
                 enemy.data.position = data.position;
