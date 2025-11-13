@@ -18,6 +18,24 @@ class GameScene extends Phaser.Scene {
         this.selectedCharacter = data.selectedCharacter;
     }
 
+    shutdown() {
+        // Clean up network listeners when scene is destroyed
+        console.log('🧹 GameScene shutting down - cleaning up listeners');
+
+        const eventsToClear = [
+            'player:joined', 'player:left', 'player:moved', 'player:attacked',
+            'player:damaged', 'player:levelup', 'player:died',
+            'enemy:spawned', 'enemy:damaged', 'enemy:moved', 'enemy:killed',
+            'item:spawned', 'item:collected', 'chat:message'
+        ];
+
+        eventsToClear.forEach(event => {
+            if (networkManager.callbacks[event]) {
+                networkManager.callbacks[event] = [];
+            }
+        });
+    }
+
     preload() {
         // Load tileset spritesheets for dungeon rendering
         // RPG Maker tilesets are 48x48 pixels per tile
@@ -601,6 +619,26 @@ class GameScene extends Phaser.Scene {
     }
 
     setupNetworkListeners() {
+        // Store event handlers for cleanup
+        this.networkHandlers = {};
+
+        // Clear any existing listeners to prevent duplicates
+        // This is critical when reconnecting with the same username
+        const eventsToClear = [
+            'player:joined', 'player:left', 'player:moved', 'player:attacked',
+            'player:damaged', 'player:levelup', 'player:died',
+            'enemy:spawned', 'enemy:damaged', 'enemy:moved', 'enemy:killed',
+            'item:spawned', 'item:collected', 'chat:message'
+        ];
+
+        eventsToClear.forEach(event => {
+            if (networkManager.callbacks[event]) {
+                networkManager.callbacks[event] = [];
+            }
+        });
+
+        console.log('🔧 Cleared old network listeners to prevent duplicates');
+
         // New player joined
         networkManager.on('player:joined', (data) => {
             console.log('🎮 New player joined:', data.player.username);
