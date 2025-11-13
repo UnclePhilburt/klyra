@@ -19,6 +19,9 @@ class PassiveAbilityManager {
         this.lastCombatTime = 0;
         this.combatDuration = 0;
 
+        // Track which auras are currently active (for visuals)
+        this.activeAuras = new Set();
+
         // Initialize periodic update
         this.updateInterval = this.scene.time.addEvent({
             delay: 100, // Update every 100ms
@@ -27,6 +30,14 @@ class PassiveAbilityManager {
         });
 
         console.log('✅ PassiveAbilityManager initialized for player:', player.data.username);
+    }
+
+    getVisualEffects() {
+        // Get or create visual effects manager
+        if (!this.scene.visualEffectsManager) {
+            this.scene.visualEffectsManager = new VisualEffectsManager(this.scene, this.player);
+        }
+        return this.scene.visualEffectsManager;
     }
 
     addPassiveAbility(skill) {

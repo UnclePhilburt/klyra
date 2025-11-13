@@ -256,6 +256,11 @@ class SkillSelector {
 
         console.log(`🔮 Applying skill: ${skill.id} (${skill.name})`);
 
+        // Initialize visual effects manager if needed
+        if (!this.scene.visualEffectsManager) {
+            this.scene.visualEffectsManager = new VisualEffectsManager(this.scene, player);
+        }
+
         // Initialize passive ability manager if needed
         if (!this.scene.passiveAbilityManager) {
             this.scene.passiveAbilityManager = new PassiveAbilityManager(this.scene, player);
