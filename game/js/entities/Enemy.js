@@ -54,10 +54,11 @@ class Enemy {
             this.health = 0;
         }
 
-        // Damage flash
-        this.sprite.setTint(0xffffff);
+        // Damage flash (use fillColor for triangles since they don't have setTint)
+        const originalColor = this.sprite.fillColor;
+        this.sprite.setFillStyle(0xffffff);
         this.scene.time.delayedCall(100, () => {
-            this.sprite.clearTint();
+            this.sprite.setFillStyle(originalColor);
         });
 
         // Damage number
