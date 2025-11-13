@@ -1314,6 +1314,13 @@ class GameScene extends Phaser.Scene {
     update(time, delta) {
         if (!this.localPlayer) return;
 
+        // DIAGNOSTIC: Performance timing
+        const perfStart = performance.now();
+        if (!this.perfTimings) {
+            this.perfTimings = { player: 0, ui: 0, hud: 0, minions: 0, enemies: 0, wolves: 0, other: 0, frameCount: 0 };
+            this.lastPerfLog = Date.now();
+        }
+
         // Player movement (with speed multiplier)
         let velocityX = 0;
         let velocityY = 0;
@@ -1343,12 +1350,15 @@ class GameScene extends Phaser.Scene {
         this.localPlayer.move(velocityX, velocityY);
 
         // Update animations (once per frame)
+        const t1 = performance.now();
         this.localPlayer.updateAnimation(delta);
         Object.values(this.otherPlayers).forEach(player => {
             player.updateAnimation(delta);
         });
+        this.perfTimings.player += (performance.now() - t1);
 
         // Update UI elements (name tags, health bars) less frequently
+        const t2 = performance.now();
         if (!this.uiUpdateCounter) this.uiUpdateCounter = 0;
         this.uiUpdateCounter++;
         if (this.uiUpdateCounter >= 5) {  // Every 5 frames (~83ms at 60fps)
@@ -1358,10 +1368,14 @@ class GameScene extends Phaser.Scene {
                 player.updateElements();
             });
         }
+        this.perfTimings.ui += (performance.now() - t2);
+
             // Update modern HUD
+            const t3 = performance.now();
             if (this.modernHUD) {
                 this.modernHUD.update();
             }
+            this.perfTimings.hud += (performance.now() - t3);
 
         // DIAGNOSTIC: Log FPS and object counts every 60 frames (1 second at 60fps)
         if (!this.diagnosticCounter) this.diagnosticCounter = 0;
@@ -1373,28 +1387,43 @@ class GameScene extends Phaser.Scene {
             const graphics = this.children.list.filter(c => c.type === 'Graphics').length;
             const totalChildren = this.children.list.length;
             console.log(`📊 FPS: ${fps} | Tweens: ${tweens} | Graphics: ${graphics} | Total Children: ${totalChildren}`);
+
+            // Log performance breakdown
+            const elapsed = Date.now() - this.lastPerfLog;
+            console.log(`⏱️ Update Loop (${elapsed}ms): Player=${this.perfTimings.player.toFixed(1)}ms UI=${this.perfTimings.ui.toFixed(1)}ms HUD=${this.perfTimings.hud.toFixed(1)}ms Minions=${this.perfTimings.minions.toFixed(1)}ms Enemies=${this.perfTimings.enemies.toFixed(1)}ms Wolves=${this.perfTimings.wolves.toFixed(1)}ms Other=${this.perfTimings.other.toFixed(1)}ms`);
+            this.perfTimings = { player: 0, ui: 0, hud: 0, minions: 0, enemies: 0, wolves: 0, other: 0, frameCount: 0 };
+            this.lastPerfLog = Date.now();
         }
 
         // Update minions
+        const t4 = performance.now();
         Object.values(this.minions).forEach(minion => {
             if (minion.isAlive) {
                 minion.update();
             }
         });
+        this.perfTimings.minions += (performance.now() - t4);
 
         // Update enemies
+        const t5 = performance.now();
         Object.values(this.enemies).forEach(enemy => {
             if (enemy.isAlive) {
                 enemy.update();
             }
         });
+        this.perfTimings.enemies += (performance.now() - t5);
 
         // Update wolves
+        const t6 = performance.now();
         Object.values(this.wolves).forEach(wolf => {
             if (wolf.isAlive) {
                 wolf.update();
             }
         });
+        this.perfTimings.wolves += (performance.now() - t6);
+
+        // Remaining update logic
+        const t7 = performance.now();
 
         // Infinite health
         if (this.devSettings.infiniteHealth && this.localPlayer) {
@@ -1433,5 +1462,7 @@ class GameScene extends Phaser.Scene {
                 });
             });
         }
+
+        this.perfTimings.other += (performance.now() - t7);
     }
 }
