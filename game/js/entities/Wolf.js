@@ -20,6 +20,7 @@ class Wolf {
         this.sprite = this.scene.add.sprite(x, y, 'skullwolf', 0);
         this.sprite.setOrigin(0.5);
         this.sprite.setScale(1.0); // 64x64 at 1:1 scale
+        this.sprite.setDepth(2); // Above walkways (depth 1) but with walls (depth 2)
         this.scene.physics.add.existing(this.sprite);
         this.sprite.body.setSize(32, 32);
 
@@ -31,6 +32,7 @@ class Wolf {
 
         // Add subtle red glow effect
         this.glow = this.scene.add.circle(x, y, 8, 0xff0000, 0.15);
+        this.glow.setDepth(2); // Same depth as sprite
     }
 
     takeDamage(amount) {

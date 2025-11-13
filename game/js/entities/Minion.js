@@ -53,6 +53,7 @@ class Minion {
         this.sprite = this.scene.add.sprite(x, y, 'malacharminion', 39);
         this.sprite.setOrigin(0.5);
         this.sprite.setScale(1.0); // 64x64 sprite at 1:1 scale
+        this.sprite.setDepth(2); // Above walkways (depth 1) but with walls (depth 2)
         this.scene.physics.add.existing(this.sprite);
         this.sprite.body.setSize(32, 32);
 
@@ -63,6 +64,7 @@ class Minion {
         const glowAlpha = this.isPermanent ? 0.15 : 0.1;
         const glowSize = this.isPermanent ? 12 : 10;
         this.glow = this.scene.add.circle(x, y, glowSize, 0x8B008B, glowAlpha);
+        this.glow.setDepth(2); // Same depth as sprite
 
         // Minion label
         const labelText = this.isPermanent ? 'COMPANION' : 'MINION';
@@ -72,10 +74,13 @@ class Minion {
             backgroundColor: '#000000',
             padding: { x: 2, y: 1 }
         }).setOrigin(0.5);
+        this.label.setDepth(2); // Same depth as sprite
 
         // Health bar
         this.healthBarBg = this.scene.add.rectangle(x, y - 18, 24, 3, 0x000000);
+        this.healthBarBg.setDepth(2); // Same depth as sprite
         this.healthBar = this.scene.add.rectangle(x, y - 18, 24, 3, 0x8B008B);
+        this.healthBar.setDepth(2); // Same depth as sprite
 
         this.updateHealthBar();
     }

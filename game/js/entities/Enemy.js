@@ -19,6 +19,7 @@ class Enemy {
         this.sprite = this.scene.add.sprite(x, y, 'skullwolf', 0);
         this.sprite.setOrigin(0.5);
         this.sprite.setScale(1.0); // 64x64 at 1:1 scale
+        this.sprite.setDepth(2); // Above walkways (depth 1) but with walls (depth 2)
         this.scene.physics.add.existing(this.sprite);
         this.sprite.body.setSize(32, 32);
 
@@ -30,6 +31,7 @@ class Enemy {
 
         // Add glow effect
         this.glow = this.scene.add.circle(x, y, 8, 0xff0000, 0.1);
+        this.glow.setDepth(2); // Same depth as sprite
 
         // Enemy colors based on type (for health bar tinting)
         const enemyColors = {
@@ -49,10 +51,13 @@ class Enemy {
             backgroundColor: '#000000',
             padding: { x: 2, y: 1 }
         }).setOrigin(0.5);
+        this.label.setDepth(2); // Same depth as sprite
 
         // Health bar
         this.healthBarBg = this.scene.add.rectangle(x, y - 32, 30, 3, 0x000000);
+        this.healthBarBg.setDepth(2); // Same depth as sprite
         this.healthBar = this.scene.add.rectangle(x, y - 32, 30, 3, 0xff0000);
+        this.healthBar.setDepth(2); // Same depth as sprite
 
         this.updateHealthBar();
     }

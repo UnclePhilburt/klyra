@@ -76,6 +76,7 @@ class PlayerSprite {
         [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight].forEach(s => {
             s.setOrigin(0, 0);
             s.setScale(scale);
+            s.setDepth(2); // Above walkways (depth 1) but with walls (depth 2)
         });
 
         this.updateSpritePositions();
