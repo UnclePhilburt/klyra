@@ -256,19 +256,18 @@ class GameScene extends Phaser.Scene {
     }
 
     renderWorld(world) {
-        console.log(`🗺️ Rendering world: ${world.size}x${world.size} tiles`);
+        console.log(`🗺️ Setting up world: ${world.size}x${world.size} tiles`);
         const startTime = Date.now();
 
         const tileSize = GameConfig.GAME.TILE_SIZE;
-        const { size, tiles, biomes, decorations } = world;
 
-        // Create tile container if it doesn't exist
-        if (!this.tileContainer) {
-            this.tileContainer = this.add.container(0, 0);
-        }
+        // Store world data for viewport-based rendering
+        this.worldData = world;
+        this.renderedTiles = new Map(); // Track rendered tiles
+        this.RENDER_DISTANCE = 25; // Render 25 tiles in each direction from camera
 
         // Map biome types to tileset textures and tile indices
-        const BIOME_TILESET_MAP = {
+        this.BIOME_TILESET_MAP = {
             // Grassland - Use green terrain tiles with variety
             10: { texture: 'terrain_green', frame: 0 },
             11: { texture: 'terrain_green', frame: 1 },
@@ -290,40 +289,65 @@ class GameScene extends Phaser.Scene {
             42: { texture: 'forest_extended', frame: 2 }
         };
 
-        // Track tile type frequencies for debugging
-        const tileTypes = {};
-        let missingCount = 0;
+        // Create tile container if it doesn't exist
+        if (!this.tileContainer) {
+            this.tileContainer = this.add.container(0, 0);
+        }
 
-        for (let y = 0; y < size; y++) {
-            for (let x = 0; x < size; x++) {
-                const tile = tiles[y][x];
+        // Render decorations (only near spawn area initially)
+        const spawnX = Math.floor(world.size / 2);
+        const spawnY = Math.floor(world.size / 2);
+
+        world.decorations.forEach(deco => {
+            // Only render decorations within 30 tiles of spawn
+            const dist = Math.abs(deco.x - spawnX) + Math.abs(deco.y - spawnY);
+            if (dist < 30) {
+                this.renderDecoration(deco.x, deco.y, deco.type);
+            }
+        });
+
+        // Set world bounds based on actual world size
+        const worldPixelWidth = world.size * tileSize;
+        const worldPixelHeight = world.size * tileSize;
+        this.physics.world.setBounds(0, 0, worldPixelWidth, worldPixelHeight);
+        this.cameras.main.setBounds(0, 0, worldPixelWidth, worldPixelHeight);
+
+        const elapsed = Date.now() - startTime;
+        console.log(`✅ World setup complete in ${elapsed}ms`);
+        console.log(`   Bounds: ${worldPixelWidth}x${worldPixelHeight} pixels (${world.size}x${world.size} tiles)`);
+        console.log(`   Using viewport-based rendering (renders ${this.RENDER_DISTANCE}x${this.RENDER_DISTANCE} tiles around camera)`);
+    }
+
+    updateVisibleTiles() {
+        if (!this.worldData || !this.localPlayer) return;
+
+        const tileSize = GameConfig.GAME.TILE_SIZE;
+        const playerTileX = Math.floor(this.localPlayer.sprite.x / tileSize);
+        const playerTileY = Math.floor(this.localPlayer.sprite.y / tileSize);
+
+        // Calculate visible tile range
+        const minX = Math.max(0, playerTileX - this.RENDER_DISTANCE);
+        const maxX = Math.min(this.worldData.size - 1, playerTileX + this.RENDER_DISTANCE);
+        const minY = Math.max(0, playerTileY - this.RENDER_DISTANCE);
+        const maxY = Math.min(this.worldData.size - 1, playerTileY + this.RENDER_DISTANCE);
+
+        // Render visible tiles
+        for (let y = minY; y <= maxY; y++) {
+            for (let x = minX; x <= maxX; x++) {
+                const key = `${x},${y}`;
+
+                // Skip if already rendered
+                if (this.renderedTiles.has(key)) continue;
+
+                const tile = this.worldData.tiles[y][x];
                 const px = x * tileSize;
                 const py = y * tileSize;
 
-                // Track tile type
-                tileTypes[tile] = (tileTypes[tile] || 0) + 1;
-
                 // Get tileset mapping for this biome
-                const tileInfo = BIOME_TILESET_MAP[tile];
+                const tileInfo = this.BIOME_TILESET_MAP[tile];
 
-                if (!tileInfo) {
-                    missingCount++;
-                    // Render a placeholder so we can see the issue
-                    const placeholder = this.add.rectangle(px, py, tileSize, tileSize, 0xff00ff);
-                    placeholder.setOrigin(0, 0);
-                    this.tileContainer.add(placeholder);
-                    continue;
-                }
-
-                // Check if texture exists
-                if (!this.textures.exists(tileInfo.texture)) {
-                    console.error(`❌ TEXTURE MISSING: '${tileInfo.texture}' for tile ${tile}`);
-                    missingCount++;
-                    // Render a red placeholder
-                    const placeholder = this.add.rectangle(px, py, tileSize, tileSize, 0xff0000);
-                    placeholder.setOrigin(0, 0);
-                    this.tileContainer.add(placeholder);
-                    continue;
+                if (!tileInfo || !this.textures.exists(tileInfo.texture)) {
+                    continue; // Skip invalid tiles
                 }
 
                 // Create sprite from specific tile frame in the spritesheet
@@ -334,40 +358,27 @@ class GameScene extends Phaser.Scene {
                     // Scale to game tile size (48px tileset -> 32px game tile)
                     const scale = tileSize / 48;
                     tileSprite.setScale(scale);
+                    tileSprite.setDepth(-1); // Background layer
 
                     this.tileContainer.add(tileSprite);
+                    this.renderedTiles.set(key, tileSprite);
                 } catch (error) {
-                    console.error(`❌ ERROR creating tile sprite:`, error, `tile=${tile}, texture=${tileInfo.texture}, frame=${tileInfo.frame}`);
-                    missingCount++;
-                    // Render a yellow placeholder
-                    const placeholder = this.add.rectangle(px, py, tileSize, tileSize, 0xffff00);
-                    placeholder.setOrigin(0, 0);
-                    this.tileContainer.add(placeholder);
+                    // Silent fail for performance
                 }
             }
         }
 
-        // Only log if there are issues
-        if (missingCount > 0) {
-            console.error(`❌ World FAILED to render ${missingCount} tiles!`);
-            console.error(`Tile types in world:`, tileTypes);
-            console.error(`Loaded textures:`, this.textures.list);
-        }
+        // Optional: Clean up tiles far from player (keep memory manageable)
+        const CLEANUP_DISTANCE = this.RENDER_DISTANCE * 2;
+        this.renderedTiles.forEach((sprite, key) => {
+            const [x, y] = key.split(',').map(Number);
+            const dist = Math.max(Math.abs(x - playerTileX), Math.abs(y - playerTileY));
 
-        // Render decorations
-        decorations.forEach(deco => {
-            this.renderDecoration(deco.x, deco.y, deco.type);
+            if (dist > CLEANUP_DISTANCE) {
+                sprite.destroy();
+                this.renderedTiles.delete(key);
+            }
         });
-
-        // Set world bounds based on actual world size
-        const worldPixelWidth = size * tileSize;
-        const worldPixelHeight = size * tileSize;
-        this.physics.world.setBounds(0, 0, worldPixelWidth, worldPixelHeight);
-        this.cameras.main.setBounds(0, 0, worldPixelWidth, worldPixelHeight);
-
-        const elapsed = Date.now() - startTime;
-        console.log(`✅ World rendered in ${elapsed}ms`);
-        console.log(`   Bounds: ${worldPixelWidth}x${worldPixelHeight} pixels (${size}x${size} tiles)`);
     }
 
     seededRandom(seed) {
@@ -1417,6 +1428,14 @@ class GameScene extends Phaser.Scene {
         velocityY *= this.devSettings.speedMultiplier;
 
         this.localPlayer.move(velocityX, velocityY);
+
+        // Update visible tiles based on camera position (viewport culling)
+        if (!this.tileUpdateCounter) this.tileUpdateCounter = 0;
+        this.tileUpdateCounter++;
+        if (this.tileUpdateCounter >= 10) {  // Every 10 frames
+            this.tileUpdateCounter = 0;
+            this.updateVisibleTiles();
+        }
 
         // Update animations (once per frame)
         const t1 = performance.now();
