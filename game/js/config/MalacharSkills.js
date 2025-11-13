@@ -1905,7 +1905,7 @@ const MalacharSkillTree = {
     66: [
         { id: 'legion_synergy', name: 'Legion Synergy', description: 'Each different minion buff multiplies with others (+50% effectiveness per unique buff)', icon: '🔗', path: 'legion', rarity: 'epic', effect: { synergyBonus: 0.5 } },
         { id: 'champion_synergy', name: 'Champion Synergy', description: 'Minions grant each other their buffs', icon: '⚡', path: 'champion', rarity: 'epic', effect: { shareBuffs: true } },
-        { id: 'reaper_synergy', name: 'Reaper Synergy', description: 'Malachar gains 10% of all minion stats', icon: '💀', path: 'reaper', rarity: 'rare', effect: { inheritMinion Stats: 0.1 } }
+        { id: 'reaper_synergy', name: 'Reaper Synergy', description: 'Malachar gains 10% of all minion stats', icon: '💀', path: 'reaper', rarity: 'rare', effect: { inheritMinionStats: 0.1 } }
     ],
 
     // Level 67: Nova
