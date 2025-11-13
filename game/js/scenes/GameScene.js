@@ -173,24 +173,24 @@ class GameScene extends Phaser.Scene {
         // Map biome types to tileset textures and tile indices
         const BIOME_TILESET_MAP = {
             // Grassland - Use green terrain tiles
-            10: { texture: 'terrain_green', frame: 3 },
-            11: { texture: 'terrain_green', frame: 5 },
-            12: { texture: 'terrain_green', frame: 7 },
+            10: { texture: 'terrain_green', frame: 0 },
+            11: { texture: 'terrain_green', frame: 0 },
+            12: { texture: 'terrain_green', frame: 0 },
 
             // Forest - Use forest tiles
-            20: { texture: 'forest', frame: 3 },
-            21: { texture: 'forest', frame: 5 },
-            22: { texture: 'forest', frame: 7 },
+            20: { texture: 'forest', frame: 0 },
+            21: { texture: 'forest', frame: 0 },
+            22: { texture: 'forest', frame: 0 },
 
             // Magic Grove - Use purple terrain tileset
-            30: { texture: 'terrain_base', frame: 3 },
-            31: { texture: 'terrain_base', frame: 5 },
-            32: { texture: 'terrain_base', frame: 7 },
+            30: { texture: 'terrain_base', frame: 0 },
+            31: { texture: 'terrain_base', frame: 0 },
+            32: { texture: 'terrain_base', frame: 0 },
 
             // Dark Woods - Use darker forest tiles
-            40: { texture: 'forest', frame: 10 },
-            41: { texture: 'forest', frame: 12 },
-            42: { texture: 'forest', frame: 14 }
+            40: { texture: 'forest', frame: 0 },
+            41: { texture: 'forest', frame: 0 },
+            42: { texture: 'forest', frame: 0 }
         };
 
         // Render tiles using individual frames from spritesheets
@@ -201,7 +201,12 @@ class GameScene extends Phaser.Scene {
                 const py = y * tileSize;
 
                 // Get tileset mapping for this biome
-                const tileInfo = BIOME_TILESET_MAP[tile] || { texture: 'terrain_base', frame: 0 };
+                const tileInfo = BIOME_TILESET_MAP[tile];
+
+                if (!tileInfo) {
+                    console.warn(`Unknown tile type: ${tile} at ${x},${y}`);
+                    continue;
+                }
 
                 // Create sprite from specific tile frame in the spritesheet
                 const tileSprite = this.add.sprite(px, py, tileInfo.texture, tileInfo.frame);
