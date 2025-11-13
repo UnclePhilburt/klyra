@@ -34,12 +34,12 @@ class ModernHUD {
         this.healthBarBg = this.scene.add.rectangle(20, 20, 200, 20, 0x000000, 0.7);
         this.healthBarBg.setOrigin(0, 0);
         this.healthBarBg.setScrollFactor(0);
-        this.healthBarBg.setDepth(9000);
+        this.healthBarBg.setDepth(99000);
 
         this.healthBarFill = this.scene.add.rectangle(20, 20, 200, 20, 0x10b981, 1);
         this.healthBarFill.setOrigin(0, 0);
         this.healthBarFill.setScrollFactor(0);
-        this.healthBarFill.setDepth(9001);
+        this.healthBarFill.setDepth(99001);
 
         // Health text
         this.healthText = this.scene.add.text(120, 30, '100/100', {
@@ -49,7 +49,7 @@ class ModernHUD {
             fill: '#ffffff',
             stroke: '#000000',
             strokeThickness: 3
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(9002);
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(99002);
 
         // Level text
         this.levelText = this.scene.add.text(20, 50, 'LVL 1', {
@@ -59,18 +59,18 @@ class ModernHUD {
             fill: '#6366f1',
             stroke: '#000000',
             strokeThickness: 3
-        }).setOrigin(0, 0).setScrollFactor(0).setDepth(9002);
+        }).setOrigin(0, 0).setScrollFactor(0).setDepth(99002);
 
         // XP bar
         this.xpBarBg = this.scene.add.rectangle(20, 80, 150, 8, 0x000000, 0.7);
         this.xpBarBg.setOrigin(0, 0);
         this.xpBarBg.setScrollFactor(0);
-        this.xpBarBg.setDepth(9000);
+        this.xpBarBg.setDepth(99000);
 
         this.xpBarFill = this.scene.add.rectangle(20, 80, 150, 8, 0x6366f1, 1);
         this.xpBarFill.setOrigin(0, 0);
         this.xpBarFill.setScrollFactor(0);
-        this.xpBarFill.setDepth(9001);
+        this.xpBarFill.setDepth(99001);
 
         // XP text
         this.xpText = this.scene.add.text(95, 70, 'XP: 0 / 100', {
@@ -79,7 +79,7 @@ class ModernHUD {
             fill: '#ffffff',
             stroke: '#000000',
             strokeThickness: 2
-        }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(9002);
+        }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(99002);
 
         // Stats text
         this.statsText = this.scene.add.text(20, 100, '', {
@@ -88,7 +88,7 @@ class ModernHUD {
             fill: '#ffffff',
             stroke: '#000000',
             strokeThickness: 2
-        }).setOrigin(0, 0).setScrollFactor(0).setDepth(9002);
+        }).setOrigin(0, 0).setScrollFactor(0).setDepth(99002);
 
         // Kill counter (top right)
         this.killCounterText = this.scene.add.text(width - 20, 20, 'Kills: 0', {
@@ -98,7 +98,7 @@ class ModernHUD {
             fill: '#fbbf24',
             stroke: '#000000',
             strokeThickness: 3
-        }).setOrigin(1, 0).setScrollFactor(0).setDepth(9002);
+        }).setOrigin(1, 0).setScrollFactor(0).setDepth(99002);
 
         // Initial update
         this.update();
