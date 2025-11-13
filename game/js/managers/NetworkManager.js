@@ -104,6 +104,11 @@ class NetworkManager {
             this.emit('player:damaged', data);
         });
 
+        this.socket.on('player:levelup', (data) => {
+            console.log(`🎉 ${data.playerName} leveled up to level ${data.level}!`);
+            this.emit('player:levelup', data);
+        });
+
         this.socket.on('player:died', (data) => {
             const player = this.players.get(data.playerId);
             if (player) player.isAlive = false;

@@ -680,6 +680,32 @@ class GameScene extends Phaser.Scene {
             }
         });
 
+        // Player leveled up
+        networkManager.on('player:levelup', (data) => {
+            const player = data.playerId === networkManager.currentPlayer.id
+                ? this.localPlayer
+                : this.otherPlayers[data.playerId];
+
+            if (player) {
+                // Update player stats
+                player.level = data.level;
+                player.experience = data.experience;
+                player.maxHealth = data.maxHealth;
+                player.health = data.health;
+                player.stats = data.stats;
+
+                // Update UI
+                if (player.ui) {
+                    player.ui.updateHealthBar();
+                }
+
+                // Show level up effect for local player
+                if (data.playerId === networkManager.currentPlayer.id) {
+                    this.showLevelUpEffect(data.level);
+                }
+            }
+        });
+
         // Enemy spawned
         networkManager.on('enemy:spawned', (data) => {
             if (data.enemy.type === 'wolf') {
@@ -1230,6 +1256,77 @@ class GameScene extends Phaser.Scene {
             ease: 'Power2',
             onComplete: () => spawnCircle.destroy()
         });
+    }
+
+    showLevelUpEffect(level) {
+        // Screen flash
+        const flash = this.add.rectangle(
+            this.cameras.main.scrollX + this.cameras.main.width / 2,
+            this.cameras.main.scrollY + this.cameras.main.height / 2,
+            this.cameras.main.width,
+            this.cameras.main.height,
+            0xffff00,
+            0.3
+        );
+        flash.setScrollFactor(0);
+        flash.setDepth(10000);
+
+        this.tweens.add({
+            targets: flash,
+            alpha: 0,
+            duration: 500,
+            ease: 'Power2',
+            onComplete: () => flash.destroy()
+        });
+
+        // Level up text
+        const levelUpText = this.add.text(
+            this.cameras.main.scrollX + this.cameras.main.width / 2,
+            this.cameras.main.scrollY + this.cameras.main.height / 2,
+            `LEVEL UP!\nLevel ${level}`,
+            {
+                font: 'bold 48px monospace',
+                fill: '#ffff00',
+                stroke: '#000000',
+                strokeThickness: 4,
+                align: 'center'
+            }
+        ).setOrigin(0.5);
+        levelUpText.setScrollFactor(0);
+        levelUpText.setDepth(10001);
+
+        this.tweens.add({
+            targets: levelUpText,
+            scale: 1.5,
+            alpha: 0,
+            y: levelUpText.y - 100,
+            duration: 2000,
+            ease: 'Power2',
+            onComplete: () => levelUpText.destroy()
+        });
+
+        // Particle burst
+        for (let i = 0; i < 20; i++) {
+            const angle = (Math.PI * 2 * i) / 20;
+            const particle = this.add.circle(
+                this.localPlayer.sprite.x,
+                this.localPlayer.sprite.y,
+                4,
+                0xffff00
+            );
+
+            this.tweens.add({
+                targets: particle,
+                x: this.localPlayer.sprite.x + Math.cos(angle) * 80,
+                y: this.localPlayer.sprite.y + Math.sin(angle) * 80,
+                alpha: 0,
+                duration: 1000,
+                ease: 'Power2',
+                onComplete: () => particle.destroy()
+            });
+        }
+
+        console.log(`🎉 LEVEL UP! You are now level ${level}!`);
     }
 
     showAttackEffect(position) {
