@@ -713,7 +713,7 @@ class Minion {
         );
 
         // If close enough to formation position, idle there
-        if (dist < 30) {
+        if (dist < 10) { // REDUCED from 30 to 10 for tighter formations
             this.sprite.body.setVelocity(0, 0);
             return;
         }
