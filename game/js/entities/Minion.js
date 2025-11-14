@@ -644,8 +644,12 @@ class Minion {
             // Skip if ally is healthy
             if (ally.health / ally.maxHealth > 0.6) continue;
 
-            // Check if ally is in combat
-            if (!ally.target) continue;
+            // Check if ally is in combat with a VALID, ALIVE target
+            if (!ally.target || !ally.target.isAlive) continue;
+
+            // Check if there are actual threats near the ally
+            const nearbyThreats = ally.detectThreats();
+            if (nearbyThreats.length === 0) continue;
 
             const allyHealthPercent = ally.health / ally.maxHealth;
             const distToAlly = Phaser.Math.Distance.Between(
@@ -667,8 +671,18 @@ class Minion {
 
     // TACTICAL ARMY AI: Assist struggling ally
     assistAlly(ally) {
-        if (!ally || !ally.isAlive || !ally.target) {
+        // Verify ally and target are still valid
+        if (!ally || !ally.isAlive || !ally.target || !ally.target.isAlive) {
             this.assistTarget = null;
+            this.state = 'patrolling'; // Exit assist mode
+            return;
+        }
+
+        // Verify there are still threats nearby
+        const nearbyThreats = this.detectThreats();
+        if (nearbyThreats.length === 0) {
+            this.assistTarget = null;
+            this.state = 'patrolling'; // No threats, stop assisting
             return;
         }
 
@@ -677,7 +691,7 @@ class Minion {
 
         // If ally is critical, try to body block (move between ally and enemy)
         const allyHealthPercent = ally.health / ally.maxHealth;
-        if (allyHealthPercent < 0.3 && this.health / this.maxHealth > 0.5) {
+        if (allyHealthPercent < 0.3 && this.health / this.maxHealth > 0.5 && ally.target.sprite) {
             // Position ourselves between ally and their target
             const blockX = (ally.sprite.x + ally.target.sprite.x) / 2;
             const blockY = (ally.sprite.y + ally.target.sprite.y) / 2;
@@ -687,8 +701,6 @@ class Minion {
                 Math.cos(angle) * this.moveSpeed,
                 Math.sin(angle) * this.moveSpeed
             );
-
-            console.log(`🛡️ ${this.role} body blocking for injured ally!`);
         }
 
         // Attack the enemy
