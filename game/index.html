@@ -9,15 +9,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
     <!-- Custom Menu Styles -->
+    <link rel="stylesheet" href="mainmenu/start-screen.css">
     <link rel="stylesheet" href="mainmenu/mainmenu.css">
     <link rel="stylesheet" href="mainmenu/character-select-styles.css">
 </head>
 <body>
+    <!-- Start Screen (Shows First) -->
+    <div id="startScreen">
+        <div class="start-container">
+            <h1 class="start-title">KLYRA</h1>
+            <p class="start-subtitle">Multiplayer Roguelike</p>
+            <div class="start-ornament">⚔</div>
+            <button class="start-button" id="startButton">
+                <span class="start-button-text">PRESS START</span>
+            </button>
+            <div class="start-hint">Click anywhere to begin</div>
+        </div>
+    </div>
+
     <!-- Particle Background Canvas -->
     <canvas id="backgroundCanvas"></canvas>
 
-    <!-- Main Menu / Lobby Screen -->
-    <div id="lobbyScreen">
+    <!-- Main Menu / Lobby Screen (Hidden Initially) -->
+    <div id="lobbyScreen" style="display: none;">
         <div class="mystical-gateway">
             <!-- Pixel Clouds -->
             <div class="pixel-clouds">
@@ -184,16 +198,17 @@
     <script src="js/main.js"></script>
 
     <!-- Custom Menu System -->
+    <script src="mainmenu/start-screen.js"></script>
     <script src="mainmenu/mainmenu.js"></script>
     <script src="mainmenu/ProgressionSystem.js"></script>
     <script src="mainmenu/CharacterSelectManager.js"></script>
 
     <!-- Initialize -->
     <script>
-        console.log('🎮 KLYRA Loading...');
-        console.log('📦 Character System:', window.CharacterSystem ? 'Loaded' : 'Missing');
-        console.log('🎨 Main Menu:', window.mainMenuInstance ? 'Loaded' : 'Missing');
-        console.log('⚔️ Character Manager:', window.characterSelectManager ? 'Loaded' : 'Missing');
+        debug.info('CORE', 'KLYRA Loading...');
+        debug.info('CORE', `Character System: ${window.CharacterSystem ? 'Loaded' : 'Missing'}`);
+        debug.info('CORE', `Start Screen: ${window.startScreenInstance ? 'Loaded' : 'Missing'}`);
+        debug.info('CORE', `Character Manager: ${window.characterSelectManager ? 'Loaded' : 'Missing'}`);
 
         // Verify modular entity classes are loaded
         console.log('\n🔧 Module Status:');

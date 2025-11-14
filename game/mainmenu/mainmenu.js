@@ -28,14 +28,11 @@ class MainMenu {
         this.loadMenuMusic();
         this.loadSavedPlayerName();
 
-        // Start menu music on first user interaction (browser requirement)
-        const startMusic = () => {
+        // Auto-start music immediately (user already clicked start screen)
+        // Small delay to ensure audio context is ready
+        setTimeout(() => {
             this.playMusic();
-            document.removeEventListener('click', startMusic);
-            document.removeEventListener('keydown', startMusic);
-        };
-        document.addEventListener('click', startMusic, { once: true });
-        document.addEventListener('keydown', startMusic, { once: true });
+        }, 100);
 
         // Check server every 10 seconds
         setInterval(() => this.checkServerStatus(), 10000);
@@ -480,6 +477,5 @@ class GravityParticle {
     }
 }
 
-// Create and export instance to window
-const mainMenu = new MainMenu();
-window.mainMenuInstance = mainMenu;
+// Main menu will be initialized by start screen
+// Don't auto-create instance here anymore
