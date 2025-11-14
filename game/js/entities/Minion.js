@@ -64,13 +64,7 @@ class Minion {
         // Play idle animation
         this.sprite.play('minion_idle');
 
-        // Add dark aura glow (subtle effect)
-        const glowAlpha = this.isPermanent ? 0.15 : 0.1;
-        const glowSize = this.isPermanent ? 12 : 10;
-        this.glow = this.scene.add.circle(x, y, glowSize, 0x8B008B, glowAlpha);
-        this.glow.setDepth(2); // Same depth as sprite
-
-        // Health bar (no label - cleaner look)
+        // Health bar only (no glow, no label - cleanest look)
         this.healthBarBg = this.scene.add.rectangle(x, y - 18, 24, 3, 0x000000);
         this.healthBarBg.setDepth(2); // Same depth as sprite
         this.healthBar = this.scene.add.rectangle(x, y - 18, 24, 3, 0x8B008B);
@@ -526,7 +520,7 @@ class Minion {
 
         // Death animation - fade out
         this.scene.tweens.add({
-            targets: [this.sprite, this.glow, this.healthBar, this.healthBarBg],
+            targets: [this.sprite, this.healthBar, this.healthBarBg],
             alpha: 0,
             scale: 0.5,
             duration: 300,
@@ -543,7 +537,7 @@ class Minion {
         console.log(`🔮 Minion despawning (permanent: ${this.isPermanent})`);
 
         this.scene.tweens.add({
-            targets: [this.sprite, this.glow, this.healthBar, this.healthBarBg],
+            targets: [this.sprite, this.healthBar, this.healthBarBg],
             alpha: 0,
             duration: 500,
             ease: 'Power2',
@@ -579,7 +573,6 @@ class Minion {
             this.uiUpdateCounter = 0;
 
             if (this.sprite && this.sprite.active) {
-                this.glow.setPosition(this.sprite.x, this.sprite.y);
                 this.healthBarBg.setPosition(this.sprite.x, this.sprite.y - 18);
                 this.healthBar.setPosition(this.sprite.x - (24 - this.healthBar.width) / 2, this.sprite.y - 18);
             }
@@ -602,7 +595,6 @@ class Minion {
         }
 
         if (this.sprite) this.sprite.destroy();
-        if (this.glow) this.glow.destroy();
         if (this.healthBar) this.healthBar.destroy();
         if (this.healthBarBg) this.healthBarBg.destroy();
     }
