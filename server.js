@@ -417,30 +417,30 @@ class Lobby {
         let bossChance = 0;
 
         if (distanceFromSpawn < 100) {
-            // PERFORMANCE: Reduced spawn counts by ~40%
-            // Close to spawn: 1 pack, 1-2 small wolves
+            // PERFORMANCE: Reduced spawn counts by ~58% total (40% + 30% more)
+            // Close to spawn: 1 pack, 1 small wolf
+            packsToSpawn = 1;
+            minPackSize = 1;
+            maxPackSize = 1;
+            bossChance = 0;
+        } else if (distanceFromSpawn < 200) {
+            // Medium distance: 1 pack, 1 wolf, 2% boss chance
             packsToSpawn = 1;
             minPackSize = 1;
             maxPackSize = 1; // Reduced from 2
-            bossChance = 0;
-        } else if (distanceFromSpawn < 200) {
-            // Medium distance: 1 pack, 1-2 wolves, 3% boss chance
-            packsToSpawn = 1; // Reduced from 1-2
+            bossChance = 0.02; // Reduced from 0.03
+        } else if (distanceFromSpawn < 400) {
+            // Far: 1 pack, 1-2 wolves, 5% boss chance
+            packsToSpawn = 1;
             minPackSize = 1; // Reduced from 2
             maxPackSize = 2; // Reduced from 3
-            bossChance = 0.03; // Reduced from 0.05
-        } else if (distanceFromSpawn < 400) {
-            // Far: 1 pack, 2-3 wolves, 10% boss chance
-            packsToSpawn = 1; // Reduced from 2
-            minPackSize = 2; // Reduced from 3
-            maxPackSize = 3; // Reduced from 5
-            bossChance = 0.10; // Reduced from 0.15
+            bossChance = 0.05; // Reduced from 0.10
         } else {
-            // Very far: 1-2 packs, 2-4 wolves, 15% boss chance
-            packsToSpawn = Math.random() < 0.5 ? 1 : 2; // Reduced from 2-3
-            minPackSize = 2; // Reduced from 4
-            maxPackSize = 4; // Reduced from 6
-            bossChance = 0.15; // Reduced from 0.25
+            // Very far: 1 pack, 2-3 wolves, 10% boss chance
+            packsToSpawn = 1; // Always 1 pack now (was 1-2)
+            minPackSize = 2;
+            maxPackSize = 3; // Reduced from 4
+            bossChance = 0.10; // Reduced from 0.15
         }
 
         // Use seed for consistent spawning

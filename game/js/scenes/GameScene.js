@@ -393,7 +393,9 @@ class GameScene extends Phaser.Scene {
         // Store for viewport-based rendering (don't pre-generate all tiles)
         this.renderedTiles = new Map(); // Track rendered tiles
         this.renderedDecorations = new Map(); // Track rendered decorations with their sprites
-        this.RENDER_DISTANCE = 18; // PERFORMANCE: Render 18 tiles (was 25) - smaller viewport
+        // PERFORMANCE: Asymmetric render distance to match screen aspect ratio (16:9)
+        this.RENDER_DISTANCE_X = 22; // Horizontal (wider for landscape screens)
+        this.RENDER_DISTANCE_Y = 13; // Vertical (narrower to save tiles)
 
         // Map biome types to tileset textures and tile indices
         this.BIOME_TILESET_MAP = {};
@@ -427,7 +429,7 @@ class GameScene extends Phaser.Scene {
         const elapsed = Date.now() - startTime;
         console.log(`✅ World setup complete in ${elapsed}ms`);
         console.log(`   Bounds: ${worldPixelWidth}x${worldPixelHeight} pixels (${world.size}x${world.size} tiles)`);
-        console.log(`   Using on-demand generation (renders ${this.RENDER_DISTANCE} tiles around camera)`);
+        console.log(`   Using on-demand generation (renders ${this.RENDER_DISTANCE_X}x${this.RENDER_DISTANCE_Y} tiles around camera)`);
     }
 
     // Perlin-like noise for terrain generation (same as server)
@@ -574,11 +576,11 @@ class GameScene extends Phaser.Scene {
         const playerTileX = Math.floor(this.localPlayer.sprite.x / tileSize);
         const playerTileY = Math.floor(this.localPlayer.sprite.y / tileSize);
 
-        // Calculate visible tile range
-        const minX = Math.max(0, playerTileX - this.RENDER_DISTANCE);
-        const maxX = Math.min(this.worldSize - 1, playerTileX + this.RENDER_DISTANCE);
-        const minY = Math.max(0, playerTileY - this.RENDER_DISTANCE);
-        const maxY = Math.min(this.worldSize - 1, playerTileY + this.RENDER_DISTANCE);
+        // Calculate visible tile range (asymmetric for aspect ratio)
+        const minX = Math.max(0, playerTileX - this.RENDER_DISTANCE_X);
+        const maxX = Math.min(this.worldSize - 1, playerTileX + this.RENDER_DISTANCE_X);
+        const minY = Math.max(0, playerTileY - this.RENDER_DISTANCE_Y);
+        const maxY = Math.min(this.worldSize - 1, playerTileY + this.RENDER_DISTANCE_Y);
 
         // Calculate spawn area bounds once (50x50 tile spawn building)
         const worldSize = this.gameData.world.size;
@@ -646,12 +648,16 @@ class GameScene extends Phaser.Scene {
         }
 
         // Clean up tiles far from player (keep memory manageable)
-        const CLEANUP_DISTANCE = this.RENDER_DISTANCE * 1.3; // PERFORMANCE: Aggressive cleanup (was 2x)
+        // PERFORMANCE: Asymmetric cleanup based on render distances
+        const CLEANUP_DISTANCE_X = this.RENDER_DISTANCE_X * 1.4;
+        const CLEANUP_DISTANCE_Y = this.RENDER_DISTANCE_Y * 1.4;
+
         this.renderedTiles.forEach((sprite, key) => {
             const [x, y] = key.split(',').map(Number);
-            const dist = Math.max(Math.abs(x - playerTileX), Math.abs(y - playerTileY));
+            const distX = Math.abs(x - playerTileX);
+            const distY = Math.abs(y - playerTileY);
 
-            if (dist > CLEANUP_DISTANCE) {
+            if (distX > CLEANUP_DISTANCE_X || distY > CLEANUP_DISTANCE_Y) {
                 sprite.destroy();
                 this.renderedTiles.delete(key);
             }
@@ -660,9 +666,10 @@ class GameScene extends Phaser.Scene {
         // PERFORMANCE: Clean up decorations far from player (critical for FPS)
         this.renderedDecorations.forEach((sprites, key) => {
             const [x, y] = key.split(',').map(Number);
-            const dist = Math.max(Math.abs(x - playerTileX), Math.abs(y - playerTileY));
+            const distX = Math.abs(x - playerTileX);
+            const distY = Math.abs(y - playerTileY);
 
-            if (dist > CLEANUP_DISTANCE) {
+            if (distX > CLEANUP_DISTANCE_X || distY > CLEANUP_DISTANCE_Y) {
                 // Destroy all sprites for this decoration
                 sprites.forEach(sprite => {
                     if (sprite && sprite.destroy) {
