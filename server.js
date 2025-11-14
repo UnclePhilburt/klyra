@@ -334,6 +334,60 @@ class Lobby {
         };
     }
 
+    // Create wolf with variant stats
+    createWolfVariant(variant, baseId, position) {
+        const variants = {
+            small: {
+                scale: 0.7,
+                health: 20,
+                maxHealth: 20,
+                damage: 6,
+                speed: 70,
+                sightRange: 12,
+                glowColor: 0xff6666, // Light red
+                glowSize: 6
+            },
+            normal: {
+                scale: 1.0,
+                health: 30,
+                maxHealth: 30,
+                damage: 10,
+                speed: 80,
+                sightRange: 15,
+                glowColor: 0xff0000, // Red
+                glowSize: 8
+            },
+            boss: {
+                scale: 1.5,
+                health: 60,
+                maxHealth: 60,
+                damage: 20,
+                speed: 90,
+                sightRange: 20,
+                glowColor: 0xff0066, // Dark pink/red
+                glowSize: 12
+            }
+        };
+
+        const stats = variants[variant];
+        return {
+            id: baseId,
+            type: 'wolf',
+            variant: variant, // Track variant type
+            position: position,
+            health: stats.health,
+            maxHealth: stats.maxHealth,
+            damage: stats.damage,
+            speed: stats.speed,
+            scale: stats.scale,
+            glowColor: stats.glowColor,
+            glowSize: stats.glowSize,
+            isAlive: true,
+            sightRange: stats.sightRange,
+            lastMove: 0
+        };
+    }
+
     // Spawn enemies in a region (called when players explore new areas)
     spawnEnemiesInRegion(regionX, regionY) {
         const regionKey = `${regionX},${regionY}`;
@@ -344,54 +398,119 @@ class Lobby {
         this.spawnedRegions.add(regionKey);
 
         const REGION_SIZE = 50; // 50x50 tile regions
-        const enemiesPerRegion = 5; // Much more reasonable!
         const newEnemies = [];
+
+        // Calculate distance from world center (spawn point)
+        const worldCenterX = this.WORLD_SIZE / 2;
+        const worldCenterY = this.WORLD_SIZE / 2;
+        const regionCenterX = regionX * REGION_SIZE + REGION_SIZE / 2;
+        const regionCenterY = regionY * REGION_SIZE + REGION_SIZE / 2;
+        const distanceFromSpawn = Math.sqrt(
+            Math.pow(regionCenterX - worldCenterX, 2) +
+            Math.pow(regionCenterY - worldCenterY, 2)
+        );
+
+        // Distance-based pack sizing
+        let packsToSpawn = 1;
+        let minPackSize = 1;
+        let maxPackSize = 2;
+        let bossChance = 0;
+
+        if (distanceFromSpawn < 100) {
+            // Close to spawn: 1 pack, 1-2 small wolves
+            packsToSpawn = 1;
+            minPackSize = 1;
+            maxPackSize = 2;
+            bossChance = 0;
+        } else if (distanceFromSpawn < 200) {
+            // Medium distance: 1-2 packs, 2-3 wolves, 5% boss chance
+            packsToSpawn = Math.random() < 0.5 ? 1 : 2;
+            minPackSize = 2;
+            maxPackSize = 3;
+            bossChance = 0.05;
+        } else if (distanceFromSpawn < 400) {
+            // Far: 2 packs, 3-5 wolves, 15% boss chance
+            packsToSpawn = 2;
+            minPackSize = 3;
+            maxPackSize = 5;
+            bossChance = 0.15;
+        } else {
+            // Very far: 2-3 packs, 4-6 wolves, 25% boss chance
+            packsToSpawn = Math.random() < 0.5 ? 2 : 3;
+            minPackSize = 4;
+            maxPackSize = 6;
+            bossChance = 0.25;
+        }
 
         // Use seed for consistent spawning
         const seed = this.worldSeed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         const regionSeed = seed + regionX * 7919 + regionY * 6563;
 
-        for (let i = 0; i < enemiesPerRegion; i++) {
-            // Seeded random for this enemy
-            const enemySeed = regionSeed + i * 1000;
-            const x = regionX * REGION_SIZE + Math.floor(this.seededRandom(enemySeed) * REGION_SIZE);
-            const y = regionY * REGION_SIZE + Math.floor(this.seededRandom(enemySeed + 1) * REGION_SIZE);
+        // Spawn packs
+        for (let packIndex = 0; packIndex < packsToSpawn; packIndex++) {
+            const packSeed = regionSeed + packIndex * 10000;
 
-            // Clamp to world bounds
-            if (x < 0 || x >= this.WORLD_SIZE || y < 0 || y >= this.WORLD_SIZE) continue;
-
-            // SAFE ZONE CHECK: Don't spawn enemies in 50x50 spawn building area
-            const worldCenterX = this.WORLD_SIZE / 2;
-            const worldCenterY = this.WORLD_SIZE / 2;
-            const safeZoneRadius = 25; // 50x50 tiles = 25 tiles from center in each direction
-
-            const isInSafeZone = (
-                x >= (worldCenterX - safeZoneRadius) &&
-                x < (worldCenterX + safeZoneRadius) &&
-                y >= (worldCenterY - safeZoneRadius) &&
-                y < (worldCenterY + safeZoneRadius)
+            // Determine pack size
+            const packSize = Math.floor(
+                minPackSize + this.seededRandom(packSeed) * (maxPackSize - minPackSize + 1)
             );
 
-            if (isInSafeZone) continue; // Skip spawning in safe zone
+            // Choose pack location in region
+            const packX = regionX * REGION_SIZE + Math.floor(this.seededRandom(packSeed + 1) * REGION_SIZE);
+            const packY = regionY * REGION_SIZE + Math.floor(this.seededRandom(packSeed + 2) * REGION_SIZE);
 
-            const enemy = {
-                id: `${this.id}_enemy_${regionKey}_${i}`,
-                type: 'wolf',
-                position: { x, y },
-                health: 30,
-                maxHealth: 30,
-                damage: 10,
-                speed: 80,
-                isAlive: true,
-                sightRange: 15,
-                lastMove: 0
-            };
+            // Check if pack location is in safe zone
+            const safeZoneRadius = 25;
+            const isInSafeZone = (
+                packX >= (worldCenterX - safeZoneRadius) &&
+                packX < (worldCenterX + safeZoneRadius) &&
+                packY >= (worldCenterY - safeZoneRadius) &&
+                packY < (worldCenterY + safeZoneRadius)
+            );
 
-            this.gameState.enemies.push(enemy);
-            newEnemies.push(enemy);
+            if (isInSafeZone) continue; // Skip this pack
+
+            // Decide if this pack has a boss
+            const hasBoss = this.seededRandom(packSeed + 3) < bossChance;
+            let bossSpawned = false;
+
+            // Spawn wolves in pack (clustered together)
+            for (let i = 0; i < packSize; i++) {
+                const wolfSeed = packSeed + i * 100;
+
+                // Position wolves in tight cluster (within 5 tiles of pack center)
+                const offsetX = Math.floor((this.seededRandom(wolfSeed + 10) - 0.5) * 10);
+                const offsetY = Math.floor((this.seededRandom(wolfSeed + 11) - 0.5) * 10);
+                const x = Math.max(0, Math.min(this.WORLD_SIZE - 1, packX + offsetX));
+                const y = Math.max(0, Math.min(this.WORLD_SIZE - 1, packY + offsetY));
+
+                // Determine wolf variant
+                let variant = 'normal';
+
+                if (hasBoss && !bossSpawned && i === 0) {
+                    // First wolf in pack with boss becomes the boss
+                    variant = 'boss';
+                    bossSpawned = true;
+                } else if (distanceFromSpawn < 100) {
+                    // Close to spawn: mostly small wolves
+                    variant = this.seededRandom(wolfSeed + 20) < 0.7 ? 'small' : 'normal';
+                } else if (distanceFromSpawn < 200) {
+                    // Medium distance: mix of small and normal
+                    variant = this.seededRandom(wolfSeed + 20) < 0.3 ? 'small' : 'normal';
+                } else {
+                    // Far from spawn: all normal wolves (except boss)
+                    variant = 'normal';
+                }
+
+                const wolfId = `${this.id}_wolf_${regionKey}_p${packIndex}_${i}`;
+                const wolf = this.createWolfVariant(variant, wolfId, { x, y });
+
+                this.gameState.enemies.push(wolf);
+                newEnemies.push(wolf);
+            }
         }
 
-        console.log(`✨ Spawned ${newEnemies.length} enemies in region (${regionX}, ${regionY})`);
+        console.log(`✨ Spawned ${newEnemies.length} wolves in ${packsToSpawn} pack(s) at region (${regionX}, ${regionY}) [Distance: ${Math.floor(distanceFromSpawn)}]`);
         return newEnemies;
     }
 

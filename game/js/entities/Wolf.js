@@ -16,13 +16,22 @@ class Wolf {
         const x = this.data.position.x * tileSize + tileSize / 2;
         const y = this.data.position.y * tileSize + tileSize / 2;
 
+        // Get variant data from server (defaults for backwards compatibility)
+        const scale = this.data.scale || 1.0;
+        const glowColor = this.data.glowColor || 0xff0000;
+        const glowSize = this.data.glowSize || 8;
+        const variant = this.data.variant || 'normal';
+
         // Create wolf sprite
         this.sprite = this.scene.add.sprite(x, y, 'skullwolf', 0);
         this.sprite.setOrigin(0.5);
-        this.sprite.setScale(1.0); // 64x64 at 1:1 scale
+        this.sprite.setScale(scale); // Use variant scale
         this.sprite.setDepth(2); // Above walkways (depth 1) but with walls (depth 2)
         this.scene.physics.add.existing(this.sprite);
-        this.sprite.body.setSize(32, 32);
+
+        // Scale hitbox based on wolf size
+        const hitboxSize = 32 * scale;
+        this.sprite.body.setSize(hitboxSize, hitboxSize);
 
         // Prevent camera culling from making wolves flicker/disappear
         this.sprite.setScrollFactor(1, 1); // Follow camera normally
@@ -33,12 +42,26 @@ class Wolf {
         // Track last position for movement detection
         this.lastX = x;
 
-        // Add subtle red glow effect
-        this.glow = this.scene.add.circle(x, y, 8, 0xff0000, 0.15);
+        // Add variant-colored glow effect
+        this.glow = this.scene.add.circle(x, y, glowSize, glowColor, 0.15);
         this.glow.setDepth(1); // Below sprite to avoid z-fighting
         this.glow.setScrollFactor(1, 1); // Make glow follow camera too
-        // Prevent culling on glow too
         this.glow.visible = true;
+
+        // Store variant for reference
+        this.variant = variant;
+        this.scale = scale;
+
+        // Add boss crown indicator for boss wolves
+        if (variant === 'boss') {
+            this.crownText = this.scene.add.text(x, y - 40 * scale, '👑', {
+                font: '20px Arial',
+                fill: '#FFD700'
+            });
+            this.crownText.setOrigin(0.5);
+            this.crownText.setDepth(3);
+            this.crownText.setScrollFactor(1, 1);
+        }
     }
 
     takeDamage(amount) {
@@ -81,37 +104,45 @@ class Wolf {
     die() {
         this.isAlive = false;
 
-        // Death animation - explosion effect
+        // Death animation - explosion effect with variant-colored particles
+        const particleColor = this.data.glowColor || 0xff0000;
         const particles = [];
-        for (let i = 0; i < 8; i++) {
-            const angle = (Math.PI * 2 * i) / 8;
+        const particleCount = this.variant === 'boss' ? 16 : 8; // More particles for boss
+
+        for (let i = 0; i < particleCount; i++) {
+            const angle = (Math.PI * 2 * i) / particleCount;
+            const distance = this.variant === 'boss' ? 70 : 50;
             const particle = this.scene.add.circle(
                 this.sprite.x,
                 this.sprite.y,
-                3,
-                0xff0000 // Red particles
+                this.variant === 'boss' ? 5 : 3,
+                particleColor
             );
 
             particles.push(particle);
 
             this.scene.tweens.add({
                 targets: particle,
-                x: this.sprite.x + Math.cos(angle) * 50,
-                y: this.sprite.y + Math.sin(angle) * 50,
+                x: this.sprite.x + Math.cos(angle) * distance,
+                y: this.sprite.y + Math.sin(angle) * distance,
                 alpha: 0,
-                duration: 500,
+                duration: this.variant === 'boss' ? 800 : 500,
                 onComplete: () => particle.destroy()
             });
         }
 
-        // Fade out main sprite
+        // Fade out main sprite, glow, and crown
+        const targets = [this.sprite, this.glow];
+        if (this.crownText) targets.push(this.crownText);
+
         this.scene.tweens.add({
-            targets: [this.sprite, this.glow],
+            targets: targets,
             alpha: 0,
             duration: 300,
             onComplete: () => {
                 if (this.sprite) this.sprite.destroy();
                 if (this.glow) this.glow.destroy();
+                if (this.crownText) this.crownText.destroy();
             }
         });
     }
@@ -170,6 +201,11 @@ class Wolf {
             // Update glow position
             if (this.glow && this.glow.active) {
                 this.glow.setPosition(this.sprite.x, this.sprite.y);
+            }
+
+            // Update crown position for boss wolves
+            if (this.crownText && this.crownText.active) {
+                this.crownText.setPosition(this.sprite.x, this.sprite.y - 40 * this.scale);
             }
         }
     }
