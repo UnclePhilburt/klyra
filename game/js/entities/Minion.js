@@ -162,15 +162,23 @@ class Minion {
         let targetY = owner.sprite.y;
         let distance = this.combatMode ? this.patrolDistance * 0.5 : this.patrolDistance;
 
+        // Count minions of same role for better spreading
+        const allMinions = Object.values(this.scene.minions || {}).filter(m =>
+            m.ownerId === this.ownerId && m.isAlive && m.role === this.role
+        );
+        const roleIndex = allMinions.indexOf(this);
+        const roleCount = allMinions.length;
+
         switch(this.role) {
             case 'scout':
                 // Ahead of player in movement direction
                 targetX += Math.cos(moveAngle) * distance;
                 targetY += Math.sin(moveAngle) * distance;
-                // Add slight offset for multiple scouts
-                if (this.formationIndex === 1) {
-                    targetX += Math.cos(moveAngle + Math.PI/2) * 40;
-                    targetY += Math.sin(moveAngle + Math.PI/2) * 40;
+                // Spread multiple scouts in a fan pattern
+                if (roleCount > 1) {
+                    const spreadAngle = (roleIndex - (roleCount - 1) / 2) * (Math.PI / 6); // 30° spread
+                    targetX += Math.cos(moveAngle + spreadAngle + Math.PI/2) * 60;
+                    targetY += Math.sin(moveAngle + spreadAngle + Math.PI/2) * 60;
                 }
                 break;
 
@@ -178,28 +186,39 @@ class Minion {
                 // Left side of player
                 targetX += Math.cos(moveAngle + Math.PI/2) * distance;
                 targetY += Math.sin(moveAngle + Math.PI/2) * distance;
+                // Stagger multiple flankers
+                if (roleCount > 1) {
+                    targetX += Math.cos(moveAngle) * (roleIndex * 40 - 20);
+                    targetY += Math.sin(moveAngle) * (roleIndex * 40 - 20);
+                }
                 break;
 
             case 'flank_right':
                 // Right side of player
                 targetX += Math.cos(moveAngle - Math.PI/2) * distance;
                 targetY += Math.sin(moveAngle - Math.PI/2) * distance;
+                // Stagger multiple flankers
+                if (roleCount > 1) {
+                    targetX += Math.cos(moveAngle) * (roleIndex * 40 - 20);
+                    targetY += Math.sin(moveAngle) * (roleIndex * 40 - 20);
+                }
                 break;
 
             case 'rear_guard':
                 // Behind player (opposite of movement)
                 targetX += Math.cos(moveAngle + Math.PI) * Math.abs(distance);
                 targetY += Math.sin(moveAngle + Math.PI) * Math.abs(distance);
-                // Spread out multiple rear guards
-                if (this.formationIndex === 5) {
-                    targetX += Math.cos(moveAngle + Math.PI/2) * 50;
-                    targetY += Math.sin(moveAngle + Math.PI/2) * 50;
+                // Spread multiple rear guards in a line
+                if (roleCount > 1) {
+                    const spreadOffset = (roleIndex - (roleCount - 1) / 2) * 60;
+                    targetX += Math.cos(moveAngle + Math.PI/2) * spreadOffset;
+                    targetY += Math.sin(moveAngle + Math.PI/2) * spreadOffset;
                 }
                 break;
 
             case 'bodyguard':
-                // Circle around player, close
-                const bodyguardAngle = (this.formationIndex * Math.PI / 2) + moveAngle;
+                // Circle around player evenly - FIX: distribute ALL bodyguards evenly
+                const bodyguardAngle = (roleIndex / Math.max(roleCount, 1)) * Math.PI * 2 + moveAngle;
                 targetX += Math.cos(bodyguardAngle) * distance;
                 targetY += Math.sin(bodyguardAngle) * distance;
                 break;

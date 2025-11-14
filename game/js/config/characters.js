@@ -99,7 +99,7 @@ const CHARACTERS = {
             base: {
                 maxHP: 70,
                 damage: 8,
-                moveSpeed: 170,
+                moveSpeed: 150,
                 attackSpeed: 0.8,
                 critChance: 0.05,
                 critDamage: 1.5,
