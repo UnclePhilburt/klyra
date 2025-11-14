@@ -11,17 +11,63 @@ class AbilityManager {
             r: 0
         };
 
-        // Cooldown UI elements (hidden by default)
+        // Cooldown UI elements
         this.cooldownUI = null;
 
-        // Don't create UI - we'll keep it invisible
-        // this.createCooldownUI();
+        // Create minimal testing UI
+        this.createCooldownUI();
     }
 
     createCooldownUI() {
-        // UI creation removed - abilities work via keybinds only
-        // No visual buttons on screen
-        return;
+        const width = this.scene.cameras.main.width;
+        const height = this.scene.cameras.main.height;
+
+        // Position at bottom center
+        const centerX = width / 2;
+        const bottomY = height - 80;
+
+        // Simple text-based UI for testing
+        this.cooldownUI = {
+            q: this.createMinimalDisplay(centerX - 150, bottomY, 'Q'),
+            e: this.createMinimalDisplay(centerX, bottomY, 'E'),
+            r: this.createMinimalDisplay(centerX + 150, bottomY, 'R')
+        };
+    }
+
+    createMinimalDisplay(x, y, key) {
+        const container = this.scene.add.container(x, y);
+        container.setScrollFactor(0);
+        container.setDepth(10000);
+
+        // Simple background box
+        const bg = this.scene.add.rectangle(0, 0, 120, 40, 0x000000, 0.7);
+        bg.setStrokeStyle(2, 0x444444);
+        container.add(bg);
+
+        // Key + ability name
+        const label = this.scene.add.text(0, -10, `[${key}] ...`, {
+            fontFamily: 'Arial, sans-serif',
+            fontSize: '12px',
+            fill: '#ffffff',
+            align: 'center'
+        }).setOrigin(0.5);
+        container.add(label);
+
+        // Cooldown text
+        const cooldownText = this.scene.add.text(0, 8, 'Ready', {
+            fontFamily: 'Arial, sans-serif',
+            fontSize: '10px',
+            fill: '#00ff00',
+            align: 'center'
+        }).setOrigin(0.5);
+        container.add(cooldownText);
+
+        return {
+            container,
+            bg,
+            label,
+            cooldownText
+        };
     }
 
     createAbilityButton(x, y, key) {
@@ -95,8 +141,38 @@ class AbilityManager {
     }
 
     updateCooldownUI() {
-        // No UI to update - abilities are invisible
-        return;
+        if (!this.cooldownUI) return;
+
+        Object.keys(this.cooldownUI).forEach(key => {
+            const ui = this.cooldownUI[key];
+            const cooldown = this.cooldowns[key];
+            const ability = this.player.abilities ? this.player.abilities[key] : null;
+
+            // Update ability name
+            if (ability) {
+                ui.label.setText(`[${key.toUpperCase()}] ${ability.name}`);
+            } else {
+                ui.label.setText(`[${key.toUpperCase()}] ...`);
+            }
+
+            // Update cooldown display
+            if (cooldown > 0) {
+                const seconds = Math.ceil(cooldown / 1000);
+                ui.cooldownText.setText(`${seconds}s`);
+                ui.cooldownText.setColor('#ff4444');
+                ui.bg.setStrokeStyle(2, 0x444444);
+            } else {
+                if (ability) {
+                    ui.cooldownText.setText('Ready');
+                    ui.cooldownText.setColor('#00ff00');
+                    ui.bg.setStrokeStyle(2, 0x00ff00);
+                } else {
+                    ui.cooldownText.setText('...');
+                    ui.cooldownText.setColor('#666666');
+                    ui.bg.setStrokeStyle(2, 0x333333);
+                }
+            }
+        });
     }
 
     canUseAbility(key) {
@@ -135,8 +211,18 @@ class AbilityManager {
     }
 
     flashButton(key) {
-        // No visual button to flash
-        return;
+        if (!this.cooldownUI || !this.cooldownUI[key]) return;
+
+        const ui = this.cooldownUI[key];
+
+        // Simple flash effect
+        this.scene.tweens.add({
+            targets: ui.bg,
+            alpha: 0.3,
+            duration: 100,
+            yoyo: true,
+            ease: 'Power2'
+        });
     }
 
     executeAbility(key, ability) {
@@ -253,6 +339,7 @@ class AbilityManager {
                     ui.container.destroy();
                 }
             });
+            this.cooldownUI = null;
         }
     }
 }
