@@ -153,9 +153,9 @@ class SkillSelector {
 
         // Show 3 random skill cards
         const skillChoices = this.selectRandomSkills(availableSkills, 3);
-        const cardWidth = 220;
-        const cardHeight = 300;
-        const spacing = 40;
+        const cardWidth = 250;
+        const cardHeight = 400;
+        const spacing = 30;
         const totalWidth = (cardWidth * 3) + (spacing * 2);
         const startX = (width - totalWidth) / 2;
 
@@ -218,9 +218,9 @@ class SkillSelector {
         card.innerGlow = innerGlow;
 
         // Skill name at TOP of card - modern gradient text
-        const name = this.scene.add.text(x, y - 130, skill.name, {
+        const name = this.scene.add.text(x, y - 180, skill.name, {
             fontFamily: 'Inter, Space Grotesk, Arial, sans-serif',
-            fontSize: '19px',
+            fontSize: '17px',
             fontStyle: '700',
             fill: '#ffffff',
             stroke: '#000000',
@@ -231,47 +231,137 @@ class SkillSelector {
         name.setShadow(0, 0, 15, '#8b5cf6', false, true); // Purple glow
         card.elements.push(name);
 
-        // Generate dynamic description for minion skills
-        let displayDescription = skill.description;
-        if (skill.effect === 'spawn_minion') {
-            // Only Malachar starts with minions
-            const player = this.scene.localPlayer;
-            const isMalachar = player && (
-                player.data.characterId === 'MALACHAR' ||
-                player.class === 'MALACHAR' ||
-                player.class === 'Malachar'
-            );
-
-            // Count how many minion skills have been taken
-            const minionSkillsTaken = this.selectedSkills.filter(s => s.effect === 'spawn_minion').length;
-
-            // Malachar starts with 1 minion, others start with 0
-            const startingMinions = isMalachar ? 1 : 0;
-            const nextMinionNumber = minionSkillsTaken + startingMinions + 1;
-
-            // Generate ordinal suffix (1st, 2nd, 3rd, 4th, etc.)
-            const getOrdinal = (n) => {
-                const s = ['th', 'st', 'nd', 'rd'];
-                const v = n % 100;
-                return n + (s[(v - 20) % 10] || s[v] || s[0]);
-            };
-
-            displayDescription = `Gain a ${getOrdinal(nextMinionNumber)} permanent minion`;
-        }
+        // Generate detailed description
+        let detailedDescription = this.generateDetailedDescription(skill);
 
         // Skill description in CENTER of card
-        const desc = this.scene.add.text(x, y, displayDescription, {
+        const desc = this.scene.add.text(x, y, detailedDescription, {
             fontFamily: 'Inter, Arial, sans-serif',
-            fontSize: '13px',
+            fontSize: '11px',
             fontStyle: '400',
             fill: '#a1a1aa',
-            wordWrap: { width: width - 35 },
-            align: 'center',
-            lineSpacing: 4
+            wordWrap: { width: width - 30 },
+            align: 'left',
+            lineSpacing: 3
         }).setOrigin(0.5).setScrollFactor(0).setDepth(100002);
         card.elements.push(desc);
 
         return card;
+    }
+
+    generateDetailedDescription(skill) {
+        let details = [];
+
+        // Basic description
+        if (skill.description) {
+            details.push(skill.description);
+            details.push(''); // Empty line
+        }
+
+        // Subtitle (for paths)
+        if (skill.subtitle) {
+            details.push(`${skill.subtitle}`);
+            details.push(''); // Empty line
+        }
+
+        // Stats (for path selection)
+        if (skill.stats) {
+            details.push('STATS:');
+            if (skill.stats.playerDamage !== undefined) {
+                details.push(`• Player Damage: ${skill.stats.playerDamage}`);
+            }
+            if (skill.stats.startingMinions !== undefined) {
+                details.push(`• Starting Minions: ${skill.stats.startingMinions}`);
+            }
+            if (skill.stats.minionCap !== undefined) {
+                details.push(`• Max Minions: ${skill.stats.minionCap}`);
+            }
+            if (skill.stats.minionHealth !== undefined) {
+                details.push(`• Minion HP: ${skill.stats.minionHealth}`);
+            }
+            if (skill.stats.minionDamage !== undefined) {
+                details.push(`• Minion Damage: ${skill.stats.minionDamage}`);
+            }
+            details.push(''); // Empty line
+        }
+
+        // Auto-attack (for paths)
+        if (skill.autoAttack) {
+            details.push(`AUTO: ${skill.autoAttack.name}`);
+            details.push(`${skill.autoAttack.description}`);
+            details.push(''); // Empty line
+        }
+
+        // Abilities (for paths)
+        if (skill.abilities) {
+            details.push('ABILITIES:');
+            if (skill.abilities.q) {
+                details.push(`Q - ${skill.abilities.q.name}`);
+                details.push(`  ${skill.abilities.q.description}`);
+            }
+            if (skill.abilities.e) {
+                details.push(`E - ${skill.abilities.e.name}`);
+                details.push(`  ${skill.abilities.e.description}`);
+            }
+            if (skill.abilities.r) {
+                details.push(`R - ${skill.abilities.r.name}`);
+                details.push(`  ${skill.abilities.r.description}`);
+            }
+            details.push(''); // Empty line
+        }
+
+        // Modifications (for specializations)
+        if (skill.modifications) {
+            details.push('MODIFICATIONS:');
+            const mods = skill.modifications;
+
+            if (mods.minionCap !== undefined) {
+                details.push(`• Minion Cap: ${mods.minionCap}`);
+            }
+            if (mods.minionHealth !== undefined) {
+                details.push(`• Minion HP: x${mods.minionHealth}`);
+            }
+            if (mods.minionDamage !== undefined) {
+                details.push(`• Minion Damage: x${mods.minionDamage}`);
+            }
+
+            // Ability modifications
+            if (mods.q && mods.q.bonusEffect) {
+                details.push(`Q Bonus:`);
+                Object.entries(mods.q.bonusEffect).forEach(([key, value]) => {
+                    details.push(`  • ${key}: ${value}`);
+                });
+            }
+            if (mods.e && mods.e.bonusEffect) {
+                details.push(`E Bonus:`);
+                Object.entries(mods.e.bonusEffect).forEach(([key, value]) => {
+                    details.push(`  • ${key}: ${value}`);
+                });
+            }
+            if (mods.r && mods.r.bonusEffect) {
+                details.push(`R Bonus:`);
+                Object.entries(mods.r.bonusEffect).forEach(([key, value]) => {
+                    details.push(`  • ${key}: ${value}`);
+                });
+            }
+
+            if (mods.autoAttack) {
+                details.push(`Auto-Attack:`);
+                Object.entries(mods.autoAttack).forEach(([key, value]) => {
+                    details.push(`  • ${key}: ${value}`);
+                });
+            }
+        }
+
+        // Endless upgrades (simple effects)
+        if (skill.effect && typeof skill.effect === 'object') {
+            details.push('EFFECT:');
+            Object.entries(skill.effect).forEach(([key, value]) => {
+                details.push(`• ${key}: ${value}`);
+            });
+        }
+
+        return details.join('\n');
     }
 
     setupKeyboardControls() {
@@ -335,10 +425,10 @@ class SkillSelector {
             if (isSelected) {
                 // Selected card: raise up with glow and gradient border
                 card.elements.forEach((element, i) => {
-                    const targetY = i === 0 ? card.baseY - 80 : // background
-                                   i === 1 ? card.baseY - 80 : // innerGlow
-                                   i === 2 ? card.baseY - 80 - 130 : // name (130px above bg)
-                                   card.baseY - 80; // description (at bg position)
+                    const targetY = i === 0 ? card.baseY - 100 : // background
+                                   i === 1 ? card.baseY - 100 : // innerGlow
+                                   i === 2 ? card.baseY - 100 - 180 : // name (180px above bg)
+                                   card.baseY - 100; // description (at bg position)
 
                     this.scene.tweens.add({
                         targets: element,
@@ -367,7 +457,7 @@ class SkillSelector {
                 card.elements.forEach((element, i) => {
                     const targetY = i === 0 ? card.baseY : // background
                                    i === 1 ? card.baseY : // innerGlow
-                                   i === 2 ? card.baseY - 130 : // name (130px above bg)
+                                   i === 2 ? card.baseY - 180 : // name (180px above bg)
                                    card.baseY; // description (at bg position)
 
                     this.scene.tweens.add({
