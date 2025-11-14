@@ -594,7 +594,7 @@ class Minion {
             y: Math.floor(this.sprite.y / 32)
         };
 
-        networkManager.updateMinionPosition(this.minionId, gridPosition);
+        networkManager.updateMinionPosition(this.minionId, gridPosition, this.isPermanent);
     }
 
     destroy() {

@@ -1113,12 +1113,27 @@ io.on('connection', (socket) => {
             // Update minion position in game state so enemies can target it
             if (!lobby.gameState.minions) lobby.gameState.minions = new Map();
 
+            const existingMinion = lobby.gameState.minions.get(data.minionId);
+            const isNew = !existingMinion;
+
             lobby.gameState.minions.set(data.minionId, {
                 id: data.minionId,
                 position: data.position,
                 ownerId: player.id,
+                isPermanent: data.isPermanent || false,
                 lastUpdate: Date.now()
             });
+
+            // If this is a new minion, broadcast spawn event to other players
+            if (isNew) {
+                socket.to(lobby.id).emit('minion:spawned', {
+                    minionId: data.minionId,
+                    position: data.position,
+                    ownerId: player.id,
+                    isPermanent: data.isPermanent || false
+                });
+                console.log(`🔮 Broadcasted minion spawn: ${data.minionId} for ${player.username}`);
+            }
         } catch (error) {
             console.error('Error in minion:position:', error);
         }

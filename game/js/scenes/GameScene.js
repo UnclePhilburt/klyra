@@ -30,7 +30,7 @@ class GameScene extends Phaser.Scene {
             'player:joined', 'player:left', 'player:moved', 'player:changedMap', 'player:attacked',
             'player:damaged', 'player:levelup', 'player:died',
             'enemy:spawned', 'enemy:damaged', 'enemy:moved', 'enemy:killed',
-            'minion:damaged',
+            'minion:spawned', 'minion:damaged',
             'item:spawned', 'item:collected', 'chat:message'
         ];
 
@@ -1404,7 +1404,7 @@ class GameScene extends Phaser.Scene {
             'player:joined', 'player:left', 'player:moved', 'player:changedMap', 'player:attacked',
             'player:damaged', 'player:levelup', 'player:died',
             'enemy:spawned', 'enemy:damaged', 'enemy:moved', 'enemy:killed',
-            'minion:damaged',
+            'minion:spawned', 'minion:damaged',
             'item:spawned', 'item:collected', 'chat:message'
         ];
 
@@ -1594,6 +1594,25 @@ class GameScene extends Phaser.Scene {
             if (enemy) {
                 enemy.takeDamage(data.damage);
             }
+        });
+
+        // Minion spawned by another player
+        networkManager.on('minion:spawned', (data) => {
+            console.log(`🔮 Received minion spawn from server: ${data.minionId} for owner ${data.ownerId}`);
+
+            // Don't create if we already have this minion
+            if (this.minions[data.minionId]) {
+                console.log(`⚠️ Minion ${data.minionId} already exists, skipping`);
+                return;
+            }
+
+            // Calculate pixel position from grid position
+            const tileSize = GameConfig.GAME.TILE_SIZE;
+            const x = data.position.x * tileSize + tileSize / 2;
+            const y = data.position.y * tileSize + tileSize / 2;
+
+            // Spawn the minion
+            this.spawnMinion(x, y, data.ownerId, data.isPermanent, data.minionId);
         });
 
         // Minion damaged by enemy
@@ -2136,8 +2155,9 @@ class GameScene extends Phaser.Scene {
         }
     }
 
-    spawnMinion(x, y, ownerId, isPermanent = false) {
-        const minionId = `minion_${this.minionIdCounter++}`;
+    spawnMinion(x, y, ownerId, isPermanent = false, providedMinionId = null) {
+        // Use provided ID if spawning from network, otherwise generate new one
+        const minionId = providedMinionId || `minion_${this.minionIdCounter++}`;
         const minion = new Minion(this, x, y, ownerId, isPermanent, minionId);
         this.minions[minionId] = minion;
 

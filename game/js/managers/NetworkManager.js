@@ -249,8 +249,8 @@ class NetworkManager {
     }
 
     // Update minion position (so enemies can target them)
-    updateMinionPosition(minionId, position) {
-        this.socket.emit('minion:position', { minionId, position });
+    updateMinionPosition(minionId, position, isPermanent = false) {
+        this.socket.emit('minion:position', { minionId, position, isPermanent });
     }
 
     // Change map (interior/exterior)
