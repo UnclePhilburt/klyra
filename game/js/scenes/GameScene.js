@@ -1479,7 +1479,7 @@ class GameScene extends Phaser.Scene {
 
         // Initialize dev settings
         this.devSettings = {
-            showCollisionBoxes: true,
+            showCollisionBoxes: false, // PERFORMANCE: Disabled by default (saves rendering overhead)
             showFPS: false,
             showPosition: false,
             showGrid: false,
@@ -2732,12 +2732,7 @@ class GameScene extends Phaser.Scene {
             this.abilityManager.update(time, delta);
         }
 
-        // DIAGNOSTIC: Performance timing
-        const perfStart = performance.now();
-        if (!this.perfTimings) {
-            this.perfTimings = { player: 0, ui: 0, hud: 0, minions: 0, enemies: 0, wolves: 0, other: 0, frameCount: 0 };
-            this.lastPerfLog = Date.now();
-        }
+        // PERFORMANCE: Removed performance timing system (saves 21+ performance.now() calls per frame)
 
         // Player movement (with speed multiplier)
         let velocityX = 0;
@@ -2776,16 +2771,13 @@ class GameScene extends Phaser.Scene {
         }
 
         // Update animations (once per frame)
-        const t1 = performance.now();
         this.localPlayer.updateAnimation(delta);
         Object.values(this.otherPlayers).forEach(player => {
             player.updateAnimation(delta);
             player.updateInterpolation(); // Smooth movement
         });
-        this.perfTimings.player += (performance.now() - t1);
 
         // Update UI elements (name tags, health bars) less frequently
-        const t2 = performance.now();
         if (!this.uiUpdateCounter) this.uiUpdateCounter = 0;
         this.uiUpdateCounter++;
         if (this.uiUpdateCounter >= 5) {  // Every 5 frames (~83ms at 60fps)
@@ -2795,69 +2787,36 @@ class GameScene extends Phaser.Scene {
                 player.updateElements();
             });
         }
-        this.perfTimings.ui += (performance.now() - t2);
 
             // Update modern HUD
-            const t3 = performance.now();
             if (this.modernHUD) {
                 this.modernHUD.update();
             }
-            this.perfTimings.hud += (performance.now() - t3);
 
-        // DIAGNOSTIC: Log FPS and object counts every 60 frames (1 second at 60fps)
-        if (!this.diagnosticCounter) this.diagnosticCounter = 0;
-        this.diagnosticCounter++;
-        if (this.diagnosticCounter >= 60) {
-            this.diagnosticCounter = 0;
-            const fps = Math.round(this.game.loop.actualFps);
-            const tweens = this.tweens.getTweens().length;
-            const graphics = this.children.list.filter(c => c.type === 'Graphics').length;
-            const totalChildren = this.children.list.length;
-            debug.performance('FPS', `${fps} | Tweens: ${tweens} | Graphics: ${graphics} | Children: ${totalChildren}`);
-
-            // Log performance breakdown
-            const elapsed = Date.now() - this.lastPerfLog;
-            const avgFrameTime = this.frameTimes && this.frameTimes.length > 0
-                ? (this.frameTimes.reduce((a,b) => a+b, 0) / this.frameTimes.length).toFixed(1)
-                : 0;
-            const maxFrameTime = this.frameTimes && this.frameTimes.length > 0
-                ? Math.max(...this.frameTimes).toFixed(1)
-                : 0;
-            debug.performance('Update Loop', `${elapsed}ms | Player=${this.perfTimings.player.toFixed(1)}ms UI=${this.perfTimings.ui.toFixed(1)}ms HUD=${this.perfTimings.hud.toFixed(1)}ms Minions=${this.perfTimings.minions.toFixed(1)}ms Enemies=${this.perfTimings.enemies.toFixed(1)}ms Wolves=${this.perfTimings.wolves.toFixed(1)}ms Other=${this.perfTimings.other.toFixed(1)}ms | Avg=${avgFrameTime}ms Max=${maxFrameTime}ms`);
-            this.perfTimings = { player: 0, ui: 0, hud: 0, minions: 0, enemies: 0, wolves: 0, other: 0, frameCount: 0 };
-            this.frameTimes = [];
-            this.lastPerfLog = Date.now();
-        }
+        // PERFORMANCE: Removed diagnostic logging and FPS counter (saves performance)
 
         // Update minions
-        const t4 = performance.now();
         Object.values(this.minions).forEach(minion => {
             if (minion.isAlive) {
                 minion.update();
             }
         });
-        this.perfTimings.minions += (performance.now() - t4);
 
         // Update enemies
-        const t5 = performance.now();
         Object.values(this.enemies).forEach(enemy => {
             if (enemy.isAlive) {
                 enemy.update();
             }
         });
-        this.perfTimings.enemies += (performance.now() - t5);
 
         // Update wolves
-        const t6 = performance.now();
         Object.values(this.wolves).forEach(wolf => {
             if (wolf.isAlive) {
                 wolf.update();
             }
         });
-        this.perfTimings.wolves += (performance.now() - t6);
 
         // Remaining update logic
-        const t7 = performance.now();
 
         // Infinite health
         if (this.devSettings.infiniteHealth && this.localPlayer) {
@@ -2899,17 +2858,6 @@ class GameScene extends Phaser.Scene {
         // NOTE: Tree depths are set ONCE when created, not every frame!
         // This saves massive performance (was updating 100s of sprites every frame)
 
-        this.perfTimings.other += (performance.now() - t7);
-
-        // DIAGNOSTIC: Track total frame time
-        const totalFrameTime = performance.now() - perfStart;
-        if (!this.frameTimes) this.frameTimes = [];
-        this.frameTimes.push(totalFrameTime);
-        if (this.frameTimes.length > 60) this.frameTimes.shift();
-
-        // Log slow frames immediately
-        if (totalFrameTime > 50) {
-            console.error(`🐌 SLOW FRAME: ${totalFrameTime.toFixed(1)}ms (Player=${(performance.now() - t1).toFixed(1)}ms tracked, Untracked=${(totalFrameTime - (performance.now() - perfStart)).toFixed(1)}ms)`);
-        }
+        // PERFORMANCE: Removed frame time tracking and slow frame logging
     }
 }

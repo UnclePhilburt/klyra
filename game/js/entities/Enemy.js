@@ -32,39 +32,19 @@ class Enemy {
         // Track last position for movement detection
         this.lastX = x;
 
-        // Add glow effect
-        this.glow = this.scene.add.circle(x, y, 8, 0xff0000, 0.1);
-        this.glow.setDepth(2); // Same depth as sprite
-        this.glow.setScrollFactor(1, 1);
+        // PERFORMANCE: Removed glow circle (saves 1 object per enemy)
+        // PERFORMANCE: Removed name label (saves 1 object per enemy)
 
-        // Enemy colors based on type (for health bar tinting)
-        const enemyColors = {
-            goblin: 0x00ff00,
-            orc: 0xff8800,
-            skeleton: 0xaaaaaa,
-            troll: 0x8b4513,
-            demon: 0xff0000
-        };
-
-        const color = enemyColors[this.data.type] || 0xff0000;
-
-        // Type label
-        this.label = this.scene.add.text(x, y - 40, this.data.type.toUpperCase(), {
-            font: '8px monospace',
-            fill: '#ff0000',
-            backgroundColor: '#000000',
-            padding: { x: 2, y: 1 }
-        }).setOrigin(0.5);
-        this.label.setDepth(2); // Same depth as sprite
-        this.label.setScrollFactor(1, 1);
-
-        // Health bar
+        // Health bar - only shown when damaged
         this.healthBarBg = this.scene.add.rectangle(x, y - 32, 30, 3, 0x000000);
-        this.healthBarBg.setDepth(2); // Same depth as sprite
+        this.healthBarBg.setDepth(2);
         this.healthBarBg.setScrollFactor(1, 1);
+        this.healthBarBg.setVisible(false); // Hidden by default
+
         this.healthBar = this.scene.add.rectangle(x, y - 32, 30, 3, 0xff0000);
-        this.healthBar.setDepth(2); // Same depth as sprite
+        this.healthBar.setDepth(2);
         this.healthBar.setScrollFactor(1, 1);
+        this.healthBar.setVisible(false); // Hidden by default
 
         this.updateHealthBar();
     }
@@ -81,30 +61,12 @@ class Enemy {
             this.sprite.clearTint();
         });
 
-        // Damage number
-        this.showDamageNumber(amount);
+        // PERFORMANCE: Removed damage numbers (saves text objects + tweens)
+
+        // Show health bar when damaged
+        this.healthBar.setVisible(true);
+        this.healthBarBg.setVisible(true);
         this.updateHealthBar();
-    }
-
-    showDamageNumber(amount) {
-        const x = this.sprite.x + Phaser.Math.Between(-10, 10);
-        const y = this.sprite.y - 30;
-
-        const damageText = this.scene.add.text(x, y, `-${amount}`, {
-            font: 'bold 14px monospace',
-            fill: '#ffff00',
-            stroke: '#000000',
-            strokeThickness: 2
-        }).setOrigin(0.5);
-
-        this.scene.tweens.add({
-            targets: damageText,
-            y: y - 30,
-            alpha: 0,
-            duration: 800,
-            ease: 'Power2',
-            onComplete: () => damageText.destroy()
-        });
     }
 
     die() {
@@ -135,13 +97,11 @@ class Enemy {
 
         // Fade out main sprite
         this.scene.tweens.add({
-            targets: [this.sprite, this.glow, this.label, this.healthBar, this.healthBarBg],
+            targets: [this.sprite, this.healthBar, this.healthBarBg],
             alpha: 0,
             duration: 300,
             onComplete: () => {
                 this.sprite.destroy();
-                this.glow.destroy();
-                this.label.destroy();
                 this.healthBar.destroy();
                 this.healthBarBg.destroy();
             }
@@ -207,17 +167,11 @@ class Enemy {
 
             this.lastX = this.sprite.x;
 
-            // Update UI element positions with safety checks
-            if (this.glow && this.glow.active) {
-                this.glow.setPosition(this.sprite.x, this.sprite.y);
-            }
-            if (this.label && this.label.active) {
-                this.label.setPosition(this.sprite.x, this.sprite.y - 40);
-            }
-            if (this.healthBarBg && this.healthBarBg.active) {
+            // Update health bar positions (only if visible)
+            if (this.healthBarBg && this.healthBarBg.active && this.healthBarBg.visible) {
                 this.healthBarBg.setPosition(this.sprite.x, this.sprite.y - 32);
             }
-            if (this.healthBar && this.healthBar.active) {
+            if (this.healthBar && this.healthBar.active && this.healthBar.visible) {
                 this.healthBar.setPosition(this.sprite.x - 15 + (30 * (this.health / this.maxHealth) / 2), this.sprite.y - 32);
             }
         }

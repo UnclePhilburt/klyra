@@ -417,29 +417,30 @@ class Lobby {
         let bossChance = 0;
 
         if (distanceFromSpawn < 100) {
+            // PERFORMANCE: Reduced spawn counts by ~40%
             // Close to spawn: 1 pack, 1-2 small wolves
             packsToSpawn = 1;
             minPackSize = 1;
-            maxPackSize = 2;
+            maxPackSize = 1; // Reduced from 2
             bossChance = 0;
         } else if (distanceFromSpawn < 200) {
-            // Medium distance: 1-2 packs, 2-3 wolves, 5% boss chance
-            packsToSpawn = Math.random() < 0.5 ? 1 : 2;
-            minPackSize = 2;
-            maxPackSize = 3;
-            bossChance = 0.05;
+            // Medium distance: 1 pack, 1-2 wolves, 3% boss chance
+            packsToSpawn = 1; // Reduced from 1-2
+            minPackSize = 1; // Reduced from 2
+            maxPackSize = 2; // Reduced from 3
+            bossChance = 0.03; // Reduced from 0.05
         } else if (distanceFromSpawn < 400) {
-            // Far: 2 packs, 3-5 wolves, 15% boss chance
-            packsToSpawn = 2;
-            minPackSize = 3;
-            maxPackSize = 5;
-            bossChance = 0.15;
+            // Far: 1 pack, 2-3 wolves, 10% boss chance
+            packsToSpawn = 1; // Reduced from 2
+            minPackSize = 2; // Reduced from 3
+            maxPackSize = 3; // Reduced from 5
+            bossChance = 0.10; // Reduced from 0.15
         } else {
-            // Very far: 2-3 packs, 4-6 wolves, 25% boss chance
-            packsToSpawn = Math.random() < 0.5 ? 2 : 3;
-            minPackSize = 4;
-            maxPackSize = 6;
-            bossChance = 0.25;
+            // Very far: 1-2 packs, 2-4 wolves, 15% boss chance
+            packsToSpawn = Math.random() < 0.5 ? 1 : 2; // Reduced from 2-3
+            minPackSize = 2; // Reduced from 4
+            maxPackSize = 4; // Reduced from 6
+            bossChance = 0.15; // Reduced from 0.25
         }
 
         // Use seed for consistent spawning
@@ -1696,7 +1697,7 @@ setInterval(() => {
             lobby.updateEnemies();
         }
     });
-}, 200); // Update every 200ms (reduced from 100ms to prevent flicker)
+}, 350); // PERFORMANCE: Update every 350ms (reduced from 200ms for 0.1 CPU tier)
 
 // Cleanup old lobbies
 setInterval(() => {

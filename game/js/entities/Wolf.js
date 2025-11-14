@@ -42,11 +42,7 @@ class Wolf {
         // Track last position for movement detection
         this.lastX = x;
 
-        // Add variant-colored glow effect
-        this.glow = this.scene.add.circle(x, y, glowSize, glowColor, 0.15);
-        this.glow.setDepth(1); // Below sprite to avoid z-fighting
-        this.glow.setScrollFactor(1, 1); // Make glow follow camera too
-        this.glow.visible = true;
+        // PERFORMANCE: Removed glow effect (saves 1 object per wolf)
 
         // Store variant for reference
         this.variant = variant;
@@ -76,29 +72,7 @@ class Wolf {
             this.sprite.clearTint();
         });
 
-        // Damage number
-        this.showDamageNumber(amount);
-    }
-
-    showDamageNumber(amount) {
-        const x = this.sprite.x + Phaser.Math.Between(-10, 10);
-        const y = this.sprite.y - 30;
-
-        const damageText = this.scene.add.text(x, y, `-${amount}`, {
-            font: 'bold 14px monospace',
-            fill: '#ffff00',
-            stroke: '#000000',
-            strokeThickness: 2
-        }).setOrigin(0.5);
-
-        this.scene.tweens.add({
-            targets: damageText,
-            y: y - 30,
-            alpha: 0,
-            duration: 800,
-            ease: 'Power2',
-            onComplete: () => damageText.destroy()
-        });
+        // PERFORMANCE: Removed damage numbers (saves text objects + tweens)
     }
 
     die() {
@@ -131,8 +105,8 @@ class Wolf {
             });
         }
 
-        // Fade out main sprite, glow, and crown
-        const targets = [this.sprite, this.glow];
+        // Fade out main sprite and crown
+        const targets = [this.sprite];
         if (this.crownText) targets.push(this.crownText);
 
         this.scene.tweens.add({
@@ -141,7 +115,6 @@ class Wolf {
             duration: 300,
             onComplete: () => {
                 if (this.sprite) this.sprite.destroy();
-                if (this.glow) this.glow.destroy();
                 if (this.crownText) this.crownText.destroy();
             }
         });
@@ -197,11 +170,6 @@ class Wolf {
             }
 
             this.lastX = this.sprite.x;
-
-            // Update glow position
-            if (this.glow && this.glow.active) {
-                this.glow.setPosition(this.sprite.x, this.sprite.y);
-            }
 
             // Update crown position for boss wolves
             if (this.crownText && this.crownText.active) {
