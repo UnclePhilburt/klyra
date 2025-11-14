@@ -174,6 +174,11 @@ class Minion {
         const roleIndex = allMinions.indexOf(this);
         const roleCount = allMinions.length;
 
+        // DEBUG: Log role distribution occasionally
+        if (Math.random() < 0.005) { // 0.5% chance
+            console.log(`🎭 ${this.role}: roleIndex=${roleIndex}, roleCount=${roleCount}, isMoving=${isMoving}, moveAngle=${(moveAngle * 180 / Math.PI).toFixed(0)}°`);
+        }
+
         switch(this.role) {
             case 'scout':
                 // Ahead of player in movement direction
@@ -227,6 +232,20 @@ class Minion {
                 targetX += Math.cos(bodyguardAngle) * distance;
                 targetY += Math.sin(bodyguardAngle) * distance;
                 break;
+
+            default:
+                // Unknown role - just stay near player
+                console.warn(`⚠️ Unknown minion role: ${this.role}`);
+                break;
+        }
+
+        // DEBUG: Validate formation position
+        const offsetX = targetX - owner.sprite.x;
+        const offsetY = targetY - owner.sprite.y;
+        const offsetDist = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+
+        if (Math.random() < 0.005) { // 0.5% chance
+            console.log(`🎯 ${this.role} formation offset: (${offsetX.toFixed(0)}, ${offsetY.toFixed(0)}), dist: ${offsetDist.toFixed(0)}px`);
         }
 
         return { x: targetX, y: targetY };
@@ -338,6 +357,12 @@ class Minion {
         } else {
             // Priority 4: Move to formation position
             this.state = 'patrolling';
+
+            // DEBUG: Log formation state occasionally
+            if (Math.random() < 0.005) { // 0.5% chance
+                console.log(`📍 ${this.role} patrolling to formation: (${this.formationPosition.x.toFixed(0)}, ${this.formationPosition.y.toFixed(0)}), current: (${this.sprite.x.toFixed(0)}, ${this.sprite.y.toFixed(0)})`);
+            }
+
             this.moveToFormationPosition();
         }
 
