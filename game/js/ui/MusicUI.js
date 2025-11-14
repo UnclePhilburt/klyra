@@ -69,9 +69,13 @@ class MusicUI {
         // Control buttons (hidden when collapsed)
         this.createControls();
 
-        // Make the whole thing interactive for hover
-        this.hitArea = this.scene.add.rectangle(0, 0, this.collapsedWidth, this.collapsedHeight, 0xffffff, 0.001);
+        // Volume slider container (appears inline)
+        this.createVolumeSlider();
+
+        // Make the whole thing interactive for hover (add LAST so it's on top)
+        this.hitArea = this.scene.add.rectangle(0, 0, this.collapsedWidth, this.collapsedHeight, 0xffffff, 0.01);
         this.hitArea.setInteractive({ useHandCursor: true });
+        this.hitArea.setScrollFactor(0);
         this.container.add(this.hitArea);
 
         this.hitArea.on('pointerover', () => {
@@ -81,9 +85,6 @@ class MusicUI {
         this.hitArea.on('pointerout', () => {
             this.onHoverEnd();
         });
-
-        // Volume slider container (appears inline)
-        this.createVolumeSlider();
 
         // Update initial track
         const currentTrack = this.musicManager.getCurrentTrack();
