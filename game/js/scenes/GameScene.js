@@ -2850,21 +2850,20 @@ class GameScene extends Phaser.Scene {
 
         // Depth sorting - use Y position for proper layering
         // Higher Y = further down screen = higher depth (in front)
-        if (this.treeSprites && this.treeSprites.length > 0) {
-            const playerY = this.localPlayer.sprite.y;
+        // PERFORMANCE: Only update depth for moving objects (players), NOT static objects (trees)
 
-            // Set player depth based on Y position
-            this.localPlayer.sprite.setDepth(playerY);
+        // Set player depth based on Y position
+        this.localPlayer.sprite.setDepth(this.localPlayer.sprite.y);
 
-            // Set each tree sprite's depth based on its collision Y
-            this.treeSprites.forEach(tree => {
-                const treeDepth = tree.collisionY + 1000;
+        // Update other players' depth
+        Object.values(this.otherPlayers).forEach(player => {
+            if (player.sprite && player.sprite.active) {
+                player.sprite.setDepth(player.sprite.y);
+            }
+        });
 
-                tree.sprites.forEach(sprite => {
-                    sprite.setDepth(treeDepth);
-                });
-            });
-        }
+        // NOTE: Tree depths are set ONCE when created, not every frame!
+        // This saves massive performance (was updating 100s of sprites every frame)
 
         this.perfTimings.other += (performance.now() - t7);
 

@@ -300,6 +300,9 @@ class MainMenu {
     }
     
     animate() {
+        // Stop animation if we've stopped (entered game)
+        if (this.animationStopped) return;
+
         this.ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';  // Changed from blue to black
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -307,7 +310,7 @@ class MainMenu {
             particle.update();
             particle.draw(this.ctx);
         });
-        
+
         requestAnimationFrame(() => this.animate());
     }
     
@@ -395,6 +398,8 @@ class MainMenu {
             this.menuMusic.currentTime = 0;
             this.musicStarted = false;
         }
+        // Stop particle animation to save performance in-game
+        this.animationStopped = true;
     }
     
     loadSavedPlayerName() {
