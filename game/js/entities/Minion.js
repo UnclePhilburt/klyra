@@ -167,17 +167,17 @@ class Minion {
         let targetY = owner.sprite.y;
         let distance = this.combatMode ? this.patrolDistance * 0.5 : this.patrolDistance;
 
+        // DEBUG: Log formation calc inputs
+        if (Math.random() < 0.01) { // 1% chance
+            console.log(`🔍 ${this.role} formation calc: player=(${owner.sprite.x.toFixed(0)}, ${owner.sprite.y.toFixed(0)}), patrolDist=${this.patrolDistance}, combatMode=${this.combatMode}, distance=${distance}`);
+        }
+
         // Count minions of same role for better spreading
         const allMinions = Object.values(this.scene.minions || {}).filter(m =>
             m.ownerId === this.ownerId && m.isAlive && m.role === this.role
         );
         const roleIndex = allMinions.indexOf(this);
         const roleCount = allMinions.length;
-
-        // DEBUG: Log role distribution occasionally
-        if (Math.random() < 0.005) { // 0.5% chance
-            console.log(`🎭 ${this.role}: roleIndex=${roleIndex}, roleCount=${roleCount}, isMoving=${isMoving}, moveAngle=${(moveAngle * 180 / Math.PI).toFixed(0)}°`);
-        }
 
         switch(this.role) {
             case 'scout':
@@ -244,8 +244,9 @@ class Minion {
         const offsetY = targetY - owner.sprite.y;
         const offsetDist = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
 
-        if (Math.random() < 0.005) { // 0.5% chance
-            console.log(`🎯 ${this.role} formation offset: (${offsetX.toFixed(0)}, ${offsetY.toFixed(0)}), dist: ${offsetDist.toFixed(0)}px`);
+        // ALWAYS log this to diagnose the issue
+        if (Math.random() < 0.02) { // 2% chance
+            console.log(`🎯 ${this.role}: offset=(${offsetX.toFixed(1)}, ${offsetY.toFixed(1)}), dist=${offsetDist.toFixed(1)}px, moveAngle=${(moveAngle * 180 / Math.PI).toFixed(0)}°, distance=${distance}`);
         }
 
         return { x: targetX, y: targetY };
