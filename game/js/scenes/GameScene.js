@@ -2229,8 +2229,14 @@ class GameScene extends Phaser.Scene {
             this.loadInteriorMap();
         }
 
+        // Remove camera bounds so it can follow to negative coordinates
+        this.cameras.main.setBounds();
+
         // Teleport player to interior (far away from main world)
         this.localPlayer.sprite.setPosition(this.interiorX, this.interiorY);
+
+        // Immediately center camera on player
+        this.cameras.main.centerOn(this.interiorX, this.interiorY);
 
         // Show transition effect
         this.cameras.main.fadeOut(200, 0, 0, 0);
@@ -2247,13 +2253,20 @@ class GameScene extends Phaser.Scene {
 
         this.currentMap = 'exterior';
 
-        // Teleport player back to exterior (just outside door)
+        // Restore camera bounds to main world
         const worldSize = this.gameData.world.size;
         const tileSize = GameConfig.GAME.TILE_SIZE;
+        const worldPixelWidth = worldSize * tileSize;
+        const worldPixelHeight = worldSize * tileSize;
+        this.cameras.main.setBounds(0, 0, worldPixelWidth, worldPixelHeight);
+
+        // Teleport player back to exterior (just outside door)
         const worldCenterX = (worldSize / 2) * tileSize;
         const worldCenterY = (worldSize / 2) * tileSize;
-
         this.localPlayer.sprite.setPosition(worldCenterX, worldCenterY + 100);
+
+        // Immediately center camera on player
+        this.cameras.main.centerOn(worldCenterX, worldCenterY + 100);
 
         // Show transition effect
         this.cameras.main.fadeOut(200, 0, 0, 0);
