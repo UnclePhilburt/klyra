@@ -119,7 +119,7 @@ window.debugFormationCalc = function() {
 
         let distance = m.combatMode ? m.patrolDistance * 0.5 : m.patrolDistance;
 
-        const formPos = m.calculateFormationPosition(owner);
+        const formPos = m.calculateFormationPositionV2 ? m.calculateFormationPositionV2(owner) : m.calculateFormationPosition(owner);
         const offsetX = formPos.x - owner.sprite.x;
         const offsetY = formPos.y - owner.sprite.y;
         const dist = Math.sqrt(offsetX * offsetX + offsetY * offsetY);

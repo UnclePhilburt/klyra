@@ -139,8 +139,9 @@ class Minion {
         console.log(`🛡️ Minion ${index} assigned role: ${this.role.toUpperCase()}`);
     }
 
-    // FORMATION SYSTEM V2: Complete rewrite for clarity
-    calculateFormationPosition(owner) {
+    // FORMATION SYSTEM V2: Complete rewrite for clarity (renamed function to break cache)
+    calculateFormationPositionV2(owner) {
+        console.log('🚨🚨🚨 NEW FUNCTION NAME - V2 CODE RUNNING! 🚨🚨🚨');
         if (!owner || !owner.sprite) return { x: this.sprite.x, y: this.sprite.y };
         if (!this.role) return { x: this.sprite.x, y: this.sprite.y };
 
@@ -304,8 +305,8 @@ class Minion {
             return;
         }
 
-        // INTELLIGENT FORMATION: Calculate formation position (may be adjusted by health)
-        this.formationPosition = this.calculateFormationPosition(owner);
+        // FORMATION V2: Using new function name to force cache break
+        this.formationPosition = this.calculateFormationPositionV2(owner);
 
         // Priority 2: Detect threats and enter combat mode
         const nearbyThreats = this.detectThreats();
