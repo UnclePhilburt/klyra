@@ -178,6 +178,11 @@ class Minion {
         let offsetX = 0;
         let offsetY = 0;
 
+        // DEBUG: Prove new code is running
+        if (this.role === 'scout' && Math.random() < 0.1) {
+            console.log(`🔥 NEW FORMATION CODE RUNNING for ${this.role}`);
+        }
+
         switch(this.role) {
             case 'scout':
                 // Ahead of player in movement direction
@@ -244,9 +249,9 @@ class Minion {
         const targetY = playerY + offsetY;
         const offsetDist = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
 
-        // DEBUG: Log formation calculation
-        if (Math.random() < 0.02) { // 2% chance
-            console.log(`🎯 ${this.role}: offset=(${offsetX.toFixed(1)}, ${offsetY.toFixed(1)}), dist=${offsetDist.toFixed(1)}px, moveAngle=${(moveAngle * 180 / Math.PI).toFixed(0)}°, patrolDist=${this.patrolDistance}`);
+        // DEBUG: ALWAYS log for scouts to verify calculation
+        if (this.role === 'scout') {
+            console.log(`🔥 SCOUT CALC: player=(${playerX}, ${playerY}), offset=(${offsetX.toFixed(1)}, ${offsetY.toFixed(1)}), target=(${targetX.toFixed(1)}, ${targetY.toFixed(1)}), dist=${offsetDist.toFixed(1)}px`);
         }
 
         return { x: targetX, y: targetY };
