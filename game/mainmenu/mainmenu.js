@@ -372,15 +372,15 @@ class MainMenu {
     }
     
     loadMenuMusic() {
-        const musicPath = 'mainmenu/music/menu-theme.mp3';
+        const musicPath = 'assets/music/poltergeist-and-a-piano.mp3';
         this.menuMusic = new Audio(musicPath);
         this.menuMusic.loop = true;
-        
+
         const savedVolume = localStorage.getItem('menuMusicVolume');
         const volumeLevel = savedVolume !== null ? parseInt(savedVolume) / 100 : 0.3;
         this.menuMusic.volume = volumeLevel;
-        
-        console.log('🎵 Menu music loaded and ready');
+
+        console.log('🎵 Menu music loaded: Poltergeist and a Piano');
     }
     
     playMusic() {

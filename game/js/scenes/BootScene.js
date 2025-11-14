@@ -74,6 +74,9 @@ class BootScene extends Phaser.Scene {
         console.log('📦 Loading sprite: malachar from assets/sprites/malachar.png');
         console.log('📦 Loading sprite: malacharminion from assets/sprites/malacharminion.png');
 
+        // Load music files
+        MusicManager.preload(this);
+
         // Debug: Log spritesheet info after load
         this.load.once('complete', () => {
             const texture = this.textures.get('malachar');

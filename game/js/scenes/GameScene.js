@@ -55,6 +55,19 @@ class GameScene extends Phaser.Scene {
             this.skillSelector = null;
         }
 
+        // Destroy music system
+        if (this.musicManager) {
+            console.log('🧹 Destroying MusicManager');
+            this.musicManager.destroy();
+            this.musicManager = null;
+        }
+
+        if (this.musicUI) {
+            console.log('🧹 Destroying MusicUI');
+            this.musicUI.destroy();
+            this.musicUI = null;
+        }
+
         console.log('🧹 GameScene cleanup complete');
     }
 
@@ -1359,6 +1372,13 @@ class GameScene extends Phaser.Scene {
 
         // Create skill selector system
         this.skillSelector = new SkillSelector(this);
+
+        // Create music system
+        this.musicManager = new MusicManager(this);
+        this.musicUI = new MusicUI(this, this.musicManager);
+
+        // Start gameplay music
+        this.musicManager.startGameplayMusic();
     }
 
     setupControls() {
