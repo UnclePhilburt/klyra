@@ -1657,9 +1657,15 @@ class GameScene extends Phaser.Scene {
                         );
                     }
 
-                    // Show skill selector!
-                    if (this.skillSelector) {
+                    // Show skill selector only at milestone levels (new skill tree v2)
+                    const milestones = [1, 5, 10, 15];
+                    const isMilestone = milestones.includes(data.level) || data.level >= 16;
+
+                    if (this.skillSelector && isMilestone) {
+                        console.log(`🎯 Milestone level ${data.level} - showing skill selector`);
                         this.skillSelector.show(player.class, data.level);
+                    } else {
+                        console.log(`📊 Level ${data.level} - no skill choices (milestones: 1, 5, 10, 15, 16+)`);
                     }
                 }
             }
