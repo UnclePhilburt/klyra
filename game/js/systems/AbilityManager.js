@@ -11,26 +11,17 @@ class AbilityManager {
             r: 0
         };
 
-        // Cooldown UI elements
+        // Cooldown UI elements (hidden by default)
         this.cooldownUI = null;
 
-        this.createCooldownUI();
+        // Don't create UI - we'll keep it invisible
+        // this.createCooldownUI();
     }
 
     createCooldownUI() {
-        const width = this.scene.cameras.main.width;
-        const height = this.scene.cameras.main.height;
-
-        // Position at bottom center (above skill selector area)
-        const startY = height - 450;
-        const centerX = width / 2;
-        const spacing = 100;
-
-        this.cooldownUI = {
-            q: this.createAbilityButton(centerX - spacing, startY, 'Q'),
-            e: this.createAbilityButton(centerX, startY, 'E'),
-            r: this.createAbilityButton(centerX + spacing, startY, 'R')
-        };
+        // UI creation removed - abilities work via keybinds only
+        // No visual buttons on screen
+        return;
     }
 
     createAbilityButton(x, y, key) {
@@ -104,37 +95,8 @@ class AbilityManager {
     }
 
     updateCooldownUI() {
-        Object.keys(this.cooldownUI).forEach(key => {
-            const ui = this.cooldownUI[key];
-            const cooldown = this.cooldowns[key];
-            const ability = this.player.abilities ? this.player.abilities[key] : null;
-
-            // Show/hide ability name
-            if (ability) {
-                ui.abilityName.setText(ability.name);
-                ui.abilityName.setVisible(true);
-            } else {
-                ui.abilityName.setVisible(false);
-            }
-
-            // Update cooldown display
-            if (cooldown > 0) {
-                ui.cooldownOverlay.setVisible(true);
-                ui.cooldownText.setVisible(true);
-                ui.cooldownText.setText(Math.ceil(cooldown / 1000).toString());
-                ui.bg.setStrokeStyle(3, 0x444444, 0.8);
-            } else {
-                ui.cooldownOverlay.setVisible(false);
-                ui.cooldownText.setVisible(false);
-
-                // Available - glow
-                if (ability) {
-                    ui.bg.setStrokeStyle(3, 0x6B4FFF, 0.8);
-                } else {
-                    ui.bg.setStrokeStyle(3, 0x333333, 0.3);
-                }
-            }
-        });
+        // No UI to update - abilities are invisible
+        return;
     }
 
     canUseAbility(key) {
@@ -173,16 +135,8 @@ class AbilityManager {
     }
 
     flashButton(key) {
-        const ui = this.cooldownUI[key];
-
-        this.scene.tweens.add({
-            targets: ui.bg,
-            scaleX: 1.2,
-            scaleY: 1.2,
-            duration: 100,
-            yoyo: true,
-            ease: 'Power2'
-        });
+        // No visual button to flash
+        return;
     }
 
     executeAbility(key, ability) {

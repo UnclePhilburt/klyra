@@ -275,21 +275,15 @@ class GameScene extends Phaser.Scene {
             console.log(`📍 Sending initial position: pixel(${this.localPlayer.sprite.x.toFixed(0)}, ${this.localPlayer.sprite.y.toFixed(0)}) -> grid(${gridPos.x}, ${gridPos.y})`);
             networkManager.movePlayer(gridPos);
 
-            // Spawn permanent minion if player is Malachar (level 1 only)
-            if (myData.class === 'MALACHAR' && myData.level === 1) {
-                const minion = this.spawnMinion(
-                    this.localPlayer.sprite.x + 40,
-                    this.localPlayer.sprite.y,
-                    myData.id,
-                    true // permanent
-                );
-
-                // Track on server
-                if (minion && minion.minionId) {
-                    networkManager.trackPermanentMinion(minion.minionId, 'add');
-                }
-
-                console.log('🔮 Malachar starting minion spawned');
+            // Show skill selector immediately at level 1 for path selection
+            if (myData.level === 1) {
+                console.log('🎯 Level 1 - showing initial path selection');
+                // Delay slightly to ensure all systems are initialized
+                this.time.delayedCall(500, () => {
+                    if (this.skillSelector) {
+                        this.skillSelector.show(myData.class, 1);
+                    }
+                });
             }
         }
 
@@ -2400,25 +2394,7 @@ class GameScene extends Phaser.Scene {
 
             console.log(`📍 Respawned at (${playerData.respawnPosition.x}, ${playerData.respawnPosition.y})`);
 
-            // Malachar starts with 1 permanent minion
-            const isMalachar = player.data.characterId === 'MALACHAR' ||
-                               player.class === 'MALACHAR' ||
-                               player.class === 'Malachar';
-
-            if (isMalachar && player.level === 1) {
-                console.log('🔮 Malachar detected - spawning starting minion');
-                const minion = this.spawnMinion(
-                    pixelX + 60,
-                    pixelY,
-                    player.data.id,
-                    true // permanent
-                );
-
-                // Track on server
-                if (minion && minion.minionId) {
-                    networkManager.trackPermanentMinion(minion.minionId, 'add');
-                }
-            }
+            // Starting minions are now handled by skill tree path selection
         }
 
         // Update UI
