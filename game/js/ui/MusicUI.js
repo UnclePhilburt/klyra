@@ -168,19 +168,25 @@ class MusicUI {
         this.skipButton = this.createMinimalButton(0, 0, '⏭', () => {
             this.musicManager.skipTrack();
             this.pulseButton(this.skipButton);
+            this.startCollapseTimer();
         });
 
-        // Mute button  
+        // Mute button
         this.muteButton = this.createMinimalButton(35, 0, '🔊', () => {
             const isMuted = this.musicManager.toggleMute();
             this.muteButton.setText(isMuted ? '🔇' : '🔊');
             this.pulseButton(this.muteButton);
+            this.startCollapseTimer();
         });
 
         // Volume button
         this.volumeButton = this.createMinimalButton(70, 0, '🎚', () => {
             this.toggleVolumeSlider();
             this.pulseButton(this.volumeButton);
+            // Don't auto-collapse when volume slider is open
+            if (!this.volumeSliderVisible) {
+                this.startCollapseTimer();
+            }
         });
     }
 
@@ -333,10 +339,25 @@ class MusicUI {
 
     onHoverEnd() {
         this.isHovering = false;
-        
+
         // Set idle timer to collapse after 2 seconds
         this.idleTimer = this.scene.time.delayedCall(2000, () => {
             if (!this.isHovering && !this.volumeSliderVisible) {
+                this.collapse();
+            }
+        });
+    }
+
+    startCollapseTimer() {
+        // Clear any existing timer
+        if (this.idleTimer) {
+            this.idleTimer.remove();
+            this.idleTimer = null;
+        }
+
+        // Start new timer to collapse after 2 seconds (ignores hover state)
+        this.idleTimer = this.scene.time.delayedCall(2000, () => {
+            if (!this.volumeSliderVisible) {
                 this.collapse();
             }
         });
@@ -520,6 +541,9 @@ class MusicUI {
             delay: 150,
             ease: 'Power2.easeOut'
         });
+
+        // Start collapse timer after closing volume slider
+        this.startCollapseTimer();
     }
 
     pulseButton(button) {
