@@ -125,6 +125,48 @@ class Player {
 
     attack(targetX, targetY) {
         this.spriteRenderer.animateAttack(targetX, targetY);
+
+        // Malachar (Bone Commander spec) heals minions with auto attacks
+        if (this.class === 'malachar' && this.scene.selectedCharacter === 'bone_commander') {
+            this.healNearestMinion();
+        }
+    }
+
+    healNearestMinion() {
+        // Find nearest minion owned by this player
+        let nearestMinion = null;
+        let nearestDistance = Infinity;
+
+        Object.values(this.scene.minions).forEach(minion => {
+            if (minion.ownerId === this.data.id && minion.isAlive) {
+                const dx = minion.sprite.x - this.spriteRenderer.sprite.x;
+                const dy = minion.sprite.y - this.spriteRenderer.sprite.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearestMinion = minion;
+                }
+            }
+        });
+
+        // Heal the nearest minion
+        if (nearestMinion) {
+            // Send heal request to server
+            networkManager.socket.emit('minion:heal', {
+                minionId: nearestMinion.data.id,
+                healAmount: 15, // From MalacharSkills.js autoAttack.heal
+                position: {
+                    x: nearestMinion.sprite.x,
+                    y: nearestMinion.sprite.y
+                }
+            });
+
+            // Show visual effect immediately (client prediction)
+            this.scene.showMinionHealEffect(nearestMinion.sprite.x, nearestMinion.sprite.y);
+
+            console.log(`💚 Healing minion ${nearestMinion.data.id} for 15 HP`);
+        }
     }
 
     takeDamage(amount) {

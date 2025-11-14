@@ -30,7 +30,7 @@ class GameScene extends Phaser.Scene {
             'player:joined', 'player:left', 'player:moved', 'player:changedMap', 'player:attacked',
             'player:damaged', 'player:levelup', 'player:died',
             'enemy:spawned', 'enemy:damaged', 'enemy:moved', 'enemy:killed',
-            'minion:spawned', 'minion:damaged',
+            'minion:spawned', 'minion:damaged', 'minion:healed',
             'item:spawned', 'item:collected', 'chat:message'
         ];
 
@@ -1478,7 +1478,7 @@ class GameScene extends Phaser.Scene {
             'player:joined', 'player:left', 'player:moved', 'player:changedMap', 'player:attacked',
             'player:damaged', 'player:levelup', 'player:died',
             'enemy:spawned', 'enemy:damaged', 'enemy:moved', 'enemy:killed',
-            'minion:spawned', 'minion:damaged',
+            'minion:spawned', 'minion:damaged', 'minion:healed',
             'item:spawned', 'item:collected', 'chat:message'
         ];
 
@@ -1740,6 +1740,37 @@ class GameScene extends Phaser.Scene {
             const minion = this.minions[data.minionId];
             if (minion) {
                 minion.takeDamage(data.damage);
+            }
+        });
+
+        // Minion healed (Malachar's auto attack)
+        networkManager.on('minion:healed', (data) => {
+            const minion = this.minions[data.minionId];
+            if (minion && minion.sprite && minion.sprite.active) {
+                // Show visual effect at minion position
+                this.showMinionHealEffect(minion.sprite.x, minion.sprite.y);
+
+                // Apply healing (client-side visual)
+                if (minion.health < minion.maxHealth) {
+                    minion.health = Math.min(minion.maxHealth, minion.health + data.healAmount);
+
+                    // Show +HP text
+                    const healText = this.add.text(minion.sprite.x, minion.sprite.y - 30, `+${data.healAmount}`, {
+                        font: 'bold 14px monospace',
+                        fill: '#4AE290',
+                        stroke: '#000000',
+                        strokeThickness: 2
+                    }).setOrigin(0.5);
+
+                    this.tweens.add({
+                        targets: healText,
+                        y: minion.sprite.y - 60,
+                        alpha: 0,
+                        duration: 800,
+                        ease: 'Power2',
+                        onComplete: () => healText.destroy()
+                    });
+                }
             }
         });
 

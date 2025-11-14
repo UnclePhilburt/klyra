@@ -1538,6 +1538,31 @@ io.on('connection', (socket) => {
         }
     });
 
+    // Handle Malachar healing minions
+    socket.on('minion:heal', (data) => {
+        try {
+            const player = players.get(socket.id);
+            if (!player || !player.lobbyId) return;
+
+            const lobby = lobbies.get(player.lobbyId);
+            if (!lobby || lobby.status !== 'active') return;
+
+            const { minionId, healAmount, position } = data;
+
+            // Broadcast heal effect to all players
+            lobby.broadcast('minion:healed', {
+                minionId: minionId,
+                healAmount: healAmount,
+                playerId: player.id,
+                position: position
+            });
+
+            console.log(`💚 ${player.username} healed minion ${minionId} for ${healAmount} HP`);
+        } catch (error) {
+            console.error('Error in minion:heal:', error);
+        }
+    });
+
     // Request skill restoration (on reconnect/respawn)
     socket.on('skills:requestRestore', () => {
         try {

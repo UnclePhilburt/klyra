@@ -148,6 +148,19 @@ class NetworkManager {
             this.emit('item:picked', data);
         });
 
+        // Minion events
+        this.socket.on('minion:spawned', (data) => {
+            this.emit('minion:spawned', data);
+        });
+
+        this.socket.on('minion:damaged', (data) => {
+            this.emit('minion:damaged', data);
+        });
+
+        this.socket.on('minion:healed', (data) => {
+            this.emit('minion:healed', data);
+        });
+
         // Chat events
         this.socket.on('chat:message', (data) => {
             console.log(`💬 ${data.username}: ${data.message}`);
