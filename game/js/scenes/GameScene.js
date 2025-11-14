@@ -394,9 +394,9 @@ class GameScene extends Phaser.Scene {
         this.renderedTiles = new Map(); // Track rendered tiles
         this.renderedDecorations = new Map(); // Track rendered decorations with their sprites
         // PERFORMANCE: Asymmetric render distance to match screen aspect ratio (16:9)
-        // Reduced further to combat tree sprite explosion (106 trees × 18 sprites = 1,908 sprites!)
-        this.RENDER_DISTANCE_X = 18; // Horizontal (wider for landscape screens)
-        this.RENDER_DISTANCE_Y = 10; // Vertical (narrower to save tiles)
+        // Aggressively reduced to combat sprite accumulation (996 tiles is 2.7x too many!)
+        this.RENDER_DISTANCE_X = 15; // Horizontal (was 18)
+        this.RENDER_DISTANCE_Y = 9; // Vertical (was 10)
 
         // Map biome types to tileset textures and tile indices
         this.BIOME_TILESET_MAP = {};
@@ -650,9 +650,9 @@ class GameScene extends Phaser.Scene {
         }
 
         // Clean up tiles far from player (keep memory manageable)
-        // PERFORMANCE: Asymmetric cleanup based on render distances
-        const CLEANUP_DISTANCE_X = this.RENDER_DISTANCE_X * 1.4;
-        const CLEANUP_DISTANCE_Y = this.RENDER_DISTANCE_Y * 1.4;
+        // PERFORMANCE: Tight cleanup to prevent accumulation (996 tiles with 1.4x, trying 1.15x)
+        const CLEANUP_DISTANCE_X = this.RENDER_DISTANCE_X * 1.15;
+        const CLEANUP_DISTANCE_Y = this.RENDER_DISTANCE_Y * 1.15;
 
         this.renderedTiles.forEach((sprite, key) => {
             const [x, y] = key.split(',').map(Number);
@@ -2772,12 +2772,8 @@ class GameScene extends Phaser.Scene {
         this.localPlayer.move(velocityX, velocityY);
 
         // Update visible tiles based on camera position (viewport culling)
-        if (!this.tileUpdateCounter) this.tileUpdateCounter = 0;
-        this.tileUpdateCounter++;
-        if (this.tileUpdateCounter >= 5) {  // PERFORMANCE: Every 5 frames (was 10) for faster cleanup
-            this.tileUpdateCounter = 0;
-            this.updateVisibleTiles();
-        }
+        // PERFORMANCE: Run every frame to prevent tile accumulation (was every 5 frames causing 996 tiles!)
+        this.updateVisibleTiles();
 
         // Update animations (once per frame)
         this.localPlayer.updateAnimation(delta);
