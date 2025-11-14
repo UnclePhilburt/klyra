@@ -139,9 +139,8 @@ class Minion {
         console.log(`🛡️ Minion ${index} assigned role: ${this.role.toUpperCase()}`);
     }
 
-    // FORMATION SYSTEM V2: Complete rewrite for clarity (renamed function to break cache)
+    // DYNAMIC FORMATION SYSTEM V3: Smart, adaptive formations
     calculateFormationPositionV2(owner) {
-        console.log('🚨🚨🚨 NEW FUNCTION NAME - V2 CODE RUNNING! 🚨🚨🚨');
         if (!owner || !owner.sprite) return { x: this.sprite.x, y: this.sprite.y };
         if (!this.role) return { x: this.sprite.x, y: this.sprite.y };
 
@@ -161,73 +160,130 @@ class Minion {
                     dir === 'left' ? Math.PI : 0;
         }
 
-        // Get base distance for this role
-        const baseDistance = this.combatMode ? this.patrolDistance * 0.5 : this.patrolDistance;
-
-        // Count same-role minions for spreading
-        const sameRole = Object.values(this.scene.minions || {}).filter(m =>
-            m.ownerId === this.ownerId && m.isAlive && m.role === this.role
+        // Count all alive minions for adaptive formations
+        const allMinions = Object.values(this.scene.minions || {}).filter(m =>
+            m.ownerId === this.ownerId && m.isAlive
         );
-        const myIndex = sameRole.indexOf(this);
-        const totalSameRole = sameRole.length;
+        const totalMinions = allMinions.length;
+        const myGlobalIndex = allMinions.indexOf(this);
 
-        // Calculate position based on role (SIMPLE, CLEAR LOGIC)
+        // HEALTH-BASED DISTANCE MODIFIER
+        const healthPercent = this.health / this.maxHealth;
+        let healthModifier = 1.0;
+        if (healthPercent < 0.25) {
+            // Critical: Fall WAY back (150% further back)
+            healthModifier = this.role === 'scout' || this.role.includes('flank') ? -0.5 : 1.5;
+        } else if (healthPercent < 0.50) {
+            // Injured: Fall back slightly (25% further back)
+            healthModifier = this.role === 'scout' ? 0.7 : 1.25;
+        } else if (healthPercent > 0.90) {
+            // Healthy: Can push forward more (10% further)
+            healthModifier = this.role === 'scout' ? 1.1 : 1.0;
+        }
+
+        // COMBAT MODE: Tighten formation (0.6x distance) vs PATROL: Spread out (1.0x)
+        const combatModifier = this.combatMode ? 0.6 : 1.0;
+
+        // ADAPTIVE FORMATION PATTERNS based on minion count
         let finalX, finalY;
 
-        if (this.role === 'scout') {
-            // Scouts go AHEAD in facing direction
-            finalX = px + Math.cos(angle) * baseDistance;
-            finalY = py + Math.sin(angle) * baseDistance;
-
-            // Spread multiple scouts sideways
-            if (totalSameRole > 1) {
-                const spreadDist = 60;
-                const spreadOffset = (myIndex - (totalSameRole - 1) / 2) * spreadDist;
-                finalX += Math.cos(angle + Math.PI/2) * spreadOffset;
-                finalY += Math.sin(angle + Math.PI/2) * spreadOffset;
+        if (totalMinions <= 2) {
+            // DUET FORMATION: One ahead, one beside
+            if (myGlobalIndex === 0) {
+                // First minion: Scout ahead
+                const dist = 100 * combatModifier * healthModifier;
+                finalX = px + Math.cos(angle) * dist;
+                finalY = py + Math.sin(angle) * dist;
+            } else {
+                // Second minion: Guard left flank
+                const dist = 80 * combatModifier * healthModifier;
+                finalX = px + Math.cos(angle + Math.PI/2) * dist;
+                finalY = py + Math.sin(angle + Math.PI/2) * dist;
             }
         }
-        else if (this.role === 'flank_left') {
-            // Go LEFT of player (perpendicular to facing direction)
-            finalX = px + Math.cos(angle + Math.PI/2) * baseDistance;
-            finalY = py + Math.sin(angle + Math.PI/2) * baseDistance;
+        else if (totalMinions <= 4) {
+            // DIAMOND FORMATION: Front, Left, Right, Back
+            const positions = [
+                { a: 0, d: 120 },           // Front
+                { a: Math.PI/2, d: 100 },   // Left
+                { a: -Math.PI/2, d: 100 },  // Right
+                { a: Math.PI, d: 80 }       // Back
+            ];
+            const pos = positions[myGlobalIndex] || positions[0];
+            const dist = pos.d * combatModifier * healthModifier;
+            finalX = px + Math.cos(angle + pos.a) * dist;
+            finalY = py + Math.sin(angle + pos.a) * dist;
         }
-        else if (this.role === 'flank_right') {
-            // Go RIGHT of player
-            finalX = px + Math.cos(angle - Math.PI/2) * baseDistance;
-            finalY = py + Math.sin(angle - Math.PI/2) * baseDistance;
-        }
-        else if (this.role === 'rear_guard') {
-            // Go BEHIND player (opposite facing direction)
-            const dist = Math.abs(baseDistance); // Make sure it's positive
-            finalX = px + Math.cos(angle + Math.PI) * dist;
-            finalY = py + Math.sin(angle + Math.PI) * dist;
-
-            // Spread multiple rear guards sideways
-            if (totalSameRole > 1) {
-                const spreadDist = 60;
-                const spreadOffset = (myIndex - (totalSameRole - 1) / 2) * spreadDist;
-                finalX += Math.cos(angle + Math.PI/2) * spreadOffset;
-                finalY += Math.sin(angle + Math.PI/2) * spreadOffset;
-            }
-        }
-        else if (this.role === 'bodyguard') {
-            // Circle around player
-            const circleAngle = (myIndex / Math.max(totalSameRole, 1)) * Math.PI * 2;
-            finalX = px + Math.cos(angle + circleAngle) * baseDistance;
-            finalY = py + Math.sin(angle + circleAngle) * baseDistance;
+        else if (totalMinions <= 6) {
+            // WEDGE FORMATION: Strong front, protected rear
+            const positions = [
+                { a: 0, d: 150 },              // Point scout
+                { a: Math.PI/6, d: 120 },      // Right forward
+                { a: -Math.PI/6, d: 120 },     // Left forward
+                { a: Math.PI/2, d: 100 },      // Right flank
+                { a: -Math.PI/2, d: 100 },     // Left flank
+                { a: Math.PI, d: 80 }          // Rear guard
+            ];
+            const pos = positions[myGlobalIndex] || positions[0];
+            const dist = pos.d * combatModifier * healthModifier;
+            finalX = px + Math.cos(angle + pos.a) * dist;
+            finalY = py + Math.sin(angle + pos.a) * dist;
         }
         else {
-            // Default: just stay near player
-            finalX = px;
-            finalY = py;
-        }
+            // ARMY FORMATION (7+ minions): Use roles with dynamic spacing
+            let baseDistance = this.patrolDistance * combatModifier * healthModifier;
 
-        // DEBUG: Always log for verification
-        const dx = finalX - px;
-        const dy = finalY - py;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        console.log(`⭐ ${this.role.toUpperCase()}: patrolDist=${this.patrolDistance}, calculated=${dist.toFixed(0)}px, offset=(${dx.toFixed(0)}, ${dy.toFixed(0)})`);
+            // Count same-role minions
+            const sameRole = allMinions.filter(m => m.role === this.role);
+            const myRoleIndex = sameRole.indexOf(this);
+            const totalSameRole = sameRole.length;
+
+            if (this.role === 'scout') {
+                // Scouts: Wide arc ahead
+                finalX = px + Math.cos(angle) * baseDistance;
+                finalY = py + Math.sin(angle) * baseDistance;
+                if (totalSameRole > 1) {
+                    const spreadAngle = (myRoleIndex - (totalSameRole - 1) / 2) * (Math.PI / 4);
+                    const spreadDist = baseDistance * 0.5;
+                    finalX += Math.cos(angle + spreadAngle + Math.PI/2) * spreadDist;
+                    finalY += Math.sin(angle + spreadAngle + Math.PI/2) * spreadDist;
+                }
+            }
+            else if (this.role === 'flank_left') {
+                // Flankers: Staggered left line
+                const stagger = myRoleIndex * 40 * combatModifier;
+                finalX = px + Math.cos(angle + Math.PI/2) * baseDistance + Math.cos(angle) * stagger;
+                finalY = py + Math.sin(angle + Math.PI/2) * baseDistance + Math.sin(angle) * stagger;
+            }
+            else if (this.role === 'flank_right') {
+                // Flankers: Staggered right line
+                const stagger = myRoleIndex * 40 * combatModifier;
+                finalX = px + Math.cos(angle - Math.PI/2) * baseDistance + Math.cos(angle) * stagger;
+                finalY = py + Math.sin(angle - Math.PI/2) * baseDistance + Math.sin(angle) * stagger;
+            }
+            else if (this.role === 'rear_guard') {
+                // Rear guard: Protective line behind
+                const dist = Math.abs(baseDistance);
+                finalX = px + Math.cos(angle + Math.PI) * dist;
+                finalY = py + Math.sin(angle + Math.PI) * dist;
+                if (totalSameRole > 1) {
+                    const spreadOffset = (myRoleIndex - (totalSameRole - 1) / 2) * 70;
+                    finalX += Math.cos(angle + Math.PI/2) * spreadOffset;
+                    finalY += Math.sin(angle + Math.PI/2) * spreadOffset;
+                }
+            }
+            else if (this.role === 'bodyguard') {
+                // Bodyguards: Dynamic circle (closer in combat)
+                const circleAngle = (myRoleIndex / Math.max(totalSameRole, 1)) * Math.PI * 2;
+                finalX = px + Math.cos(angle + circleAngle) * baseDistance;
+                finalY = py + Math.sin(angle + circleAngle) * baseDistance;
+            }
+            else {
+                // Fallback
+                finalX = px;
+                finalY = py;
+            }
+        }
 
         return { x: finalX, y: finalY };
     }
