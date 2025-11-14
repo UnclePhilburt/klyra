@@ -126,6 +126,31 @@ class Player {
     attack(targetX, targetY) {
         this.spriteRenderer.animateAttack(targetX, targetY);
 
+        // Find and damage nearby enemies
+        const attackRange = 50; // Attack range in pixels
+        const playerPos = { x: this.spriteRenderer.sprite.x, y: this.spriteRenderer.sprite.y };
+
+        // Check all enemies and wolves
+        const allEnemies = [
+            ...Object.values(this.scene.enemies),
+            ...Object.values(this.scene.wolves)
+        ];
+
+        allEnemies.forEach(enemy => {
+            if (!enemy.isAlive || !enemy.sprite) return;
+
+            const dx = enemy.sprite.x - targetX;
+            const dy = enemy.sprite.y - targetY;
+            const distSquared = dx * dx + dy * dy;
+
+            // If enemy is within attack range of click position
+            if (distSquared < attackRange * attackRange) {
+                // Calculate damage based on player stats
+                const baseDamage = this.stats?.damage || 10;
+                networkManager.hitEnemy(enemy.data.id, baseDamage, this.data.id, playerPos);
+            }
+        });
+
         // Malachar (Bone Commander spec) heals minions with auto attacks
         if (this.class === 'malachar' && this.scene.selectedCharacter === 'bone_commander') {
             this.healNearestMinion();

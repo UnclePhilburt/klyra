@@ -4,7 +4,7 @@ class MusicManager {
         this.scene = scene;
         this.currentTrack = null;
         this.lastTrack = null;
-        this.volume = 0.5; // Default volume (50%)
+        this.volume = 0.1; // Default volume (10%)
         this.isMuted = false;
 
         // All available tracks (excluding menu music)

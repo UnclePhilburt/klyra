@@ -375,7 +375,7 @@ class MainMenu {
         this.menuMusic.loop = true;
 
         const savedVolume = localStorage.getItem('menuMusicVolume');
-        const volumeLevel = savedVolume !== null ? parseInt(savedVolume) / 100 : 0.3;
+        const volumeLevel = savedVolume !== null ? parseInt(savedVolume) / 100 : 0.1; // Default 10%
         this.menuMusic.volume = volumeLevel;
 
         console.log('🎵 Menu music loaded: Poltergeist and a Piano');
