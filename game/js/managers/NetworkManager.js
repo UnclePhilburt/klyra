@@ -135,6 +135,11 @@ class NetworkManager {
             this.emit('enemy:spawned', data);
         });
 
+        // DYNAMIC SPAWN SYSTEM: Handle enemy despawns
+        this.socket.on('enemy:despawned', (data) => {
+            this.emit('enemy:despawned', data);
+        });
+
         this.socket.on('enemy:damaged', (data) => {
             this.emit('enemy:damaged', data);
         });

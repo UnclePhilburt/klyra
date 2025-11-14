@@ -29,7 +29,7 @@ class GameScene extends Phaser.Scene {
         const eventsToClear = [
             'player:joined', 'player:left', 'player:moved', 'player:changedMap', 'player:attacked',
             'player:damaged', 'player:levelup', 'player:died',
-            'enemy:spawned', 'enemy:damaged', 'enemy:moved', 'enemy:killed',
+            'enemy:spawned', 'enemy:despawned', 'enemy:damaged', 'enemy:moved', 'enemy:killed',
             'minion:spawned', 'minion:damaged', 'minion:healed',
             'item:spawned', 'item:collected', 'chat:message'
         ];
@@ -1533,7 +1533,7 @@ class GameScene extends Phaser.Scene {
         const eventsToClear = [
             'player:joined', 'player:left', 'player:moved', 'player:changedMap', 'player:attacked',
             'player:damaged', 'player:levelup', 'player:died',
-            'enemy:spawned', 'enemy:damaged', 'enemy:moved', 'enemy:killed',
+            'enemy:spawned', 'enemy:despawned', 'enemy:damaged', 'enemy:moved', 'enemy:killed',
             'minion:spawned', 'minion:damaged', 'minion:healed',
             'item:spawned', 'item:collected', 'chat:message'
         ];
@@ -1761,6 +1761,22 @@ class GameScene extends Phaser.Scene {
                         this.physics.add.collider(enemy.sprite, layer);
                     });
                 }
+            }
+        });
+
+        // DYNAMIC SPAWN SYSTEM: Enemy despawned (region became inactive)
+        networkManager.on('enemy:despawned', (data) => {
+            const wolf = this.wolves[data.enemyId];
+            const enemy = this.enemies[data.enemyId];
+
+            if (wolf) {
+                console.log(`🌙 Despawning wolf ${data.enemyId}`);
+                wolf.destroy();
+                delete this.wolves[data.enemyId];
+            } else if (enemy) {
+                console.log(`🌙 Despawning enemy ${data.enemyId}`);
+                enemy.destroy();
+                delete this.enemies[data.enemyId];
             }
         });
 

@@ -272,6 +272,16 @@ class Lobby {
         // Generate the entire world once
         this.world = this.generateCompleteWorld();
         metrics.totalGames++;
+
+        // DYNAMIC WOLF SYSTEM: Track active regions and despawn inactive ones
+        this.activeRegions = new Map(); // regionKey -> { lastActiveTime, playerCount }
+        this.regionEnemies = new Map(); // regionKey -> Set of enemy IDs
+        this.REGION_INACTIVE_TIMEOUT = 120000; // Despawn wolves after 2 minutes of no players
+
+        // Start dynamic cleanup interval - runs every 30 seconds
+        this.dynamicSpawnCleanup = setInterval(() => {
+            this.cleanupInactiveRegions();
+        }, 30000);
     }
 
     addPlayer(player) {
@@ -392,10 +402,17 @@ class Lobby {
     spawnEnemiesInRegion(regionX, regionY) {
         const regionKey = `${regionX},${regionY}`;
 
+        // DYNAMIC: Mark region as active
+        this.activeRegions.set(regionKey, {
+            lastActiveTime: Date.now(),
+            playerCount: this.getPlayersInRegion(regionX, regionY).length
+        });
+
         // Skip if already spawned
         if (this.spawnedRegions.has(regionKey)) return [];
 
         this.spawnedRegions.add(regionKey);
+        this.regionEnemies.set(regionKey, new Set()); // Track enemies in this region
 
         const REGION_SIZE = 50; // 50x50 tile regions
         const newEnemies = [];
@@ -505,6 +522,10 @@ class Lobby {
                 const wolfId = `${this.id}_wolf_${regionKey}_p${packIndex}_${i}`;
                 const wolf = this.createWolfVariant(variant, wolfId, { x, y });
 
+                // DYNAMIC: Track which region this wolf belongs to
+                wolf.regionKey = regionKey;
+                this.regionEnemies.get(regionKey).add(wolf.id);
+
                 this.gameState.enemies.push(wolf);
                 newEnemies.push(wolf);
             }
@@ -512,6 +533,82 @@ class Lobby {
 
         console.log(`✨ Spawned ${newEnemies.length} wolves in ${packsToSpawn} pack(s) at region (${regionX}, ${regionY}) [Distance: ${Math.floor(distanceFromSpawn)}]`);
         return newEnemies;
+    }
+
+    // DYNAMIC SPAWN SYSTEM: Get players in a specific region
+    getPlayersInRegion(regionX, regionY) {
+        const REGION_SIZE = 50;
+        const players = [];
+
+        this.players.forEach(player => {
+            const playerRegionX = Math.floor(player.position.x / REGION_SIZE);
+            const playerRegionY = Math.floor(player.position.y / REGION_SIZE);
+
+            // Check if player is in this region or adjacent regions (visibility range)
+            if (Math.abs(playerRegionX - regionX) <= 1 && Math.abs(playerRegionY - regionY) <= 1) {
+                players.push(player);
+            }
+        });
+
+        return players;
+    }
+
+    // DYNAMIC SPAWN SYSTEM: Cleanup wolves from inactive regions
+    cleanupInactiveRegions() {
+        const now = Date.now();
+        const REGION_SIZE = 50;
+        const regionsToCleanup = [];
+
+        // Find inactive regions
+        this.activeRegions.forEach((regionData, regionKey) => {
+            const timeSinceActive = now - regionData.lastActiveTime;
+
+            // Check if any players are still near this region
+            const [regionX, regionY] = regionKey.split(',').map(Number);
+            const playersNearby = this.getPlayersInRegion(regionX, regionY);
+
+            if (playersNearby.length > 0) {
+                // Update last active time if players nearby
+                this.activeRegions.set(regionKey, {
+                    lastActiveTime: now,
+                    playerCount: playersNearby.length
+                });
+            } else if (timeSinceActive > this.REGION_INACTIVE_TIMEOUT) {
+                // Region has been inactive for too long
+                regionsToCleanup.push(regionKey);
+            }
+        });
+
+        // Cleanup inactive regions
+        regionsToCleanup.forEach(regionKey => {
+            const enemyIds = this.regionEnemies.get(regionKey);
+            if (enemyIds && enemyIds.size > 0) {
+                let despawnedCount = 0;
+
+                // Remove enemies from this region
+                this.gameState.enemies = this.gameState.enemies.filter(enemy => {
+                    if (enemyIds.has(enemy.id)) {
+                        despawnedCount++;
+
+                        // Broadcast despawn to all players
+                        this.broadcast('enemy:despawned', { enemyId: enemy.id });
+                        return false; // Remove this enemy
+                    }
+                    return true; // Keep other enemies
+                });
+
+                console.log(`🌙 Despawned ${despawnedCount} wolves from inactive region ${regionKey}`);
+            }
+
+            // Clear region data so it can respawn later
+            this.spawnedRegions.delete(regionKey);
+            this.activeRegions.delete(regionKey);
+            this.regionEnemies.delete(regionKey);
+        });
+
+        if (regionsToCleanup.length > 0) {
+            console.log(`♻️ Dynamic cleanup: ${regionsToCleanup.length} regions cleared, ${this.gameState.enemies.length} wolves remaining`);
+        }
     }
 
     getWorldData() {
