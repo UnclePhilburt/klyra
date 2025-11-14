@@ -1449,9 +1449,6 @@ class GameScene extends Phaser.Scene {
                         this.physics.add.collider(newPlayer.sprite, layer);
                     });
                 }
-
-                // Update visibility based on current map context
-                this.updateEntityVisibility();
             }
         });
 
@@ -2174,76 +2171,6 @@ class GameScene extends Phaser.Scene {
 
     // ==================== MAP TRANSITION SYSTEM ====================
 
-    updateEntityVisibility() {
-        // Hide/show other players based on which map they're on
-        Object.values(this.otherPlayers).forEach(player => {
-            const playerMap = player.currentMap || 'exterior'; // Default to exterior if not set
-            const shouldBeVisible = playerMap === this.currentMap;
-
-            // Hide/show player sprite and all visual components
-            if (player.sprite) {
-                player.sprite.setVisible(shouldBeVisible);
-            }
-            if (player.ui) {
-                // PlayerUI doesn't have setVisible, need to hide individual elements
-                if (player.ui.nameTag) player.ui.nameTag.setVisible(shouldBeVisible);
-                if (player.ui.nameTagBg) player.ui.nameTagBg.setVisible(shouldBeVisible);
-                if (player.ui.nameTagShadow) player.ui.nameTagShadow.setVisible(shouldBeVisible);
-                if (player.ui.healthBar) player.ui.healthBar.setVisible(shouldBeVisible);
-                if (player.ui.healthBarShadow) player.ui.healthBarShadow.setVisible(shouldBeVisible);
-                if (player.ui.healthBarContainer) player.ui.healthBarContainer.setVisible(shouldBeVisible);
-                if (player.ui.healthBarGloss) player.ui.healthBarGloss.setVisible(shouldBeVisible);
-                if (player.ui.levelBadge) player.ui.levelBadge.setVisible(shouldBeVisible);
-                if (player.ui.levelText) player.ui.levelText.setVisible(shouldBeVisible);
-            }
-
-            // Also hide sprite components if using 2x2 sprite
-            if (player.spriteRenderer) {
-                const components = [
-                    player.spriteRenderer.topLeft,
-                    player.spriteRenderer.topRight,
-                    player.spriteRenderer.bottomLeft,
-                    player.spriteRenderer.bottomRight
-                ];
-                components.forEach(comp => {
-                    if (comp) comp.setVisible(shouldBeVisible);
-                });
-            }
-        });
-
-        // When in interior, hide ALL enemies, wolves, and items (they're exterior-only)
-        const hideExteriorEntities = this.currentMap === 'interior';
-
-        Object.values(this.enemies).forEach(enemy => {
-            if (enemy.sprite) enemy.sprite.setVisible(!hideExteriorEntities);
-            if (enemy.glow) enemy.glow.setVisible(!hideExteriorEntities);
-            if (enemy.label) enemy.label.setVisible(!hideExteriorEntities);
-            if (enemy.healthBar) enemy.healthBar.setVisible(!hideExteriorEntities);
-            if (enemy.healthBarBg) enemy.healthBarBg.setVisible(!hideExteriorEntities);
-        });
-
-        Object.values(this.wolves).forEach(wolf => {
-            if (wolf.sprite) wolf.sprite.setVisible(!hideExteriorEntities);
-            if (wolf.glow) wolf.glow.setVisible(!hideExteriorEntities);
-        });
-
-        Object.values(this.items).forEach(item => {
-            if (item.sprite) item.sprite.setVisible(!hideExteriorEntities);
-            if (item.label) item.label.setVisible(!hideExteriorEntities);
-        });
-
-        // Hide minions when in interior
-        Object.values(this.minions).forEach(minion => {
-            if (minion.sprite) minion.sprite.setVisible(!hideExteriorEntities);
-            if (minion.glow) minion.glow.setVisible(!hideExteriorEntities);
-            if (minion.label) minion.label.setVisible(!hideExteriorEntities);
-            if (minion.healthBar) minion.healthBar.setVisible(!hideExteriorEntities);
-            if (minion.healthBarBg) minion.healthBarBg.setVisible(!hideExteriorEntities);
-        });
-
-        console.log(`👁️ Updated entity visibility for ${this.currentMap} map`);
-    }
-
     checkDoorInteraction() {
         if (!this.localPlayer) return;
         if (Date.now() - this.doorCooldown < 1000) return; // 1 second cooldown
@@ -2295,14 +2222,15 @@ class GameScene extends Phaser.Scene {
         // Notify server of map change
         networkManager.changeMap('interior');
 
-        // Hide exterior-specific elements
         this.currentMap = 'interior';
 
-        // Hide all exterior entities (other players, enemies, minions)
-        this.updateEntityVisibility();
+        // Create interior if it doesn't exist yet
+        if (!this.interiorLayers) {
+            this.loadInteriorMap();
+        }
 
-        // Clear and rebuild interior map
-        this.loadInteriorMap();
+        // Teleport player to interior (far away from main world)
+        this.localPlayer.sprite.setPosition(this.interiorX, this.interiorY);
 
         // Show transition effect
         this.cameras.main.fadeOut(200, 0, 0, 0);
@@ -2317,18 +2245,9 @@ class GameScene extends Phaser.Scene {
         // Notify server of map change
         networkManager.changeMap('exterior');
 
-        // Hide interior elements
-        if (this.interiorLayers) {
-            this.interiorLayers.forEach(layer => layer.destroy());
-            this.interiorLayers = null;
-        }
-
         this.currentMap = 'exterior';
 
-        // Show exterior entities again (other players on exterior, enemies, etc)
-        this.updateEntityVisibility();
-
-        // Move player to exit position (just outside door)
+        // Teleport player back to exterior (just outside door)
         const worldSize = this.gameData.world.size;
         const tileSize = GameConfig.GAME.TILE_SIZE;
         const worldCenterX = (worldSize / 2) * tileSize;
@@ -2344,18 +2263,20 @@ class GameScene extends Phaser.Scene {
     }
 
     loadInteriorMap() {
-        // For now, create a simple interior room
-        // TODO: Replace with actual Tiled map later
-
-        const worldSize = this.gameData.world.size;
-        const tileSize = GameConfig.GAME.TILE_SIZE;
-        const worldCenterX = (worldSize / 2) * tileSize;
-        const worldCenterY = (worldSize / 2) * tileSize;
+        // Place interior FAR away from main world so it's never visible
+        // Main world is around (16000, 16000), so place interior at negative coords
+        const interiorOffsetX = -10000;
+        const interiorOffsetY = -10000;
 
         // Create simple interior floor (10x10 room)
+        const tileSize = GameConfig.GAME.TILE_SIZE;
         const roomSize = 10 * tileSize;
-        const roomX = worldCenterX - roomSize / 2;
-        const roomY = worldCenterY - roomSize / 2;
+        const roomX = interiorOffsetX;
+        const roomY = interiorOffsetY;
+
+        // Store interior center position for teleporting
+        this.interiorX = interiorOffsetX + roomSize / 2;
+        this.interiorY = interiorOffsetY + roomSize / 2;
 
         this.interiorLayers = [];
 
@@ -2374,19 +2295,18 @@ class GameScene extends Phaser.Scene {
         this.interiorLayers.push(walls);
 
         // Exit door (at bottom)
-        const exitDoor = this.add.rectangle(worldCenterX, roomY + roomSize - 16, 64, 32, 0x654321);
+        const exitDoorX = this.interiorX;
+        const exitDoorY = roomY + roomSize - 16;
+        const exitDoor = this.add.rectangle(exitDoorX, exitDoorY, 64, 32, 0x654321);
         exitDoor.setDepth(3);
         this.interiorLayers.push(exitDoor);
 
         // Create exit door trigger zone
-        this.exitDoorZone = this.add.zone(worldCenterX, roomY + roomSize - 16, 64, 32);
+        this.exitDoorZone = this.add.zone(exitDoorX, exitDoorY, 64, 32);
         this.physics.add.existing(this.exitDoorZone);
         this.exitDoorZone.body.setAllowGravity(false);
 
-        // Position player in center of room
-        this.localPlayer.sprite.setPosition(worldCenterX, worldCenterY);
-
-        console.log('✅ Interior map loaded (placeholder)');
+        console.log(`✅ Interior map created at (${interiorOffsetX}, ${interiorOffsetY}) - far from main world`);
     }
 
     // Level up effect removed - was causing FPS drops
