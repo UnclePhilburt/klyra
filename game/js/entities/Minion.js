@@ -143,6 +143,11 @@ class Minion {
     calculateFormationPosition(owner) {
         if (!owner || !owner.sprite) return { x: this.sprite.x, y: this.sprite.y };
 
+        // CRITICAL FIX: If role not assigned yet, stay put (prevents clustering at player position)
+        if (!this.role) {
+            return { x: this.sprite.x, y: this.sprite.y };
+        }
+
         // Detect player movement direction
         const playerVelocity = owner.sprite.body.velocity;
         const isMoving = Math.abs(playerVelocity.x) > 10 || Math.abs(playerVelocity.y) > 10;
@@ -671,6 +676,10 @@ class Minion {
 
     // INTELLIGENT FORMATION: Move to assigned formation position
     moveToFormationPosition() {
+        if (!this.formationPosition) {
+            return;
+        }
+
         const dist = Phaser.Math.Distance.Between(
             this.sprite.x,
             this.sprite.y,
