@@ -2,17 +2,34 @@
 // Usage: Type debugMinions() in the console
 
 window.debugMinions = function() {
-    const scene = window.game?.scene?.scenes[0];
+    // Try multiple ways to find the active game scene
+    let scene = null;
+
+    // Method 1: Through window.game
+    if (window.game && window.game.scene) {
+        const scenes = window.game.scene.scenes || window.game.scene.getScenes();
+        // Find GameScene (should be the active scene)
+        scene = scenes.find(s => s.scene && s.scene.key === 'GameScene') || scenes[scenes.length - 1];
+    }
+
+    // Method 2: Direct access if stored globally
+    if (!scene && window.gameScene) {
+        scene = window.gameScene;
+    }
+
     if (!scene) {
         console.log('❌ Game scene not found');
+        console.log('Available scenes:', window.game?.scene?.scenes?.map(s => s.scene?.key));
         return;
     }
 
     console.log('\n========== MINION FORMATION DEBUG ==========');
+    console.log('🎮 Scene found:', scene.scene?.key || 'Unknown');
 
     const localPlayer = scene.localPlayer;
     if (!localPlayer) {
-        console.log('❌ No local player found');
+        console.log('❌ No local player found in scene');
+        console.log('Scene properties:', Object.keys(scene).filter(k => k.includes('player')));
         return;
     }
 
@@ -60,4 +77,28 @@ window.debugMinions = function() {
     console.log('💡 Stop moving and run this again to see formation spreading');
 };
 
-console.log('✅ Minion Debug loaded - Type: debugMinions()');
+// Also add a simpler version that just logs patrol distances
+window.debugMinionRoles = function() {
+    let scene = null;
+    if (window.game && window.game.scene) {
+        const scenes = window.game.scene.scenes || window.game.scene.getScenes();
+        scene = scenes.find(s => s.scene && s.scene.key === 'GameScene') || scenes[scenes.length - 1];
+    }
+    if (!scene || !scene.localPlayer) {
+        console.log('❌ Cannot find game scene or player');
+        return;
+    }
+
+    console.log('\n===== MINION ROLES =====');
+    const myMinions = Object.values(scene.minions || {})
+        .filter(m => m.ownerId === scene.localPlayer.data.id && m.isAlive);
+
+    myMinions.forEach((m, i) => {
+        console.log(`${i+1}. ${m.role?.toUpperCase() || 'NO_ROLE'} - patrol: ${m.patrolDistance}px, speed: ${m.moveSpeed}, combatMode: ${m.combatMode}`);
+    });
+    console.log('========================\n');
+};
+
+console.log('✅ Minion Debug loaded');
+console.log('   debugMinions() - Full formation analysis');
+console.log('   debugMinionRoles() - Quick role check');
