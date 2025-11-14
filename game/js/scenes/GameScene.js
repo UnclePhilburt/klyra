@@ -394,8 +394,9 @@ class GameScene extends Phaser.Scene {
         this.renderedTiles = new Map(); // Track rendered tiles
         this.renderedDecorations = new Map(); // Track rendered decorations with their sprites
         // PERFORMANCE: Asymmetric render distance to match screen aspect ratio (16:9)
-        this.RENDER_DISTANCE_X = 22; // Horizontal (wider for landscape screens)
-        this.RENDER_DISTANCE_Y = 13; // Vertical (narrower to save tiles)
+        // Reduced further to combat tree sprite explosion (106 trees × 18 sprites = 1,908 sprites!)
+        this.RENDER_DISTANCE_X = 18; // Horizontal (wider for landscape screens)
+        this.RENDER_DISTANCE_Y = 10; // Vertical (narrower to save tiles)
 
         // Map biome types to tileset textures and tile indices
         this.BIOME_TILESET_MAP = {};
@@ -528,11 +529,12 @@ class GameScene extends Phaser.Scene {
         // Get biome for this tile
         const biome = this.biomeCache[`${x},${y}`] || 'green';
 
-        // Different spawn rates per biome - Reduced for better performance
+        // PERFORMANCE: Drastically reduced decoration density
+        // Trees create 15-30 sprites each, killing FPS (106 decorations = ~1,908 sprites!)
         let spawnChance;
-        if (biome === 'green') spawnChance = 0.05; // 5% - flowers/grass
-        else if (biome === 'dark_green') spawnChance = 0.07; // 7% - forest
-        else if (biome === 'red') spawnChance = 0.08; // 8% - red biome
+        if (biome === 'green') spawnChance = 0.02; // 2% (was 5%)
+        else if (biome === 'dark_green') spawnChance = 0.025; // 2.5% (was 7%)
+        else if (biome === 'red') spawnChance = 0.025; // 2.5% (was 8%)
 
         if (decoChance > spawnChance) return null;
 
@@ -546,12 +548,12 @@ class GameScene extends Phaser.Scene {
             else if (rand < 0.95) decorationType = 'rock';
             else decorationType = 'baby_tree';
         } else if (biome === 'dark_green') {
-            // Dark Green: forest with moderate trees
-            if (rand < 0.25) decorationType = 'tree';           // 25% - less trees
-            else if (rand < 0.50) decorationType = 'bush';      // 25% - bushes
-            else if (rand < 0.70) decorationType = 'log';       // 20% - logs
-            else if (rand < 0.85) decorationType = 'tree_stump'; // 15% - stumps
-            else decorationType = 'grass';                      // 15% - grass
+            // Dark Green: forest - REDUCED tree spawns (trees = 15-30 sprites each!)
+            if (rand < 0.15) decorationType = 'tree';           // 15% (was 25%)
+            else if (rand < 0.35) decorationType = 'bush';      // 20%
+            else if (rand < 0.55) decorationType = 'log';       // 20%
+            else if (rand < 0.75) decorationType = 'tree_stump'; // 20%
+            else decorationType = 'grass';                      // 25%
         } else if (biome === 'red') {
             // Red biome: red trees + red decorations
             if (rand < 0.15) decorationType = 'red_tree';           // 15% - less big trees
