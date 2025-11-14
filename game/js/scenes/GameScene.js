@@ -263,6 +263,9 @@ class GameScene extends Phaser.Scene {
                 const otherPlayer = new Player(this, playerData);
                 this.otherPlayers[playerData.id] = otherPlayer;
 
+                // Initialize map tracking (all players start on exterior)
+                otherPlayer.currentMap = playerData.currentMap || 'exterior';
+
                 // Add tree collisions to other player
                 if (this.treeCollisions) {
                     this.treeCollisions.forEach(collisionRect => {
@@ -1420,6 +1423,9 @@ class GameScene extends Phaser.Scene {
                 const newPlayer = new Player(this, data.player);
                 this.otherPlayers[data.player.id] = newPlayer;
 
+                // Initialize map tracking (new players start on exterior)
+                newPlayer.currentMap = data.player.currentMap || 'exterior';
+
                 // Spawn permanent minion if player is Malachar
                 if (data.player.class === 'MALACHAR') {
                     this.spawnMinion(
@@ -1444,6 +1450,8 @@ class GameScene extends Phaser.Scene {
                     });
                 }
 
+                // Update visibility based on current map context
+                this.updateEntityVisibility();
             }
         });
 
@@ -2166,6 +2174,67 @@ class GameScene extends Phaser.Scene {
 
     // ==================== MAP TRANSITION SYSTEM ====================
 
+    updateEntityVisibility() {
+        // Hide/show other players based on which map they're on
+        Object.values(this.otherPlayers).forEach(player => {
+            const playerMap = player.currentMap || 'exterior'; // Default to exterior if not set
+            const shouldBeVisible = playerMap === this.currentMap;
+
+            // Hide/show player sprite and all visual components
+            if (player.sprite) {
+                player.sprite.setVisible(shouldBeVisible);
+            }
+            if (player.ui) {
+                player.ui.setVisible(shouldBeVisible);
+            }
+
+            // Also hide sprite components if using 2x2 sprite
+            if (player.spriteRenderer) {
+                const components = [
+                    player.spriteRenderer.topLeft,
+                    player.spriteRenderer.topRight,
+                    player.spriteRenderer.bottomLeft,
+                    player.spriteRenderer.bottomRight
+                ];
+                components.forEach(comp => {
+                    if (comp) comp.setVisible(shouldBeVisible);
+                });
+            }
+        });
+
+        // When in interior, hide ALL enemies, wolves, and items (they're exterior-only)
+        const hideExteriorEntities = this.currentMap === 'interior';
+
+        Object.values(this.enemies).forEach(enemy => {
+            if (enemy.sprite) enemy.sprite.setVisible(!hideExteriorEntities);
+            if (enemy.glow) enemy.glow.setVisible(!hideExteriorEntities);
+            if (enemy.label) enemy.label.setVisible(!hideExteriorEntities);
+            if (enemy.healthBar) enemy.healthBar.setVisible(!hideExteriorEntities);
+            if (enemy.healthBarBg) enemy.healthBarBg.setVisible(!hideExteriorEntities);
+        });
+
+        Object.values(this.wolves).forEach(wolf => {
+            if (wolf.sprite) wolf.sprite.setVisible(!hideExteriorEntities);
+            if (wolf.glow) wolf.glow.setVisible(!hideExteriorEntities);
+        });
+
+        Object.values(this.items).forEach(item => {
+            if (item.sprite) item.sprite.setVisible(!hideExteriorEntities);
+            if (item.label) item.label.setVisible(!hideExteriorEntities);
+        });
+
+        // Hide minions when in interior
+        Object.values(this.minions).forEach(minion => {
+            if (minion.sprite) minion.sprite.setVisible(!hideExteriorEntities);
+            if (minion.glow) minion.glow.setVisible(!hideExteriorEntities);
+            if (minion.label) minion.label.setVisible(!hideExteriorEntities);
+            if (minion.healthBar) minion.healthBar.setVisible(!hideExteriorEntities);
+            if (minion.healthBarBg) minion.healthBarBg.setVisible(!hideExteriorEntities);
+        });
+
+        console.log(`👁️ Updated entity visibility for ${this.currentMap} map`);
+    }
+
     checkDoorInteraction() {
         if (!this.localPlayer) return;
         if (Date.now() - this.doorCooldown < 1000) return; // 1 second cooldown
@@ -2220,6 +2289,9 @@ class GameScene extends Phaser.Scene {
         // Hide exterior-specific elements
         this.currentMap = 'interior';
 
+        // Hide all exterior entities (other players, enemies, minions)
+        this.updateEntityVisibility();
+
         // Clear and rebuild interior map
         this.loadInteriorMap();
 
@@ -2243,6 +2315,9 @@ class GameScene extends Phaser.Scene {
         }
 
         this.currentMap = 'exterior';
+
+        // Show exterior entities again (other players on exterior, enemies, etc)
+        this.updateEntityVisibility();
 
         // Move player to exit position (just outside door)
         const worldSize = this.gameData.world.size;
