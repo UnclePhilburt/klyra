@@ -165,7 +165,8 @@ class ModernHUD {
 
     updateXPBar() {
         const xp = this.player.experience || 0;
-        const xpToNext = 100; // TODO: Get from game config
+        const level = this.player.level || 1;
+        const xpToNext = GameConfig.getXPRequired(level);
         const xpPercent = Math.min(xp / xpToNext, 1);
 
         // Update bar width

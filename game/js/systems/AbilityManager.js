@@ -238,6 +238,7 @@ class AbilityManager {
         // Q - Rally Command / Variants
         if (effect.minionAttackSpeed) {
             console.log(`  💨 Minion attack speed boost: ${effect.minionAttackSpeed}x`);
+            this.createNecromancerQEffect();
             // TODO: Apply temporary attack speed buff to all minions
 
             // Bonus: Spawn temps
@@ -276,12 +277,14 @@ class AbilityManager {
             console.log(`  💀 Sacrificing ${effect.minionHPSacrifice * 100}% minion HP`);
             console.log(`  ⚔️ Damage bonus: ${effect.minionDamageBonus}x`);
             console.log(`  📏 Size bonus: ${effect.minionSizeBonus}x`);
+            this.createNecromancerEEffect();
             // TODO: Sacrifice minion HP, apply damage/size buff temporarily
         }
 
         // R - Mass Resurrection / Variants
         if (effect.reviveAll) {
             console.log(`  ⚰️ Reviving all dead minions`);
+            this.createNecromancerREffect();
             // TODO: Track dead minions and revive them
         }
 
@@ -290,18 +293,21 @@ class AbilityManager {
         // Q - Shadowbolt Storm
         if (effect.waves && effect.boltsPerWave) {
             console.log(`  💫 Firing ${effect.waves} waves of ${effect.boltsPerWave} bolts`);
+            this.createShadowcasterQEffect(effect.waves, effect.boltsPerWave);
             // TODO: Fire shadow bolt waves in all directions
         }
 
         // E - Blink Strike
         if (effect.teleportDistance) {
             console.log(`  🌀 Teleporting ${effect.teleportDistance} tiles`);
+            this.createShadowcasterEEffect(effect.teleportDistance);
             // TODO: Teleport player in movement direction, leave void zone
         }
 
         // R - Oblivion Beam
         if (effect.beamDPS) {
             console.log(`  ⚡ Channeling beam: ${effect.beamDPS} DPS for ${ability.duration}ms`);
+            this.createShadowcasterREffect(ability.duration);
             // TODO: Create beam targeting nearest enemy
         }
 
@@ -311,12 +317,14 @@ class AbilityManager {
         if (effect.damagePercent && effect.usePlayerHP) {
             const damage = this.player.health * effect.damagePercent;
             console.log(`  🩸 Dealing ${damage} damage in ${effect.radius} tile radius`);
+            this.createBloodRitualistQEffect(effect.radius);
             // TODO: Damage all enemies in radius based on player HP
         }
 
         // E - Crimson Harvest
         if (effect.lifestealPercent) {
             console.log(`  💉 Lifesteal: ${effect.lifestealPercent * 100}% for ${ability.duration}ms`);
+            this.createBloodRitualistEEffect(ability.duration);
             // TODO: Apply temporary lifesteal to player and minions
         }
 
@@ -326,10 +334,330 @@ class AbilityManager {
             this.player.health = Math.max(1, this.player.health - sacrifice);
             console.log(`  💔 Sacrificed ${sacrifice} HP`);
             console.log(`  💪 Minion stats: ${effect.minionStatsBonus}x for ${ability.duration}ms`);
+            this.createBloodRitualistREffect();
             // TODO: Apply temporary minion stat boost
         }
 
         console.log(`✅ Ability ${key.toUpperCase()} executed`);
+    }
+
+    // ==== VISUAL EFFECTS ====
+
+    createNecromancerQEffect() {
+        // Green wave expanding from player (Rally Command)
+        const wave = this.scene.add.circle(
+            this.player.sprite.x,
+            this.player.sprite.y,
+            10,
+            0x00ff00,
+            0.3
+        );
+        wave.setStrokeStyle(4, 0x00ff00, 0.8);
+        wave.setDepth(9000);
+
+        this.scene.tweens.add({
+            targets: wave,
+            radius: 300,
+            alpha: 0,
+            duration: 800,
+            ease: 'Power2',
+            onComplete: () => wave.destroy()
+        });
+
+        // Sparkles around player
+        for (let i = 0; i < 12; i++) {
+            const angle = (i / 12) * Math.PI * 2;
+            const x = this.player.sprite.x + Math.cos(angle) * 50;
+            const y = this.player.sprite.y + Math.sin(angle) * 50;
+
+            const sparkle = this.scene.add.circle(x, y, 4, 0x88ff88);
+            sparkle.setDepth(9001);
+
+            this.scene.tweens.add({
+                targets: sparkle,
+                alpha: 0,
+                y: y - 30,
+                duration: 600,
+                ease: 'Power2',
+                onComplete: () => sparkle.destroy()
+            });
+        }
+    }
+
+    createNecromancerEEffect() {
+        // Red pulsing effect (Skeletal Fury)
+        const pulse = this.scene.add.circle(
+            this.player.sprite.x,
+            this.player.sprite.y,
+            80,
+            0xff0000,
+            0.4
+        );
+        pulse.setDepth(9000);
+
+        this.scene.tweens.add({
+            targets: pulse,
+            scaleX: 1.5,
+            scaleY: 1.5,
+            alpha: 0,
+            duration: 500,
+            ease: 'Power2',
+            onComplete: () => pulse.destroy()
+        });
+
+        // Screen flash
+        this.flashScreen(0xff0000, 0.2, 200);
+    }
+
+    createNecromancerREffect() {
+        // Purple resurrection circles (Mass Resurrection)
+        for (let i = 0; i < 6; i++) {
+            const angle = (i / 6) * Math.PI * 2;
+            const distance = 120;
+            const x = this.player.sprite.x + Math.cos(angle) * distance;
+            const y = this.player.sprite.y + Math.sin(angle) * distance;
+
+            const circle = this.scene.add.circle(x, y, 30, 0x9900ff, 0.5);
+            circle.setStrokeStyle(3, 0xcc66ff);
+            circle.setDepth(9000);
+
+            this.scene.tweens.add({
+                targets: circle,
+                scaleX: 1.3,
+                scaleY: 1.3,
+                alpha: 0,
+                duration: 1000,
+                ease: 'Power2',
+                onComplete: () => circle.destroy()
+            });
+        }
+    }
+
+    createShadowcasterQEffect(waves, boltsPerWave) {
+        // Purple shadow bolts (Shadowbolt Storm)
+        for (let wave = 0; wave < waves; wave++) {
+            this.scene.time.delayedCall(wave * 200, () => {
+                for (let i = 0; i < boltsPerWave; i++) {
+                    const angle = (i / boltsPerWave) * Math.PI * 2;
+                    const bolt = this.scene.add.circle(
+                        this.player.sprite.x,
+                        this.player.sprite.y,
+                        8,
+                        0x6600ff,
+                        0.8
+                    );
+                    bolt.setDepth(9000);
+
+                    const targetX = this.player.sprite.x + Math.cos(angle) * 400;
+                    const targetY = this.player.sprite.y + Math.sin(angle) * 400;
+
+                    this.scene.tweens.add({
+                        targets: bolt,
+                        x: targetX,
+                        y: targetY,
+                        duration: 600,
+                        ease: 'Power2',
+                        onComplete: () => bolt.destroy()
+                    });
+                }
+            });
+        }
+    }
+
+    createShadowcasterEEffect(distance) {
+        // Dark purple teleport effect (Blink Strike)
+        const startX = this.player.sprite.x;
+        const startY = this.player.sprite.y;
+
+        // Void zone at starting position
+        const voidZone = this.scene.add.circle(startX, startY, 40, 0x220044, 0.6);
+        voidZone.setDepth(9000);
+
+        this.scene.tweens.add({
+            targets: voidZone,
+            alpha: 0,
+            scaleX: 1.5,
+            scaleY: 1.5,
+            duration: 2000,
+            ease: 'Power2',
+            onComplete: () => voidZone.destroy()
+        });
+
+        // Purple flash
+        this.flashScreen(0x6600ff, 0.3, 150);
+    }
+
+    createShadowcasterREffect(duration) {
+        // Purple beam effect (Oblivion Beam)
+        const beam = this.scene.add.rectangle(
+            this.player.sprite.x,
+            this.player.sprite.y,
+            400,
+            20,
+            0x8800ff,
+            0.7
+        );
+        beam.setDepth(9000);
+
+        // Pulsing animation
+        this.scene.tweens.add({
+            targets: beam,
+            alpha: 0.3,
+            duration: 200,
+            yoyo: true,
+            repeat: Math.floor(duration / 400),
+            onComplete: () => beam.destroy()
+        });
+
+        // Auto-destroy after duration
+        this.scene.time.delayedCall(duration, () => {
+            if (beam && beam.scene) {
+                beam.destroy();
+            }
+        });
+    }
+
+    createBloodRitualistQEffect(radius) {
+        // Red explosion (Blood Boil)
+        const explosion = this.scene.add.circle(
+            this.player.sprite.x,
+            this.player.sprite.y,
+            radius * 32,
+            0xff0000,
+            0.4
+        );
+        explosion.setDepth(9000);
+
+        this.scene.tweens.add({
+            targets: explosion,
+            scaleX: 1.3,
+            scaleY: 1.3,
+            alpha: 0,
+            duration: 600,
+            ease: 'Power3',
+            onComplete: () => explosion.destroy()
+        });
+
+        // Blood particles
+        for (let i = 0; i < 16; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const dist = Math.random() * radius * 32;
+            const x = this.player.sprite.x + Math.cos(angle) * dist;
+            const y = this.player.sprite.y + Math.sin(angle) * dist;
+
+            const particle = this.scene.add.circle(x, y, 6, 0xcc0000);
+            particle.setDepth(9001);
+
+            this.scene.tweens.add({
+                targets: particle,
+                alpha: 0,
+                y: y + 30,
+                duration: 800,
+                ease: 'Power2',
+                onComplete: () => particle.destroy()
+            });
+        }
+    }
+
+    createBloodRitualistEEffect(duration) {
+        // Red aura (Crimson Harvest)
+        const aura = this.scene.add.circle(
+            this.player.sprite.x,
+            this.player.sprite.y,
+            60,
+            0xff3333,
+            0.3
+        );
+        aura.setDepth(8999);
+
+        // Follow player
+        const updateAura = () => {
+            if (aura && aura.scene && this.player.sprite) {
+                aura.setPosition(this.player.sprite.x, this.player.sprite.y);
+            }
+        };
+
+        const auraInterval = setInterval(updateAura, 16);
+
+        // Pulsing effect
+        this.scene.tweens.add({
+            targets: aura,
+            scaleX: 1.2,
+            scaleY: 1.2,
+            alpha: 0.15,
+            duration: 500,
+            yoyo: true,
+            repeat: Math.floor(duration / 1000),
+            onComplete: () => {
+                clearInterval(auraInterval);
+                aura.destroy();
+            }
+        });
+    }
+
+    createBloodRitualistREffect() {
+        // Dark red ritual circle (Blood Moon Ritual)
+        const ritualCircle = this.scene.add.circle(
+            this.player.sprite.x,
+            this.player.sprite.y,
+            150,
+            0x440000,
+            0.5
+        );
+        ritualCircle.setStrokeStyle(5, 0xff0000, 0.8);
+        ritualCircle.setDepth(9000);
+
+        this.scene.tweens.add({
+            targets: ritualCircle,
+            scaleX: 1.5,
+            scaleY: 1.5,
+            alpha: 0,
+            duration: 1500,
+            ease: 'Power2',
+            onComplete: () => ritualCircle.destroy()
+        });
+
+        // Red screen flash
+        this.flashScreen(0x880000, 0.4, 300);
+
+        // Rotating runes
+        for (let i = 0; i < 8; i++) {
+            const angle = (i / 8) * Math.PI * 2;
+            const x = this.player.sprite.x + Math.cos(angle) * 100;
+            const y = this.player.sprite.y + Math.sin(angle) * 100;
+
+            const rune = this.scene.add.circle(x, y, 8, 0xff6666);
+            rune.setDepth(9001);
+
+            this.scene.tweens.add({
+                targets: rune,
+                alpha: 0,
+                duration: 1500,
+                ease: 'Power2',
+                onComplete: () => rune.destroy()
+            });
+        }
+    }
+
+    flashScreen(color, intensity, duration) {
+        const flash = this.scene.add.rectangle(
+            this.scene.cameras.main.scrollX + this.scene.cameras.main.width / 2,
+            this.scene.cameras.main.scrollY + this.scene.cameras.main.height / 2,
+            this.scene.cameras.main.width,
+            this.scene.cameras.main.height,
+            color,
+            intensity
+        );
+        flash.setScrollFactor(0);
+        flash.setDepth(10001);
+
+        this.scene.tweens.add({
+            targets: flash,
+            alpha: 0,
+            duration: duration,
+            ease: 'Power2',
+            onComplete: () => flash.destroy()
+        });
     }
 
     destroy() {

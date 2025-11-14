@@ -11,7 +11,19 @@ const GameConfig = {
 
     PLAYER: {
         SPEED: 200,
-        HEALTH: 100
+        HEALTH: 100,
+        // XP formula: baseXP * level^exponent
+        XP_BASE: 100,
+        XP_EXPONENT: 1.5
+    },
+
+    DEBUG: {
+        ENABLED: false,  // Toggle all debug features
+        SHOW_FPS: true,
+        SHOW_DIAGNOSTICS: false,
+        LOG_NETWORK: false,
+        LOG_MOVEMENT: false,
+        LOG_COMBAT: false
     },
 
     CLASSES: {
@@ -31,5 +43,12 @@ const GameConfig = {
         DANGER: 0xff0000,
         WARNING: 0xffff00,
         BACKGROUND: 0x0a0a0a
+    },
+
+    // Helper functions
+    getXPRequired(level) {
+        // XP required = BASE * level^EXPONENT
+        // Level 1: 100, Level 2: 282, Level 3: 519, Level 4: 800, Level 5: 1118, etc.
+        return Math.floor(this.PLAYER.XP_BASE * Math.pow(level, this.PLAYER.XP_EXPONENT));
     }
 };

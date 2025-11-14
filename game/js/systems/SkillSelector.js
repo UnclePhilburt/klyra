@@ -143,6 +143,11 @@ class SkillSelector {
         if (this.isActive) return;
         this.isActive = true;
 
+        console.log(`\n======= SKILL SELECTOR SHOW CALLED =======`);
+        console.log(`📊 Player Class: "${playerClass}"`);
+        console.log(`📊 Current Level: ${currentLevel}`);
+        console.log(`📊 Selected Skills:`, this.selectedSkills.map(s => `${s.id} (${s.name})`));
+
         // DON'T pause the game - let gameplay continue!
 
         const width = this.scene.cameras.main.width;
@@ -150,20 +155,24 @@ class SkillSelector {
 
         // Get available skills for this class and level
         const availableSkills = this.getAvailableSkills(playerClass, currentLevel);
+        console.log(`📊 Available Skills Found: ${availableSkills.length}`);
 
-        // Show 3 random skill cards
-        const skillChoices = this.selectRandomSkills(availableSkills, 3);
+        // Show ALL available skills (no randomization - skill tree v2 returns exact choices)
+        const skillChoices = availableSkills;
+        console.log(`📊 Showing Skills:`, skillChoices.map(s => s.name));
         const cardWidth = 250;
         const cardHeight = 400;
         const spacing = 30;
-        const totalWidth = (cardWidth * 3) + (spacing * 2);
+        const numCards = skillChoices.length;
+        const totalWidth = (cardWidth * numCards) + (spacing * (numCards - 1));
         const startX = (width - totalWidth) / 2;
 
         // Cards poke out from bottom of screen
         const bottomY = height - 40; // Cards mostly off-screen, peeking up
 
         // Instruction text at bottom - modern glassmorphism style
-        this.instructionText = this.scene.add.text(width / 2, height - cardHeight - 50, 'LEVEL UP! Press [1/2/3] to highlight, press again to select', {
+        const keyText = numCards === 2 ? '[1/2]' : '[1/2/3]';
+        this.instructionText = this.scene.add.text(width / 2, height - cardHeight - 50, `LEVEL UP! Press ${keyText} to highlight, press again to select`, {
             fontFamily: 'Inter, Arial, sans-serif',
             fontSize: '16px',
             fontStyle: '600',
@@ -177,6 +186,11 @@ class SkillSelector {
         // Add subtle glow to instruction text
         this.instructionText.setShadow(0, 0, 20, '#8b5cf6', true, true);
 
+        // Set initial selection to middle card (or first card if only 2 choices)
+        this.selectedIndex = numCards === 2 ? 0 : 1;
+
+        // Create skill cards
+        this.cards = [];
         skillChoices.forEach((skill, index) => {
             const x = startX + (cardWidth / 2) + (index * (cardWidth + spacing));
             const y = bottomY;
@@ -537,13 +551,40 @@ class SkillSelector {
                 player.baseDamage = skill.stats.playerDamage;
                 console.log(`  ⚔️ Player damage: ${skill.stats.playerDamage}`);
             }
+
+            // Initialize multipliers if not already set
+            if (!player.minionHealthMultiplier) player.minionHealthMultiplier = 1;
+            if (!player.minionDamageMultiplier) player.minionDamageMultiplier = 1;
+
+            if (skill.stats.minionHealth !== undefined) {
+                player.baseMinionHealth = skill.stats.minionHealth;
+                console.log(`  💚 Base minion health: ${skill.stats.minionHealth}`);
+            }
+            if (skill.stats.minionDamage !== undefined) {
+                player.baseMinionDamage = skill.stats.minionDamage;
+                console.log(`  ⚔️ Base minion damage: ${skill.stats.minionDamage}`);
+            }
+
+            // Remove ALL existing minions before setting up new path
+            const existingMinions = Object.values(this.scene.minions).filter(m => m.ownerId === player.data.id);
+            if (existingMinions.length > 0) {
+                console.log(`  🗑️ Removing ${existingMinions.length} existing minions for path reset`);
+                existingMinions.forEach(minion => {
+                    if (minion.minionId) {
+                        networkManager.trackPermanentMinion(minion.minionId, 'remove');
+                    }
+                    minion.health = 0; // Will be cleaned up by death logic
+                });
+            }
+
             if (skill.stats.minionCap !== undefined) {
                 player.minionCap = skill.stats.minionCap;
                 console.log(`  👥 Minion cap: ${skill.stats.minionCap}`);
             }
+
             if (skill.stats.startingMinions !== undefined) {
-                console.log(`  🔮 Starting minions: ${skill.stats.startingMinions}`);
-                // Spawn initial minions
+                console.log(`  🔮 Spawning ${skill.stats.startingMinions} starting minions`);
+                // Spawn initial minions in a circle around player
                 for (let i = 0; i < skill.stats.startingMinions; i++) {
                     const angle = (Math.PI * 2 * i) / skill.stats.startingMinions;
                     const distance = 100;
@@ -555,14 +596,6 @@ class SkillSelector {
                         networkManager.trackPermanentMinion(minion.minionId, 'add');
                     }
                 }
-            }
-            if (skill.stats.minionHealth !== undefined) {
-                player.baseMinionHealth = skill.stats.minionHealth;
-                console.log(`  💚 Base minion health: ${skill.stats.minionHealth}`);
-            }
-            if (skill.stats.minionDamage !== undefined) {
-                player.baseMinionDamage = skill.stats.minionDamage;
-                console.log(`  ⚔️ Base minion damage: ${skill.stats.minionDamage}`);
             }
         }
 
@@ -587,6 +620,11 @@ class SkillSelector {
                 player.abilities.r = skill.abilities.r;
                 console.log(`  R: ${skill.abilities.r.name}`);
             }
+
+            // Update ability UI immediately
+            if (this.scene.abilityManager) {
+                this.scene.abilityManager.updateCooldownUI();
+            }
         }
 
         // Handle modifications (tier 2+)
@@ -596,30 +634,49 @@ class SkillSelector {
 
             // Apply stat modifications
             if (mods.minionCap !== undefined) {
+                const oldCap = player.minionCap;
                 player.minionCap = mods.minionCap;
-                console.log(`  👥 Modified minion cap: ${mods.minionCap}`);
+                console.log(`  👥 Modified minion cap: ${oldCap} → ${mods.minionCap}`);
+
+                // If cap was reduced, remove excess minions
+                if (mods.minionCap < oldCap) {
+                    this.removeExcessMinions(player, mods.minionCap);
+                }
             }
             if (mods.minionHealth !== undefined) {
                 player.minionHealthMultiplier = (player.minionHealthMultiplier || 1) * mods.minionHealth;
                 console.log(`  💚 Minion health multiplier: ${player.minionHealthMultiplier}x`);
+                // Update existing minions with new stats
+                this.applyMinionStatUpdates(player);
             }
             if (mods.minionDamage !== undefined) {
                 player.minionDamageMultiplier = (player.minionDamageMultiplier || 1) * mods.minionDamage;
                 console.log(`  ⚔️ Minion damage multiplier: ${player.minionDamageMultiplier}x`);
+                // Update existing minions with new stats
+                this.applyMinionStatUpdates(player);
             }
 
             // Merge ability modifications
+            let abilitiesModified = false;
             if (mods.q && player.abilities && player.abilities.q) {
                 player.abilities.q.bonusEffect = { ...player.abilities.q.bonusEffect, ...mods.q.bonusEffect };
                 console.log(`  Q modified:`, mods.q.bonusEffect);
+                abilitiesModified = true;
             }
             if (mods.e && player.abilities && player.abilities.e) {
                 player.abilities.e.bonusEffect = { ...player.abilities.e.bonusEffect, ...mods.e.bonusEffect };
                 console.log(`  E modified:`, mods.e.bonusEffect);
+                abilitiesModified = true;
             }
             if (mods.r && player.abilities && player.abilities.r) {
                 player.abilities.r.bonusEffect = { ...player.abilities.r.bonusEffect, ...mods.r.bonusEffect };
                 console.log(`  R modified:`, mods.r.bonusEffect);
+                abilitiesModified = true;
+            }
+
+            // Update ability UI if any abilities were modified
+            if (abilitiesModified && this.scene.abilityManager) {
+                this.scene.abilityManager.updateCooldownUI();
             }
 
             // Auto-attack modifications
@@ -1156,6 +1213,60 @@ class SkillSelector {
 
     getSkillCount(skillId) {
         return this.selectedSkills.filter(s => s.id === skillId).length;
+    }
+
+    removeExcessMinions(player, newCap) {
+        // Get all minions owned by this player
+        const playerMinions = Object.values(this.scene.minions).filter(m => m.ownerId === player.data.id);
+
+        const excessCount = playerMinions.length - newCap;
+        if (excessCount <= 0) return;
+
+        console.log(`💀 Removing ${excessCount} excess minions (${playerMinions.length} → ${newCap})`);
+
+        // Sort by health (remove weakest first)
+        playerMinions.sort((a, b) => a.health - b.health);
+
+        // Remove excess minions
+        for (let i = 0; i < excessCount; i++) {
+            const minion = playerMinions[i];
+            if (minion && minion.minionId) {
+                // Remove from permanent tracking if it was permanent
+                if (networkManager && networkManager.permanentMinions) {
+                    networkManager.trackPermanentMinion(minion.minionId, 'remove');
+                }
+
+                // Destroy the minion
+                minion.health = 0;
+                // Death animation and cleanup will be handled by normal minion death logic
+            }
+        }
+    }
+
+    applyMinionStatUpdates(player) {
+        // Get all minions owned by this player
+        const playerMinions = Object.values(this.scene.minions).filter(m => m.ownerId === player.data.id);
+
+        if (playerMinions.length === 0) return;
+
+        console.log(`🔄 Updating stats for ${playerMinions.length} existing minions`);
+
+        playerMinions.forEach(minion => {
+            // Recalculate health with new multipliers
+            if (player.baseMinionHealth && player.minionHealthMultiplier) {
+                const newMaxHealth = player.baseMinionHealth * player.minionHealthMultiplier;
+                const healthPercent = minion.health / minion.maxHealth;
+                minion.maxHealth = newMaxHealth;
+                minion.health = Math.min(minion.health, newMaxHealth); // Don't reduce current health below max
+                console.log(`  💚 Minion ${minion.minionId.substring(0,6)}: maxHP ${minion.maxHealth}`);
+            }
+
+            // Recalculate damage with new multipliers
+            if (player.baseMinionDamage && player.minionDamageMultiplier) {
+                minion.damage = player.baseMinionDamage * player.minionDamageMultiplier;
+                console.log(`  ⚔️ Minion ${minion.minionId.substring(0,6)}: damage ${minion.damage}`);
+            }
+        });
     }
 
     destroy() {

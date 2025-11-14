@@ -97,32 +97,38 @@ class MainMenu {
         const enterButton = document.querySelector('.enter-prompt');
 
         try {
-            // Check Render server - just ping, don't require JSON
-            const response = await fetch('https://klyra-server.onrender.com/', {
-                method: 'HEAD', // Use HEAD instead of GET for faster check
-                mode: 'no-cors', // Allow CORS issues to pass
+            // Check Socket.IO endpoint instead of root
+            const serverURL = typeof GameConfig !== 'undefined' ? GameConfig.SERVER_URL : 'https://klyra-server.onrender.com';
+            const response = await fetch(`${serverURL}/socket.io/`, {
+                method: 'GET',
+                mode: 'cors',
                 cache: 'no-cache'
             });
 
-            // With no-cors mode, response will be opaque - just assume it worked
-            this.serverOnline = true;
-            this.checkingServer = false;
+            // Check if we got a valid response (Socket.IO will return info)
+            if (response.ok || response.status === 400) {
+                // 400 is expected from Socket.IO when not doing handshake - means server is up
+                this.serverOnline = true;
+                this.checkingServer = false;
 
-            statusDot.style.background = '#4AE290';
-            statusDot.style.boxShadow = '0 0 10px #4AE290';
-            statusDot.style.animation = 'none';
-            statusText.textContent = 'SERVER ONLINE';
-            statusText.style.color = '#4AE290';
+                statusDot.style.background = '#4AE290';
+                statusDot.style.boxShadow = '0 0 10px #4AE290';
+                statusDot.style.animation = 'none';
+                statusText.textContent = 'SERVER ONLINE';
+                statusText.style.color = '#4AE290';
 
-            if (enterButton) {
-                enterButton.style.opacity = '1';
-                enterButton.style.cursor = 'pointer';
-                enterButton.style.pointerEvents = 'all';
-                // Keep original red button color
-                enterButton.style.removeProperty('background');
+                if (enterButton) {
+                    enterButton.style.opacity = '1';
+                    enterButton.style.cursor = 'pointer';
+                    enterButton.style.pointerEvents = 'all';
+                    // Keep original red button color
+                    enterButton.style.removeProperty('background');
+                }
+
+                console.log('✅ Server check passed');
+            } else {
+                throw new Error(`Server returned ${response.status}`);
             }
-
-            console.log('✅ Server check passed');
         } catch (error) {
             // Even on error, enable the button - let the actual connection attempt handle it
             console.warn('⚠️ Server check failed, but enabling button anyway:', error);

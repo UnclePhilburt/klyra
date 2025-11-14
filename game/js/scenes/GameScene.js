@@ -24,7 +24,7 @@ class GameScene extends Phaser.Scene {
 
     shutdown() {
         // Clean up network listeners when scene is destroyed
-        console.log('🧹 GameScene shutting down - cleaning up listeners');
+        debug.info('CORE', 'GameScene shutting down - cleaning up listeners');
 
         const eventsToClear = [
             'player:joined', 'player:left', 'player:moved', 'player:changedMap', 'player:attacked',
@@ -42,40 +42,39 @@ class GameScene extends Phaser.Scene {
 
         // Destroy HUD to prevent multiple instances
         if (this.modernHUD) {
-            console.log('🧹 Destroying ModernHUD');
-            // Use the proper destroy method
+            debug.debug('CORE', 'Destroying ModernHUD');
             this.modernHUD.destroy();
             this.modernHUD = null;
         }
 
         // Destroy skill selector
         if (this.skillSelector) {
-            console.log('🧹 Destroying SkillSelector');
+            debug.debug('CORE', 'Destroying SkillSelector');
             this.skillSelector.destroy();
             this.skillSelector = null;
         }
 
         // Destroy ability manager
         if (this.abilityManager) {
-            console.log('🧹 Destroying AbilityManager');
+            debug.debug('CORE', 'Destroying AbilityManager');
             this.abilityManager.destroy();
             this.abilityManager = null;
         }
 
         // Destroy music system
         if (this.musicManager) {
-            console.log('🧹 Destroying MusicManager');
+            debug.debug('AUDIO', 'Destroying MusicManager');
             this.musicManager.destroy();
             this.musicManager = null;
         }
 
         if (this.musicUI) {
-            console.log('🧹 Destroying MusicUI');
+            debug.debug('UI', 'Destroying MusicUI');
             this.musicUI.destroy();
             this.musicUI = null;
         }
 
-        console.log('🧹 GameScene cleanup complete');
+        debug.info('CORE', 'GameScene cleanup complete');
     }
 
     preload() {
@@ -1645,9 +1644,10 @@ class GameScene extends Phaser.Scene {
 
                 // Level up effects for local player
                 if (data.playerId === networkManager.currentPlayer.id) {
-                    console.log(`🎉 LEVEL UP! Level ${data.level} | HP: ${data.health}/${data.maxHealth} | STR: ${data.stats.strength} | DEF: ${data.stats.defense}`);
-                    console.log(`📊 DIAGNOSTIC - Tweens: ${tweensBefore} → ${tweensAfter} (Δ${tweensAfter - tweensBefore})`);
-                    console.log(`📊 DIAGNOSTIC - Graphics: ${graphicsBefore} → ${graphicsAfter} (Δ${graphicsAfter - graphicsBefore})`);
+                    debug.levelUp(player.data.username || 'Player', data.level);
+                    debug.info('SKILLS', `HP: ${data.health}/${data.maxHealth} | STR: ${data.stats.strength} | DEF: ${data.stats.defense}`);
+                    debug.debug('PERFORMANCE', `Tweens: ${tweensBefore} → ${tweensAfter} (Δ${tweensAfter - tweensBefore})`);
+                    debug.debug('PERFORMANCE', `Graphics: ${graphicsBefore} → ${graphicsAfter} (Δ${graphicsAfter - graphicsBefore})`);
 
                     // Visual level-up effect
                     if (this.visualEffectsManager) {
@@ -1662,10 +1662,10 @@ class GameScene extends Phaser.Scene {
                     const isMilestone = milestones.includes(data.level) || data.level >= 16;
 
                     if (this.skillSelector && isMilestone) {
-                        console.log(`🎯 Milestone level ${data.level} - showing skill selector`);
+                        debug.info('SKILLS', `Milestone level ${data.level} - showing skill selector`);
                         this.skillSelector.show(player.class, data.level);
                     } else {
-                        console.log(`📊 Level ${data.level} - no skill choices (milestones: 1, 5, 10, 15, 16+)`);
+                        debug.debug('SKILLS', `Level ${data.level} - no skill choices (milestones: 1, 5, 10, 15, 16+)`);
                     }
                 }
             }
@@ -1735,15 +1735,12 @@ class GameScene extends Phaser.Scene {
         networkManager.on('enemy:moved', (data) => {
             const enemy = this.enemies[data.enemyId] || this.wolves[data.enemyId];
 
-            // Debug: Only log if enemy not found (removed excessive 100% logging)
+            // Silently ignore movement for non-existent enemies (likely killed but server still sending updates)
             if (!enemy) {
-                const inEnemies = !!this.enemies[data.enemyId];
-                const inWolves = !!this.wolves[data.enemyId];
-                console.warn(`⚠️ enemy:moved event for ${data.enemyId.substring(0,8)} - inEnemies: ${inEnemies}, inWolves: ${inWolves}`);
                 return;
             }
 
-            if (enemy && enemy.sprite) {
+            if (enemy.sprite) {
                 const tileSize = GameConfig.GAME.TILE_SIZE;
                 const targetX = data.position.x * tileSize + tileSize / 2;
                 const targetY = data.position.y * tileSize + tileSize / 2;
@@ -1879,8 +1876,8 @@ class GameScene extends Phaser.Scene {
 
         this.devMenuElements = [];
 
-        // Large background
-        const bg = this.add.rectangle(centerX, centerY, 700, 550, 0x000000, 0.95);
+        // Large background (increased height for debug logging section)
+        const bg = this.add.rectangle(centerX, centerY, 700, 650, 0x000000, 0.95);
         bg.setStrokeStyle(3, 0x00ff00);
         bg.setScrollFactor(0);
         bg.setDepth(10000);
@@ -1931,8 +1928,16 @@ class GameScene extends Phaser.Scene {
         this.createToggleButton('Free Camera', 'freeCamera', leftX, cameraY + spacing);
         this.createZoomControl(rightX, cameraY + spacing);
 
+        // DEBUG LOGGING SECTION
+        const debugY = cameraY + spacing * 2;
+        this.createCategoryLabel('DEBUG LOGGING', centerX, debugY);
+        this.createDebugCategoryButton('Network', 'NETWORK', leftX, debugY + spacing);
+        this.createDebugCategoryButton('Combat', 'COMBAT', rightX, debugY + spacing);
+        this.createDebugCategoryButton('Movement', 'MOVEMENT', leftX, debugY + spacing * 2);
+        this.createDebugCategoryButton('Minions', 'MINIONS', rightX, debugY + spacing * 2);
+
         // AUDIO SECTION
-        const audioY = cameraY + spacing * 2;
+        const audioY = debugY + spacing * 3;
         this.createCategoryLabel('AUDIO', centerX, audioY);
         this.createToggleButton('Mute Music', 'muteMusic', leftX, audioY + spacing);
         this.createToggleButton('Mute SFX', 'muteSFX', rightX, audioY + spacing);
@@ -1965,6 +1970,44 @@ class GameScene extends Phaser.Scene {
         label.setDepth(10001);
         label.setVisible(false);
         this.devMenuElements.push(label);
+    }
+
+    createDebugCategoryButton(label, category, x, y) {
+        const button = this.add.rectangle(x, y, 280, 28, 0x222222, 1);
+        button.setStrokeStyle(2, 0x00ff00);
+        button.setScrollFactor(0);
+        button.setDepth(10001);
+        button.setVisible(false);
+        button.setInteractive({ useHandCursor: true });
+
+        const text = this.add.text(x - 100, y, label, {
+            font: '13px monospace',
+            fill: '#ffffff'
+        }).setOrigin(0, 0.5);
+        text.setScrollFactor(0);
+        text.setDepth(10002);
+        text.setVisible(false);
+
+        const isEnabled = debug.categories[category];
+        const statusText = this.add.text(x + 100, y, isEnabled ? 'ON' : 'OFF', {
+            font: 'bold 13px monospace',
+            fill: isEnabled ? '#00ff00' : '#ff0000'
+        }).setOrigin(1, 0.5);
+        statusText.setScrollFactor(0);
+        statusText.setDepth(10002);
+        statusText.setVisible(false);
+
+        button.on('pointerdown', () => {
+            const newState = !debug.categories[category];
+            debug.setCategory(category, newState);
+            statusText.setText(newState ? 'ON' : 'OFF');
+            statusText.setColor(newState ? '#00ff00' : '#ff0000');
+        });
+
+        button.on('pointerover', () => button.setStrokeStyle(2, 0x00ffff));
+        button.on('pointerout', () => button.setStrokeStyle(2, 0x00ff00));
+
+        this.devMenuElements.push(button, text, statusText);
     }
 
     createToggleButton(label, settingKey, x, y) {
@@ -2670,7 +2713,7 @@ class GameScene extends Phaser.Scene {
             const tweens = this.tweens.getTweens().length;
             const graphics = this.children.list.filter(c => c.type === 'Graphics').length;
             const totalChildren = this.children.list.length;
-            console.log(`📊 FPS: ${fps} | Tweens: ${tweens} | Graphics: ${graphics} | Total Children: ${totalChildren}`);
+            debug.performance('FPS', `${fps} | Tweens: ${tweens} | Graphics: ${graphics} | Children: ${totalChildren}`);
 
             // Log performance breakdown
             const elapsed = Date.now() - this.lastPerfLog;
@@ -2680,7 +2723,7 @@ class GameScene extends Phaser.Scene {
             const maxFrameTime = this.frameTimes && this.frameTimes.length > 0
                 ? Math.max(...this.frameTimes).toFixed(1)
                 : 0;
-            console.log(`⏱️ Update Loop (${elapsed}ms): Player=${this.perfTimings.player.toFixed(1)}ms UI=${this.perfTimings.ui.toFixed(1)}ms HUD=${this.perfTimings.hud.toFixed(1)}ms Minions=${this.perfTimings.minions.toFixed(1)}ms Enemies=${this.perfTimings.enemies.toFixed(1)}ms Wolves=${this.perfTimings.wolves.toFixed(1)}ms Other=${this.perfTimings.other.toFixed(1)}ms | AvgFrame=${avgFrameTime}ms MaxFrame=${maxFrameTime}ms`);
+            debug.performance('Update Loop', `${elapsed}ms | Player=${this.perfTimings.player.toFixed(1)}ms UI=${this.perfTimings.ui.toFixed(1)}ms HUD=${this.perfTimings.hud.toFixed(1)}ms Minions=${this.perfTimings.minions.toFixed(1)}ms Enemies=${this.perfTimings.enemies.toFixed(1)}ms Wolves=${this.perfTimings.wolves.toFixed(1)}ms Other=${this.perfTimings.other.toFixed(1)}ms | Avg=${avgFrameTime}ms Max=${maxFrameTime}ms`);
             this.perfTimings = { player: 0, ui: 0, hud: 0, minions: 0, enemies: 0, wolves: 0, other: 0, frameCount: 0 };
             this.frameTimes = [];
             this.lastPerfLog = Date.now();
