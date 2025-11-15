@@ -16,6 +16,9 @@ class MalacharAbilityHandler {
         // Active buffs
         this.activeBuffs = new Map();
 
+        // Dead minion tracking for revival
+        this.deadMinions = [];
+
         console.log(`✨ Malachar Ability Handler initialized for build: ${buildData.name}`);
     }
 
@@ -33,6 +36,21 @@ class MalacharAbilityHandler {
     getRemainingCooldown(key) {
         const remaining = this.cooldowns[key] - Date.now();
         return Math.max(0, remaining);
+    }
+
+    // Track a dead permanent minion for potential revival
+    trackDeadMinion(minionData) {
+        // Only track permanent minions
+        if (!minionData.isPermanent) return;
+
+        // Store minion data for revival
+        this.deadMinions.push({
+            position: { x: minionData.x, y: minionData.y },
+            isPermanent: true,
+            timestamp: Date.now()
+        });
+
+        console.log(`💀 Tracked dead minion for revival (total: ${this.deadMinions.length})`);
     }
 
     // Use Q ability (cooldown handled by AbilityManager)
@@ -175,7 +193,28 @@ class MalacharAbilityHandler {
         // Visual: Massive purple explosion
         this.createExplosion(this.player.sprite.x, this.player.sprite.y, 0x9b59d6, 300);
 
-        // Revive all dead minions (TODO: implement death tracking)
+        // Revive all dead permanent minions
+        let revivedCount = 0;
+        if (this.deadMinions.length > 0) {
+            console.log(`💀 Reviving ${this.deadMinions.length} dead minions...`);
+
+            this.deadMinions.forEach(deadMinion => {
+                // Respawn minion at its death location
+                this.scene.spawnMinion(
+                    deadMinion.position.x,
+                    deadMinion.position.y,
+                    this.player.data.id,
+                    true // isPermanent
+                );
+
+                // Visual: Resurrection effect
+                this.createExplosion(deadMinion.position.x, deadMinion.position.y, 0x00ff00, 80);
+                revivedCount++;
+            });
+
+            // Clear dead minions list
+            this.deadMinions = [];
+        }
 
         // Spawn temps at each ally
         const allies = allyMgr.getAllAllies();
@@ -198,7 +237,7 @@ class MalacharAbilityHandler {
             this.applyMinionBuff(minion, 'legion_damage', ability.effect.allMinionBonus, ability.duration);
         });
 
-        console.log(`✅ Legion's Call: Spawned ${allies.length * ability.effect.spawnPerAlly} temps`);
+        console.log(`✅ Legion's Call: Revived ${revivedCount} minions, spawned ${allies.length * ability.effect.spawnPerAlly} temps, buffed ${myMinions.length} minions`);
     }
 
     // ===================================================================

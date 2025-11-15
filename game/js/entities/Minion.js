@@ -1218,6 +1218,16 @@ class Minion {
         // Debug log death
         console.log(`💀 Minion died (permanent: ${this.isPermanent}, health: ${this.health})`);
 
+        // Track permanent minion death for potential revival (Legion's Call)
+        if (this.isPermanent && this.scene.malacharAbilityHandler) {
+            this.scene.malacharAbilityHandler.trackDeadMinion({
+                x: this.sprite.x,
+                y: this.sprite.y,
+                isPermanent: this.isPermanent,
+                ownerId: this.ownerId
+            });
+        }
+
         // Notify server if this was a permanent minion
         if (this.isPermanent && this.minionId) {
             networkManager.trackPermanentMinion(this.minionId, 'remove');
