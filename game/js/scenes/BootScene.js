@@ -119,6 +119,13 @@ class BootScene extends Phaser.Scene {
         });
         console.log('📦 Loading sprite: autoattackbonecommander (bone commander aura)');
 
+        // Load Legion's Call ability effect (row 3, 9 frames, 64x64px each)
+        this.load.spritesheet('legionscall', 'assets/sprites/malachar/legionscall.png', {
+            frameWidth: 64,
+            frameHeight: 64
+        });
+        console.log('📦 Loading sprite: legionscall (Legion\'s Call R ability)');
+
         // Load music files
         MusicManager.preload(this);
 
@@ -234,9 +241,19 @@ class BootScene extends Phaser.Scene {
             repeat: 0 // Play once
         });
 
+        // Legion's Call effect (row 3, tiles 0-8, 9 frames)
+        // 10 sprites per row, row 3 starts at frame 30
+        this.anims.create({
+            key: 'legions_call',
+            frames: this.anims.generateFrameNumbers('legionscall', { start: 30, end: 38 }),
+            frameRate: 15,
+            repeat: 0 // Play once
+        });
+
         console.log('✅ Created minion animations: idle (frames 39-42), walk (frames 26-37), attack (frames 0-12)');
         console.log('✅ Created Malachar heal attack animation: (row 2, frames 30-44)');
         console.log('✅ Created Bone Commander aura animation: (row 1, frames 10-18)');
+        console.log('✅ Created Legion\'s Call animation: (row 3, frames 30-38)');
 
         // Don't connect to server - custom menu handles that
         // Just load assets and wait for custom menu to call game.connect()

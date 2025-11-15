@@ -190,8 +190,22 @@ class MalacharAbilityHandler {
     useLegionsCall(ability) {
         const allyMgr = this.scene.allyManager;
 
-        // Visual: Massive purple explosion
-        this.createExplosion(this.player.sprite.x, this.player.sprite.y, 0x9b59d6, 300);
+        // Visual: Legion's Call animation under player
+        const legionSprite = this.scene.add.sprite(
+            this.player.sprite.x,
+            this.player.sprite.y,
+            'legionscall'
+        );
+        legionSprite.setOrigin(0.5, 0.5);
+        legionSprite.setScale(2.5); // Make it bigger for ultimate effect
+        legionSprite.setDepth(this.player.sprite.depth - 1); // Behind player
+        legionSprite.setAlpha(0.9);
+        legionSprite.play('legions_call');
+
+        // Destroy sprite after animation completes
+        legionSprite.on('animationcomplete', () => {
+            legionSprite.destroy();
+        });
 
         // Revive all dead permanent minions near player
         let revivedCount = 0;
