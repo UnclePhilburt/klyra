@@ -207,12 +207,28 @@ class MalacharAbilityHandler {
             legionSprite.destroy();
         });
 
-        // Revive all dead permanent minions near player
+        // Revive dead permanent minions up to cap
         let revivedCount = 0;
-        if (this.deadMinions.length > 0) {
-            console.log(`💀 Reviving ${this.deadMinions.length} dead minions...`);
 
-            this.deadMinions.forEach(deadMinion => {
+        // Count current alive permanent minions
+        const currentMinions = Object.values(this.scene.minions || {}).filter(m =>
+            m.ownerId === this.player.data.id && m.isAlive && m.isPermanent
+        ).length;
+
+        // Get minion cap from build
+        const minionCap = this.buildData.stats.minionCap || 5;
+
+        // Calculate how many we can revive
+        const slotsAvailable = minionCap - currentMinions;
+        const minionsToRevive = Math.min(slotsAvailable, this.deadMinions.length);
+
+        if (minionsToRevive > 0) {
+            console.log(`💀 Reviving ${minionsToRevive} minions (${currentMinions}/${minionCap} alive, ${this.deadMinions.length} dead)`);
+
+            // Revive only up to the available slots
+            for (let i = 0; i < minionsToRevive; i++) {
+                const deadMinion = this.deadMinions[i];
+
                 // Respawn minion near player with random offset
                 const offsetX = (Math.random() - 0.5) * 150;
                 const offsetY = (Math.random() - 0.5) * 150;
@@ -229,10 +245,10 @@ class MalacharAbilityHandler {
                 // Visual: Resurrection effect
                 this.createExplosion(spawnX, spawnY, 0x00ff00, 80);
                 revivedCount++;
-            });
+            }
 
-            // Clear dead minions list
-            this.deadMinions = [];
+            // Remove revived minions from dead list
+            this.deadMinions.splice(0, minionsToRevive);
         }
 
         // Spawn temps at each ally
