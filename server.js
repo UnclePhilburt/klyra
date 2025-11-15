@@ -1776,6 +1776,13 @@ io.on('connection', (socket) => {
                     isPermanent: data.isPermanent || false
                 });
                 console.log(`🔮 Broadcasted minion spawn: ${data.minionId} for ${player.username}`);
+            } else {
+                // For existing minions, broadcast position update to other players
+                socket.to(lobby.id).emit('minion:moved', {
+                    minionId: data.minionId,
+                    position: data.position,
+                    ownerId: player.id
+                });
             }
         } catch (error) {
             console.error('Error in minion:position:', error);

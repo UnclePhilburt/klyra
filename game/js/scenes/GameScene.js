@@ -31,7 +31,7 @@ class GameScene extends Phaser.Scene {
             'player:joined', 'player:left', 'player:moved', 'player:changedMap', 'player:attacked',
             'player:damaged', 'player:levelup', 'player:died',
             'enemy:spawned', 'enemy:despawned', 'enemy:damaged', 'enemy:moved', 'enemy:killed',
-            'minion:spawned', 'minion:damaged', 'minion:healed',
+            'minion:spawned', 'minion:moved', 'minion:damaged', 'minion:healed',
             'item:spawned', 'item:collected', 'chat:message'
         ];
 
@@ -1684,7 +1684,7 @@ class GameScene extends Phaser.Scene {
             'player:joined', 'player:left', 'player:moved', 'player:changedMap', 'player:attacked',
             'player:damaged', 'player:levelup', 'player:died',
             'enemy:spawned', 'enemy:despawned', 'enemy:damaged', 'enemy:moved', 'enemy:killed',
-            'minion:spawned', 'minion:damaged', 'minion:healed',
+            'minion:spawned', 'minion:moved', 'minion:damaged', 'minion:healed',
             'item:spawned', 'item:collected', 'chat:message'
         ];
 
@@ -2009,6 +2009,27 @@ class GameScene extends Phaser.Scene {
 
             // Spawn the minion
             this.spawnMinion(x, y, data.ownerId, data.isPermanent, data.minionId);
+        });
+
+        // Minion position updated (from server broadcast)
+        networkManager.on('minion:moved', (data) => {
+            const minion = this.minions[data.minionId];
+            if (minion && minion.sprite && minion.sprite.active) {
+                // Calculate pixel position from grid position
+                const tileSize = GameConfig.GAME.TILE_SIZE;
+                const targetX = data.position.x * tileSize + tileSize / 2;
+                const targetY = data.position.y * tileSize + tileSize / 2;
+
+                // Update minion position
+                minion.sprite.x = targetX;
+                minion.sprite.y = targetY;
+
+                // Update health bar if it exists
+                if (minion.healthBar) {
+                    minion.healthBar.x = targetX;
+                    minion.healthBar.y = targetY - 20;
+                }
+            }
         });
 
         // Minion damaged by enemy

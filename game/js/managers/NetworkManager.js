@@ -158,6 +158,10 @@ class NetworkManager {
             this.emit('minion:spawned', data);
         });
 
+        this.socket.on('minion:moved', (data) => {
+            this.emit('minion:moved', data);
+        });
+
         this.socket.on('minion:damaged', (data) => {
             this.emit('minion:damaged', data);
         });
