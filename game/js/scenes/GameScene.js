@@ -2020,14 +2020,24 @@ class GameScene extends Phaser.Scene {
                 const targetX = data.position.x * tileSize + tileSize / 2;
                 const targetY = data.position.y * tileSize + tileSize / 2;
 
-                // Update minion position
-                minion.sprite.x = targetX;
-                minion.sprite.y = targetY;
+                // Calculate distance to determine if we should snap or smooth move
+                const dx = targetX - minion.sprite.x;
+                const dy = targetY - minion.sprite.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
 
-                // Update health bar if it exists
-                if (minion.healthBar) {
-                    minion.healthBar.x = targetX;
-                    minion.healthBar.y = targetY - 20;
+                // If distance is too large (teleport/spawn), snap instantly
+                // Otherwise use smooth interpolation
+                if (distance > 200) {
+                    minion.sprite.x = targetX;
+                    minion.sprite.y = targetY;
+                    if (minion.healthBar) {
+                        minion.healthBar.x = targetX;
+                        minion.healthBar.y = targetY - 20;
+                    }
+                } else {
+                    // Store target for smooth interpolation in update loop
+                    minion.targetX = targetX;
+                    minion.targetY = targetY;
                 }
             }
         });

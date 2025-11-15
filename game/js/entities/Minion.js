@@ -1271,11 +1271,40 @@ class Minion {
     update() {
         if (!this.isAlive) return;
 
-        // Send position updates to server so enemies can target this minion
-        const now = Date.now();
-        if (now - this.lastPositionUpdate > this.positionUpdateInterval) {
-            this.sendPositionUpdate();
-            this.lastPositionUpdate = now;
+        // For remote minions (not owned by local player), interpolate towards target position
+        if (this.targetX !== undefined && this.targetY !== undefined &&
+            this.ownerId !== networkManager.currentPlayer?.id) {
+            const dx = this.targetX - this.sprite.x;
+            const dy = this.targetY - this.sprite.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > 1) {
+                // Smooth interpolation - move 20% of the way each frame
+                const interpolationSpeed = 0.2;
+                this.sprite.x += dx * interpolationSpeed;
+                this.sprite.y += dy * interpolationSpeed;
+
+                // Update health bar
+                if (this.healthBar) {
+                    this.healthBar.x = this.sprite.x;
+                    this.healthBar.y = this.sprite.y - 20;
+                }
+            } else {
+                // Close enough, snap to target
+                this.sprite.x = this.targetX;
+                this.sprite.y = this.targetY;
+                this.targetX = undefined;
+                this.targetY = undefined;
+            }
+        }
+
+        // Send position updates to server so enemies can target this minion (only for local player's minions)
+        if (this.ownerId === networkManager.currentPlayer?.id) {
+            const now = Date.now();
+            if (now - this.lastPositionUpdate > this.positionUpdateInterval) {
+                this.sendPositionUpdate();
+                this.lastPositionUpdate = now;
+            }
         }
 
         // Update sprite facing direction based on velocity (cheap, keep every frame)

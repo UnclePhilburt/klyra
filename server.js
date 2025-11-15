@@ -1758,13 +1758,26 @@ io.on('connection', (socket) => {
 
             const existingMinion = lobby.gameState.minions.get(data.minionId);
             const isNew = !existingMinion;
+            const now = Date.now();
+
+            // Throttle position broadcasts - only broadcast every 100ms OR if position changed by 2+ tiles
+            let shouldBroadcast = isNew;
+            if (!isNew && existingMinion) {
+                const timeSinceLastBroadcast = now - (existingMinion.lastBroadcast || 0);
+                const dx = Math.abs(data.position.x - existingMinion.position.x);
+                const dy = Math.abs(data.position.y - existingMinion.position.y);
+                const significantMove = dx >= 2 || dy >= 2;
+
+                shouldBroadcast = timeSinceLastBroadcast >= 100 || significantMove;
+            }
 
             lobby.gameState.minions.set(data.minionId, {
                 id: data.minionId,
                 position: data.position,
                 ownerId: player.id,
                 isPermanent: data.isPermanent || false,
-                lastUpdate: Date.now()
+                lastUpdate: now,
+                lastBroadcast: shouldBroadcast ? now : (existingMinion?.lastBroadcast || now)
             });
 
             // If this is a new minion, broadcast spawn event to other players
@@ -1776,8 +1789,8 @@ io.on('connection', (socket) => {
                     isPermanent: data.isPermanent || false
                 });
                 console.log(`🔮 Broadcasted minion spawn: ${data.minionId} for ${player.username}`);
-            } else {
-                // For existing minions, broadcast position update to other players
+            } else if (shouldBroadcast) {
+                // For existing minions, broadcast position update to other players (throttled)
                 socket.to(lobby.id).emit('minion:moved', {
                     minionId: data.minionId,
                     position: data.position,
