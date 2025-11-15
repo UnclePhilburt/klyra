@@ -193,22 +193,27 @@ class MalacharAbilityHandler {
         // Visual: Massive purple explosion
         this.createExplosion(this.player.sprite.x, this.player.sprite.y, 0x9b59d6, 300);
 
-        // Revive all dead permanent minions
+        // Revive all dead permanent minions near player
         let revivedCount = 0;
         if (this.deadMinions.length > 0) {
             console.log(`💀 Reviving ${this.deadMinions.length} dead minions...`);
 
             this.deadMinions.forEach(deadMinion => {
-                // Respawn minion at its death location
+                // Respawn minion near player with random offset
+                const offsetX = (Math.random() - 0.5) * 150;
+                const offsetY = (Math.random() - 0.5) * 150;
+                const spawnX = this.player.sprite.x + offsetX;
+                const spawnY = this.player.sprite.y + offsetY;
+
                 this.scene.spawnMinion(
-                    deadMinion.position.x,
-                    deadMinion.position.y,
+                    spawnX,
+                    spawnY,
                     this.player.data.id,
                     true // isPermanent
                 );
 
                 // Visual: Resurrection effect
-                this.createExplosion(deadMinion.position.x, deadMinion.position.y, 0x00ff00, 80);
+                this.createExplosion(spawnX, spawnY, 0x00ff00, 80);
                 revivedCount++;
             });
 
