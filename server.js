@@ -461,6 +461,57 @@ class Lobby {
         };
     }
 
+    // Create mushroom with variant stats - BALANCED: Medium threat
+    createMushroomVariant(variant, baseId, position, healthMultiplier = 1.0) {
+        const variants = {
+            small: {
+                scale: 0.8,
+                health: 40,  // Weaker than wolves
+                maxHealth: 40,
+                damage: 4,
+                speed: 35,
+                sightRange: 8
+            },
+            normal: {
+                scale: 1.0,
+                health: 70,  // Medium threat
+                maxHealth: 70,
+                damage: 6,
+                speed: 45,
+                sightRange: 10
+            },
+            boss: {
+                scale: 1.4,
+                health: 180,  // Tough mushroom boss
+                maxHealth: 180,
+                damage: 12,
+                speed: 55,
+                sightRange: 14
+            }
+        };
+
+        const stats = variants[variant];
+
+        // Apply co-op health scaling
+        const scaledHealth = Math.floor(stats.health * healthMultiplier);
+        const scaledMaxHealth = Math.floor(stats.maxHealth * healthMultiplier);
+
+        return {
+            id: baseId,
+            type: 'mushroom',
+            variant: variant,
+            position: position,
+            health: scaledHealth,
+            maxHealth: scaledMaxHealth,
+            damage: stats.damage,
+            speed: stats.speed,
+            scale: stats.scale,
+            isAlive: true,
+            sightRange: stats.sightRange,
+            lastMove: 0
+        };
+    }
+
     // Get the dominant biome for a region
     getRegionBiome(regionX, regionY) {
         const REGION_SIZE = 50;
@@ -673,25 +724,40 @@ class Lobby {
             let bossSpawned = false;
 
             // Determine enemy type based on biome
-            let shouldSpawnSwordDemon;
-            let shouldSpawnMinotaur;
+            let enemyType;
+            const spawnRoll = this.seededRandom(packSeed + 50);
 
             if (biome === 'red') {
-                // RED biome: 80% sword demons, 20% minotaurs
-                shouldSpawnSwordDemon = this.seededRandom(packSeed + 50) < 0.8;
-                shouldSpawnMinotaur = !shouldSpawnSwordDemon;
+                // RED biome: 60% sword demons, 20% minotaurs, 20% mushrooms
+                if (spawnRoll < 0.6) {
+                    enemyType = 'swordDemon';
+                } else if (spawnRoll < 0.8) {
+                    enemyType = 'minotaur';
+                } else {
+                    enemyType = 'mushroom';
+                }
             } else if (biome === 'dark_green') {
-                // DARK_GREEN biome: 40% sword demons, 60% minotaurs
-                shouldSpawnSwordDemon = this.seededRandom(packSeed + 50) < 0.4;
-                shouldSpawnMinotaur = !shouldSpawnSwordDemon;
+                // DARK_GREEN biome: 30% sword demons, 40% minotaurs, 30% mushrooms
+                if (spawnRoll < 0.3) {
+                    enemyType = 'swordDemon';
+                } else if (spawnRoll < 0.7) {
+                    enemyType = 'minotaur';
+                } else {
+                    enemyType = 'mushroom';
+                }
             } else {
-                // GREEN biome: 20% sword demons, 80% minotaurs
-                shouldSpawnSwordDemon = this.seededRandom(packSeed + 50) < 0.2;
-                shouldSpawnMinotaur = !shouldSpawnSwordDemon;
+                // GREEN biome: 10% sword demons, 50% minotaurs, 40% mushrooms (mushrooms fit forest theme)
+                if (spawnRoll < 0.1) {
+                    enemyType = 'swordDemon';
+                } else if (spawnRoll < 0.6) {
+                    enemyType = 'minotaur';
+                } else {
+                    enemyType = 'mushroom';
+                }
             }
 
             // Spawn appropriate enemy type in pack
-            if (shouldSpawnSwordDemon) {
+            if (enemyType === 'swordDemon') {
                 // Spawn sword demons (wolves) in pack
                 for (let i = 0; i < packSize; i++) {
                     const wolfSeed = packSeed + i * 100;
@@ -726,7 +792,7 @@ class Lobby {
                     this.gameState.enemies.push(wolf);
                     newEnemies.push(wolf);
                 }
-            } else if (shouldSpawnMinotaur) {
+            } else if (enemyType === 'minotaur') {
                 // Spawn minotaurs in pack (smaller packs since they're tougher)
                 const minotaurPackSize = Math.max(1, Math.floor(packSize / 2)); // Half the size
                 for (let i = 0; i < minotaurPackSize; i++) {
@@ -754,6 +820,41 @@ class Lobby {
 
                     this.gameState.enemies.push(minotaur);
                     newEnemies.push(minotaur);
+                }
+            } else if (enemyType === 'mushroom') {
+                // Spawn mushrooms in pack
+                for (let i = 0; i < packSize; i++) {
+                    const mushroomSeed = packSeed + i * 100;
+
+                    // Position in cluster
+                    const offsetX = Math.floor((this.seededRandom(mushroomSeed + 10) - 0.5) * 10);
+                    const offsetY = Math.floor((this.seededRandom(mushroomSeed + 11) - 0.5) * 10);
+                    const x = Math.max(0, Math.min(this.WORLD_SIZE - 1, packX + offsetX));
+                    const y = Math.max(0, Math.min(this.WORLD_SIZE - 1, packY + offsetY));
+
+                    // Determine mushroom variant
+                    let variant = 'normal';
+
+                    if (hasBoss && !bossSpawned && i === 0) {
+                        variant = 'boss';
+                        bossSpawned = true;
+                    } else if (distanceFromSpawn < 100) {
+                        variant = this.seededRandom(mushroomSeed + 20) < 0.7 ? 'small' : 'normal';
+                    } else if (distanceFromSpawn < 200) {
+                        variant = this.seededRandom(mushroomSeed + 20) < 0.3 ? 'small' : 'normal';
+                    } else {
+                        variant = 'normal';
+                    }
+
+                    const mushroomId = `${this.id}_mushroom_${regionKey}_p${packIndex}_${i}`;
+                    const mushroom = this.createMushroomVariant(variant, mushroomId, { x, y }, healthMultiplier);
+
+                    // Track region
+                    mushroom.regionKey = regionKey;
+                    this.regionEnemies.get(regionKey).add(mushroom.id);
+
+                    this.gameState.enemies.push(mushroom);
+                    newEnemies.push(mushroom);
                 }
             }
         }
