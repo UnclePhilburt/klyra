@@ -148,6 +148,16 @@ class BootScene extends Phaser.Scene {
         });
         console.log('📦 Loading sprite: legionscall (Legion\'s Call R ability)');
 
+        // Load fire sprites for Pact of Bones (32x32px, 8 frames each, 0-7)
+        const fireSprites = ['4-2', '4-4', '4-5', '5-1', '5-2', '5-4', '5-5', '6-1', '6-2', '6-4', '6-5', '7-1', '7-2', '7-4', '7-5'];
+        fireSprites.forEach(sprite => {
+            this.load.spritesheet(`fire_${sprite.replace('-', '_')}`, `assets/sprites/fire/${sprite}.png`, {
+                frameWidth: 32,
+                frameHeight: 32
+            });
+        });
+        console.log(`📦 Loading ${fireSprites.length} fire sprites (Pact of Bones effect)`);
+
         // Load music files
         MusicManager.preload(this);
 
@@ -356,6 +366,18 @@ class BootScene extends Phaser.Scene {
         });
 
         console.log('✅ Created blood splash animations: Splash1 (16f), Splash2 (15f bottom-up), Splash3 (12f burst)');
+
+        // Create fire animations for Pact of Bones (all 32x32px, 8 frames 0-7)
+        const fireAnimSprites = ['4_2', '4_4', '4_5', '5_1', '5_2', '5_4', '5_5', '6_1', '6_2', '6_4', '6_5', '7_1', '7_2', '7_4', '7_5'];
+        fireAnimSprites.forEach(sprite => {
+            this.anims.create({
+                key: `fire_${sprite}_anim`,
+                frames: this.anims.generateFrameNumbers(`fire_${sprite}`, { start: 0, end: 7 }),
+                frameRate: 12,
+                repeat: -1 // Loop fire animation
+            });
+        });
+        console.log(`✅ Created ${fireAnimSprites.length} fire animations (Pact of Bones effect)`);
 
         // Don't connect to server - custom menu handles that
         // Just load assets and wait for custom menu to call game.connect()

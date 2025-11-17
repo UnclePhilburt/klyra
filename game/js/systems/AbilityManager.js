@@ -136,6 +136,11 @@ class AbilityManager {
             }
         });
 
+        // Update fire damage (Pact of Bones)
+        if (this.scene.malacharAbilityHandler && this.scene.malacharAbilityHandler.updateFireDamage) {
+            this.scene.malacharAbilityHandler.updateFireDamage();
+        }
+
         // Update UI
         this.updateCooldownUI();
     }

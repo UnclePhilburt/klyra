@@ -190,22 +190,76 @@ class MalacharAbilityHandler {
     }
 
     usePactOfBones(ability) {
-        const allyMgr = this.scene.allyManager;
-        const nearestAlly = allyMgr.getNearestAlly(this.player.sprite.x, this.player.sprite.y, ability.effect.linkRange);
+        // Get all player's minions
+        const myMinions = Object.values(this.scene.minions || {}).filter(m =>
+            m.ownerId === this.player.data.id && m.isAlive
+        );
 
-        if (!nearestAlly) {
-            console.log('❌ No allies in range for Pact of Bones');
+        if (myMinions.length === 0) {
+            console.log('❌ No minions to explode');
             return;
         }
 
-        // Visual: Link effect
-        this.createLink(this.player.sprite, nearestAlly.sprite, 0x8b008b, ability.duration);
+        const explosionRadius = ability.effect.explosionRadius * 32; // Convert tiles to pixels
+        let totalEnemiesHit = 0;
 
-        // Apply damage buff to both
-        this.applyPlayerBuff('pact_damage', ability.effect.bothDamageBonus, ability.duration);
-        // TODO: Apply buff to ally player
+        // Store minion data for respawning
+        const minionDataToRespawn = [];
 
-        console.log(`✅ Pact of Bones: Linked with ${nearestAlly.data.username}`);
+        // Explode each minion
+        myMinions.forEach(minion => {
+            // Store minion data before explosion
+            minionDataToRespawn.push({
+                isPermanent: minion.isPermanent,
+                maxHealth: minion.maxHealth,
+                damage: minion.damage
+            });
+
+            // Visual: Explosion effect at minion position
+            if (this.scene.visualEffectsManager) {
+                this.scene.visualEffectsManager.createExplosion(
+                    minion.sprite.x,
+                    minion.sprite.y,
+                    0x8b008b, // Purple bone explosion
+                    explosionRadius
+                );
+            }
+
+            // Deal damage to enemies in radius
+            const enemiesHit = this.getEnemiesInRadius(minion.sprite.x, minion.sprite.y, explosionRadius);
+            enemiesHit.forEach(enemy => {
+                if (enemy.takeDamage) {
+                    enemy.takeDamage(ability.effect.explosionDamage);
+                }
+            });
+            totalEnemiesHit += enemiesHit.length;
+
+            // Spawn fire at explosion location
+            this.spawnFireAtLocation(minion.sprite.x, minion.sprite.y);
+
+            // Destroy the minion sprite/entity
+            if (minion.sprite) {
+                minion.sprite.destroy();
+            }
+            minion.isAlive = false;
+        });
+
+        // Instantly respawn all minions at player position
+        setTimeout(() => {
+            minionDataToRespawn.forEach((minionData, index) => {
+                const offsetX = (index % 3 - 1) * 40; // Spread them out slightly
+                const offsetY = Math.floor(index / 3) * 40;
+
+                this.scene.spawnMinion(
+                    this.player.sprite.x + offsetX,
+                    this.player.sprite.y + offsetY,
+                    this.player.data.id,
+                    minionData.isPermanent
+                );
+            });
+
+            console.log(`✅ Pact of Bones: ${myMinions.length} minions exploded (${totalEnemiesHit} enemies hit), respawned at player`);
+        }, 100); // Small delay for visual effect
     }
 
     useLegionsCall(ability) {
@@ -722,6 +776,121 @@ class MalacharAbilityHandler {
             if (!enemy || !enemy.sprite || !enemy.isAlive) return false;
             const dist = Phaser.Math.Distance.Between(x, y, enemy.sprite.x, enemy.sprite.y);
             return dist <= radius;
+        });
+    }
+
+    // ===================================================================
+    // FIRE SYSTEM (Pact of Bones)
+    // ===================================================================
+
+    spawnFireAtLocation(x, y) {
+        // Initialize fire tracking if needed
+        if (!this.activeFires) {
+            this.activeFires = [];
+        }
+
+        // Random fire sprite selection
+        const fireSprites = ['4_2', '4_4', '4_5', '5_1', '5_2', '5_4', '5_5', '6_1', '6_2', '6_4', '6_5', '7_1', '7_2', '7_4', '7_5'];
+        const randomSprite = Phaser.Utils.Array.GetRandom(fireSprites);
+
+        // Create fire sprite
+        const fireSprite = this.scene.add.sprite(x, y, `fire_${randomSprite}`);
+        fireSprite.play(`fire_${randomSprite}_anim`);
+        fireSprite.setDepth(5); // Above ground, below players
+
+        // Fire data
+        const fireData = {
+            sprite: fireSprite,
+            x: x,
+            y: y,
+            spawnTime: Date.now(),
+            lifetime: 2500, // Individual fire lasts 2.5 seconds
+            damageRadius: 32, // 1 tile radius
+            damage: 25, // 25 DPS
+            lastDamageTick: Date.now()
+        };
+
+        this.activeFires.push(fireData);
+
+        // Start fire spreading from this location
+        this.startFireSpreading(x, y);
+
+        // Clean up this fire after its lifetime
+        this.scene.time.delayedCall(fireData.lifetime, () => {
+            const index = this.activeFires.indexOf(fireData);
+            if (index !== -1) {
+                this.activeFires.splice(index, 1);
+            }
+            if (fireSprite && fireSprite.scene) {
+                fireSprite.destroy();
+            }
+        });
+    }
+
+    startFireSpreading(originX, originY) {
+        const spreadDuration = 6000; // Fire spreads for 6 seconds total
+        const spreadInterval = 800; // New fire every 0.8 seconds
+        const spreadRadius = 64; // 2 tiles
+        const maxNewFires = 7; // Spawn max 7 additional fires
+
+        let firesSpawned = 0;
+        const spreadTimer = this.scene.time.addEvent({
+            delay: spreadInterval,
+            repeat: maxNewFires - 1,
+            callback: () => {
+                // Random position near origin
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * spreadRadius;
+                const newX = originX + Math.cos(angle) * distance;
+                const newY = originY + Math.sin(angle) * distance;
+
+                // Spawn new fire
+                this.spawnFireAtLocation(newX, newY);
+                firesSpawned++;
+            }
+        });
+
+        // Stop spreading after 6 seconds
+        this.scene.time.delayedCall(spreadDuration, () => {
+            if (spreadTimer) {
+                spreadTimer.remove();
+            }
+        });
+    }
+
+    updateFireDamage() {
+        if (!this.activeFires || this.activeFires.length === 0) return;
+
+        const now = Date.now();
+        const damageInterval = 1000; // Damage every 1 second
+
+        this.activeFires.forEach(fire => {
+            // Check if it's time to deal damage
+            if (now - fire.lastDamageTick < damageInterval) return;
+
+            fire.lastDamageTick = now;
+
+            // Get enemies in fire radius
+            const enemies = this.getEnemiesInRadius(fire.x, fire.y, fire.damageRadius);
+
+            enemies.forEach(enemy => {
+                // Mark enemies in fire to prevent stacking
+                if (!enemy.inFire) {
+                    enemy.inFire = true;
+
+                    // Deal damage
+                    if (enemy.takeDamage) {
+                        enemy.takeDamage(fire.damage);
+                    }
+
+                    // Remove fire flag after damage tick
+                    this.scene.time.delayedCall(damageInterval, () => {
+                        if (enemy) {
+                            enemy.inFire = false;
+                        }
+                    });
+                }
+            });
         });
     }
 }

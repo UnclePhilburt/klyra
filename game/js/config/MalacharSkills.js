@@ -65,15 +65,14 @@ const MalacharSkillTree = {
                     },
                     e: {
                         name: 'Pact of Bones',
-                        description: 'Link to nearest ally. Both gain +30% damage. Your minions protect them. Share minion control.',
-                        cooldown: 20000,
-                        duration: 8000,
+                        description: 'All minions explode dealing massive AOE damage, then instantly respawn at your position ready to fight.',
+                        cooldown: 15000,
                         effect: {
-                            linkToAlly: true,
-                            linkRange: 8,
-                            bothDamageBonus: 0.30,
-                            minionsProtectAlly: true,
-                            sharedControl: true
+                            explodeMinions: true,
+                            explosionDamage: 120,
+                            explosionRadius: 3,
+                            instantRespawn: true,
+                            respawnInvulnDuration: 1000
                         }
                     },
                     r: {
