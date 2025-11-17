@@ -2606,6 +2606,34 @@ setInterval(() => {
     rateLimits.clear();
 }, 600000); // Every 10 minutes
 
+// Periodic player stats save (every 60 seconds)
+setInterval(async () => {
+    if (!process.env.DATABASE_URL) return;
+
+    let savedCount = 0;
+    for (const [socketId, player] of players.entries()) {
+        if (player && player.id) {
+            try {
+                const sessionPlaytime = Date.now() - player.sessionStartTime;
+                await db.updatePlayerStats(player.id, player.username, {
+                    kills: player.kills || 0,
+                    deaths: player.deaths || 0,
+                    damageDealt: player.damageDealt || 0,
+                    damageTaken: player.damageTaken || 0,
+                    playtime: sessionPlaytime
+                });
+                savedCount++;
+            } catch (err) {
+                console.error(`Failed to save stats for ${player.username}:`, err.message);
+            }
+        }
+    }
+
+    if (savedCount > 0) {
+        console.log(`💾 Auto-saved stats for ${savedCount} active player(s)`);
+    }
+}, 60000); // Every 60 seconds
+
 // Start server
 server.listen(PORT, async () => {
     console.log(`

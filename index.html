@@ -1191,6 +1191,9 @@
         // Load stats immediately on page load
         fetchGlobalStats();
 
+        // Auto-refresh stats every minute (60000ms)
+        setInterval(fetchGlobalStats, 60000);
+
         // Mobile Menu Toggle
         const mobileMenuToggle = document.getElementById('mobileMenuToggle');
         const navMenu = document.getElementById('navMenu');
