@@ -559,6 +559,9 @@ class GameScene extends Phaser.Scene {
         // Setup controls
         this.setupControls();
 
+        // Setup ambient particles
+        this.setupAmbientParticles();
+
         // Setup network listeners
         this.setupNetworkListeners();
     }
@@ -1708,6 +1711,119 @@ class GameScene extends Phaser.Scene {
 
         this.createDevMenu();
         this.createDebugOverlays();
+    }
+
+    setupAmbientParticles() {
+        // Ambient particle system for atmospheric effects
+        this.ambientParticles = [];
+        this.ambientParticleTimer = 0;
+
+        // Particle spawn settings
+        this.particleSpawnRate = 200; // Spawn particle every 200ms
+        this.maxAmbientParticles = 150; // Max particles on screen
+
+        console.log('✨ Ambient particle system initialized');
+    }
+
+    updateAmbientParticles(delta) {
+        this.ambientParticleTimer += delta;
+
+        // Spawn new particles at intervals
+        if (this.ambientParticleTimer >= this.particleSpawnRate) {
+            this.ambientParticleTimer = 0;
+
+            // Don't spawn if at max
+            if (this.ambientParticles.length < this.maxAmbientParticles) {
+                this.spawnAmbientParticle();
+            }
+        }
+
+        // Update existing particles
+        this.ambientParticles = this.ambientParticles.filter(particle => {
+            if (!particle || !particle.sprite || !particle.sprite.scene) {
+                return false;
+            }
+            return true;
+        });
+    }
+
+    spawnAmbientParticle() {
+        const camera = this.cameras.main;
+        const particleTypes = ['leaf', 'dust', 'ember'];
+        const type = Phaser.Utils.Array.GetRandom(particleTypes);
+
+        // Spawn at random position around camera view
+        const spawnSide = Math.floor(Math.random() * 4); // 0=top, 1=right, 2=bottom, 3=left
+        let x, y;
+
+        switch (spawnSide) {
+            case 0: // Top
+                x = camera.scrollX + Math.random() * camera.width;
+                y = camera.scrollY - 20;
+                break;
+            case 1: // Right
+                x = camera.scrollX + camera.width + 20;
+                y = camera.scrollY + Math.random() * camera.height;
+                break;
+            case 2: // Bottom
+                x = camera.scrollX + Math.random() * camera.width;
+                y = camera.scrollY + camera.height + 20;
+                break;
+            case 3: // Left
+                x = camera.scrollX - 20;
+                y = camera.scrollY + Math.random() * camera.height;
+                break;
+        }
+
+        let particle;
+        if (type === 'leaf') {
+            // Green/yellow leaves
+            const colors = [0x2d5016, 0x4a7c2b, 0x8b7355, 0xd4a574];
+            particle = this.add.ellipse(x, y, 4, 6, Phaser.Utils.Array.GetRandom(colors));
+        } else if (type === 'dust') {
+            // Light gray dust particles
+            const colors = [0xcccccc, 0xdddddd, 0xaaaaaa];
+            particle = this.add.circle(x, y, 2, Phaser.Utils.Array.GetRandom(colors));
+        } else { // ember
+            // Orange/red embers
+            const colors = [0xff6600, 0xff8800, 0xffaa00];
+            particle = this.add.circle(x, y, 3, Phaser.Utils.Array.GetRandom(colors));
+            particle.setAlpha(0.7);
+        }
+
+        particle.setDepth(2); // Below UI, above ground
+        particle.setAlpha(0.3 + Math.random() * 0.4);
+
+        // Wind direction (gentle drift)
+        const windX = -10 + Math.random() * 20;
+        const windY = type === 'leaf' ? 20 + Math.random() * 30 : 10 + Math.random() * 20;
+
+        // Animate particle floating
+        this.tweens.add({
+            targets: particle,
+            x: x + windX * 30,
+            y: y + windY * 30,
+            alpha: 0,
+            duration: 3000 + Math.random() * 2000,
+            ease: 'Linear',
+            onComplete: () => {
+                if (particle && particle.scene) {
+                    particle.destroy();
+                }
+            }
+        });
+
+        // Add slight rotation for leaves
+        if (type === 'leaf') {
+            this.tweens.add({
+                targets: particle,
+                angle: 360,
+                duration: 2000 + Math.random() * 1000,
+                ease: 'Linear'
+            });
+        }
+
+        this.ambientParticles.push({ sprite: particle, type });
     }
 
     setupNetworkListeners() {
@@ -3345,11 +3461,16 @@ class GameScene extends Phaser.Scene {
                 y = Math.random() < 0.5 ? Math.random() * 200 : height - Math.random() * 200;
             }
 
-            // Create blood splatter
-            const size = 15 + Math.random() * 35; // Bigger splatters
-            const splatter = this.add.circle(x, y, size, 0x8b0000, 0.7);
+            // Create blood splatter using blood splash sprites
+            const splashType = Math.floor(Math.random() * 3) + 1;
+            const splatter = this.add.sprite(x, y, `blood_splash_${splashType}`);
             splatter.setScrollFactor(0);
             splatter.setDepth(10000);
+            splatter.setScale(0.8 + Math.random() * 0.6);
+            splatter.setRotation(Math.random() * Math.PI * 2);
+
+            // Play blood animation
+            splatter.play(`blood_splash_${splashType}_anim`);
 
             // Add to container
             this.screenBloodContainer.add(splatter);
@@ -3368,25 +3489,6 @@ class GameScene extends Phaser.Scene {
                     if (idx > -1) this.screenBloodSplatters.splice(idx, 1);
                 }
             });
-
-            // Create drip effect
-            if (y < height - 50 && Math.random() < 0.6) {
-                const drip = this.add.circle(x, y, 4, 0x8b0000, 0.6);
-                drip.setScrollFactor(0);
-                drip.setDepth(10000);
-                this.screenBloodContainer.add(drip);
-                this.screenBloodSplatters.push(drip);
-
-                // Animate drip falling - VERY FAST fade (gone in ~1 second)
-                this.tweens.add({
-                    targets: drip,
-                    y: y + 30 + Math.random() * 50,
-                    alpha: 0,
-                    duration: 300 + Math.random() * 300, // 300-600ms
-                    ease: 'Cubic.easeIn',
-                    onComplete: () => drip.destroy()
-                });
-            }
         }
 
         // Limit total blood splatters (keep last 50)
@@ -3410,6 +3512,11 @@ class GameScene extends Phaser.Scene {
         // Update music UI progress bar
         if (this.musicUI) {
             this.musicUI.update();
+        }
+
+        // Update ambient particles
+        if (this.ambientParticles) {
+            this.updateAmbientParticles(delta);
         }
 
         // Update ability manager cooldowns

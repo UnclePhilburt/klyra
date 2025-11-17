@@ -104,81 +104,65 @@ class Enemy {
     }
 
     showBloodEffect() {
-        // Create dynamic blood particle effect - MUCH bloodier
-        const particleCount = 25; // Increased from 12
-        const particles = [];
+        // Spawn blood splash sprites (flying blood particles)
+        const splashCount = 3 + Math.floor(Math.random() * 3); // 3-5 blood splashes
+        for (let i = 0; i < splashCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 20 + Math.random() * 30;
 
-        for (let i = 0; i < particleCount; i++) {
-            const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.5;
-            const speed = 30 + Math.random() * 40;
-            const size = 4 + Math.random() * 5;
-
-            const particle = this.scene.add.circle(
+            // Random blood splash sprite (1, 2, or 3)
+            const splashType = Math.floor(Math.random() * 3) + 1;
+            const bloodSplash = this.scene.add.sprite(
                 this.sprite.x,
                 this.sprite.y,
-                size,
-                0xff0000 // Bright red
+                `blood_splash_${splashType}`
             );
-            particle.setDepth(9999);
-            particles.push(particle);
+            bloodSplash.setDepth(9999);
+            bloodSplash.setScale(0.5 + Math.random() * 0.5);
+            bloodSplash.play(`blood_splash_${splashType}_anim`);
 
-            // Animate particle outward
+            // Animate splash outward then fade
             this.scene.tweens.add({
-                targets: particle,
-                x: this.sprite.x + Math.cos(angle) * speed,
-                y: this.sprite.y + Math.sin(angle) * speed,
+                targets: bloodSplash,
+                x: this.sprite.x + Math.cos(angle) * distance,
+                y: this.sprite.y + Math.sin(angle) * distance,
                 alpha: 0,
-                scale: 0.3,
-                duration: 400 + Math.random() * 300,
+                duration: 400 + Math.random() * 200,
                 ease: 'Cubic.easeOut',
-                onComplete: () => particle.destroy()
+                onComplete: () => bloodSplash.destroy()
             });
         }
 
-        // Add blood drip particles
-        for (let i = 0; i < 12; i++) { // Increased from 5
-            const drip = this.scene.add.circle(
-                this.sprite.x + (Math.random() - 0.5) * 20,
-                this.sprite.y - 5,
-                3,
-                0xff0000 // Bright red
-            );
-            drip.setDepth(9999);
-
-            this.scene.tweens.add({
-                targets: drip,
-                y: drip.y + 20 + Math.random() * 15,
-                alpha: 0,
-                duration: 500 + Math.random() * 300,
-                ease: 'Sine.easeIn',
-                onComplete: () => drip.destroy()
-            });
-        }
-
-        // Create blood puddles on the ground
-        const puddleCount = 6 + Math.floor(Math.random() * 6); // Increased from 3-6 to 6-12
+        // Create permanent blood puddles on the ground using blood splash sprites
+        const puddleCount = 2 + Math.floor(Math.random() * 3); // 2-4 permanent puddles
         for (let i = 0; i < puddleCount; i++) {
-            const offsetX = (Math.random() - 0.5) * 30;
-            const offsetY = (Math.random() - 0.5) * 30;
-            const puddleSize = 5 + Math.random() * 8;
+            const offsetX = (Math.random() - 0.5) * 40;
+            const offsetY = (Math.random() - 0.5) * 40;
 
-            const puddle = this.scene.add.circle(
+            // Random blood splash type for variety
+            const splashType = Math.floor(Math.random() * 3) + 1;
+            const puddle = this.scene.add.sprite(
                 this.sprite.x + offsetX,
                 this.sprite.y + offsetY,
-                puddleSize,
-                0xcc0000 // Dark red puddle
+                `blood_splash_${splashType}`
             );
-            puddle.setDepth(1); // Below enemies but above ground
-            puddle.setAlpha(0.7);
 
-            // Fade out puddle after a few seconds
+            // Set to last frame (fully splattered look)
+            const frameCount = splashType === 1 ? 16 : (splashType === 2 ? 15 : 12);
+            puddle.setFrame(frameCount - 1);
+
+            puddle.setDepth(1); // Below enemies but above ground
+            puddle.setAlpha(0.8);
+            puddle.setScale(0.6 + Math.random() * 0.4);
+            puddle.setRotation(Math.random() * Math.PI * 2); // Random rotation for variety
+
+            // PERMANENT - no destroy, blood stays forever!
+            // Optional: very slow fade over long time
             this.scene.tweens.add({
                 targets: puddle,
-                alpha: 0,
-                duration: 3000 + Math.random() * 2000,
-                delay: 500,
-                ease: 'Linear',
-                onComplete: () => puddle.destroy()
+                alpha: 0.4,
+                duration: 60000, // Fade to 40% over 1 minute
+                ease: 'Linear'
             });
         }
     }
