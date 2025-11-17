@@ -278,6 +278,12 @@ class GameScene extends Phaser.Scene {
             this.loadingText.destroy();
         }
 
+        // Initialize screen blood splatter system
+        this.screenBloodSplatters = [];
+        this.screenBloodContainer = this.add.container(0, 0);
+        this.screenBloodContainer.setScrollFactor(0); // Fixed to camera
+        this.screenBloodContainer.setDepth(10000); // On top of everything
+
         // Create enemy animations - Sword Demon (64x64 tiles, 28 cols x 8 rows, odd tiles are blank)
         // Row 0: Idle (tiles 0,2,4,6,8,10,12)
         this.anims.create({
@@ -2314,6 +2320,9 @@ class GameScene extends Phaser.Scene {
                 const deathX = enemy.sprite.x;
                 const deathY = enemy.sprite.y;
 
+                // Add blood splatter to screen
+                this.addScreenBloodSplatter();
+
                 enemy.die();
 
                 // Delete from correct collection
@@ -3312,6 +3321,73 @@ class GameScene extends Phaser.Scene {
 
     showChatMessage(username, message) {
         // Chat message display
+    }
+
+    addScreenBloodSplatter() {
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+
+        // Random splatter count (3-8 splatters per kill)
+        const splatterCount = 3 + Math.floor(Math.random() * 6);
+
+        for (let i = 0; i < splatterCount; i++) {
+            // Random position on screen edges (more likely on edges where enemies die)
+            const edge = Math.random();
+            let x, y;
+
+            if (edge < 0.5) {
+                // Side edges
+                x = Math.random() < 0.5 ? Math.random() * 200 : width - Math.random() * 200;
+                y = Math.random() * height;
+            } else {
+                // Top/bottom edges
+                x = Math.random() * width;
+                y = Math.random() < 0.5 ? Math.random() * 200 : height - Math.random() * 200;
+            }
+
+            // Create blood splatter
+            const size = 15 + Math.random() * 35; // Bigger splatters
+            const splatter = this.add.circle(x, y, size, 0x8b0000, 0.7);
+            splatter.setScrollFactor(0);
+            splatter.setDepth(10000);
+
+            // Add to container
+            this.screenBloodContainer.add(splatter);
+            this.screenBloodSplatters.push(splatter);
+
+            // Create drip effect
+            if (y < height - 50 && Math.random() < 0.6) {
+                const drip = this.add.circle(x, y, 4, 0x8b0000, 0.6);
+                drip.setScrollFactor(0);
+                drip.setDepth(10000);
+                this.screenBloodContainer.add(drip);
+                this.screenBloodSplatters.push(drip);
+
+                // Animate drip falling
+                this.tweens.add({
+                    targets: drip,
+                    y: y + 50 + Math.random() * 100,
+                    alpha: 0,
+                    duration: 1000 + Math.random() * 1000,
+                    ease: 'Cubic.easeIn',
+                    onComplete: () => drip.destroy()
+                });
+            }
+        }
+
+        // Limit total blood splatters (keep last 50)
+        if (this.screenBloodSplatters.length > 50) {
+            const toRemove = this.screenBloodSplatters.splice(0, this.screenBloodSplatters.length - 50);
+            toRemove.forEach(splat => {
+                if (splat && !splat.scene) return; // Already destroyed
+                this.tweens.add({
+                    targets: splat,
+                    alpha: 0,
+                    duration: 2000,
+                    onComplete: () => splat.destroy()
+                });
+            });
+        }
     }
 
     update(time, delta) {

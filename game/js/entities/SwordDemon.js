@@ -252,9 +252,9 @@ class SwordDemon {
             this.sprite.play('sworddemon_death');
         }
 
-        // Death particles (scaled for 124px size)
-        const particleColor = this.data.glowColor || 0xff0000;
-        const particleCount = this.variant === 'boss' ? 16 : 10;
+        // Death particles (scaled for 124px size) - MUCH BLOODIER
+        const particleColor = 0x8b0000; // Dark blood red
+        const particleCount = this.variant === 'boss' ? 35 : 25; // Increased from 16/10
 
         for (let i = 0; i < particleCount; i++) {
             const angle = (Math.PI * 2 * i) / particleCount;

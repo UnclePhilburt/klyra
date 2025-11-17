@@ -249,9 +249,9 @@ class Minotaur {
             this.sprite.play('minotaur_death');
         }
 
-        // Death particles
-        const particleColor = 0x8b4513; // Brown color for minotaur
-        const particleCount = this.variant === 'boss' ? 16 : 12;
+        // Death particles - MUCH BLOODIER
+        const particleColor = 0x8b0000; // Dark blood red instead of brown
+        const particleCount = this.variant === 'boss' ? 30 : 20; // Increased from 16/12
 
         for (let i = 0; i < particleCount; i++) {
             const angle = (Math.PI * 2 * i) / particleCount;

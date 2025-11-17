@@ -104,8 +104,8 @@ class Enemy {
     }
 
     showBloodEffect() {
-        // Create dynamic blood particle effect - brighter and bigger
-        const particleCount = 12;
+        // Create dynamic blood particle effect - MUCH bloodier
+        const particleCount = 25; // Increased from 12
         const particles = [];
 
         for (let i = 0; i < particleCount; i++) {
@@ -136,7 +136,7 @@ class Enemy {
         }
 
         // Add blood drip particles
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 12; i++) { // Increased from 5
             const drip = this.scene.add.circle(
                 this.sprite.x + (Math.random() - 0.5) * 20,
                 this.sprite.y - 5,
@@ -156,7 +156,7 @@ class Enemy {
         }
 
         // Create blood puddles on the ground
-        const puddleCount = 3 + Math.floor(Math.random() * 3);
+        const puddleCount = 6 + Math.floor(Math.random() * 6); // Increased from 3-6 to 6-12
         for (let i = 0; i < puddleCount; i++) {
             const offsetX = (Math.random() - 0.5) * 30;
             const offsetY = (Math.random() - 0.5) * 30;
@@ -199,25 +199,26 @@ class Enemy {
             this.scene.sound.play(randomSound, { volume: 0.15 });
         }
 
-        // Death animation - explosion effect
+        // Death animation - explosion effect - BIGGER EXPLOSION
         const particles = [];
-        for (let i = 0; i < 8; i++) {
-            const angle = (Math.PI * 2 * i) / 8;
+        for (let i = 0; i < 20; i++) { // Increased from 8
+            const angle = (Math.PI * 2 * i) / 20 + (Math.random() - 0.5) * 0.3;
             const particle = this.scene.add.circle(
                 this.sprite.x,
                 this.sprite.y,
-                3,
-                0xff0000 // Red particles
+                4 + Math.random() * 4, // Bigger particles
+                0x8b0000 // Dark red blood
             );
 
             particles.push(particle);
 
             this.scene.tweens.add({
                 targets: particle,
-                x: this.sprite.x + Math.cos(angle) * 50,
-                y: this.sprite.y + Math.sin(angle) * 50,
+                x: this.sprite.x + Math.cos(angle) * (60 + Math.random() * 40),
+                y: this.sprite.y + Math.sin(angle) * (60 + Math.random() * 40),
                 alpha: 0,
-                duration: 500,
+                duration: 600 + Math.random() * 400,
+                ease: 'Cubic.easeOut',
                 onComplete: () => particle.destroy()
             });
         }
