@@ -1,6 +1,6 @@
 // Game Configuration v5.9 - Force cache break
 const GameConfig = {
-    SERVER_URL: 'http://localhost:3001',
+    SERVER_URL: 'https://klyra-server.onrender.com',
 
     GAME: {
         WIDTH: 1280,
