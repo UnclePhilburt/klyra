@@ -69,7 +69,7 @@ const MalacharSkillTree = {
                         cooldown: 15000,
                         effect: {
                             explodeMinions: true,
-                            explosionDamage: 120,
+                            explosionDamage: 250,
                             explosionRadius: 3,
                             instantRespawn: true,
                             respawnInvulnDuration: 1000

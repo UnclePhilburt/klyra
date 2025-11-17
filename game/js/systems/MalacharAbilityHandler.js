@@ -215,6 +215,9 @@ class MalacharAbilityHandler {
                 damage: minion.damage
             });
 
+            // Create explosion visual effect
+            this.createExplosionVisual(minion.sprite.x, minion.sprite.y, explosionRadius);
+
             // Deal damage to enemies in radius
             const enemiesHit = this.getEnemiesInRadius(minion.sprite.x, minion.sprite.y, explosionRadius);
             enemiesHit.forEach(enemy => {
@@ -224,8 +227,10 @@ class MalacharAbilityHandler {
             });
             totalEnemiesHit += enemiesHit.length;
 
-            // Spawn fire at explosion location
-            this.spawnFireAtLocation(minion.sprite.x, minion.sprite.y);
+            // Spawn fire at explosion location (after short delay)
+            this.scene.time.delayedCall(200, () => {
+                this.spawnFireAtLocation(minion.sprite.x, minion.sprite.y);
+            });
 
             // Destroy the minion sprite/entity
             if (minion.sprite) {
@@ -674,6 +679,46 @@ class MalacharAbilityHandler {
                 onComplete: () => particle.destroy()
             });
         }
+    }
+
+    createExplosionVisual(x, y, radius) {
+        // Create expanding circle for explosion wave
+        const explosionCircle = this.scene.add.circle(x, y, 10, 0x8b008b, 0.6);
+        explosionCircle.setDepth(10);
+
+        // Expand and fade the circle
+        this.scene.tweens.add({
+            targets: explosionCircle,
+            radius: radius,
+            alpha: 0,
+            duration: 400,
+            ease: 'Cubic.easeOut',
+            onComplete: () => explosionCircle.destroy()
+        });
+
+        // Add bone particle burst (purple/white)
+        for (let i = 0; i < 20; i++) {
+            const angle = (Math.PI * 2 * i) / 20;
+            const dist = radius * 0.7;
+            const particleColor = i % 2 === 0 ? 0x8b008b : 0xeeeeee; // Alternate purple/white
+
+            const particle = this.scene.add.circle(x, y, 4, particleColor, 0.9);
+            particle.setDepth(10);
+
+            this.scene.tweens.add({
+                targets: particle,
+                x: x + Math.cos(angle) * dist,
+                y: y + Math.sin(angle) * dist,
+                alpha: 0,
+                scale: 0.3,
+                duration: 500,
+                ease: 'Power2',
+                onComplete: () => particle.destroy()
+            });
+        }
+
+        // Screen shake for impact
+        this.scene.cameras.main.shake(150, 0.003);
     }
 
     // ===================================================================
