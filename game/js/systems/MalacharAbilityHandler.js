@@ -207,20 +207,17 @@ class MalacharAbilityHandler {
         const minionDataToRespawn = [];
 
         // Explode each minion
-        myMinions.forEach(minion => {
-            // Store minion data before explosion
-            minionDataToRespawn.push({
-                isPermanent: minion.isPermanent,
-                maxHealth: minion.maxHealth,
-                damage: minion.damage
-            });
+        myMinions.forEach((minion, index) => {
+            // Store explosion position
+            const explosionX = minion.sprite.x;
+            const explosionY = minion.sprite.y;
 
             // Create explosion visual effect
-            this.createExplosionVisual(minion.sprite.x, minion.sprite.y, explosionRadius);
+            this.createExplosionVisual(explosionX, explosionY, explosionRadius);
 
             // Deal damage to enemies in radius
-            const enemiesHit = this.getEnemiesInRadius(minion.sprite.x, minion.sprite.y, explosionRadius);
-            console.log(`💥 Explosion at (${Math.round(minion.sprite.x)}, ${Math.round(minion.sprite.y)}) found ${enemiesHit.length} enemies in ${explosionRadius}px radius`);
+            const enemiesHit = this.getEnemiesInRadius(explosionX, explosionY, explosionRadius);
+            console.log(`💥 Explosion at (${Math.round(explosionX)}, ${Math.round(explosionY)}) found ${enemiesHit.length} enemies in ${explosionRadius}px radius`);
 
             enemiesHit.forEach(enemy => {
                 if (enemy.takeDamage) {
@@ -232,32 +229,39 @@ class MalacharAbilityHandler {
 
             // Spawn fire at explosion location (after short delay)
             this.scene.time.delayedCall(200, () => {
-                this.spawnFireAtLocation(minion.sprite.x, minion.sprite.y);
+                this.spawnFireAtLocation(explosionX, explosionY);
             });
 
-            // Destroy the minion sprite/entity
+            // Hide minion briefly, then teleport to player
             if (minion.sprite) {
-                minion.sprite.destroy();
+                minion.sprite.setAlpha(0); // Make invisible during transition
             }
-            minion.isAlive = false;
+
+            // Teleport minion to player position after brief delay
+            this.scene.time.delayedCall(300, () => {
+                if (minion && minion.sprite && minion.sprite.scene) {
+                    const offsetX = (index % 3 - 1) * 40;
+                    const offsetY = Math.floor(index / 3) * 40;
+
+                    minion.sprite.x = this.player.sprite.x + offsetX;
+                    minion.sprite.y = this.player.sprite.y + offsetY;
+                    minion.sprite.setAlpha(1); // Make visible again
+
+                    // Show respawn effect
+                    const respawnCircle = this.scene.add.circle(minion.sprite.x, minion.sprite.y, 20, 0x8B008B, 0.6);
+                    this.scene.tweens.add({
+                        targets: respawnCircle,
+                        scale: 1.5,
+                        alpha: 0,
+                        duration: 300,
+                        ease: 'Power2',
+                        onComplete: () => respawnCircle.destroy()
+                    });
+                }
+            });
         });
 
-        // Instantly respawn all minions at player position
-        setTimeout(() => {
-            minionDataToRespawn.forEach((minionData, index) => {
-                const offsetX = (index % 3 - 1) * 40; // Spread them out slightly
-                const offsetY = Math.floor(index / 3) * 40;
-
-                this.scene.spawnMinion(
-                    this.player.sprite.x + offsetX,
-                    this.player.sprite.y + offsetY,
-                    this.player.data.id,
-                    minionData.isPermanent
-                );
-            });
-
-            console.log(`✅ Pact of Bones: ${myMinions.length} minions exploded (${totalEnemiesHit} enemies hit), respawned at player`);
-        }, 100); // Small delay for visual effect
+        console.log(`✅ Pact of Bones: ${myMinions.length} minions exploded (${totalEnemiesHit} enemies hit), teleporting to player`)
     }
 
     useLegionsCall(ability) {
