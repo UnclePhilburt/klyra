@@ -1196,7 +1196,7 @@ class Minion {
 
         // Play punch sound on impact
         if (this.scene.sound) {
-            this.scene.sound.play('minion_punch', { volume: 0.2 });
+            this.scene.sound.play('minion_punch', { volume: 0.05 });
         }
 
         // Visual attack effect (show at moment of impact)
