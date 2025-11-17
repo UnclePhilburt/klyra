@@ -1820,11 +1820,9 @@ io.on('connection', (socket) => {
 
             const enemy = lobby.gameState.enemies.find(e => e.id === data.enemyId);
             if (!enemy || !enemy.isAlive) {
-                const mushroomCount = lobby.gameState.enemies.filter(e => e.type === 'mushroom').length;
-                const allEnemyIds = lobby.gameState.enemies.map(e => e.id).join(', ');
-                console.log(`❌ Enemy not found or not alive: ${data.enemyId}`);
-                console.log(`   Total enemies: ${lobby.gameState.enemies.length} (mushrooms: ${mushroomCount})`);
-                console.log(`   Enemy IDs: ${allEnemyIds}`);
+                console.log(`❌ Enemy not found: ${data.enemyId} - broadcasting despawn to fix desync`);
+                // Enemy doesn't exist on server, tell all clients to remove it (fixes desync)
+                lobby.broadcast('enemy:despawned', { enemyId: data.enemyId });
                 return;
             }
 
