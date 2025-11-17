@@ -1,17 +1,17 @@
-// Sword Demon Enemy Entity
-class SwordDemon {
+// Mushroom Enemy Entity
+class Mushroom {
     constructor(scene, data) {
         this.scene = scene;
         this.data = data;
         this.health = data.health;
         this.maxHealth = data.maxHealth;
         this.isAlive = data.isAlive !== false;
-        this.damage = data.damage || 8;
+        this.damage = data.damage || 5;
         this.isAttacking = false; // Track if currently playing attack animation
         this.lastAttackTime = 0; // Track when last attack started
 
         if (!this.isAlive) {
-            console.warn(`⚠️ SwordDemon ${data.id} created with isAlive: false`);
+            console.warn(`⚠️ Mushroom ${data.id} created with isAlive: false`);
         }
 
         this.createSprite();
@@ -23,15 +23,14 @@ class SwordDemon {
         const y = this.data.position.y * tileSize + tileSize / 2;
 
         // Get variant data from server
-        const glowColor = this.data.glowColor || 0xff0000;
         const variant = this.data.variant || 'normal';
 
-        // All sword demons are same size: 124px tall (3.875 tiles)
-        // 64px sprite → 124px = scale 1.9375
-        const scale = 1.9375;
+        // Mushrooms are 80x64 pixels - scale to about 2 tiles tall (64px)
+        // 64px sprite → 64px = scale 1.0
+        const scale = 1.0;
 
-        // Create sword demon sprite
-        this.sprite = this.scene.add.sprite(x, y, 'sworddemon', 0);
+        // Create mushroom sprite
+        this.sprite = this.scene.add.sprite(x, y, 'mushroom-idle', 0);
         this.sprite.setOrigin(0.5);
         this.sprite.setScale(scale);
         this.sprite.setDepth(2);
@@ -40,33 +39,35 @@ class SwordDemon {
         this.scene.physics.add.existing(this.sprite);
 
         if (!this.sprite.body) {
-            console.error(`❌ SwordDemon ${this.data.id}: Physics body failed to create!`);
+            console.error(`❌ Mushroom ${this.data.id}: Physics body failed to create!`);
             return;
         }
 
-        // Set hitbox (fixed at 3 tiles = 96px)
-        const hitboxSize = 96;
+        // Set hitbox (2 tiles = 64px)
+        const hitboxSize = 64;
         this.sprite.body.setSize(hitboxSize, hitboxSize);
         this.sprite.body.setCollideWorldBounds(false);
+        this.sprite.body.setImmovable(true); // Don't respond to physics collisions
+        this.sprite.body.moves = false; // Disable automatic position updates from velocity
 
         // Store reference for collision detection (use 'enemyEntity' for compatibility)
         this.sprite.enemyEntity = this;
-        this.sprite.wolfEntity = this; // Legacy compatibility
+        this.sprite.mushroomEntity = this;
 
         // Prevent camera culling
         this.sprite.setScrollFactor(1, 1);
 
         // Play idle animation (check if it exists first)
-        if (this.scene.anims.exists('sworddemon_idle')) {
-            this.sprite.play('sworddemon_idle');
+        if (this.scene.anims.exists('mushroom_idle')) {
+            this.sprite.play('mushroom_idle');
         } else {
-            console.warn('⚠️ Animation sworddemon_idle does not exist yet');
+            console.warn('⚠️ Animation mushroom_idle does not exist yet');
         }
 
         // Track movement
         this.lastX = x;
 
-        // Initialize target position to current position (prevents undefined during lerp)
+        // Initialize target position to current position (prevent undefined)
         this.targetX = x;
         this.targetY = y;
 
@@ -76,8 +77,8 @@ class SwordDemon {
 
         // Add boss crown for boss variants
         if (variant === 'boss') {
-            // Fixed crown position (124px tall, crown above)
-            this.crownText = this.scene.add.text(x, y - 70, '👑', {
+            // Crown position above mushroom
+            this.crownText = this.scene.add.text(x, y - 40, '👑', {
                 font: '20px Arial',
                 fill: '#FFD700'
             });
@@ -88,30 +89,30 @@ class SwordDemon {
     }
 
     attack() {
-        // Prevent attack spam - enforce minimum cooldown (667ms to match animation)
+        // Prevent attack spam - enforce minimum cooldown (417ms to match animation)
         const now = Date.now();
-        if (this.isAttacking || now - this.lastAttackTime < 667) {
+        if (this.isAttacking || now - this.lastAttackTime < 417) {
             return; // Still attacking or on cooldown
         }
 
-        console.log(`⚔️ SwordDemon attack() called`);
+        console.log(`⚔️ Mushroom attack() called`);
         // Play attack animation
         if (this.sprite && this.sprite.anims && this.isAlive) {
             console.log(`   Checking animation exists...`);
-            if (this.scene.anims.exists('sworddemon_attack')) {
-                console.log(`   ✅ Playing sworddemon_attack`);
+            if (this.scene.anims.exists('mushroom_attack')) {
+                console.log(`   ✅ Playing mushroom_attack`);
                 this.isAttacking = true;
                 this.lastAttackTime = now;
-                this.sprite.play('sworddemon_attack');
+                this.sprite.play('mushroom_attack');
             } else {
-                console.warn(`   ❌ sworddemon_attack animation does NOT exist`);
+                console.warn(`   ❌ mushroom_attack animation does NOT exist`);
             }
-            // Return to previous animation after attack (8 frames at 12fps = ~667ms)
-            this.scene.time.delayedCall(667, () => {
+            // Return to previous animation after attack (5 frames at 12fps = ~417ms)
+            this.scene.time.delayedCall(417, () => {
                 this.isAttacking = false;
                 if (this.sprite && this.sprite.active && this.isAlive) {
-                    const wasMoving = this.currentState === 'walking';
-                    const animKey = wasMoving ? 'sworddemon_walk' : 'sworddemon_idle';
+                    const wasMoving = this.currentState === 'running';
+                    const animKey = wasMoving ? 'mushroom_run' : 'mushroom_idle';
                     if (this.scene.anims.exists(animKey)) {
                         this.sprite.play(animKey);
                     }
@@ -133,14 +134,14 @@ class SwordDemon {
 
         // Play damage animation
         if (this.sprite && this.sprite.anims && this.health > 0) {
-            if (this.scene.anims.exists('sworddemon_damage')) {
-                this.sprite.play('sworddemon_damage');
+            if (this.scene.anims.exists('mushroom_damage')) {
+                this.sprite.play('mushroom_damage');
             }
-            // Return to previous animation after damage (2 frames at 12fps = ~167ms)
-            this.scene.time.delayedCall(167, () => {
+            // Return to previous animation after damage (5 frames at 12fps = ~417ms)
+            this.scene.time.delayedCall(417, () => {
                 if (this.sprite && this.sprite.active && this.health > 0) {
-                    const wasMoving = this.currentState === 'walking';
-                    const animKey = wasMoving ? 'sworddemon_walk' : 'sworddemon_idle';
+                    const wasMoving = this.currentState === 'running';
+                    const animKey = wasMoving ? 'mushroom_run' : 'mushroom_idle';
                     if (this.scene.anims.exists(animKey)) {
                         this.sprite.play(animKey);
                     }
@@ -157,12 +158,12 @@ class SwordDemon {
 
     showBloodEffect() {
 
-        // ANIMATED BLOOD SPLASH EXPLOSIONS - realistic blood spray!
-        const splashCount = 8; // Number of animated blood splashes
+        // ANIMATED SPORE EXPLOSIONS - brown blood splatters for mushrooms!
+        const splashCount = 10; // Lots of spore splashes
 
         for (let i = 0; i < splashCount; i++) {
             const angle = (Math.PI * 2 * i) / splashCount + (Math.random() - 0.5) * 0.8;
-            const speed = 60 + Math.random() * 80;
+            const speed = 55 + Math.random() * 70;
 
             // Pick random blood splash animation
             const splashAnims = ['blood_splash_1_anim', 'blood_splash_2_anim', 'blood_splash_3_anim'];
@@ -174,9 +175,13 @@ class SwordDemon {
                 'blood_splash_1'
             );
             splash.setDepth(9999);
-            splash.setScale(0.8 + Math.random() * 1.0); // Random size 0.8-1.8x
-            splash.setRotation(Math.random() * Math.PI * 2); // Random rotation
-            splash.setAlpha(0.9);
+            splash.setScale(0.7 + Math.random() * 0.9); // Size 0.7-1.6x
+            splash.setRotation(Math.random() * Math.PI * 2);
+            splash.setAlpha(0.85);
+
+            // Tint brown for spores!
+            const brownTints = [0x8b4513, 0xa0522d, 0xd2691e, 0x6b4423];
+            splash.setTint(brownTints[Math.floor(Math.random() * brownTints.length)]);
 
             // Play animation
             splash.play(randomAnim);
@@ -187,16 +192,16 @@ class SwordDemon {
                 x: this.sprite.x + Math.cos(angle) * speed,
                 y: this.sprite.y + Math.sin(angle) * speed,
                 alpha: 0,
-                duration: 500 + Math.random() * 300,
+                duration: 450 + Math.random() * 350,
                 ease: 'Cubic.easeOut',
                 onComplete: () => splash.destroy()
             });
         }
 
-        // Add more blood splash variety with different scales
+        // Add more spore splash variety
         for (let i = 0; i < 6; i++) {
             const angle = Math.random() * Math.PI * 2;
-            const speed = 40 + Math.random() * 50;
+            const speed = 35 + Math.random() * 50;
 
             const splashAnims = ['blood_splash_1_anim', 'blood_splash_2_anim', 'blood_splash_3_anim'];
             const randomAnim = splashAnims[Math.floor(Math.random() * splashAnims.length)];
@@ -207,9 +212,12 @@ class SwordDemon {
                 'blood_splash_1'
             );
             splash.setDepth(9999);
-            splash.setScale(0.4 + Math.random() * 0.6); // Smaller splashes
+            splash.setScale(0.4 + Math.random() * 0.7);
             splash.setRotation(Math.random() * Math.PI * 2);
             splash.setAlpha(0.8);
+
+            const brownTints = [0x8b4513, 0xa0522d, 0xd2691e, 0x6b4423];
+            splash.setTint(brownTints[Math.floor(Math.random() * brownTints.length)]);
             splash.play(randomAnim);
 
             this.scene.tweens.add({
@@ -217,37 +225,37 @@ class SwordDemon {
                 x: this.sprite.x + Math.cos(angle) * speed,
                 y: this.sprite.y + Math.sin(angle) * speed,
                 alpha: 0,
-                duration: 400 + Math.random() * 250,
+                duration: 400 + Math.random() * 300,
                 ease: 'Cubic.easeOut',
                 onComplete: () => splash.destroy()
             });
         }
 
-
-
-        // GROUND BLOOD POOLS - use blood splash sprites on ground
+        // GROUND SPORE POOLS
         const puddleCount = 8 + Math.floor(Math.random() * 5);
         for (let i = 0; i < puddleCount; i++) {
-            const offsetX = (Math.random() - 0.5) * 50;
-            const offsetY = (Math.random() - 0.5) * 50;
+            const offsetX = (Math.random() - 0.5) * 40;
+            const offsetY = (Math.random() - 0.5) * 40;
 
-            // Use a random frame from blood splash as static puddle
             const splashSprites = ['blood_splash_1', 'blood_splash_2', 'blood_splash_3'];
             const randomSprite = splashSprites[Math.floor(Math.random() * splashSprites.length)];
-            const randomFrame = Math.floor(Math.random() * 12); // Use mid-to-late frames
+            const randomFrame = Math.floor(Math.random() * 12);
 
             const puddle = this.scene.add.sprite(
                 this.sprite.x + offsetX,
                 this.sprite.y + offsetY,
                 randomSprite,
-                randomFrame + 4 // Start from frame 4+ for splattered look
+                randomFrame + 4
             );
             puddle.setDepth(1);
             puddle.setAlpha(0);
             puddle.setScale(0.6 + Math.random() * 0.8);
             puddle.setRotation(Math.random() * Math.PI * 2);
 
-            // Fade in
+            // Tint brown for spores
+            const puddleTints = [0x8b7355, 0xa0826d, 0x6b5d4f, 0x9a8478];
+            puddle.setTint(puddleTints[Math.floor(Math.random() * puddleTints.length)]);
+
             this.scene.tweens.add({
                 targets: puddle,
                 alpha: 0.7,
@@ -255,7 +263,6 @@ class SwordDemon {
                 ease: 'Cubic.easeOut'
             });
 
-            // Fade out slowly - LONG lasting ground blood
             this.scene.tweens.add({
                 targets: puddle,
                 alpha: 0,
@@ -269,6 +276,9 @@ class SwordDemon {
 
     die() {
         this.isAlive = false;
+
+        // Blood splatter effect on death
+        this.showBloodEffect();
 
         // Play death sound (40% chance)
         if (Math.random() < 0.4 && this.scene.sound) {
@@ -284,21 +294,21 @@ class SwordDemon {
         }
 
         // Play death animation
-        if (this.sprite && this.sprite.anims && this.scene.anims.exists('sworddemon_death')) {
-            this.sprite.play('sworddemon_death');
+        if (this.sprite && this.sprite.anims && this.scene.anims.exists('mushroom_death')) {
+            this.sprite.play('mushroom_death');
         }
 
-        // Death particles (scaled for 124px size) - MUCH BLOODIER
-        const particleColor = 0x8b0000; // Dark blood red
-        const particleCount = this.variant === 'boss' ? 35 : 25; // Increased from 16/10
+        // Death particles (brown spores for mushroom)
+        const particleColor = 0x8b4513; // Saddle brown
+        const particleCount = this.variant === 'boss' ? 25 : 15;
 
         for (let i = 0; i < particleCount; i++) {
             const angle = (Math.PI * 2 * i) / particleCount;
-            const distance = this.variant === 'boss' ? 100 : 75;
+            const distance = this.variant === 'boss' ? 70 : 50;
             const particle = this.scene.add.circle(
                 this.sprite.x,
                 this.sprite.y,
-                this.variant === 'boss' ? 5 : 3,
+                this.variant === 'boss' ? 4 : 2,
                 particleColor
             );
 
@@ -307,13 +317,13 @@ class SwordDemon {
                 x: this.sprite.x + Math.cos(angle) * distance,
                 y: this.sprite.y + Math.sin(angle) * distance,
                 alpha: 0,
-                duration: this.variant === 'boss' ? 800 : 500,
+                duration: this.variant === 'boss' ? 700 : 400,
                 onComplete: () => particle.destroy()
             });
         }
 
-        // Fade out after death animation (9 frames at 10fps = 900ms)
-        const deathAnimDuration = 900;
+        // Fade out after death animation (15 frames at 10fps = 1500ms)
+        const deathAnimDuration = 1500;
         const targets = [this.sprite];
         if (this.crownText) targets.push(this.crownText);
 
@@ -331,12 +341,18 @@ class SwordDemon {
 
     setTargetPosition(x, y) {
         if (!this.sprite) return;
+
+        // DEBUG: Log when target is set
+        if (Math.random() < 0.05) {
+            console.log(`🎯 Mushroom setTargetPosition: (${x}, ${y})`);
+        }
+
         this.targetX = x;
         this.targetY = y;
     }
 
     update() {
-        if (!this.sprite || !this.sprite.active) return;
+        if (!this.sprite || !this.sprite.active || !this.isAlive) return;
 
         // Check if stunned - don't move if stunned
         if (this.isStunned && Date.now() < this.stunnedUntil) {
@@ -374,33 +390,33 @@ class SwordDemon {
                 this.sprite.body.setVelocity(0, 0);
             }
 
-            // Animation state - only walk if moving significantly
-            const shouldWalk = dist > 3;
+            // Animation state - only run if moving significantly
+            const shouldRun = dist > 3;
 
             // Only change animation if state actually changed (and not attacking!)
             if (!this.isAttacking) {
-                if (shouldWalk && this.currentState !== 'walking') {
-                    this.currentState = 'walking';
-                    if (this.scene.anims.exists('sworddemon_walk')) {
-                        this.sprite.play('sworddemon_walk', true);
+                if (shouldRun && this.currentState !== 'running') {
+                    this.currentState = 'running';
+                    if (this.scene.anims.exists('mushroom_run')) {
+                        this.sprite.play('mushroom_run', true);
                     }
-                } else if (!shouldWalk && this.currentState !== 'idle') {
+                } else if (!shouldRun && this.currentState !== 'idle') {
                     this.currentState = 'idle';
-                    if (this.scene.anims.exists('sworddemon_idle')) {
-                        this.sprite.play('sworddemon_idle', true);
+                    if (this.scene.anims.exists('mushroom_idle')) {
+                        this.sprite.play('mushroom_idle', true);
                     }
                 }
             }
 
-            // Flip sprite based on movement direction
+            // Flip sprite based on movement direction (inverted because sprite faces wrong way)
             if (Math.abs(dx) > 0.5) {
-                this.sprite.setFlipX(dx < 0);
+                this.sprite.setFlipX(dx > 0);
             }
         }
 
         // Update crown for boss variants
         if (this.crownText && this.crownText.active) {
-            this.crownText.setPosition(this.sprite.x, this.sprite.y - 70);
+            this.crownText.setPosition(this.sprite.x, this.sprite.y - 40);
         }
     }
 

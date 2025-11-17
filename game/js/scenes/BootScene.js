@@ -126,6 +126,21 @@ class BootScene extends Phaser.Scene {
         });
         console.log('📦 Loading sprite: blood (damage effects)');
 
+        // Load blood splash animations (48x48px, 4x4 grid = 16 frames each)
+        this.load.spritesheet('blood_splash_1', 'assets/sprites/Blood Animations/Blood Splash/Blood Splash 1.png', {
+            frameWidth: 48,
+            frameHeight: 48
+        });
+        this.load.spritesheet('blood_splash_2', 'assets/sprites/Blood Animations/Blood Splash/Blood Splash 2.png', {
+            frameWidth: 48,
+            frameHeight: 48
+        });
+        this.load.spritesheet('blood_splash_3', 'assets/sprites/Blood Animations/Blood Splash/Blood Splash 3.png', {
+            frameWidth: 48,
+            frameHeight: 48
+        });
+        console.log('📦 Loading sprites: blood_splash_1, blood_splash_2, blood_splash_3 (gore effects)');
+
         // Load Legion's Call ability effect (row 3, 9 frames, 64x64px each)
         this.load.spritesheet('legionscall', 'assets/sprites/malachar/legionscall.png', {
             frameWidth: 64,
@@ -314,6 +329,33 @@ class BootScene extends Phaser.Scene {
         });
 
         console.log('✅ Created blood damage animation (row 6, 14 frames)');
+
+        // Create blood splash animations (48x48px sprites)
+        // Splash 1: 4x4 grid = 16 frames (0-15) - general spray
+        this.anims.create({
+            key: 'blood_splash_1_anim',
+            frames: this.anims.generateFrameNumbers('blood_splash_1', { start: 0, end: 15 }),
+            frameRate: 24,
+            repeat: 0
+        });
+
+        // Splash 2: 3 rows × 5 tiles = 15 frames (0-14) - bottom-up spray
+        this.anims.create({
+            key: 'blood_splash_2_anim',
+            frames: this.anims.generateFrameNumbers('blood_splash_2', { start: 0, end: 14 }),
+            frameRate: 24,
+            repeat: 0
+        });
+
+        // Splash 3: 3 rows × 4 tiles = 12 frames (0-11) - center burst outward
+        this.anims.create({
+            key: 'blood_splash_3_anim',
+            frames: this.anims.generateFrameNumbers('blood_splash_3', { start: 0, end: 11 }),
+            frameRate: 24,
+            repeat: 0
+        });
+
+        console.log('✅ Created blood splash animations: Splash1 (16f), Splash2 (15f bottom-up), Splash3 (12f burst)');
 
         // Don't connect to server - custom menu handles that
         // Just load assets and wait for custom menu to call game.connect()

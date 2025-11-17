@@ -3355,6 +3355,20 @@ class GameScene extends Phaser.Scene {
             this.screenBloodContainer.add(splatter);
             this.screenBloodSplatters.push(splatter);
 
+            // Auto-fade all screen blood within 3 seconds
+            this.tweens.add({
+                targets: splatter,
+                alpha: 0,
+                duration: 1000, // Fade over 1 second
+                delay: 2000, // Start fading after 2 seconds (total = 3 seconds)
+                ease: 'Linear',
+                onComplete: () => {
+                    splatter.destroy();
+                    const idx = this.screenBloodSplatters.indexOf(splatter);
+                    if (idx > -1) this.screenBloodSplatters.splice(idx, 1);
+                }
+            });
+
             // Create drip effect
             if (y < height - 50 && Math.random() < 0.6) {
                 const drip = this.add.circle(x, y, 4, 0x8b0000, 0.6);
@@ -3363,12 +3377,12 @@ class GameScene extends Phaser.Scene {
                 this.screenBloodContainer.add(drip);
                 this.screenBloodSplatters.push(drip);
 
-                // Animate drip falling
+                // Animate drip falling - VERY FAST fade (gone in ~1 second)
                 this.tweens.add({
                     targets: drip,
-                    y: y + 50 + Math.random() * 100,
+                    y: y + 30 + Math.random() * 50,
                     alpha: 0,
-                    duration: 1000 + Math.random() * 1000,
+                    duration: 300 + Math.random() * 300, // 300-600ms
                     ease: 'Cubic.easeIn',
                     onComplete: () => drip.destroy()
                 });
@@ -3383,7 +3397,7 @@ class GameScene extends Phaser.Scene {
                 this.tweens.add({
                     targets: splat,
                     alpha: 0,
-                    duration: 2000,
+                    duration: 300, // Very fast fade - gone in 300ms
                     onComplete: () => splat.destroy()
                 });
             });

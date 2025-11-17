@@ -65,6 +65,10 @@ class Minotaur {
         // Track movement
         this.lastX = x;
 
+        // Initialize target position to current position (prevents undefined during lerp)
+        this.targetX = x;
+        this.targetY = y;
+
         // Store variant
         this.variant = variant;
         this.scale = scale;
@@ -149,79 +153,106 @@ class Minotaur {
     }
 
     showBloodEffect() {
-        // Create dynamic blood particle effect - brighter and bigger
-        const particleCount = 12;
-        const particles = [];
 
-        for (let i = 0; i < particleCount; i++) {
-            const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.5;
-            const speed = 30 + Math.random() * 40;
-            const size = 4 + Math.random() * 5;
+        // MASSIVE ANIMATED BLOOD EXPLOSIONS - Minotaurs bleed HEAVILY!
+        const splashCount = 12; // More blood splashes for huge enemy
 
-            const particle = this.scene.add.circle(
+        for (let i = 0; i < splashCount; i++) {
+            const angle = (Math.PI * 2 * i) / splashCount + (Math.random() - 0.5) * 0.8;
+            const speed = 70 + Math.random() * 90;
+
+            // Pick random blood splash animation
+            const splashAnims = ['blood_splash_1_anim', 'blood_splash_2_anim', 'blood_splash_3_anim'];
+            const randomAnim = splashAnims[Math.floor(Math.random() * splashAnims.length)];
+
+            const splash = this.scene.add.sprite(
                 this.sprite.x,
                 this.sprite.y,
-                size,
-                0xff0000 // Bright red
+                'blood_splash_1'
             );
-            particle.setDepth(9999);
-            particles.push(particle);
+            splash.setDepth(9999);
+            splash.setScale(1.0 + Math.random() * 1.2); // Bigger size 1.0-2.2x
+            splash.setRotation(Math.random() * Math.PI * 2);
+            splash.setAlpha(0.95);
 
-            // Animate particle outward
+            // Play animation
+            splash.play(randomAnim);
+
+            // Animate outward
             this.scene.tweens.add({
-                targets: particle,
+                targets: splash,
                 x: this.sprite.x + Math.cos(angle) * speed,
                 y: this.sprite.y + Math.sin(angle) * speed,
                 alpha: 0,
-                scale: 0.3,
-                duration: 400 + Math.random() * 300,
+                duration: 550 + Math.random() * 400,
                 ease: 'Cubic.easeOut',
-                onComplete: () => particle.destroy()
+                onComplete: () => splash.destroy()
             });
         }
 
-        // Add blood drip particles
-        for (let i = 0; i < 5; i++) {
-            const drip = this.scene.add.circle(
-                this.sprite.x + (Math.random() - 0.5) * 20,
-                this.sprite.y - 5,
-                3,
-                0xff0000 // Bright red
+        // Add more blood splash variety - extra gore for Minotaur
+        for (let i = 0; i < 8; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 50 + Math.random() * 60;
+
+            const splashAnims = ['blood_splash_1_anim', 'blood_splash_2_anim', 'blood_splash_3_anim'];
+            const randomAnim = splashAnims[Math.floor(Math.random() * splashAnims.length)];
+
+            const splash = this.scene.add.sprite(
+                this.sprite.x,
+                this.sprite.y,
+                'blood_splash_1'
             );
-            drip.setDepth(9999);
+            splash.setDepth(9999);
+            splash.setScale(0.5 + Math.random() * 0.8);
+            splash.setRotation(Math.random() * Math.PI * 2);
+            splash.setAlpha(0.85);
+            splash.play(randomAnim);
 
             this.scene.tweens.add({
-                targets: drip,
-                y: drip.y + 20 + Math.random() * 15,
+                targets: splash,
+                x: this.sprite.x + Math.cos(angle) * speed,
+                y: this.sprite.y + Math.sin(angle) * speed,
                 alpha: 0,
-                duration: 500 + Math.random() * 300,
-                ease: 'Sine.easeIn',
-                onComplete: () => drip.destroy()
+                duration: 450 + Math.random() * 300,
+                ease: 'Cubic.easeOut',
+                onComplete: () => splash.destroy()
             });
         }
 
-        // Create blood puddles on the ground
-        const puddleCount = 3 + Math.floor(Math.random() * 3);
+        // GROUND BLOOD POOLS - massive puddles for Minotaur
+        const puddleCount = 10 + Math.floor(Math.random() * 6);
         for (let i = 0; i < puddleCount; i++) {
-            const offsetX = (Math.random() - 0.5) * 30;
-            const offsetY = (Math.random() - 0.5) * 30;
-            const puddleSize = 5 + Math.random() * 8;
+            const offsetX = (Math.random() - 0.5) * 60;
+            const offsetY = (Math.random() - 0.5) * 60;
 
-            const puddle = this.scene.add.circle(
+            const splashSprites = ['blood_splash_1', 'blood_splash_2', 'blood_splash_3'];
+            const randomSprite = splashSprites[Math.floor(Math.random() * splashSprites.length)];
+            const randomFrame = Math.floor(Math.random() * 12);
+
+            const puddle = this.scene.add.sprite(
                 this.sprite.x + offsetX,
                 this.sprite.y + offsetY,
-                puddleSize,
-                0xcc0000 // Dark red puddle
+                randomSprite,
+                randomFrame + 4
             );
-            puddle.setDepth(1); // Below enemies but above ground
-            puddle.setAlpha(0.7);
+            puddle.setDepth(1);
+            puddle.setAlpha(0);
+            puddle.setScale(0.8 + Math.random() * 1.0); // Bigger puddles
+            puddle.setRotation(Math.random() * Math.PI * 2);
 
-            // Fade out puddle after a few seconds
+            this.scene.tweens.add({
+                targets: puddle,
+                alpha: 0.75,
+                duration: 250,
+                ease: 'Cubic.easeOut'
+            });
+
             this.scene.tweens.add({
                 targets: puddle,
                 alpha: 0,
-                duration: 3000 + Math.random() * 2000,
-                delay: 500,
+                duration: 3500 + Math.random() * 2500,
+                delay: 1000,
                 ease: 'Linear',
                 onComplete: () => puddle.destroy()
             });
@@ -314,27 +345,25 @@ class Minotaur {
             this.stunnedUntil = 0;
         }
 
-        // Stop physics velocity
-        if (this.sprite.body) {
-            this.sprite.body.setVelocity(0, 0);
-        }
-
-        // Smooth movement towards target
+        // Smooth movement using Phaser physics (same as Minions)
         if (this.targetX !== undefined && this.targetY !== undefined) {
             const dx = this.targetX - this.sprite.x;
             const dy = this.targetY - this.sprite.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            // Faster lerp for smoother movement
-            const lerpSpeed = 0.15;
+            // Use larger threshold to avoid jittering
+            if (dist > 3) {
+                // Use Phaser's physics for smooth movement
+                const speed = 200; // pixels per second
+                const angle = Math.atan2(dy, dx);
 
-            if (dist > 2) {
-                this.sprite.x += dx * lerpSpeed;
-                this.sprite.y += dy * lerpSpeed;
+                this.sprite.body.setVelocity(
+                    Math.cos(angle) * speed,
+                    Math.sin(angle) * speed
+                );
             } else {
-                // Snap to target when close enough
-                this.sprite.x = this.targetX;
-                this.sprite.y = this.targetY;
+                // Close enough, stop movement
+                this.sprite.body.setVelocity(0, 0);
             }
 
             // Animation state - only run if moving significantly
