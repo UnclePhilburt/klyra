@@ -773,7 +773,7 @@ class MalacharAbilityHandler {
     // FIRE SYSTEM (Pact of Bones)
     // ===================================================================
 
-    spawnFireAtLocation(x, y) {
+    spawnFireAtLocation(x, y, shouldSpread = true) {
         // Initialize fire tracking if needed
         if (!this.activeFires) {
             this.activeFires = [];
@@ -802,8 +802,10 @@ class MalacharAbilityHandler {
 
         this.activeFires.push(fireData);
 
-        // Start fire spreading from this location
-        this.startFireSpreading(x, y);
+        // Only spread from original explosion fires, not from spread fires
+        if (shouldSpread) {
+            this.startFireSpreading(x, y);
+        }
 
         // Clean up this fire after its lifetime
         this.scene.time.delayedCall(fireData.lifetime, () => {
@@ -818,12 +820,10 @@ class MalacharAbilityHandler {
     }
 
     startFireSpreading(originX, originY) {
-        const spreadDuration = 6000; // Fire spreads for 6 seconds total
-        const spreadInterval = 800; // New fire every 0.8 seconds
-        const spreadRadius = 64; // 2 tiles
-        const maxNewFires = 7; // Spawn max 7 additional fires
+        const spreadInterval = 1200; // New fire every 1.2 seconds
+        const spreadRadius = 48; // 1.5 tiles
+        const maxNewFires = 3; // Spawn max 3 additional fires per explosion
 
-        let firesSpawned = 0;
         const spreadTimer = this.scene.time.addEvent({
             delay: spreadInterval,
             repeat: maxNewFires - 1,
@@ -834,16 +834,8 @@ class MalacharAbilityHandler {
                 const newX = originX + Math.cos(angle) * distance;
                 const newY = originY + Math.sin(angle) * distance;
 
-                // Spawn new fire
-                this.spawnFireAtLocation(newX, newY);
-                firesSpawned++;
-            }
-        });
-
-        // Stop spreading after 6 seconds
-        this.scene.time.delayedCall(spreadDuration, () => {
-            if (spreadTimer) {
-                spreadTimer.remove();
+                // Spawn new fire WITHOUT spreading (false parameter)
+                this.spawnFireAtLocation(newX, newY, false);
             }
         });
     }
