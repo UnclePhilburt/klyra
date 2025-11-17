@@ -1610,11 +1610,19 @@ io.on('connection', (socket) => {
                 ? Array.from(lobby.gameState.minions.values())
                 : [];
 
+            // Filter game state to only include alive enemies
+            const filteredGameState = {
+                ...lobby.gameState,
+                enemies: lobby.gameState.enemies.filter(e => e.isAlive !== false)
+            };
+
+            console.log(`📤 Sending game state to ${player.username}: ${filteredGameState.enemies.length} alive enemies (mushrooms: ${filteredGameState.enemies.filter(e => e.type === 'mushroom').length})`);
+
             socket.emit('game:start', {
                 lobbyId: lobby.id,
                 player: player.toJSON(),
                 players: activePlayers,
-                gameState: lobby.gameState,
+                gameState: filteredGameState,
                 world: worldData,
                 difficulty: lobby.difficulty,
                 playerCount: lobby.players.size,
