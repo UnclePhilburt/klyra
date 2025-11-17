@@ -124,7 +124,6 @@ class Mushroom {
     }
 
     takeDamage(amount) {
-        console.log(`🍄 Mushroom ${this.data.id} taking ${amount} damage (health: ${this.health} -> ${this.health - amount})`);
         this.health -= amount;
         if (this.health <= 0) {
             this.health = 0;

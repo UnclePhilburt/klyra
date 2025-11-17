@@ -171,15 +171,8 @@ class Player {
             ...Object.values(this.scene.mushrooms || {})
         ];
 
-        console.log(`🔍 Attack check: Found ${allEnemies.length} total enemies (mushrooms: ${Object.keys(this.scene.mushrooms || {}).length})`);
-
         allEnemies.forEach(enemy => {
-            if (!enemy.isAlive || !enemy.sprite) {
-                if (enemy.data?.type === 'mushroom') {
-                    console.log(`⚠️ Mushroom ${enemy.data.id}: alive=${enemy.isAlive}, hasSprite=${!!enemy.sprite}`);
-                }
-                return;
-            }
+            if (!enemy.isAlive || !enemy.sprite) return;
 
             const dx = enemy.sprite.x - targetX;
             const dy = enemy.sprite.y - targetY;
@@ -189,7 +182,6 @@ class Player {
             if (distSquared < attackRange * attackRange) {
                 // Calculate damage based on player stats
                 const baseDamage = this.stats?.damage || 10;
-                console.log(`🎯 Player attacking enemy ${enemy.data.id} (type: ${enemy.data.type || 'unknown'}) with ${baseDamage} damage`);
                 networkManager.hitEnemy(enemy.data.id, baseDamage, this.data.id, playerPos);
             }
         });

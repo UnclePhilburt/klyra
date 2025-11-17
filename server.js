@@ -849,8 +849,6 @@ class Lobby {
                     const mushroomId = `${this.id}_mushroom_${regionKey}_p${packIndex}_${i}`;
                     const mushroom = this.createMushroomVariant(variant, mushroomId, { x, y }, healthMultiplier);
 
-                    console.log(`🍄 Spawning mushroom: ${mushroomId} at (${x}, ${y}) - variant: ${variant}`);
-
                     // Track region
                     mushroom.regionKey = regionKey;
                     this.regionEnemies.get(regionKey).add(mushroom.id);
@@ -1616,8 +1614,6 @@ io.on('connection', (socket) => {
                 enemies: lobby.gameState.enemies.filter(e => e.isAlive !== false)
             };
 
-            console.log(`📤 Sending game state to ${player.username}: ${filteredGameState.enemies.length} alive enemies (mushrooms: ${filteredGameState.enemies.filter(e => e.type === 'mushroom').length})`);
-
             socket.emit('game:start', {
                 lobbyId: lobby.id,
                 player: player.toJSON(),
@@ -1816,17 +1812,12 @@ io.on('connection', (socket) => {
             const lobby = lobbies.get(player.lobbyId);
             if (!lobby || lobby.status !== 'active') return;
 
-            console.log(`🎯 Server received enemy:hit for ${data.enemyId} with ${data.damage} damage`);
-
             const enemy = lobby.gameState.enemies.find(e => e.id === data.enemyId);
             if (!enemy || !enemy.isAlive) {
-                console.log(`❌ Enemy not found: ${data.enemyId} - broadcasting despawn to fix desync`);
                 // Enemy doesn't exist on server, tell all clients to remove it (fixes desync)
                 lobby.broadcast('enemy:despawned', { enemyId: data.enemyId });
                 return;
             }
-
-            console.log(`✅ Enemy found: ${enemy.id} (type: ${enemy.type}) - health: ${enemy.health} -> ${enemy.health - data.damage}`);
 
             const damage = data.damage || player.stats.strength;
 
