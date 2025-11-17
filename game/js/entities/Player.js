@@ -182,6 +182,7 @@ class Player {
             if (distSquared < attackRange * attackRange) {
                 // Calculate damage based on player stats
                 const baseDamage = this.stats?.damage || 10;
+                console.log(`🎯 Player attacking enemy ${enemy.data.id} (type: ${enemy.data.type || 'unknown'}) with ${baseDamage} damage`);
                 networkManager.hitEnemy(enemy.data.id, baseDamage, this.data.id, playerPos);
             }
         });

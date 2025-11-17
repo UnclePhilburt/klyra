@@ -1806,8 +1806,15 @@ io.on('connection', (socket) => {
             const lobby = lobbies.get(player.lobbyId);
             if (!lobby || lobby.status !== 'active') return;
 
+            console.log(`🎯 Server received enemy:hit for ${data.enemyId} with ${data.damage} damage`);
+
             const enemy = lobby.gameState.enemies.find(e => e.id === data.enemyId);
-            if (!enemy || !enemy.isAlive) return;
+            if (!enemy || !enemy.isAlive) {
+                console.log(`❌ Enemy not found or not alive: ${data.enemyId} (found: ${!!enemy}, alive: ${enemy?.isAlive})`);
+                return;
+            }
+
+            console.log(`✅ Enemy found: ${enemy.id} (type: ${enemy.type}) - health: ${enemy.health} -> ${enemy.health - data.damage}`);
 
             const damage = data.damage || player.stats.strength;
 
