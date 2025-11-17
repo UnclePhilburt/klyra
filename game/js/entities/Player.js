@@ -163,11 +163,12 @@ class Player {
         const attackRange = 50; // Attack range in pixels
         const playerPos = { x: this.spriteRenderer.sprite.x, y: this.spriteRenderer.sprite.y };
 
-        // Check all enemies (sword demons and minotaurs)
+        // Check all enemies (sword demons, minotaurs, and mushrooms)
         const allEnemies = [
             ...Object.values(this.scene.enemies || {}),
             ...Object.values(this.scene.swordDemons || {}),
-            ...Object.values(this.scene.minotaurs || {})
+            ...Object.values(this.scene.minotaurs || {}),
+            ...Object.values(this.scene.mushrooms || {})
         ];
 
         allEnemies.forEach(enemy => {
@@ -230,7 +231,8 @@ class Player {
         const allEnemies = [
             ...Object.values(this.scene.enemies || {}),
             ...Object.values(this.scene.swordDemons || {}),
-            ...Object.values(this.scene.minotaurs || {})
+            ...Object.values(this.scene.minotaurs || {}),
+            ...Object.values(this.scene.mushrooms || {})
         ];
 
         const enemiesInFront = [];

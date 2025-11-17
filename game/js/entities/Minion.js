@@ -405,7 +405,7 @@ class Minion {
         if (this.aggroedEnemies.size >= this.maxAggro) {
             // Already tanking max enemies, only target ones we're already fighting
             const alreadyTargeted = Array.from(this.aggroedEnemies)
-                .map(id => this.scene.enemies[id] || this.scene.swordDemons[id] || this.scene.minotaurs[id])
+                .map(id => this.scene.enemies[id] || this.scene.swordDemons[id] || this.scene.minotaurs[id] || this.scene.mushrooms[id])
                 .filter(e => e && e.isAlive);
 
             if (alreadyTargeted.length > 0) {
@@ -419,7 +419,8 @@ class Minion {
         const allEnemies = [
             ...Object.values(this.scene.enemies || {}),
             ...Object.values(this.scene.swordDemons || {}),
-            ...Object.values(this.scene.minotaurs || {})
+            ...Object.values(this.scene.minotaurs || {}),
+            ...Object.values(this.scene.mushrooms || {})
         ];
 
         if (allEnemies.length === 0) {
@@ -456,7 +457,8 @@ class Minion {
         const allEnemies = [
             ...Object.values(this.scene.enemies || {}),
             ...Object.values(this.scene.swordDemons || {}),
-            ...Object.values(this.scene.minotaurs || {})
+            ...Object.values(this.scene.minotaurs || {}),
+            ...Object.values(this.scene.mushrooms || {})
         ];
 
         const threats = [];
@@ -488,7 +490,7 @@ class Minion {
         // Check if at aggro limit
         if (this.aggroedEnemies.size >= this.maxAggro) {
             const currentTargets = Array.from(this.aggroedEnemies)
-                .map(id => this.scene.enemies[id] || this.scene.swordDemons[id] || this.scene.minotaurs[id])
+                .map(id => this.scene.enemies[id] || this.scene.swordDemons[id] || this.scene.minotaurs[id] || this.scene.mushrooms[id])
                 .filter(e => e && e.isAlive);
 
             if (currentTargets.length > 0) {
@@ -925,7 +927,8 @@ class Minion {
         const allEnemies = [
             ...Object.values(this.scene.enemies || {}),
             ...Object.values(this.scene.swordDemons || {}),
-            ...Object.values(this.scene.minotaurs || {})
+            ...Object.values(this.scene.minotaurs || {}),
+            ...Object.values(this.scene.mushrooms || {})
         ];
 
         if (allEnemies.length === 0) return null;
