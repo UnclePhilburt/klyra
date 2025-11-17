@@ -215,16 +215,6 @@ class MalacharAbilityHandler {
                 damage: minion.damage
             });
 
-            // Visual: Explosion effect at minion position
-            if (this.scene.visualEffectsManager) {
-                this.scene.visualEffectsManager.createExplosion(
-                    minion.sprite.x,
-                    minion.sprite.y,
-                    0x8b008b, // Purple bone explosion
-                    explosionRadius
-                );
-            }
-
             // Deal damage to enemies in radius
             const enemiesHit = this.getEnemiesInRadius(minion.sprite.x, minion.sprite.y, explosionRadius);
             enemiesHit.forEach(enemy => {
