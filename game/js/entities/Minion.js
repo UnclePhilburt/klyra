@@ -1194,6 +1194,11 @@ class Minion {
         // Only deal damage if minion is still alive and enemy is still valid
         if (!this.isAlive || !enemy || !enemy.isAlive) return;
 
+        // Play punch sound on impact
+        if (this.scene.sound) {
+            this.scene.sound.play('minion_punch', { volume: 0.2 });
+        }
+
         // Visual attack effect (show at moment of impact)
         const attackLine = this.scene.add.line(
             0, 0,

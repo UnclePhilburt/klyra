@@ -170,6 +170,10 @@ class BootScene extends Phaser.Scene {
         this.load.audio('death_squelch_4', 'assets/soundeffects/deathsounds/squelching_4.wav');
         console.log('📦 Loading death sounds (15 variations)');
 
+        // Load minion attack sound
+        this.load.audio('minion_punch', 'assets/soundeffects/punch.wav');
+        console.log('📦 Loading minion attack sound');
+
         console.log('✅ Loaded character sprites: kelise, malachar');
     }
 
