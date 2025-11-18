@@ -446,7 +446,13 @@ class Minion {
 
         // PERFORMANCE: Use squared distance to avoid expensive sqrt
         for (const enemy of allEnemies) {
-            if (!enemy.isAlive) continue;
+            if (!enemy.isAlive) {
+                // DEBUG: Log if we skip an enemy
+                if (Math.random() < 0.01 && enemy.data) {
+                    console.log(`⚠️ Minion skipping dead enemy ${enemy.data.type} ${enemy.data.id}`);
+                }
+                continue;
+            }
 
             const dx = this.sprite.x - enemy.sprite.x;
             const dy = this.sprite.y - enemy.sprite.y;
@@ -455,6 +461,11 @@ class Minion {
             if (distSquared < nearestDistSquared) {
                 nearestDistSquared = distSquared;
                 nearestEnemy = enemy;
+                // DEBUG: Log when we find a closer enemy
+                if (Math.random() < 0.01 && enemy.data) {
+                    const dist = Math.sqrt(distSquared);
+                    console.log(`🎯 Minion found closer ${enemy.data.type}: dist=${dist.toFixed(1)}`);
+                }
             }
         }
 
