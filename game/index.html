@@ -55,17 +55,9 @@
                         <span class="floating-rune"></span>
                     </div>
 
-                    <!-- Name Input -->
-                    <div class="name-inscription">
-                        <label for="playerName" class="name-label">ENTER YOUR NAME</label>
-                        <input
-                            type="text"
-                            id="playerName"
-                            class="mystic-input"
-                            placeholder="ADVENTURER"
-                            maxlength="20"
-                            autocomplete="off"
-                        />
+                    <!-- Name Display (dynamically populated by JS) -->
+                    <div class="name-inscription" id="nameDisplay">
+                        <!-- Will be filled by loadSavedPlayerName() -->
                     </div>
 
                     <!-- Enter Button -->

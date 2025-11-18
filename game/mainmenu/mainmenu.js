@@ -238,7 +238,6 @@ class MainMenu {
     setupPortalInteraction() {
         const enterButton = document.querySelector('.enter-prompt');
         const portalClick = document.getElementById('portalClick');
-        const playerNameInput = document.getElementById('playerName');
         const statusText = document.getElementById('statusText');
         const lobbyScreen = document.getElementById('lobbyScreen');
 
@@ -305,12 +304,6 @@ class MainMenu {
         }
 
         // Button is visible by default - removed hiding code
-
-        if (playerNameInput) {
-            playerNameInput.addEventListener('input', (e) => {
-                this.animateCarvedText(e.target.value);
-            });
-        }
     }
     
     animateCarvedText(text) {
@@ -449,9 +442,7 @@ class MainMenu {
     }
     
     loadSavedPlayerName() {
-        const playerNameInput = document.getElementById('playerName');
-        const nameLabel = document.querySelector('.name-label');
-        const nameInscription = document.querySelector('.name-inscription');
+        const nameDisplay = document.getElementById('nameDisplay');
 
         // Check if user is logged in
         const token = localStorage.getItem('klyra_token');
@@ -462,8 +453,8 @@ class MainMenu {
                 const user = JSON.parse(userData);
                 if (user.username) {
                     // User is logged in - show welcome message
-                    if (nameInscription) {
-                        nameInscription.innerHTML = `
+                    if (nameDisplay) {
+                        nameDisplay.innerHTML = `
                             <div class="name-label" style="margin-bottom: 10px;">WELCOME BACK</div>
                             <div style="font-size: 24px; color: #FFD700; font-family: 'Press Start 2P', monospace; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">
                                 ${user.username.toUpperCase()}
@@ -479,8 +470,8 @@ class MainMenu {
         }
 
         // Not logged in - show guest message
-        if (nameInscription) {
-            nameInscription.innerHTML = `
+        if (nameDisplay) {
+            nameDisplay.innerHTML = `
                 <div class="name-label" style="margin-bottom: 15px;">PLAYING AS GUEST</div>
                 <div style="font-size: 12px; color: #AAA; font-family: 'Press Start 2P', monospace; line-height: 1.6; margin-bottom: 10px;">
                     You'll get a random username
