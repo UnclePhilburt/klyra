@@ -48,25 +48,6 @@ If you need to deploy from scratch:
    - **Plan**: Free (or choose paid for better performance)
 5. Click "Create Web Service"
 
-## Local Development
-
-### Install Dependencies
-```bash
-npm install
-```
-
-### Run Server
-```bash
-npm start
-```
-
-### Run with Auto-Reload (Development)
-```bash
-npm run dev
-```
-
-Server will start on `http://localhost:3000`
-
 ## API Endpoints
 
 ### Health Check

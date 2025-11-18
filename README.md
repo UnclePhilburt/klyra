@@ -31,22 +31,6 @@ The server is deployed and running at: **https://klyra-server.onrender.com**
 - Health Check: https://klyra-server.onrender.com/health
 - Stats: https://klyra-server.onrender.com/stats
 
-### Local Development
-
-1. **Install Dependencies**
-```bash
-npm install
-```
-
-2. **Run Server Locally**
-```bash
-npm start
-```
-
-3. **Test Connection**
-   - Open `client-example.html` in your browser
-   - Server runs on `http://localhost:3000`
-
 ## 📁 Project Structure
 
 ```
@@ -80,19 +64,6 @@ klyra/
 4. When lobby reaches 10 players, game auto-starts
 5. Players explore procedurally generated dungeon together
 6. Real-time sync for all player actions, combat, and loot
-
-## 🔧 Development
-
-### Run Server Locally
-```bash
-npm install
-npm start
-```
-
-Server runs on `http://localhost:3000`
-
-### Test Client
-Open `client-example.html` in browser to test server connection
 
 ## 📚 Documentation
 
