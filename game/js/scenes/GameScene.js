@@ -7,6 +7,7 @@ class GameScene extends Phaser.Scene {
         this.swordDemons = {};
         this.minotaurs = {};
         this.mushrooms = {};
+        this.emberclaws = {};
         this.items = {};
         this.minions = {};
         this.experienceOrbs = {};
@@ -257,6 +258,41 @@ class GameScene extends Phaser.Scene {
             margin: 0
         });
 
+        // Enemy sprites - Emberclaw (64x64 tiles, individual animation files)
+        this.load.spritesheet('emberclaw-idle', 'assets/sprites/emberclaw/IDLE.png', {
+            frameWidth: 64,
+            frameHeight: 64,
+            spacing: 0,
+            margin: 0
+        });
+        this.load.spritesheet('emberclaw-flying', 'assets/sprites/emberclaw/FLYING.png', {
+            frameWidth: 64,
+            frameHeight: 64,
+            spacing: 0,
+            margin: 0
+        });
+        this.load.spritesheet('emberclaw-attack', 'assets/sprites/emberclaw/ATTACK.png', {
+            frameWidth: 64,
+            frameHeight: 64,
+            spacing: 0,
+            margin: 0
+        });
+        this.load.spritesheet('emberclaw-hurt', 'assets/sprites/emberclaw/HURT.png', {
+            frameWidth: 64,
+            frameHeight: 64,
+            spacing: 0,
+            margin: 0
+        });
+        this.load.spritesheet('emberclaw-death', 'assets/sprites/emberclaw/DEATH.png', {
+            frameWidth: 64,
+            frameHeight: 64,
+            spacing: 0,
+            margin: 0
+        });
+
+        // Emberclaw projectile
+        this.load.image('emberclaw-projectile', 'assets/sprites/emberclaw/projectile.png');
+
         console.log('✅ All tilesets queued for loading');
 
         // Debug: Log sword demon spritesheet info after load
@@ -450,6 +486,49 @@ class GameScene extends Phaser.Scene {
         });
 
         console.log('✅ Created enemy animations: mushroom (idle, run, attack, damage, death)');
+
+        // Create enemy animations - Emberclaw (64x64 tiles, separate sprite sheets)
+        // Idle animation (4 frames)
+        this.anims.create({
+            key: 'emberclaw_idle',
+            frames: this.anims.generateFrameNumbers('emberclaw-idle', { start: 0, end: 3 }),
+            frameRate: 8,
+            repeat: -1
+        });
+
+        // Flying animation (4 frames)
+        this.anims.create({
+            key: 'emberclaw_flying',
+            frames: this.anims.generateFrameNumbers('emberclaw-flying', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        // Attack animation (8 frames)
+        this.anims.create({
+            key: 'emberclaw_attack',
+            frames: this.anims.generateFrameNumbers('emberclaw-attack', { start: 0, end: 7 }),
+            frameRate: 12,
+            repeat: 0
+        });
+
+        // Hurt animation (4 frames)
+        this.anims.create({
+            key: 'emberclaw_hurt',
+            frames: this.anims.generateFrameNumbers('emberclaw-hurt', { start: 0, end: 3 }),
+            frameRate: 12,
+            repeat: 0
+        });
+
+        // Death animation (7 frames)
+        this.anims.create({
+            key: 'emberclaw_death',
+            frames: this.anims.generateFrameNumbers('emberclaw-death', { start: 0, end: 6 }),
+            frameRate: 10,
+            repeat: 0
+        });
+
+        console.log('✅ Created enemy animations: emberclaw (idle, flying, attack, hurt, death)');
 
         // Initialize tree collision array
         this.treeCollisions = [];
@@ -2326,6 +2405,18 @@ class GameScene extends Phaser.Scene {
                         this.physics.add.collider(mushroom.sprite, layer);
                     });
                 }
+            } else if (data.enemy.type === 'emberclaw') {
+                // Skip dead emberclaws
+                if (data.enemy.isAlive === false) {
+                    console.log(`⚰️ Skipping spawning dead emberclaw ${data.enemy.id}`);
+                    return;
+                }
+
+                const emberclaw = new Emberclaw(this, data.enemy);
+                this.emberclaws[data.enemy.id] = emberclaw;
+
+                // Emberclaws fly - no collision needed
+                console.log(`🔥 Spawned Emberclaw ${data.enemy.id} at (${data.enemy.position.x}, ${data.enemy.position.y})`);
             } else {
                 const enemy = new Enemy(this, data.enemy);
                 this.enemies[data.enemy.id] = enemy;
@@ -2602,7 +2693,7 @@ class GameScene extends Phaser.Scene {
 
             // Trigger attack animation for the attacker
             if (data.attackerId) {
-                const attacker = this.enemies[data.attackerId] || this.swordDemons[data.attackerId] || this.minotaurs[data.attackerId] || this.mushrooms[data.attackerId];
+                const attacker = this.enemies[data.attackerId] || this.swordDemons[data.attackerId] || this.minotaurs[data.attackerId] || this.mushrooms[data.attackerId] || this.emberclaws[data.attackerId];
                 if (attacker && attacker.attack && this.localPlayer && this.localPlayer.spriteRenderer && this.localPlayer.spriteRenderer.sprite) {
                     // Pass player position so attacker faces the right way
                     attacker.attack(this.localPlayer.spriteRenderer.sprite.x, this.localPlayer.spriteRenderer.sprite.y);
@@ -2671,7 +2762,7 @@ class GameScene extends Phaser.Scene {
 
         // Enemy killed
         networkManager.on('enemy:killed', (data) => {
-            const enemy = this.enemies[data.enemyId] || this.swordDemons[data.enemyId] || this.minotaurs[data.enemyId];
+            const enemy = this.enemies[data.enemyId] || this.swordDemons[data.enemyId] || this.minotaurs[data.enemyId] || this.emberclaws[data.enemyId];
             if (enemy) {
                 const deathX = enemy.sprite.x;
                 const deathY = enemy.sprite.y;
@@ -2698,6 +2789,8 @@ class GameScene extends Phaser.Scene {
                     delete this.swordDemons[data.enemyId];
                 } else if (this.minotaurs[data.enemyId]) {
                     delete this.minotaurs[data.enemyId];
+                } else if (this.emberclaws[data.enemyId]) {
+                    delete this.emberclaws[data.enemyId];
                 }
 
                 // Check if killer is Malachar with special passives
@@ -3927,6 +4020,13 @@ class GameScene extends Phaser.Scene {
         Object.values(this.mushrooms).forEach(mushroom => {
             if (mushroom.isAlive) {
                 mushroom.update();
+            }
+        });
+
+        // Update emberclaws
+        Object.values(this.emberclaws).forEach(emberclaw => {
+            if (emberclaw.isAlive) {
+                emberclaw.update();
             }
         });
 

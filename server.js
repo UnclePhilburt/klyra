@@ -608,6 +608,40 @@ class Lobby {
         };
     }
 
+    // Create Emberclaw - Flying ranged enemy (glass cannon)
+    createEmberclaw(baseId, position, healthMultiplier = 1.0) {
+        const stats = {
+            health: 20,      // Low health - glass cannon
+            maxHealth: 20,
+            damage: 15,      // High damage
+            speed: 50,       // Fast movement for kiting
+            sightRange: 12,  // Long sight range
+            attackRange: 8,  // Ranged attack distance (tiles)
+            attackCooldown: 2000  // 2 seconds between shots
+        };
+
+        // Apply co-op health scaling
+        const scaledHealth = Math.floor(stats.health * healthMultiplier);
+        const scaledMaxHealth = Math.floor(stats.maxHealth * healthMultiplier);
+
+        return {
+            id: baseId,
+            type: 'emberclaw',
+            position: position,
+            health: scaledHealth,
+            maxHealth: scaledMaxHealth,
+            damage: stats.damage,
+            speed: stats.speed,
+            isAlive: true,
+            sightRange: stats.sightRange,
+            attackRange: stats.attackRange,
+            attackCooldown: stats.attackCooldown,
+            lastAttack: 0,
+            lastMove: 0,
+            preferredDistance: 6  // Tiles to maintain from players (kiting distance)
+        };
+    }
+
 
     // Get the dominant biome for a region
     getRegionBiome(regionX, regionY) {
@@ -825,31 +859,37 @@ class Lobby {
             const spawnRoll = this.seededRandom(packSeed + 50);
 
             if (biome === 'red') {
-                // RED biome: 60% sword demons, 20% minotaurs, 20% mushrooms
-                if (spawnRoll < 0.6) {
-                    enemyType = 'swordDemon';
-                } else if (spawnRoll < 0.8) {
-                    enemyType = 'minotaur';
-                } else {
-                    enemyType = 'mushroom';
-                }
-            } else if (biome === 'dark_green') {
-                // DARK_GREEN biome: 30% sword demons, 40% minotaurs, 30% mushrooms
-                if (spawnRoll < 0.3) {
+                // RED biome: 50% sword demons, 20% minotaurs, 15% mushrooms, 15% emberclaws
+                if (spawnRoll < 0.5) {
                     enemyType = 'swordDemon';
                 } else if (spawnRoll < 0.7) {
                     enemyType = 'minotaur';
-                } else {
+                } else if (spawnRoll < 0.85) {
                     enemyType = 'mushroom';
+                } else {
+                    enemyType = 'emberclaw';
                 }
-            } else {
-                // GREEN biome: 10% sword demons, 50% minotaurs, 40% mushrooms
-                if (spawnRoll < 0.1) {
+            } else if (biome === 'dark_green') {
+                // DARK_GREEN biome: 25% sword demons, 35% minotaurs, 25% mushrooms, 15% emberclaws
+                if (spawnRoll < 0.25) {
                     enemyType = 'swordDemon';
                 } else if (spawnRoll < 0.6) {
                     enemyType = 'minotaur';
-                } else {
+                } else if (spawnRoll < 0.85) {
                     enemyType = 'mushroom';
+                } else {
+                    enemyType = 'emberclaw';
+                }
+            } else {
+                // GREEN biome: 10% sword demons, 45% minotaurs, 35% mushrooms, 10% emberclaws
+                if (spawnRoll < 0.1) {
+                    enemyType = 'swordDemon';
+                } else if (spawnRoll < 0.55) {
+                    enemyType = 'minotaur';
+                } else if (spawnRoll < 0.9) {
+                    enemyType = 'mushroom';
+                } else {
+                    enemyType = 'emberclaw';
                 }
             }
 
@@ -952,6 +992,28 @@ class Lobby {
 
                     this.gameState.enemies.push(mushroom);
                     newEnemies.push(mushroom);
+                }
+            } else if (enemyType === 'emberclaw') {
+                // Spawn emberclaws (smaller packs - they're ranged and dangerous)
+                const emberclawPackSize = Math.max(1, Math.floor(packSize / 2));
+                for (let i = 0; i < emberclawPackSize; i++) {
+                    const emberclawSeed = packSeed + i * 100;
+
+                    // Position spread out (they fly and kite)
+                    const offsetX = Math.floor((this.seededRandom(emberclawSeed + 10) - 0.5) * 15);
+                    const offsetY = Math.floor((this.seededRandom(emberclawSeed + 11) - 0.5) * 15);
+                    const x = Math.max(0, Math.min(this.WORLD_SIZE - 1, packX + offsetX));
+                    const y = Math.max(0, Math.min(this.WORLD_SIZE - 1, packY + offsetY));
+
+                    const emberclawId = `${this.id}_emberclaw_${regionKey}_p${packIndex}_${i}`;
+                    const emberclaw = this.createEmberclaw(emberclawId, { x, y }, healthMultiplier);
+
+                    // Track region
+                    emberclaw.regionKey = regionKey;
+                    this.regionEnemies.get(regionKey).add(emberclaw.id);
+
+                    this.gameState.enemies.push(emberclaw);
+                    newEnemies.push(emberclaw);
                 }
             }
         }
@@ -1387,7 +1449,7 @@ class Lobby {
                 console.log(`🎯 Enemy ${enemy.id} found target: ${target.id}, isMinion: ${target.isMinion}, targetPos: (${target.position.x.toFixed(1)}, ${target.position.y.toFixed(1)}), enemyPos: (${enemy.position.x.toFixed(1)}, ${enemy.position.y.toFixed(1)})`);
             }
 
-            // Move toward target
+            // Move toward target (or away for kiting enemies)
             const dx = target.position.x - enemy.position.x;
             const dy = target.position.y - enemy.position.y;
             const distanceSquared = dx * dx + dy * dy;
@@ -1401,6 +1463,107 @@ class Lobby {
                 console.log(`🧟 ${enemy.type} at (${enemy.position.x.toFixed(1)}, ${enemy.position.y.toFixed(1)}) targeting (${target.position.x.toFixed(1)}, ${target.position.y.toFixed(1)}), dist: ${distance.toFixed(1)}`);
             }
 
+            // EMBERCLAW KITING BEHAVIOR
+            if (enemy.type === 'emberclaw') {
+                if (distance === null) distance = Math.sqrt(distanceSquared);
+                const preferredDistance = enemy.preferredDistance || 6;
+                const attackRange = enemy.attackRange || 8;
+
+                // If too close, kite away
+                if (distance < preferredDistance) {
+                    const moveDistance = enemy.speed / 100;
+                    // Move AWAY from target
+                    const newX = enemy.position.x - (dx / distance) * moveDistance;
+                    const newY = enemy.position.y - (dy / distance) * moveDistance;
+
+                    // SAFE ZONE CHECK
+                    const worldCenterX = this.WORLD_SIZE / 2;
+                    const worldCenterY = this.WORLD_SIZE / 2;
+                    const safeZoneRadius = 25;
+
+                    const wouldEnterSafeZone = (
+                        newX >= (worldCenterX - safeZoneRadius) &&
+                        newX <= (worldCenterX + safeZoneRadius) &&
+                        newY >= (worldCenterY - safeZoneRadius) &&
+                        newY <= (worldCenterY + safeZoneRadius)
+                    );
+
+                    if (!wouldEnterSafeZone) {
+                        enemy.position.x = newX;
+                        enemy.position.y = newY;
+
+                        this.broadcast('enemy:moved', {
+                            enemyId: enemy.id,
+                            position: enemy.position
+                        });
+                    }
+                }
+                // If in attack range, shoot
+                else if (distance <= attackRange) {
+                    const now = Date.now();
+                    if (now - enemy.lastAttack >= enemy.attackCooldown) {
+                        enemy.lastAttack = now;
+
+                        // Calculate target position in pixels for projectile
+                        const TILE_SIZE = 32;
+                        const targetPixelX = target.position.x * TILE_SIZE;
+                        const targetPixelY = target.position.y * TILE_SIZE;
+
+                        // Trigger attack animation on clients
+                        this.broadcast('player:damaged', {
+                            playerId: target.id,
+                            health: Math.max(0, target.health - enemy.damage),
+                            damage: enemy.damage,
+                            attackerId: enemy.id
+                        });
+
+                        // Deal damage to target
+                        if (target.isMinion) {
+                            // Minion hit - handle minion damage
+                            console.log(`🔥 Emberclaw shot minion ${target.id} for ${enemy.damage} damage`);
+                        } else {
+                            // Player hit
+                            const player = this.players.get(target.id);
+                            if (player) {
+                                player.health = Math.max(0, player.health - enemy.damage);
+                                console.log(`🔥 Emberclaw shot ${player.username} for ${enemy.damage} damage`);
+                            }
+                        }
+                    }
+                }
+                // If too far, move closer (but maintain distance)
+                else if (distance > attackRange) {
+                    const moveDistance = enemy.speed / 100;
+                    const newX = enemy.position.x + (dx / distance) * moveDistance;
+                    const newY = enemy.position.y + (dy / distance) * moveDistance;
+
+                    // SAFE ZONE CHECK
+                    const worldCenterX = this.WORLD_SIZE / 2;
+                    const worldCenterY = this.WORLD_SIZE / 2;
+                    const safeZoneRadius = 25;
+
+                    const wouldEnterSafeZone = (
+                        newX >= (worldCenterX - safeZoneRadius) &&
+                        newX <= (worldCenterX + safeZoneRadius) &&
+                        newY >= (worldCenterY - safeZoneRadius) &&
+                        newY <= (worldCenterY + safeZoneRadius)
+                    );
+
+                    if (!wouldEnterSafeZone) {
+                        enemy.position.x = newX;
+                        enemy.position.y = newY;
+
+                        this.broadcast('enemy:moved', {
+                            enemyId: enemy.id,
+                            position: enemy.position
+                        });
+                    }
+                }
+
+                return; // Skip normal melee movement
+            }
+
+            // NORMAL MELEE ENEMY MOVEMENT
             if (distanceSquared > 1) {  // PERFORMANCE: Check squared distance first
                 if (distance === null) distance = Math.sqrt(distanceSquared);  // Calculate only if needed
                 const moveDistance = enemy.speed / 100; // Grid tiles per update (100ms)
