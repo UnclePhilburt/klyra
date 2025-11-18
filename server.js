@@ -1521,7 +1521,7 @@ class Lobby {
                         };
                         console.log(`📡 Broadcasting enemy:attack:`, attackData);
                         this.broadcast('enemy:attack', attackData);
-                        console.log(`✅ Broadcast sent to ${this.players.length} players`);
+                        console.log(`✅ Broadcast sent to ${this.players.size} players`);
 
                         // Note: Damage will be applied when the projectile actually hits via player:hit event
                         // This prevents instant damage before the projectile visual reaches the target
