@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="description" content="KLYRA - Live Stats Tracking. Real-time player statistics, leaderboards, and community achievements.">
+    <title>Live Trackers - KLYRA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #13131a;
+            --bg-tertiary: #1a1a24;
+            --accent-primary: #8b5cf6;
+            --accent-secondary: #ec4899;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-tertiary: #52525b;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Animated Mesh Gradient Background */
+        .mesh-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        .gradient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.6;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #8b5cf6, transparent);
+            top: -200px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #ec4899, transparent);
+            top: 20%;
+            right: -200px;
+            animation-delay: 5s;
+        }
+
+        .blob-3 {
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, #06b6d4, transparent);
+            bottom: -200px;
+            left: 30%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(50px, 100px) scale(1.1);
+            }
+            50% {
+                transform: translate(-30px, 50px) scale(0.9);
+            }
+            75% {
+                transform: translate(20px, -40px) scale(1.05);
+            }
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transition: width 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--text-primary);
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        nav a.active {
+            color: var(--accent-primary);
+        }
+
+        .cta-nav {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            color: white !important;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-nav::after {
+            display: none;
+        }
+
+        .cta-nav:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Main Content */
+        main {
+            position: relative;
+            z-index: 1;
+            padding-top: 120px;
+            padding-bottom: 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .page-header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .refresh-info {
+            text-align: center;
+            color: var(--accent-cyan);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        /* Stats Grid */
+        .stats-section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-icon {
+            font-size: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(26, 26, 36, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.2);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-value.green {
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-value.orange {
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Leaderboard */
+        .leaderboard {
+            background: rgba(26, 26, 36, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            margin-bottom: 3rem;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .leaderboard-table thead th {
+            text-align: left;
+            padding: 1rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .leaderboard-table tbody tr {
+            transition: background 0.3s;
+        }
+
+        .leaderboard-table tbody tr:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .leaderboard-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .rank {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .rank.top3 {
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stat-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        /* Footer */
+        footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-tertiary);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem 1.25rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            main {
+                padding-top: 100px;
+            }
+
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .leaderboard {
+                overflow-x: auto;
+            }
+
+            .leaderboard-table {
+                min-width: 500px;
+            }
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(3, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Mesh Gradient Background -->
+    <div class="mesh-gradient">
+        <div class="gradient-blob blob-1"></div>
+        <div class="gradient-blob blob-2"></div>
+        <div class="gradient-blob blob-3"></div>
+    </div>
+
+    <!-- Header -->
+    <header id="header">
+        <a href="index.html" class="logo">KLYRA</a>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="characters.html">Characters</a></li>
+                <li><a href="enemies.html">Enemies</a></li>
+                <li><a href="lore.html">Lore</a></li>
+                <li><a href="live-trackers.html" class="active">Live Trackers</a></li>
+                <li><a href="game/" class="cta-nav">Try Alpha</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="page-header">
+            <h1>Live Trackers</h1>
+            <p>Real-time statistics from the entire KLYRA community</p>
+        </div>
+
+        <div class="refresh-info">
+            Stats auto-refresh every 30 seconds
+        </div>
+
+        <!-- Combat Stats -->
+        <section class="stats-section">
+            <h2 class="section-title">
+                <span class="section-icon">⚔️</span>
+                Combat Statistics
+            </h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Damage Dealt</div>
+                    <div class="stat-value" id="total-damage">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Damage Taken</div>
+                    <div class="stat-value orange" id="total-damage-taken">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Boss Kills</div>
+                    <div class="stat-value green" id="boss-kills">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Elite Kills</div>
+                    <div class="stat-value" id="elite-kills">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progression Stats -->
+        <section class="stats-section">
+            <h2 class="section-title">
+                <span class="section-icon">📈</span>
+                Progression Statistics
+            </h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Deepest Floor Reached</div>
+                    <div class="stat-value green" id="deepest-floor">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Floors Explored</div>
+                    <div class="stat-value" id="total-floors">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Games Completed</div>
+                    <div class="stat-value green" id="games-completed">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Playtime</div>
+                    <div class="stat-value" id="total-playtime">0h</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loot Stats -->
+        <section class="stats-section">
+            <h2 class="section-title">
+                <span class="section-icon">💎</span>
+                Loot & Items
+            </h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Gold Collected</div>
+                    <div class="stat-value orange" id="total-gold">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Legendary Items Found</div>
+                    <div class="stat-value" id="legendary-items">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Rare Items Found</div>
+                    <div class="stat-value" id="rare-items">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Items Looted</div>
+                    <div class="stat-value green" id="total-items">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fun Stats -->
+        <section class="stats-section">
+            <h2 class="section-title">
+                <span class="section-icon">🎮</span>
+                Fun Facts
+            </h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Distance Traveled</div>
+                    <div class="stat-value" id="distance-traveled">0 km</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Abilities Used</div>
+                    <div class="stat-value green" id="abilities-used">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Potions Consumed</div>
+                    <div class="stat-value orange" id="potions-consumed">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Mushrooms Slain</div>
+                    <div class="stat-value" id="mushrooms-killed">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Leaderboards -->
+        <section class="stats-section">
+            <h2 class="section-title">
+                <span class="section-icon">🏆</span>
+                Top Players by Kills
+            </h2>
+            <div class="leaderboard">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Kills</th>
+                            <th>Deaths</th>
+                            <th>Games</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-kills">
+                        <tr>
+                            <td colspan="5" class="loading">Loading leaderboard</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="stats-section">
+            <h2 class="section-title">
+                <span class="section-icon">🎯</span>
+                Top Players by Damage
+            </h2>
+            <div class="leaderboard">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Damage Dealt</th>
+                            <th>Games</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-damage">
+                        <tr>
+                            <td colspan="4" class="loading">Loading leaderboard</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 KLYRA. All rights reserved.</p>
+        <p style="margin-top: 0.5rem; opacity: 0.5;">Early Alpha - In Active Development</p>
+    </footer>
+
+    <script>
+        // Fetch Live Stats from Server
+        async function fetchLiveStats() {
+            try {
+                const response = await fetch('https://klyra-server.onrender.com/live-stats');
+                const data = await response.json();
+
+                // Combat Stats
+                document.getElementById('total-damage').textContent = formatNumber(data.totalDamageDealt || 0);
+                document.getElementById('total-damage-taken').textContent = formatNumber(data.totalDamageTaken || 0);
+                document.getElementById('boss-kills').textContent = formatNumber(data.bossKills || 0);
+                document.getElementById('elite-kills').textContent = formatNumber(data.eliteKills || 0);
+
+                // Progression Stats
+                document.getElementById('deepest-floor').textContent = data.deepestFloor || 0;
+                document.getElementById('total-floors').textContent = formatNumber(data.totalFloors || 0);
+                document.getElementById('games-completed').textContent = formatNumber(data.gamesCompleted || 0);
+                document.getElementById('total-playtime').textContent = formatPlaytime(data.totalPlaytime || 0);
+
+                // Loot Stats
+                document.getElementById('total-gold').textContent = formatNumber(data.totalGold || 0);
+                document.getElementById('legendary-items').textContent = formatNumber(data.legendaryItems || 0);
+                document.getElementById('rare-items').textContent = formatNumber(data.rareItems || 0);
+                document.getElementById('total-items').textContent = formatNumber(data.totalItems || 0);
+
+                // Fun Stats
+                document.getElementById('distance-traveled').textContent = formatDistance(data.distanceTraveled || 0);
+                document.getElementById('abilities-used').textContent = formatNumber(data.abilitiesUsed || 0);
+                document.getElementById('potions-consumed').textContent = formatNumber(data.potionsConsumed || 0);
+                document.getElementById('mushrooms-killed').textContent = formatNumber(data.mushroomsKilled || 0);
+
+                console.log('📊 Live stats loaded:', data);
+            } catch (error) {
+                console.error('Failed to load live stats:', error);
+            }
+        }
+
+        // Fetch Leaderboards
+        async function fetchLeaderboards() {
+            try {
+                // Top Kills Leaderboard
+                const killsResponse = await fetch('https://klyra-server.onrender.com/leaderboard/kills?limit=10');
+                const killsData = await killsResponse.json();
+
+                const killsLeaderboard = document.getElementById('leaderboard-kills');
+                if (killsData.leaderboard && killsData.leaderboard.length > 0) {
+                    killsLeaderboard.innerHTML = killsData.leaderboard.map((player, index) => `
+                        <tr>
+                            <td><span class="rank ${index < 3 ? 'top3' : ''}">#${index + 1}</span></td>
+                            <td class="player-name">${player.username}</td>
+                            <td class="stat-num">${formatNumber(player.total_kills)}</td>
+                            <td class="stat-num">${formatNumber(player.total_deaths)}</td>
+                            <td class="stat-num">${formatNumber(player.games_played)}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    killsLeaderboard.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-secondary);">No data yet - be the first to play!</td></tr>';
+                }
+
+                // Top Damage Leaderboard
+                const damageResponse = await fetch('https://klyra-server.onrender.com/leaderboard/damage?limit=10');
+                const damageData = await damageResponse.json();
+
+                const damageLeaderboard = document.getElementById('leaderboard-damage');
+                if (damageData.leaderboard && damageData.leaderboard.length > 0) {
+                    damageLeaderboard.innerHTML = damageData.leaderboard.map((player, index) => `
+                        <tr>
+                            <td><span class="rank ${index < 3 ? 'top3' : ''}">#${index + 1}</span></td>
+                            <td class="player-name">${player.username}</td>
+                            <td class="stat-num">${formatNumber(player.total_damage_dealt)}</td>
+                            <td class="stat-num">${formatNumber(player.games_played)}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    damageLeaderboard.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem; color: var(--text-secondary);">No data yet - be the first to play!</td></tr>';
+                }
+
+                console.log('🏆 Leaderboards loaded');
+            } catch (error) {
+                console.error('Failed to load leaderboards:', error);
+            }
+        }
+
+        // Format large numbers with commas
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // Format playtime from milliseconds to hours
+        function formatPlaytime(ms) {
+            const hours = Math.floor(ms / 3600000);
+            return `${formatNumber(hours)}h`;
+        }
+
+        // Format distance (assuming in tiles, convert to km)
+        function formatDistance(tiles) {
+            const km = Math.floor(tiles / 100); // Rough conversion
+            return `${formatNumber(km)} km`;
+        }
+
+        // Load all data on page load
+        fetchLiveStats();
+        fetchLeaderboards();
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            fetchLiveStats();
+            fetchLeaderboards();
+        }, 30000);
+    </script>
+</body>
+</html>

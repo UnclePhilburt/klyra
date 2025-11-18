@@ -2560,6 +2560,95 @@ app.get('/global-stats', async (req, res) => {
     }
 });
 
+// Live stats endpoint (all detailed stats)
+app.get('/live-stats', async (req, res) => {
+    try {
+        if (!process.env.DATABASE_URL) {
+            return res.json({
+                error: 'Database not configured'
+            });
+        }
+
+        const result = await db.pool.query(`
+            SELECT
+                COALESCE(SUM(total_damage_dealt), 0) as total_damage_dealt,
+                COALESCE(SUM(total_damage_taken), 0) as total_damage_taken,
+                COALESCE(SUM(boss_kills), 0) as boss_kills,
+                COALESCE(SUM(elite_kills), 0) as elite_kills,
+                COALESCE(MAX(deepest_floor), 0) as deepest_floor,
+                COALESCE(SUM(total_floors), 0) as total_floors,
+                COALESCE(SUM(games_completed), 0) as games_completed,
+                COALESCE(SUM(total_playtime_ms), 0) as total_playtime_ms,
+                COALESCE(SUM(total_gold), 0) as total_gold,
+                COALESCE(SUM(legendary_items), 0) as legendary_items,
+                COALESCE(SUM(rare_items), 0) as rare_items,
+                COALESCE(SUM(total_items), 0) as total_items,
+                COALESCE(SUM(distance_traveled), 0) as distance_traveled,
+                COALESCE(SUM(abilities_used), 0) as abilities_used,
+                COALESCE(SUM(potions_consumed), 0) as potions_consumed,
+                COALESCE(SUM(mushrooms_killed), 0) as mushrooms_killed
+            FROM player_stats
+        `);
+
+        const stats = result.rows[0];
+        res.json({
+            totalDamageDealt: parseInt(stats.total_damage_dealt),
+            totalDamageTaken: parseInt(stats.total_damage_taken),
+            bossKills: parseInt(stats.boss_kills),
+            eliteKills: parseInt(stats.elite_kills),
+            deepestFloor: parseInt(stats.deepest_floor),
+            totalFloors: parseInt(stats.total_floors),
+            gamesCompleted: parseInt(stats.games_completed),
+            totalPlaytime: parseInt(stats.total_playtime_ms),
+            totalGold: parseInt(stats.total_gold),
+            legendaryItems: parseInt(stats.legendary_items),
+            rareItems: parseInt(stats.rare_items),
+            totalItems: parseInt(stats.total_items),
+            distanceTraveled: parseInt(stats.distance_traveled),
+            abilitiesUsed: parseInt(stats.abilities_used),
+            potionsConsumed: parseInt(stats.potions_consumed),
+            mushroomsKilled: parseInt(stats.mushrooms_killed)
+        });
+    } catch (error) {
+        console.error('Error fetching live stats:', error);
+        res.status(500).json({ error: 'Failed to fetch stats' });
+    }
+});
+
+// Leaderboard endpoints
+app.get('/leaderboard/kills', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+        const leaderboard = await db.getLeaderboard(limit);
+        res.json({ leaderboard });
+    } catch (error) {
+        console.error('Error fetching kills leaderboard:', error);
+        res.status(500).json({ error: 'Failed to fetch leaderboard' });
+    }
+});
+
+app.get('/leaderboard/damage', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+        const leaderboard = await db.getLeaderboardByDamage(limit);
+        res.json({ leaderboard });
+    } catch (error) {
+        console.error('Error fetching damage leaderboard:', error);
+        res.status(500).json({ error: 'Failed to fetch leaderboard' });
+    }
+});
+
+app.get('/leaderboard/floor', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+        const leaderboard = await db.getLeaderboardByFloor(limit);
+        res.json({ leaderboard });
+    } catch (error) {
+        console.error('Error fetching floor leaderboard:', error);
+        res.status(500).json({ error: 'Failed to fetch leaderboard' });
+    }
+});
+
 // Metrics endpoint
 app.get('/metrics', (req, res) => {
     res.json({
