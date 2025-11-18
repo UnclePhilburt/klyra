@@ -702,20 +702,24 @@ class GameScene extends Phaser.Scene {
                 }
 
                 console.log(`🍄 Created mushroom ${enemyData.id} at grid (${enemyData.position.x}, ${enemyData.position.y})`);
-            } else {
-                const enemy = new Enemy(this, enemyData);
-                this.enemies[enemyData.id] = enemy;
-
-                // Add castle collision to enemy
-                if (this.castleCollisionLayers) {
-                    this.castleCollisionLayers.forEach(layer => {
-                        this.physics.add.collider(enemy.sprite, layer);
-                    });
+            } else if (enemyData.type === 'emberclaw') {
+                // Skip dead emberclaws from initial game state
+                if (enemyData.isAlive === false) {
+                    console.log(`⚰️ Skipping dead emberclaw ${enemyData.id}`);
+                    return;
                 }
+
+                const emberclaw = new Emberclaw(this, enemyData);
+                this.emberclaws[enemyData.id] = emberclaw;
+
+                // Emberclaws fly - no collision needed
+                console.log(`🔥 Created emberclaw ${enemyData.id} at grid (${enemyData.position.x}, ${enemyData.position.y})`);
+            } else {
+                console.warn(`⚠️ Unknown enemy type "${enemyData.type}" for enemy ${enemyData.id} - skipping`);
             }
         });
 
-        console.log(`📊 Total enemies: ${Object.keys(this.enemies).length}, Total sword demons: ${Object.keys(this.swordDemons).length}, Total minotaurs: ${Object.keys(this.minotaurs).length}, Total mushrooms: ${Object.keys(this.mushrooms).length}`);
+        console.log(`📊 Total sword demons: ${Object.keys(this.swordDemons).length}, Total minotaurs: ${Object.keys(this.minotaurs).length}, Total mushrooms: ${Object.keys(this.mushrooms).length}, Total emberclaws: ${Object.keys(this.emberclaws).length}`);
 
         // Create items
         this.gameData.gameState.items.forEach(itemData => {
@@ -2418,15 +2422,7 @@ class GameScene extends Phaser.Scene {
                 // Emberclaws fly - no collision needed
                 console.log(`🔥 Spawned Emberclaw ${data.enemy.id} at (${data.enemy.position.x}, ${data.enemy.position.y})`);
             } else {
-                const enemy = new Enemy(this, data.enemy);
-                this.enemies[data.enemy.id] = enemy;
-
-                // Add castle collision to enemy
-                if (this.castleCollisionLayers) {
-                    this.castleCollisionLayers.forEach(layer => {
-                        this.physics.add.collider(enemy.sprite, layer);
-                    });
-                }
+                console.warn(`⚠️ Unknown enemy type "${data.enemy.type}" for enemy ${data.enemy.id} - skipping spawn`);
             }
         });
 
