@@ -36,7 +36,8 @@
       "Bash(git log:*)",
       "Bash(del C:klyraCONNECTION_TEST.txt C:klyraRESTART_TEST.txt)",
       "Bash(curl:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": [],
     "ask": []

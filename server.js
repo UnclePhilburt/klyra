@@ -1469,6 +1469,9 @@ class Lobby {
                 const preferredDistance = enemy.preferredDistance || 6;
                 const attackRange = enemy.attackRange || 8;
 
+                // DEBUG: Always log emberclaw behavior decisions
+                console.log(`🔥 Emberclaw ${enemy.id}: dist=${distance.toFixed(1)}, preferred=${preferredDistance}, attackRange=${attackRange}, lastAttack=${Date.now() - enemy.lastAttack}ms ago`);
+
                 // If too close, kite away
                 if (distance < preferredDistance) {
                     const moveDistance = enemy.speed / 100;
