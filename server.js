@@ -1338,108 +1338,165 @@ class Lobby {
                 });
             }
 
-            // Check all minions first (they have higher priority if they have aggro)
-            if (this.gameState.minions) {
-                const sightRangeSquared = enemy.sightRange * enemy.sightRange; // PERFORMANCE: Squared comparison
-                const TILE_SIZE = 32;
-
-                this.gameState.minions.forEach((minion, minionId) => {
-                    // Clean up stale minions (older than 5 seconds since last update)
-                    if (Date.now() - minion.lastUpdate > 5000) {
-                        this.gameState.minions.delete(minionId);
-                        return;
-                    }
-
-                    // Convert minion PIXEL position to GRID coordinates for comparison with enemy
-                    const minionGridX = minion.position.x / TILE_SIZE;
-                    const minionGridY = minion.position.y / TILE_SIZE;
-
-                    // PERFORMANCE: Use squared distance (avoid expensive sqrt)
-                    const dx = minionGridX - enemy.position.x;
-                    const dy = minionGridY - enemy.position.y;
-                    const distSquared = dx * dx + dy * dy;
-
-                    // Check if minion has aggro on this enemy
-                    const hasAggro = enemy.aggro && enemy.aggro.has(minionId);
-                    const inSightRange = distSquared <= sightRangeSquared;
-
-                    if (!hasAggro && !inSightRange) {
-                        return; // Minion is too far and hasn't attacked this enemy
-                    }
-
-                    // Base aggro (closer = higher aggro) - need actual distance here
-                    const dist = Math.sqrt(distSquared);
-                    let aggroValue = 100 / (dist + 1);
-
-                    // Add bonus aggro from damage taken
-                    if (hasAggro) {
-                        aggroValue += enemy.aggro.get(minionId);
-                    }
-
-                    // Minions get 1.5x aggro multiplier (tank role)
-                    aggroValue *= 1.5;
-
-                    // Target minion with highest aggro
-                    if (aggroValue > maxAggro) {
-                        maxAggro = aggroValue;
-                        // Store GRID position for enemy movement
-                        target = { position: { x: minionGridX, y: minionGridY }, id: minionId, isMinion: true };
-                    }
-                });
-            }
-
-            // Check all players
+            // RANGED ENEMY TARGETING: Prioritize players over minions
+            const isRangedEnemy = enemy.type === 'emberclaw';
             const sightRangeSquared = enemy.sightRange * enemy.sightRange; // PERFORMANCE: Squared comparison
             const TILE_SIZE = 32;
 
-            this.players.forEach(player => {
-                if (!player.isAlive) {
-                    // DEBUG: Log if we're skipping a dead player
-                    if (Math.random() < 0.01) {
-                        console.log(`⚠️ Enemy ${enemy.id} skipping dead player ${player.username}`);
+            // Check players first if ranged enemy, minions first if melee
+            const checkPlayersFirst = isRangedEnemy;
+
+            if (checkPlayersFirst) {
+                // RANGED: Check players first (high priority)
+                this.players.forEach(player => {
+                    if (!player.isAlive) {
+                        return;
                     }
-                    return;
-                }
 
-                // Convert player PIXEL position to GRID coordinates for comparison with enemy
-                const playerGridX = player.position.x / TILE_SIZE;
-                const playerGridY = player.position.y / TILE_SIZE;
+                    const playerGridX = player.position.x / TILE_SIZE;
+                    const playerGridY = player.position.y / TILE_SIZE;
 
-                // PERFORMANCE: Use squared distance (avoid expensive sqrt)
-                const dx = playerGridX - enemy.position.x;
-                const dy = playerGridY - enemy.position.y;
-                const distSquared = dx * dx + dy * dy;
+                    const dx = playerGridX - enemy.position.x;
+                    const dy = playerGridY - enemy.position.y;
+                    const distSquared = dx * dx + dy * dy;
 
-                // Check if player is within sight range OR has aggro (enemy remembers them)
-                const hasAggro = enemy.aggro && enemy.aggro.has(player.id);
-                const inSightRange = distSquared <= sightRangeSquared;
+                    const hasAggro = enemy.aggro && enemy.aggro.has(player.id);
+                    const inSightRange = distSquared <= sightRangeSquared;
 
-                // DEBUG: Log targeting checks occasionally
-                if (Math.random() < 0.01) {
+                    if (!hasAggro && !inSightRange) {
+                        return;
+                    }
+
                     const dist = Math.sqrt(distSquared);
-                    console.log(`🎯 Enemy ${enemy.id} checking ${player.username}: alive=${player.isAlive}, dist=${dist.toFixed(1)}, sightRange=${enemy.sightRange}, hasAggro=${!!hasAggro}, inSight=${inSightRange}`);
+                    let aggroValue = 100 / (dist + 1);
+
+                    if (hasAggro) {
+                        aggroValue += enemy.aggro.get(player.id);
+                    }
+
+                    // RANGED BONUS: Players get 2x aggro for ranged enemies
+                    aggroValue *= 2.0;
+
+                    if (aggroValue > maxAggro) {
+                        maxAggro = aggroValue;
+                        target = { position: { x: playerGridX, y: playerGridY }, id: player.id };
+                    }
+                });
+
+                // RANGED: Check minions as fallback (lower priority)
+                if (this.gameState.minions) {
+                    this.gameState.minions.forEach((minion, minionId) => {
+                        if (Date.now() - minion.lastUpdate > 5000) {
+                            this.gameState.minions.delete(minionId);
+                            return;
+                        }
+
+                        const minionGridX = minion.position.x / TILE_SIZE;
+                        const minionGridY = minion.position.y / TILE_SIZE;
+
+                        const dx = minionGridX - enemy.position.x;
+                        const dy = minionGridY - enemy.position.y;
+                        const distSquared = dx * dx + dy * dy;
+
+                        const hasAggro = enemy.aggro && enemy.aggro.has(minionId);
+                        const inSightRange = distSquared <= sightRangeSquared;
+
+                        if (!hasAggro && !inSightRange) {
+                            return;
+                        }
+
+                        const dist = Math.sqrt(distSquared);
+                        let aggroValue = 100 / (dist + 1);
+
+                        if (hasAggro) {
+                            aggroValue += enemy.aggro.get(minionId);
+                        }
+
+                        // No multiplier for minions vs ranged (base priority)
+                        aggroValue *= 1.0;
+
+                        if (aggroValue > maxAggro) {
+                            maxAggro = aggroValue;
+                            target = { position: { x: minionGridX, y: minionGridY }, id: minionId, isMinion: true };
+                        }
+                    });
+                }
+            } else {
+                // MELEE: Check minions first (tank role - higher priority)
+                if (this.gameState.minions) {
+                    this.gameState.minions.forEach((minion, minionId) => {
+                        if (Date.now() - minion.lastUpdate > 5000) {
+                            this.gameState.minions.delete(minionId);
+                            return;
+                        }
+
+                        const minionGridX = minion.position.x / TILE_SIZE;
+                        const minionGridY = minion.position.y / TILE_SIZE;
+
+                        const dx = minionGridX - enemy.position.x;
+                        const dy = minionGridY - enemy.position.y;
+                        const distSquared = dx * dx + dy * dy;
+
+                        const hasAggro = enemy.aggro && enemy.aggro.has(minionId);
+                        const inSightRange = distSquared <= sightRangeSquared;
+
+                        if (!hasAggro && !inSightRange) {
+                            return;
+                        }
+
+                        const dist = Math.sqrt(distSquared);
+                        let aggroValue = 100 / (dist + 1);
+
+                        if (hasAggro) {
+                            aggroValue += enemy.aggro.get(minionId);
+                        }
+
+                        // Minions get 1.5x aggro multiplier (tank role)
+                        aggroValue *= 1.5;
+
+                        if (aggroValue > maxAggro) {
+                            maxAggro = aggroValue;
+                            target = { position: { x: minionGridX, y: minionGridY }, id: minionId, isMinion: true };
+                        }
+                    });
                 }
 
-                if (!hasAggro && !inSightRange) {
-                    return; // Player is too far and hasn't attacked this enemy
-                }
+                // MELEE: Check players (lower priority - can be body-blocked)
+                this.players.forEach(player => {
+                    if (!player.isAlive) {
+                        return;
+                    }
 
-                // Base aggro (closer = higher aggro) - need actual distance here
-                const dist = Math.sqrt(distSquared);
-                let aggroValue = 100 / (dist + 1);
+                    const playerGridX = player.position.x / TILE_SIZE;
+                    const playerGridY = player.position.y / TILE_SIZE;
 
-                // Add bonus aggro from damage taken (enemy remembers who hurt them)
-                if (hasAggro) {
-                    aggroValue += enemy.aggro.get(player.id);
-                }
+                    const dx = playerGridX - enemy.position.x;
+                    const dy = playerGridY - enemy.position.y;
+                    const distSquared = dx * dx + dy * dy;
 
-                // Target player with highest aggro
-                if (aggroValue > maxAggro) {
-                    maxAggro = aggroValue;
-                    // Store GRID position for enemy movement
-                    target = { position: { x: playerGridX, y: playerGridY }, id: player.id };
-                }
-            });
+                    const hasAggro = enemy.aggro && enemy.aggro.has(player.id);
+                    const inSightRange = distSquared <= sightRangeSquared;
+
+                    if (!hasAggro && !inSightRange) {
+                        return;
+                    }
+
+                    const dist = Math.sqrt(distSquared);
+                    let aggroValue = 100 / (dist + 1);
+
+                    if (hasAggro) {
+                        aggroValue += enemy.aggro.get(player.id);
+                    }
+
+                    // No multiplier for players vs melee (base priority)
+                    aggroValue *= 1.0;
+
+                    if (aggroValue > maxAggro) {
+                        maxAggro = aggroValue;
+                        target = { position: { x: playerGridX, y: playerGridY }, id: player.id };
+                    }
+                });
+            }
 
             // Skip if no target found
             if (!target) return;
