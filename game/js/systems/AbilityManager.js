@@ -622,7 +622,18 @@ class AbilityManager {
                     const y = this.player.sprite.y + Math.sin(angle) * distance;
 
                     const minion = this.scene.spawnMinion(x, y, this.player.data.id, false);
-                    // TODO: Apply elite stats if tempElite is true
+
+                    // Apply elite stats if tempElite is true
+                    if (effect.tempElite && effect.eliteStats && minion) {
+                        if (effect.eliteStats.health !== undefined) {
+                            minion.maxHealth = effect.eliteStats.health;
+                            minion.health = effect.eliteStats.health;
+                        }
+                        if (effect.eliteStats.damage !== undefined) {
+                            minion.damage = effect.eliteStats.damage;
+                        }
+                        console.log(`  ⭐ Applied elite stats to temp minion: ${effect.eliteStats.health}HP, ${effect.eliteStats.damage}DMG`);
+                    }
 
                     // Auto-remove after duration
                     if (effect.tempDuration) {
