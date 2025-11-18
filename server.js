@@ -2641,6 +2641,38 @@ app.get('/auth/profile/:userId', async (req, res) => {
     }
 });
 
+// Get user stats
+app.get('/user-stats/:userId', async (req, res) => {
+    try {
+        const userId = parseInt(req.params.userId);
+
+        if (!process.env.DATABASE_URL) {
+            return res.json({ totalKills: 0, totalDeaths: 0, gamesPlayed: 0, totalDamage: 0 });
+        }
+
+        const result = await db.pool.query(`
+            SELECT
+                COALESCE(SUM(total_kills), 0) as total_kills,
+                COALESCE(SUM(total_deaths), 0) as total_deaths,
+                COALESCE(SUM(games_played), 0) as games_played,
+                COALESCE(SUM(total_damage_dealt), 0) as total_damage_dealt
+            FROM player_stats
+            WHERE user_id = $1
+        `, [userId]);
+
+        const stats = result.rows[0];
+        res.json({
+            totalKills: parseInt(stats.total_kills),
+            totalDeaths: parseInt(stats.total_deaths),
+            gamesPlayed: parseInt(stats.games_played),
+            totalDamage: parseInt(stats.total_damage_dealt)
+        });
+    } catch (error) {
+        console.error('Error fetching user stats:', error);
+        res.status(500).json({ error: 'Failed to fetch user stats' });
+    }
+});
+
 // Verify email
 app.get('/auth/verify-email', async (req, res) => {
     try {
