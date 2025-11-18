@@ -2760,9 +2760,13 @@ class GameScene extends Phaser.Scene {
 
         // Enemy attack (Emberclaw shooting)
         networkManager.on('enemy:attack', (data) => {
+            console.log(`🎯 Received enemy:attack - enemyId: ${data.enemyId}`);
             const emberclaw = this.emberclaws[data.enemyId];
             if (emberclaw && emberclaw.shootProjectile) {
+                console.log(`🔥 Emberclaw found, shooting at (${data.targetX}, ${data.targetY})`);
                 emberclaw.shootProjectile(data.targetX, data.targetY);
+            } else {
+                console.warn(`⚠️ Emberclaw ${data.enemyId} not found or no shootProjectile method`);
             }
         });
 
