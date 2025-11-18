@@ -3351,6 +3351,27 @@ setInterval(async () => {
                     potionsConsumed: player.potionsConsumed || 0,
                     mushroomsKilled: player.mushroomsKilled || 0
                 }, player.userId);
+
+                // Reset session stats after saving to prevent double-counting
+                player.kills = 0;
+                player.deaths = 0;
+                player.damageDealt = 0;
+                player.damageTaken = 0;
+                player.bossKills = 0;
+                player.eliteKills = 0;
+                player.totalFloors = 0;
+                player.gamesCompleted = 0;
+                player.totalGold = 0;
+                player.legendaryItems = 0;
+                player.rareItems = 0;
+                player.totalItems = 0;
+                player.distanceTraveled = 0;
+                player.abilitiesUsed = 0;
+                player.potionsConsumed = 0;
+                player.mushroomsKilled = 0;
+                // Reset session start time for next interval
+                player.sessionStartTime = Date.now();
+
                 savedCount++;
             } catch (err) {
                 console.error(`Failed to save stats for ${player.username}:`, err.message);
