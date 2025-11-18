@@ -405,7 +405,7 @@ class Minion {
         if (this.aggroedEnemies.size >= this.maxAggro) {
             // Already tanking max enemies, only target ones we're already fighting
             const alreadyTargeted = Array.from(this.aggroedEnemies)
-                .map(id => this.scene.enemies[id] || this.scene.swordDemons[id] || this.scene.minotaurs[id] || this.scene.mushrooms[id])
+                .map(id => this.scene.enemies[id] || this.scene.swordDemons[id] || this.scene.minotaurs[id] || this.scene.mushrooms[id] || this.scene.emberclaws[id])
                 .filter(e => e && e.isAlive);
 
             if (alreadyTargeted.length > 0) {
@@ -420,7 +420,8 @@ class Minion {
             ...Object.values(this.scene.enemies || {}),
             ...Object.values(this.scene.swordDemons || {}),
             ...Object.values(this.scene.minotaurs || {}),
-            ...Object.values(this.scene.mushrooms || {})
+            ...Object.values(this.scene.mushrooms || {}),
+            ...Object.values(this.scene.emberclaws || {})
         ];
 
         if (allEnemies.length === 0) {
@@ -458,7 +459,8 @@ class Minion {
             ...Object.values(this.scene.enemies || {}),
             ...Object.values(this.scene.swordDemons || {}),
             ...Object.values(this.scene.minotaurs || {}),
-            ...Object.values(this.scene.mushrooms || {})
+            ...Object.values(this.scene.mushrooms || {}),
+            ...Object.values(this.scene.emberclaws || {})
         ];
 
         const threats = [];
@@ -490,7 +492,7 @@ class Minion {
         // Check if at aggro limit
         if (this.aggroedEnemies.size >= this.maxAggro) {
             const currentTargets = Array.from(this.aggroedEnemies)
-                .map(id => this.scene.enemies[id] || this.scene.swordDemons[id] || this.scene.minotaurs[id] || this.scene.mushrooms[id])
+                .map(id => this.scene.enemies[id] || this.scene.swordDemons[id] || this.scene.minotaurs[id] || this.scene.mushrooms[id] || this.scene.emberclaws[id])
                 .filter(e => e && e.isAlive);
 
             if (currentTargets.length > 0) {
@@ -928,7 +930,8 @@ class Minion {
             ...Object.values(this.scene.enemies || {}),
             ...Object.values(this.scene.swordDemons || {}),
             ...Object.values(this.scene.minotaurs || {}),
-            ...Object.values(this.scene.mushrooms || {})
+            ...Object.values(this.scene.mushrooms || {}),
+            ...Object.values(this.scene.emberclaws || {})
         ];
 
         if (allEnemies.length === 0) return null;
