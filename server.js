@@ -30,6 +30,26 @@ app.use(express.static('game'));
 
 const PORT = process.env.PORT || 3001;
 
+// Family-safe random name generator for guests
+const ADJECTIVES = [
+    'Happy', 'Swift', 'Brave', 'Clever', 'Mighty', 'Silent', 'Noble', 'Wise',
+    'Bold', 'Quick', 'Strong', 'Calm', 'Bright', 'Lucky', 'Fierce', 'Gentle',
+    'Mystic', 'Golden', 'Silver', 'Crystal', 'Thunder', 'Shadow', 'Frost', 'Flame'
+];
+
+const NOUNS = [
+    'Knight', 'Warrior', 'Mage', 'Ranger', 'Hunter', 'Guardian', 'Champion', 'Hero',
+    'Dragon', 'Phoenix', 'Tiger', 'Wolf', 'Bear', 'Eagle', 'Lion', 'Hawk',
+    'Storm', 'Blade', 'Arrow', 'Shield', 'Axe', 'Star', 'Moon', 'Sun'
+];
+
+function generateGuestName() {
+    const adjective = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+    const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+    const number = Math.floor(Math.random() * 100);
+    return `${adjective}${noun}${number}`;
+}
+
 // Game constants
 const MAX_PLAYERS_PER_LOBBY = 10;
 const LOBBY_START_DELAY = 5000; // 5 seconds before game starts
@@ -78,6 +98,7 @@ class Player {
         this.isReconnecting = false;
         this.disconnectedAt = null;
         this.currentMap = 'exterior'; // Track which map instance player is in
+        this.userId = null; // Link to user account (null for guests)
 
         // New stat tracking
         this.bossKills = 0;
@@ -166,10 +187,10 @@ class Player {
 
     sanitizeUsername(username) {
         if (!username || typeof username !== 'string') {
-            return `Player_${Math.floor(Math.random() * 9999)}`;
+            return generateGuestName();
         }
         // Remove special chars, limit length
-        return username.slice(0, 20).replace(/[^a-zA-Z0-9_-]/g, '') || `Player_${Math.floor(Math.random() * 9999)}`;
+        return username.slice(0, 20).replace(/[^a-zA-Z0-9_-]/g, '') || generateGuestName();
     }
 
     getClassStats(characterClass) {
@@ -1560,12 +1581,28 @@ io.on('connection', (socket) => {
     }
 
     // Handle player joining
-    socket.on('player:join', (data) => {
+    socket.on('player:join', async (data) => {
         try {
-            const { username, characterClass, difficulty } = data || {};
+            const { username, characterClass, difficulty, token } = data || {};
+
+            let finalUsername = username;
+            let userId = null;
+
+            // Check if player is logged in with token
+            if (token) {
+                const tokenResult = auth.verifyToken(token);
+                if (tokenResult.success) {
+                    finalUsername = tokenResult.username;
+                    userId = tokenResult.userId;
+                    console.log(`🔐 ${finalUsername} joined with account (ID: ${userId})`);
+                }
+            }
+
+            // Sanitize username (generates guest name if needed)
+            finalUsername = new Player(socket.id, '').sanitizeUsername(finalUsername);
 
             // Check if player is reconnecting
-            const disconnectedPlayer = disconnectedPlayers.get(username);
+            const disconnectedPlayer = disconnectedPlayers.get(finalUsername);
             let player;
 
             if (disconnectedPlayer && Date.now() - disconnectedPlayer.disconnectedAt < RECONNECT_TIMEOUT) {
@@ -1576,11 +1613,13 @@ io.on('connection', (socket) => {
                 player.disconnectedAt = null;
                 player.isAlive = true; // Reset to alive on reconnect
                 player.health = player.maxHealth; // Restore full health
-                disconnectedPlayers.delete(username);
-                console.log(`🔄 ${username} reconnected (restored to full health)`);
+                player.userId = userId; // Update user ID in case token changed
+                disconnectedPlayers.delete(finalUsername);
+                console.log(`🔄 ${finalUsername} reconnected (restored to full health)`);
             } else {
                 // New player
-                player = new Player(socket.id, username);
+                player = new Player(socket.id, finalUsername);
+                player.userId = userId; // Link to user account if logged in
                 if (characterClass && typeof characterClass === 'string') {
                     player.class = characterClass;
                     player.stats = player.getClassStats(characterClass);
@@ -2517,7 +2556,7 @@ io.on('connection', (socket) => {
                 abilitiesUsed: player.abilitiesUsed || 0,
                 potionsConsumed: player.potionsConsumed || 0,
                 mushroomsKilled: player.mushroomsKilled || 0
-            }).catch(err => console.error('Failed to save player stats:', err));
+            }, player.userId).catch(err => console.error('Failed to save player stats:', err));
         }
 
         if (player && player.lobbyId) {
@@ -2647,7 +2686,14 @@ app.get('/user-stats/:userId', async (req, res) => {
         const userId = parseInt(req.params.userId);
 
         if (!process.env.DATABASE_URL) {
-            return res.json({ totalKills: 0, totalDeaths: 0, gamesPlayed: 0, totalDamage: 0 });
+            return res.json({
+                totalKills: 0, totalDeaths: 0, gamesPlayed: 0, totalDamage: 0,
+                bossKills: 0, eliteKills: 0, mushroomsKilled: 0,
+                deepestFloor: 0, totalFloors: 0, gamesCompleted: 0,
+                totalGold: 0, legendaryItems: 0, rareItems: 0, totalItems: 0,
+                damageTaken: 0, playtime: 0, distanceTraveled: 0,
+                abilitiesUsed: 0, potionsConsumed: 0
+            });
         }
 
         const result = await db.pool.query(`
@@ -2655,7 +2701,22 @@ app.get('/user-stats/:userId', async (req, res) => {
                 COALESCE(SUM(total_kills), 0) as total_kills,
                 COALESCE(SUM(total_deaths), 0) as total_deaths,
                 COALESCE(SUM(games_played), 0) as games_played,
-                COALESCE(SUM(total_damage_dealt), 0) as total_damage_dealt
+                COALESCE(SUM(total_damage_dealt), 0) as total_damage_dealt,
+                COALESCE(SUM(total_damage_taken), 0) as total_damage_taken,
+                COALESCE(SUM(boss_kills), 0) as boss_kills,
+                COALESCE(SUM(elite_kills), 0) as elite_kills,
+                COALESCE(SUM(mushrooms_killed), 0) as mushrooms_killed,
+                COALESCE(MAX(deepest_floor), 0) as deepest_floor,
+                COALESCE(SUM(total_floors), 0) as total_floors,
+                COALESCE(SUM(games_completed), 0) as games_completed,
+                COALESCE(SUM(total_gold), 0) as total_gold,
+                COALESCE(SUM(legendary_items), 0) as legendary_items,
+                COALESCE(SUM(rare_items), 0) as rare_items,
+                COALESCE(SUM(total_items), 0) as total_items,
+                COALESCE(SUM(total_playtime_ms), 0) as total_playtime_ms,
+                COALESCE(SUM(distance_traveled), 0) as distance_traveled,
+                COALESCE(SUM(abilities_used), 0) as abilities_used,
+                COALESCE(SUM(potions_consumed), 0) as potions_consumed
             FROM player_stats
             WHERE user_id = $1
         `, [userId]);
@@ -2665,11 +2726,94 @@ app.get('/user-stats/:userId', async (req, res) => {
             totalKills: parseInt(stats.total_kills),
             totalDeaths: parseInt(stats.total_deaths),
             gamesPlayed: parseInt(stats.games_played),
-            totalDamage: parseInt(stats.total_damage_dealt)
+            totalDamage: parseInt(stats.total_damage_dealt),
+            damageTaken: parseInt(stats.total_damage_taken),
+            bossKills: parseInt(stats.boss_kills),
+            eliteKills: parseInt(stats.elite_kills),
+            mushroomsKilled: parseInt(stats.mushrooms_killed),
+            deepestFloor: parseInt(stats.deepest_floor),
+            totalFloors: parseInt(stats.total_floors),
+            gamesCompleted: parseInt(stats.games_completed),
+            totalGold: parseInt(stats.total_gold),
+            legendaryItems: parseInt(stats.legendary_items),
+            rareItems: parseInt(stats.rare_items),
+            totalItems: parseInt(stats.total_items),
+            playtime: parseInt(stats.total_playtime_ms),
+            distanceTraveled: parseInt(stats.distance_traveled),
+            abilitiesUsed: parseInt(stats.abilities_used),
+            potionsConsumed: parseInt(stats.potions_consumed)
         });
     } catch (error) {
         console.error('Error fetching user stats:', error);
         res.status(500).json({ error: 'Failed to fetch user stats' });
+    }
+});
+
+// Get user leaderboard ranking
+app.get('/user-rank/:userId', async (req, res) => {
+    try {
+        const userId = parseInt(req.params.userId);
+
+        if (!process.env.DATABASE_URL) {
+            return res.json({ killsRank: null, damageRank: null, floorRank: null });
+        }
+
+        // Get kills rank
+        const killsResult = await db.pool.query(`
+            SELECT COUNT(*) + 1 as rank
+            FROM (
+                SELECT user_id, SUM(total_kills) as total
+                FROM player_stats
+                WHERE user_id IS NOT NULL
+                GROUP BY user_id
+            ) as rankings
+            WHERE total > (
+                SELECT COALESCE(SUM(total_kills), 0)
+                FROM player_stats
+                WHERE user_id = $1
+            )
+        `, [userId]);
+
+        // Get damage rank
+        const damageResult = await db.pool.query(`
+            SELECT COUNT(*) + 1 as rank
+            FROM (
+                SELECT user_id, SUM(total_damage_dealt) as total
+                FROM player_stats
+                WHERE user_id IS NOT NULL
+                GROUP BY user_id
+            ) as rankings
+            WHERE total > (
+                SELECT COALESCE(SUM(total_damage_dealt), 0)
+                FROM player_stats
+                WHERE user_id = $1
+            )
+        `, [userId]);
+
+        // Get floor rank
+        const floorResult = await db.pool.query(`
+            SELECT COUNT(*) + 1 as rank
+            FROM (
+                SELECT user_id, MAX(deepest_floor) as total
+                FROM player_stats
+                WHERE user_id IS NOT NULL
+                GROUP BY user_id
+            ) as rankings
+            WHERE total > (
+                SELECT COALESCE(MAX(deepest_floor), 0)
+                FROM player_stats
+                WHERE user_id = $1
+            )
+        `, [userId]);
+
+        res.json({
+            killsRank: parseInt(killsResult.rows[0].rank),
+            damageRank: parseInt(damageResult.rows[0].rank),
+            floorRank: parseInt(floorResult.rows[0].rank)
+        });
+    } catch (error) {
+        console.error('Error fetching user rank:', error);
+        res.status(500).json({ error: 'Failed to fetch user rank' });
     }
 });
 
@@ -3017,7 +3161,7 @@ setInterval(async () => {
                     abilitiesUsed: player.abilitiesUsed || 0,
                     potionsConsumed: player.potionsConsumed || 0,
                     mushroomsKilled: player.mushroomsKilled || 0
-                });
+                }, player.userId);
                 savedCount++;
             } catch (err) {
                 console.error(`Failed to save stats for ${player.username}:`, err.message);

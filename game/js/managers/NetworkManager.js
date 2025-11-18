@@ -228,10 +228,14 @@ class NetworkManager {
 
     // Send player join
     joinGame(username, characterClass = 'warrior', difficulty = 'normal') {
+        // Get JWT token from localStorage if user is logged in
+        const token = localStorage.getItem('klyra_token');
+
         this.socket.emit('player:join', {
             username,
             characterClass,
-            difficulty
+            difficulty,
+            token: token || null
         });
     }
 

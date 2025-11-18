@@ -31,7 +31,11 @@
       "Bash(cmd.exe /c \"start /B node server.js > server.log 2>&1\")",
       "Bash(powershell.exe -Command \"Start-Process -NoNewWindow -FilePath ''node'' -ArgumentList ''server.js'' -RedirectStandardOutput ''server-out.log'' -RedirectStandardError ''server-err.log''\")",
       "Bash(npm install:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(.env)",
+      "Bash(git log:*)",
+      "Bash(del C:klyraCONNECTION_TEST.txt C:klyraRESTART_TEST.txt)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

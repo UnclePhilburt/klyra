@@ -99,20 +99,21 @@ async function getPlayerStats(playerId) {
 }
 
 // Update player stats
-async function updatePlayerStats(playerId, username, stats) {
+async function updatePlayerStats(playerId, username, stats, userId = null) {
     try {
         const result = await pool.query(`
             INSERT INTO player_stats (
-                player_id, username, total_kills, total_deaths,
+                player_id, username, user_id, total_kills, total_deaths,
                 total_damage_dealt, total_damage_taken, total_playtime_ms, games_played,
                 boss_kills, elite_kills, deepest_floor, total_floors, games_completed,
                 total_gold, legendary_items, rare_items, total_items,
                 distance_traveled, abilities_used, potions_consumed, mushrooms_killed
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
             ON CONFLICT (player_id)
             DO UPDATE SET
                 username = EXCLUDED.username,
+                user_id = COALESCE(EXCLUDED.user_id, player_stats.user_id),
                 total_kills = player_stats.total_kills + EXCLUDED.total_kills,
                 total_deaths = player_stats.total_deaths + EXCLUDED.total_deaths,
                 total_damage_dealt = player_stats.total_damage_dealt + EXCLUDED.total_damage_dealt,
@@ -137,6 +138,7 @@ async function updatePlayerStats(playerId, username, stats) {
         `, [
             playerId,
             username,
+            userId,
             stats.kills || 0,
             stats.deaths || 0,
             stats.damageDealt || 0,
