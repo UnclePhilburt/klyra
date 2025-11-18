@@ -2616,7 +2616,7 @@ class GameScene extends Phaser.Scene {
 
         // Enemy moved
         networkManager.on('enemy:moved', (data) => {
-            const enemy = this.enemies[data.enemyId] || this.swordDemons[data.enemyId] || this.minotaurs[data.enemyId] || this.mushrooms[data.enemyId];
+            const enemy = this.enemies[data.enemyId] || this.swordDemons[data.enemyId] || this.minotaurs[data.enemyId] || this.mushrooms[data.enemyId] || this.emberclaws[data.enemyId];
 
             // Silently ignore movement for non-existent enemies (likely killed but server still sending updates)
             if (!enemy) {
@@ -2624,13 +2624,20 @@ class GameScene extends Phaser.Scene {
             }
 
             if (enemy.sprite) {
-                const tileSize = GameConfig.GAME.TILE_SIZE;
-                const targetX = data.position.x * tileSize + tileSize / 2;
-                const targetY = data.position.y * tileSize + tileSize / 2;
-
                 // Update position with interpolation
                 enemy.data.position = data.position;
-                enemy.setTargetPosition(targetX, targetY);
+
+                // Emberclaw uses moveToPosition with tile coordinates
+                if (enemy.moveToPosition) {
+                    enemy.moveToPosition(data.position);
+                }
+                // Other enemies use setTargetPosition with pixel coordinates
+                else if (enemy.setTargetPosition) {
+                    const tileSize = GameConfig.GAME.TILE_SIZE;
+                    const targetX = data.position.x * tileSize + tileSize / 2;
+                    const targetY = data.position.y * tileSize + tileSize / 2;
+                    enemy.setTargetPosition(targetX, targetY);
+                }
             }
         });
 
