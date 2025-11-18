@@ -6,6 +6,7 @@ const socketIO = require('socket.io');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 const db = require('./database');
+const auth = require('./auth');
 
 const app = express();
 const server = http.createServer(app);
@@ -2562,6 +2563,196 @@ io.on('connection', (socket) => {
     });
 });
 
+// ================== AUTHENTICATION ENDPOINTS ==================
+
+// Register new user
+app.post('/auth/register', async (req, res) => {
+    try {
+        const { username, email, password } = req.body;
+        const result = await auth.registerUser(username, email, password);
+
+        if (result.success) {
+            res.json({
+                success: true,
+                user: result.user,
+                message: 'Account created successfully! Check your email to verify your account.'
+            });
+        } else {
+            res.status(400).json({ success: false, error: result.error });
+        }
+    } catch (error) {
+        console.error('Error in /auth/register:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+// Login user
+app.post('/auth/login', async (req, res) => {
+    try {
+        const { usernameOrEmail, password } = req.body;
+        const result = await auth.loginUser(usernameOrEmail, password);
+
+        if (result.success) {
+            res.json({
+                success: true,
+                token: result.token,
+                user: result.user
+            });
+        } else {
+            res.status(401).json({ success: false, error: result.error });
+        }
+    } catch (error) {
+        console.error('Error in /auth/login:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+// Verify token (check if user is logged in)
+app.post('/auth/verify', (req, res) => {
+    try {
+        const { token } = req.body;
+        const result = auth.verifyToken(token);
+
+        if (result.success) {
+            res.json({ success: true, userId: result.userId, username: result.username });
+        } else {
+            res.status(401).json({ success: false, error: result.error });
+        }
+    } catch (error) {
+        console.error('Error in /auth/verify:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+// Get user profile
+app.get('/auth/profile/:userId', async (req, res) => {
+    try {
+        const userId = parseInt(req.params.userId);
+        const user = await auth.getUserById(userId);
+
+        if (user) {
+            res.json({ success: true, user });
+        } else {
+            res.status(404).json({ success: false, error: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error in /auth/profile:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+// Verify email
+app.get('/auth/verify-email', async (req, res) => {
+    try {
+        const { token } = req.query;
+        const result = await auth.verifyEmail(token);
+
+        if (result.success) {
+            res.send(`
+                <html>
+                <head><title>Email Verified</title></head>
+                <body style="font-family: Arial; text-align: center; padding: 50px;">
+                    <h1>✅ Email Verified!</h1>
+                    <p>Your email has been verified successfully. You can now close this window and login.</p>
+                    <a href="/">Return to KLYRA</a>
+                </body>
+                </html>
+            `);
+        } else {
+            res.status(400).send(`
+                <html>
+                <head><title>Verification Failed</title></head>
+                <body style="font-family: Arial; text-align: center; padding: 50px;">
+                    <h1>❌ Verification Failed</h1>
+                    <p>${result.error}</p>
+                    <a href="/">Return to KLYRA</a>
+                </body>
+                </html>
+            `);
+        }
+    } catch (error) {
+        console.error('Error in /auth/verify-email:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+// Request password reset
+app.post('/auth/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const result = await auth.requestPasswordReset(email);
+        res.json({ success: true, message: 'If that email exists, a password reset link has been sent.' });
+    } catch (error) {
+        console.error('Error in /auth/forgot-password:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+// Reset password
+app.post('/auth/reset-password', async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+        const result = await auth.resetPassword(token, newPassword);
+
+        if (result.success) {
+            res.json({ success: true, message: 'Password reset successfully!' });
+        } else {
+            res.status(400).json({ success: false, error: result.error });
+        }
+    } catch (error) {
+        console.error('Error in /auth/reset-password:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+// Update user profile
+app.put('/auth/profile', async (req, res) => {
+    try {
+        const { token, ...updates } = req.body;
+        const tokenResult = auth.verifyToken(token);
+
+        if (!tokenResult.success) {
+            return res.status(401).json({ success: false, error: 'Unauthorized' });
+        }
+
+        const result = await auth.updateUserProfile(tokenResult.userId, updates);
+
+        if (result.success) {
+            res.json({ success: true, user: result.user });
+        } else {
+            res.status(400).json({ success: false, error: result.error });
+        }
+    } catch (error) {
+        console.error('Error in /auth/profile:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+// Change password
+app.post('/auth/change-password', async (req, res) => {
+    try {
+        const { token, currentPassword, newPassword } = req.body;
+        const tokenResult = auth.verifyToken(token);
+
+        if (!tokenResult.success) {
+            return res.status(401).json({ success: false, error: 'Unauthorized' });
+        }
+
+        const result = await auth.changePassword(tokenResult.userId, currentPassword, newPassword);
+
+        if (result.success) {
+            res.json({ success: true, message: 'Password changed successfully!' });
+        } else {
+            res.status(400).json({ success: false, error: result.error });
+        }
+    } catch (error) {
+        console.error('Error in /auth/change-password:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+// ================== GAME ENDPOINTS ==================
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({
@@ -2826,6 +3017,7 @@ server.listen(PORT, async () => {
     // Initialize database
     if (process.env.DATABASE_URL) {
         await db.initDatabase();
+        await auth.initUsersTable();
     } else {
         console.warn('⚠️  DATABASE_URL not set - stats will not persist');
     }
