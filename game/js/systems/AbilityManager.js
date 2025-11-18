@@ -149,6 +149,26 @@ class AbilityManager {
             sparkles.push(sparkle);
         }
 
+        // Add invisible interactive area for touch/click (on top of everything)
+        const touchArea = this.scene.add.rectangle(0, 0, boxWidth, boxHeight, 0xffffff, 0.001);
+        touchArea.setInteractive({ useHandCursor: true });
+        touchArea.setScrollFactor(0);
+        container.add(touchArea);
+
+        // Touch/click handler to use ability
+        touchArea.on('pointerdown', () => {
+            this.useAbility(key);
+        });
+
+        // Visual feedback on hover (desktop)
+        touchArea.on('pointerover', () => {
+            container.setScale(1.05);
+        });
+
+        touchArea.on('pointerout', () => {
+            container.setScale(1);
+        });
+
         return {
             container,
             bg,
@@ -164,6 +184,7 @@ class AbilityManager {
             cooldownText,
             particles,
             sparkles,
+            touchArea,
             boxWidth,
             boxHeight,
             circleRadius,

@@ -147,9 +147,19 @@ class MobileControls {
                 return; // Don't activate joystick on UI elements
             }
 
-            // Only activate on game canvas or in bottom half of screen
+            // Exclude top UI area (music controller - top 100px)
+            // Exclude bottom UI area (ability buttons - bottom 150px)
             const touch = e.changedTouches[0];
-            const isGameArea = target.tagName === 'CANVAS' || touch.clientY > window.innerHeight * 0.3;
+            const isTopUIArea = touch.clientY < 100;
+            const isBottomUIArea = touch.clientY > window.innerHeight - 150;
+
+            if (isTopUIArea || isBottomUIArea) {
+                return; // Don't activate joystick in UI zones
+            }
+
+            // Only activate on game canvas or in middle area of screen
+            const isGameArea = target.tagName === 'CANVAS' ||
+                              (touch.clientY > 100 && touch.clientY < window.innerHeight - 150);
 
             if (!isGameArea) {
                 return;

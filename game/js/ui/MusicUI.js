@@ -86,6 +86,16 @@ class MusicUI {
             this.onHoverEnd();
         });
 
+        // Mobile touch support - tap to toggle
+        this.hitArea.on('pointerdown', () => {
+            if (!this.isExpanded) {
+                this.onHoverStart();
+            } else if (!this.volumeSliderVisible) {
+                // If expanded but volume slider not visible, collapse
+                this.collapse();
+            }
+        });
+
         // Update initial track
         const currentTrack = this.musicManager.getCurrentTrack();
         if (currentTrack) {
