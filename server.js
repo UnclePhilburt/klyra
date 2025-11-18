@@ -1513,12 +1513,15 @@ class Lobby {
 
                         // Broadcast to clients to trigger shooting animation
                         // Clients will handle projectile collision and send player:hit when it connects
-                        this.broadcast('enemy:attack', {
+                        const attackData = {
                             enemyId: enemy.id,
                             targetX: targetPixelX,
                             targetY: targetPixelY,
                             targetId: target.id
-                        });
+                        };
+                        console.log(`📡 Broadcasting enemy:attack:`, attackData);
+                        this.broadcast('enemy:attack', attackData);
+                        console.log(`✅ Broadcast sent to ${this.players.length} players`);
 
                         // Note: Damage will be applied when the projectile actually hits via player:hit event
                         // This prevents instant damage before the projectile visual reaches the target
