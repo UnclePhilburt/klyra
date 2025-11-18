@@ -6,7 +6,7 @@ class FootstepManager {
         this.scene = scene;
         this.footstepSounds = [];
         this.lastPlayedIndex = -1;
-        this.volume = 0.04; // Quiet footsteps
+        this.volume = 0.15; // Louder footsteps
 
         // Load all 4 footstep sounds
         for (let i = 1; i <= 4; i++) {
