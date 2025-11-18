@@ -1156,7 +1156,7 @@
         // Fetch Global Stats from Database
         async function fetchGlobalStats() {
             try {
-                const response = await fetch('/global-stats');
+                const response = await fetch('https://klyra-server.onrender.com/global-stats');
                 const data = await response.json();
 
                 // Update stat elements
