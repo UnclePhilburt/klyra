@@ -78,6 +78,22 @@ class Player {
         this.disconnectedAt = null;
         this.currentMap = 'exterior'; // Track which map instance player is in
 
+        // New stat tracking
+        this.bossKills = 0;
+        this.eliteKills = 0;
+        this.deepestFloor = 0;
+        this.totalFloors = 0;
+        this.gamesCompleted = 0;
+        this.totalGold = 0;
+        this.legendaryItems = 0;
+        this.rareItems = 0;
+        this.totalItems = 0;
+        this.distanceTraveled = 0;
+        this.lastPosition = { x: 0, y: 0 };
+        this.abilitiesUsed = 0;
+        this.potionsConsumed = 0;
+        this.mushroomsKilled = 0;
+
         // Skill system
         this.selectedSkills = []; // Array of skill IDs/objects
         this.permanentMinions = []; // Track permanent minion IDs for restoration
@@ -1743,6 +1759,15 @@ io.on('connection', (socket) => {
                 player.justRespawned = false; // Only log first move
             }
 
+            // Track distance traveled
+            if (player.lastPosition.x !== 0 || player.lastPosition.y !== 0) {
+                const dx = data.position.x - player.lastPosition.x;
+                const dy = data.position.y - player.lastPosition.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                player.distanceTraveled += distance;
+            }
+            player.lastPosition = { x: data.position.x, y: data.position.y };
+
             player.position = data.position;
             player.updateActivity();
 
@@ -1945,6 +1970,17 @@ io.on('connection', (socket) => {
                 enemy.isAlive = false;
                 player.kills++;
 
+                // Track specific enemy types
+                if (enemy.type === 'mushroom') {
+                    player.mushroomsKilled++;
+                }
+                if (enemy.isBoss) {
+                    player.bossKills++;
+                }
+                if (enemy.isElite) {
+                    player.eliteKills++;
+                }
+
                 // Award XP (1 XP per kill for testing)
                 player.experience += 1;
 
@@ -2012,6 +2048,25 @@ io.on('connection', (socket) => {
 
             player.inventory.push(item);
             player.itemsCollected++;
+            player.totalItems++;
+
+            // Track item rarity
+            if (item.rarity === 'legendary') {
+                player.legendaryItems++;
+            } else if (item.rarity === 'rare') {
+                player.rareItems++;
+            }
+
+            // Track gold if item has gold value
+            if (item.gold) {
+                player.totalGold += item.gold;
+            }
+
+            // Track potion consumption
+            if (item.type === 'potion' || item.effect?.health) {
+                player.potionsConsumed++;
+            }
+
             player.updateActivity();
 
             // Apply item effects
@@ -2399,6 +2454,9 @@ io.on('connection', (socket) => {
             const lobby = lobbies.get(player.lobbyId);
             if (!lobby) return;
 
+            // Track ability usage
+            player.abilitiesUsed++;
+
             if (data.targetMinionId) {
                 console.log(`✨ ${player.username} used ${data.abilityName} on minion ${data.targetMinionId}`);
             } else {
@@ -2444,7 +2502,20 @@ io.on('connection', (socket) => {
                 deaths: player.deaths || 0,
                 damageDealt: player.damageDealt || 0,
                 damageTaken: player.damageTaken || 0,
-                playtime: sessionPlaytime
+                playtime: sessionPlaytime,
+                bossKills: player.bossKills || 0,
+                eliteKills: player.eliteKills || 0,
+                deepestFloor: player.deepestFloor || 0,
+                totalFloors: player.totalFloors || 0,
+                gamesCompleted: player.gamesCompleted || 0,
+                totalGold: player.totalGold || 0,
+                legendaryItems: player.legendaryItems || 0,
+                rareItems: player.rareItems || 0,
+                totalItems: player.totalItems || 0,
+                distanceTraveled: Math.floor(player.distanceTraveled || 0),
+                abilitiesUsed: player.abilitiesUsed || 0,
+                potionsConsumed: player.potionsConsumed || 0,
+                mushroomsKilled: player.mushroomsKilled || 0
             }).catch(err => console.error('Failed to save player stats:', err));
         }
 
@@ -2709,7 +2780,20 @@ setInterval(async () => {
                     deaths: player.deaths || 0,
                     damageDealt: player.damageDealt || 0,
                     damageTaken: player.damageTaken || 0,
-                    playtime: sessionPlaytime
+                    playtime: sessionPlaytime,
+                    bossKills: player.bossKills || 0,
+                    eliteKills: player.eliteKills || 0,
+                    deepestFloor: player.deepestFloor || 0,
+                    totalFloors: player.totalFloors || 0,
+                    gamesCompleted: player.gamesCompleted || 0,
+                    totalGold: player.totalGold || 0,
+                    legendaryItems: player.legendaryItems || 0,
+                    rareItems: player.rareItems || 0,
+                    totalItems: player.totalItems || 0,
+                    distanceTraveled: Math.floor(player.distanceTraveled || 0),
+                    abilitiesUsed: player.abilitiesUsed || 0,
+                    potionsConsumed: player.potionsConsumed || 0,
+                    mushroomsKilled: player.mushroomsKilled || 0
                 });
                 savedCount++;
             } catch (err) {
