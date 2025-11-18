@@ -452,9 +452,9 @@ class Lobby {
         const variants = {
             small: {
                 scale: 0.7,
-                health: 30,  // HORDE MODE: 50% health
-                maxHealth: 30,
-                damage: 2,  // HORDE MODE: 40% less damage
+                health: 20,  // Reduced from 30
+                maxHealth: 20,
+                damage: 1,  // Reduced from 2
                 speed: 70,
                 sightRange: 12,
                 glowColor: 0xff6666, // Light red
@@ -462,9 +462,9 @@ class Lobby {
             },
             normal: {
                 scale: 1.0,
-                health: 50,  // HORDE MODE: 50% health
-                maxHealth: 50,
-                damage: 3,  // HORDE MODE: 40% less damage
+                health: 35,  // Reduced from 50
+                maxHealth: 35,
+                damage: 2,  // Reduced from 3
                 speed: 80,
                 sightRange: 15,
                 glowColor: 0xff0000, // Red
@@ -472,9 +472,9 @@ class Lobby {
             },
             boss: {
                 scale: 1.5,
-                health: 100,  // HORDE MODE: 50% health
-                maxHealth: 100,
-                damage: 6,  // HORDE MODE: 40% less damage
+                health: 70,  // Reduced from 100
+                maxHealth: 70,
+                damage: 4,  // Reduced from 6
                 speed: 90,
                 sightRange: 20,
                 glowColor: 0xff0066, // Dark pink/red
@@ -511,25 +511,25 @@ class Lobby {
         const variants = {
             small: {
                 scale: 0.8,
-                health: 60,  // HORDE MODE: 50% health
-                maxHealth: 60,
-                damage: 5,  // HORDE MODE: 40% less damage
+                health: 40,  // Reduced from 60
+                maxHealth: 40,
+                damage: 3,  // Reduced from 5
                 speed: 50,
                 sightRange: 10
             },
             normal: {
                 scale: 1.0,
-                health: 100,  // HORDE MODE: 50% health
-                maxHealth: 100,
-                damage: 7,  // HORDE MODE: 40% less damage
+                health: 70,  // Reduced from 100
+                maxHealth: 70,
+                damage: 5,  // Reduced from 7
                 speed: 60,
                 sightRange: 12
             },
             boss: {
                 scale: 1.3,
-                health: 175,  // HORDE MODE: 50% health
-                maxHealth: 175,
-                damage: 11,  // HORDE MODE: 40% less damage
+                health: 120,  // Reduced from 175
+                maxHealth: 120,
+                damage: 7,  // Reduced from 11
                 speed: 70,
                 sightRange: 15
             }
@@ -562,25 +562,25 @@ class Lobby {
         const variants = {
             small: {
                 scale: 0.8,
-                health: 20,  // HORDE MODE: 50% health
-                maxHealth: 20,
-                damage: 2,  // HORDE MODE: 40% less damage
+                health: 15,  // Reduced from 20
+                maxHealth: 15,
+                damage: 1,  // Reduced from 2
                 speed: 35,
                 sightRange: 8
             },
             normal: {
                 scale: 1.0,
-                health: 35,  // HORDE MODE: 50% health
-                maxHealth: 35,
-                damage: 4,  // HORDE MODE: 40% less damage
+                health: 25,  // Reduced from 35
+                maxHealth: 25,
+                damage: 2,  // Reduced from 4
                 speed: 45,
                 sightRange: 10
             },
             boss: {
                 scale: 1.4,
-                health: 90,  // HORDE MODE: 50% health
-                maxHealth: 90,
-                damage: 7,  // HORDE MODE: 40% less damage
+                health: 60,  // Reduced from 90
+                maxHealth: 60,
+                damage: 4,  // Reduced from 7
                 speed: 55,
                 sightRange: 14
             }
@@ -595,6 +595,155 @@ class Lobby {
         return {
             id: baseId,
             type: 'mushroom',
+            variant: variant,
+            position: position,
+            health: scaledHealth,
+            maxHealth: scaledMaxHealth,
+            damage: stats.damage,
+            speed: stats.speed,
+            scale: stats.scale,
+            isAlive: true,
+            sightRange: stats.sightRange,
+            lastMove: 0
+        };
+    }
+
+    // Create skeleton - Fast, fragile melee enemy
+    createSkeletonVariant(variant, baseId, position, healthMultiplier = 1.0) {
+        const variants = {
+            small: {
+                scale: 0.7,
+                health: 12,
+                maxHealth: 12,
+                damage: 1,
+                speed: 90,
+                sightRange: 14
+            },
+            normal: {
+                scale: 1.0,
+                health: 22,
+                maxHealth: 22,
+                damage: 2,
+                speed: 100,
+                sightRange: 16
+            },
+            boss: {
+                scale: 1.4,
+                health: 50,
+                maxHealth: 50,
+                damage: 3,
+                speed: 110,
+                sightRange: 20
+            }
+        };
+
+        const stats = variants[variant];
+        const scaledHealth = Math.floor(stats.health * healthMultiplier);
+        const scaledMaxHealth = Math.floor(stats.maxHealth * healthMultiplier);
+
+        return {
+            id: baseId,
+            type: 'wolf', // Reuse wolf visuals temporarily
+            variant: variant,
+            position: position,
+            health: scaledHealth,
+            maxHealth: scaledMaxHealth,
+            damage: stats.damage,
+            speed: stats.speed,
+            scale: stats.scale,
+            glowColor: 0xaaaaaa, // Grey for skeleton
+            glowSize: 6,
+            isAlive: true,
+            sightRange: stats.sightRange,
+            lastMove: 0
+        };
+    }
+
+    // Create goblin - Weak, numerous swarm enemy
+    createGoblinVariant(variant, baseId, position, healthMultiplier = 1.0) {
+        const variants = {
+            small: {
+                scale: 0.6,
+                health: 10,
+                maxHealth: 10,
+                damage: 1,
+                speed: 60,
+                sightRange: 10
+            },
+            normal: {
+                scale: 0.8,
+                health: 18,
+                maxHealth: 18,
+                damage: 2,
+                speed: 70,
+                sightRange: 12
+            },
+            boss: {
+                scale: 1.2,
+                health: 45,
+                maxHealth: 45,
+                damage: 3,
+                speed: 80,
+                sightRange: 16
+            }
+        };
+
+        const stats = variants[variant];
+        const scaledHealth = Math.floor(stats.health * healthMultiplier);
+        const scaledMaxHealth = Math.floor(stats.maxHealth * healthMultiplier);
+
+        return {
+            id: baseId,
+            type: 'mushroom', // Reuse mushroom visuals temporarily
+            variant: variant,
+            position: position,
+            health: scaledHealth,
+            maxHealth: scaledMaxHealth,
+            damage: stats.damage,
+            speed: stats.speed,
+            scale: stats.scale,
+            isAlive: true,
+            sightRange: stats.sightRange,
+            lastMove: 0
+        };
+    }
+
+    // Create orc - Tough, slow tank enemy
+    createOrcVariant(variant, baseId, position, healthMultiplier = 1.0) {
+        const variants = {
+            small: {
+                scale: 0.9,
+                health: 50,
+                maxHealth: 50,
+                damage: 4,
+                speed: 40,
+                sightRange: 8
+            },
+            normal: {
+                scale: 1.1,
+                health: 90,
+                maxHealth: 90,
+                damage: 6,
+                speed: 45,
+                sightRange: 10
+            },
+            boss: {
+                scale: 1.5,
+                health: 150,
+                maxHealth: 150,
+                damage: 9,
+                speed: 50,
+                sightRange: 12
+            }
+        };
+
+        const stats = variants[variant];
+        const scaledHealth = Math.floor(stats.health * healthMultiplier);
+        const scaledMaxHealth = Math.floor(stats.maxHealth * healthMultiplier);
+
+        return {
+            id: baseId,
+            type: 'minotaur', // Reuse minotaur visuals temporarily
             variant: variant,
             position: position,
             health: scaledHealth,
@@ -824,31 +973,37 @@ class Lobby {
             const spawnRoll = this.seededRandom(packSeed + 50);
 
             if (biome === 'red') {
-                // RED biome: 60% sword demons, 20% minotaurs, 20% mushrooms
-                if (spawnRoll < 0.6) {
-                    enemyType = 'swordDemon';
-                } else if (spawnRoll < 0.8) {
-                    enemyType = 'minotaur';
-                } else {
-                    enemyType = 'mushroom';
-                }
-            } else if (biome === 'dark_green') {
-                // DARK_GREEN biome: 30% sword demons, 40% minotaurs, 30% mushrooms
-                if (spawnRoll < 0.3) {
+                // RED biome: sword demons, orcs, skeletons
+                if (spawnRoll < 0.4) {
                     enemyType = 'swordDemon';
                 } else if (spawnRoll < 0.7) {
-                    enemyType = 'minotaur';
+                    enemyType = 'skeleton';
+                } else if (spawnRoll < 0.9) {
+                    enemyType = 'orc';
                 } else {
-                    enemyType = 'mushroom';
+                    enemyType = 'minotaur';
+                }
+            } else if (biome === 'dark_green') {
+                // DARK_GREEN biome: minotaurs, orcs, goblins
+                if (spawnRoll < 0.3) {
+                    enemyType = 'minotaur';
+                } else if (spawnRoll < 0.6) {
+                    enemyType = 'orc';
+                } else if (spawnRoll < 0.85) {
+                    enemyType = 'goblin';
+                } else {
+                    enemyType = 'skeleton';
                 }
             } else {
-                // GREEN biome: 10% sword demons, 50% minotaurs, 40% mushrooms (mushrooms fit forest theme)
-                if (spawnRoll < 0.1) {
-                    enemyType = 'swordDemon';
-                } else if (spawnRoll < 0.6) {
-                    enemyType = 'minotaur';
-                } else {
+                // GREEN biome: mushrooms, goblins, swordDemons
+                if (spawnRoll < 0.4) {
                     enemyType = 'mushroom';
+                } else if (spawnRoll < 0.7) {
+                    enemyType = 'goblin';
+                } else if (spawnRoll < 0.9) {
+                    enemyType = 'swordDemon';
+                } else {
+                    enemyType = 'skeleton';
                 }
             }
 
@@ -951,6 +1106,86 @@ class Lobby {
 
                     this.gameState.enemies.push(mushroom);
                     newEnemies.push(mushroom);
+                }
+            } else if (enemyType === 'skeleton') {
+                // Spawn skeletons (fast, fragile enemies)
+                for (let i = 0; i < packSize; i++) {
+                    const skeletonSeed = packSeed + i * 100;
+                    const offsetX = Math.floor((this.seededRandom(skeletonSeed + 10) - 0.5) * 10);
+                    const offsetY = Math.floor((this.seededRandom(skeletonSeed + 11) - 0.5) * 10);
+                    const x = Math.max(0, Math.min(this.WORLD_SIZE - 1, packX + offsetX));
+                    const y = Math.max(0, Math.min(this.WORLD_SIZE - 1, packY + offsetY));
+
+                    let variant = 'normal';
+                    if (hasBoss && !bossSpawned && i === 0) {
+                        variant = 'boss';
+                        bossSpawned = true;
+                    } else if (distanceFromSpawn < 100) {
+                        variant = this.seededRandom(skeletonSeed + 20) < 0.7 ? 'small' : 'normal';
+                    } else if (distanceFromSpawn < 200) {
+                        variant = this.seededRandom(skeletonSeed + 20) < 0.3 ? 'small' : 'normal';
+                    }
+
+                    const skeletonId = `${this.id}_skeleton_${regionKey}_p${packIndex}_${i}`;
+                    const skeleton = this.createSkeletonVariant(variant, skeletonId, { x, y }, healthMultiplier);
+                    skeleton.regionKey = regionKey;
+                    this.regionEnemies.get(regionKey).add(skeleton.id);
+                    this.gameState.enemies.push(skeleton);
+                    newEnemies.push(skeleton);
+                }
+            } else if (enemyType === 'goblin') {
+                // Spawn goblins (weak swarm enemies - larger packs)
+                const goblinPackSize = Math.floor(packSize * 1.5); // 50% more goblins
+                for (let i = 0; i < goblinPackSize; i++) {
+                    const goblinSeed = packSeed + i * 100;
+                    const offsetX = Math.floor((this.seededRandom(goblinSeed + 10) - 0.5) * 8);
+                    const offsetY = Math.floor((this.seededRandom(goblinSeed + 11) - 0.5) * 8);
+                    const x = Math.max(0, Math.min(this.WORLD_SIZE - 1, packX + offsetX));
+                    const y = Math.max(0, Math.min(this.WORLD_SIZE - 1, packY + offsetY));
+
+                    let variant = 'normal';
+                    if (hasBoss && !bossSpawned && i === 0) {
+                        variant = 'boss';
+                        bossSpawned = true;
+                    } else if (distanceFromSpawn < 100) {
+                        variant = this.seededRandom(goblinSeed + 20) < 0.8 ? 'small' : 'normal';
+                    } else if (distanceFromSpawn < 200) {
+                        variant = this.seededRandom(goblinSeed + 20) < 0.4 ? 'small' : 'normal';
+                    }
+
+                    const goblinId = `${this.id}_goblin_${regionKey}_p${packIndex}_${i}`;
+                    const goblin = this.createGoblinVariant(variant, goblinId, { x, y }, healthMultiplier);
+                    goblin.regionKey = regionKey;
+                    this.regionEnemies.get(regionKey).add(goblin.id);
+                    this.gameState.enemies.push(goblin);
+                    newEnemies.push(goblin);
+                }
+            } else if (enemyType === 'orc') {
+                // Spawn orcs (tough tank enemies - smaller packs)
+                const orcPackSize = Math.max(1, Math.floor(packSize / 2.5));
+                for (let i = 0; i < orcPackSize; i++) {
+                    const orcSeed = packSeed + i * 100;
+                    const offsetX = Math.floor((this.seededRandom(orcSeed + 10) - 0.5) * 12);
+                    const offsetY = Math.floor((this.seededRandom(orcSeed + 11) - 0.5) * 12);
+                    const x = Math.max(0, Math.min(this.WORLD_SIZE - 1, packX + offsetX));
+                    const y = Math.max(0, Math.min(this.WORLD_SIZE - 1, packY + offsetY));
+
+                    let variant = 'normal';
+                    if (hasBoss && !bossSpawned && i === 0) {
+                        variant = 'boss';
+                        bossSpawned = true;
+                    } else if (distanceFromSpawn < 100) {
+                        variant = this.seededRandom(orcSeed + 20) < 0.6 ? 'small' : 'normal';
+                    } else if (distanceFromSpawn < 200) {
+                        variant = this.seededRandom(orcSeed + 20) < 0.2 ? 'small' : 'normal';
+                    }
+
+                    const orcId = `${this.id}_orc_${regionKey}_p${packIndex}_${i}`;
+                    const orc = this.createOrcVariant(variant, orcId, { x, y }, healthMultiplier);
+                    orc.regionKey = regionKey;
+                    this.regionEnemies.get(regionKey).add(orc.id);
+                    this.gameState.enemies.push(orc);
+                    newEnemies.push(orc);
                 }
             }
         }
