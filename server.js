@@ -2074,34 +2074,7 @@ io.on('connection', (socket) => {
                     player.eliteKills++;
                 }
 
-                // Award XP (1 XP per kill for testing)
-                player.experience += 1;
-
-                // Check for level up (1 XP = 1 level for testing)
-                const oldLevel = player.level;
-                const newLevel = player.experience; // 1 XP = 1 level
-
-                if (newLevel > oldLevel) {
-                    player.level = newLevel;
-
-                    // Level up! Increase stats
-                    player.maxHealth += 10;
-                    player.health = player.maxHealth; // Heal to full on level up
-                    player.stats.strength += 2;
-                    player.stats.defense += 1;
-
-                    console.log(`🎉 ${player.username} leveled up! ${oldLevel} -> ${newLevel}`);
-
-                    lobby.broadcast('player:levelup', {
-                        playerId: player.id,
-                        playerName: player.username,
-                        level: player.level,
-                        experience: player.experience,
-                        health: player.health,
-                        maxHealth: player.maxHealth,
-                        stats: player.stats
-                    });
-                }
+                // XP is now awarded via experience orbs only, not direct kills
 
                 lobby.broadcast('enemy:killed', {
                     enemyId: data.enemyId,

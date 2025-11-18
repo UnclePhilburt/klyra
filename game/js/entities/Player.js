@@ -615,6 +615,63 @@ class Player {
         this.ui.updateHealthBar();
     }
 
+    addExperience(amount) {
+        this.experience += amount;
+
+        // Check for level up
+        const requiredExp = GameConfig.getXPRequired(this.level);
+
+        if (this.experience >= requiredExp) {
+            this.levelUp();
+        }
+
+        // Update HUD for local player
+        if (this === this.scene.localPlayer) {
+            const hud = this.scene.hud || this.scene.modernHUD;
+            if (hud && hud.updateLevelBar) {
+                hud.updateLevelBar();
+            }
+        }
+    }
+
+    levelUp() {
+        this.level++;
+        this.experience = 0; // Reset experience for next level
+
+        console.log(`🎉 Level Up! Now level ${this.level}`);
+
+        // Show level up notification
+        if (this === this.scene.localPlayer) {
+            const levelUpText = this.scene.add.text(
+                this.scene.cameras.main.centerX,
+                this.scene.cameras.main.scrollY + 200,
+                `LEVEL UP! ${this.level}`,
+                {
+                    font: 'bold 24px monospace',
+                    fill: '#ffff00',
+                    stroke: '#000000',
+                    strokeThickness: 4
+                }
+            ).setOrigin(0.5).setScrollFactor(0);
+
+            this.scene.tweens.add({
+                targets: levelUpText,
+                y: this.scene.cameras.main.scrollY + 150,
+                scale: 1.5,
+                alpha: 0,
+                duration: 2000,
+                ease: 'Power2',
+                onComplete: () => levelUpText.destroy()
+            });
+
+            // Update HUD
+            const hud = this.scene.hud || this.scene.modernHUD;
+            if (hud && hud.updateLevelBar) {
+                hud.updateLevelBar();
+            }
+        }
+    }
+
     die(killedBy = 'unknown') {
         // Only die once - prevent multiple death reports
         if (!this.isAlive) {

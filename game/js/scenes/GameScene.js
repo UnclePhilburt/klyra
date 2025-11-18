@@ -9,6 +9,8 @@ class GameScene extends Phaser.Scene {
         this.mushrooms = {};
         this.items = {};
         this.minions = {};
+        this.experienceOrbs = {};
+        this.expOrbIdCounter = 0;
         this.minionIdCounter = 0;
 
         // Map transition system
@@ -2677,6 +2679,9 @@ class GameScene extends Phaser.Scene {
                 // Add blood splatter to screen
                 this.addScreenBloodSplatter();
 
+                // Spawn experience orb at death location
+                this.spawnExperienceOrb(deathX, deathY);
+
                 enemy.die();
 
                 // Track kill if local player killed this enemy
@@ -3330,6 +3335,17 @@ class GameScene extends Phaser.Scene {
         return minion;
     }
 
+    // Spawn experience orb at specified location
+    spawnExperienceOrb(x, y, expValue = 10) {
+        const orbId = `exp_${this.expOrbIdCounter++}`;
+        const orb = new ExperienceOrb(this, { x, y, expValue });
+        this.experienceOrbs[orbId] = orb;
+
+        console.log(`💎 Spawned experience orb [${orbId}] at (${x.toFixed(0)}, ${y.toFixed(0)}) worth ${expValue} XP`);
+
+        return orb;
+    }
+
     // INTELLIGENT FORMATION: Reassign roles to all minions owned by a player
     updateMinionFormations(ownerId) {
         // Get all alive minions owned by this player
@@ -3911,6 +3927,41 @@ class GameScene extends Phaser.Scene {
         Object.values(this.mushrooms).forEach(mushroom => {
             if (mushroom.isAlive) {
                 mushroom.update();
+            }
+        });
+
+        // Check for experience orb collection
+        const playerX = this.localPlayer.sprite.x;
+        const playerY = this.localPlayer.sprite.y;
+
+        Object.keys(this.experienceOrbs).forEach(orbId => {
+            const orb = this.experienceOrbs[orbId];
+            if (orb && orb.checkCollision(playerX, playerY)) {
+                // Collect the orb
+                orb.collect();
+
+                // Add experience to local player
+                this.localPlayer.addExperience(orb.expValue);
+
+                // Add experience to all other players that are visible on screen
+                const camera = this.cameras.main;
+                Object.values(this.otherPlayers).forEach(otherPlayer => {
+                    if (otherPlayer.isAlive) {
+                        const otherX = otherPlayer.sprite.x;
+                        const otherY = otherPlayer.sprite.y;
+
+                        // Check if other player is within camera bounds (on screen)
+                        if (otherX >= camera.scrollX &&
+                            otherX <= camera.scrollX + camera.width &&
+                            otherY >= camera.scrollY &&
+                            otherY <= camera.scrollY + camera.height) {
+                            otherPlayer.addExperience(orb.expValue);
+                        }
+                    }
+                });
+
+                // Remove from collection
+                delete this.experienceOrbs[orbId];
             }
         });
 
