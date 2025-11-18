@@ -420,7 +420,7 @@ async function sendVerificationEmail(email, username, token) {
     console.log(`📧 Sending email from: ${process.env.EMAIL_FROM || 'noreply@klyra.lol'} to: ${email}`);
 
     const info = await emailTransporter.sendMail({
-        from: process.env.EMAIL_FROM || 'noreply@klyra.lol',
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
         to: email,
         subject: 'Verify your KLYRA account',
         html: `
