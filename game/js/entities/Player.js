@@ -23,6 +23,8 @@ class Player {
         this.experience = data.experience || 0;
         this.currency = data.currency || 0; // Earned souls from killing enemies (for blackjack)
         this.souls = data.souls || 0; // Banked souls (separate system)
+        console.log(`🔍 SOULS DEBUG: Player ${this.username} initialized with souls=${this.souls} (from data.souls=${data.souls})`);
+        console.log(`🔍 SOULS DEBUG: Full data received:`, JSON.stringify({ souls: data.souls, currency: data.currency, level: data.level }));
         this.class = data.class;
         this.stats = data.stats;
         this.isAlive = data.isAlive !== undefined ? data.isAlive : true; // Default to true
