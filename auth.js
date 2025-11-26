@@ -388,7 +388,7 @@ async function adminDeleteUser(userId) {
 // Admin unlock specific characters for a user
 async function adminUnlockCharacters(userId, charactersToUnlock) {
     try {
-        const validCharacters = ['KELISE', 'MALACHAR', 'ALDRIC', 'ZENRYU'];
+        const validCharacters = ['KELISE', 'MALACHAR', 'ALDRIC', 'ZENRYU', 'ORION', 'LUNARE', 'BASTION'];
 
         // Validate that all requested characters are valid
         const invalidCharacters = charactersToUnlock.filter(char => !validCharacters.includes(char));
