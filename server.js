@@ -165,6 +165,46 @@ function rotateFreeCharacter() {
 setInterval(rotateFreeCharacter, 30 * 60 * 1000);
 console.log(`🎲 Free character rotation started. Current free character: ${currentFreeCharacter}`);
 
+// Helper function to calculate enemy drops based on type
+function calculateEnemyDrops(enemy) {
+    let xp = 10;  // Base XP (normal enemy)
+    let souls = 1; // Base soul drop
+
+    // Adjust based on enemy type
+    if (enemy.type === 'mushroom') {
+        // Swarmers: Weak, fast to kill
+        xp = 5;
+        souls = 1;
+    } else if (enemy.type === 'swordDemon') {
+        // Fast DPS: Normal rewards
+        xp = 10;
+        souls = 1;
+    } else if (enemy.type === 'minotaur') {
+        // Tanks: Tough, better rewards
+        xp = 20;
+        souls = 2;
+    }
+
+    // Bonus for elite/boss
+    if (enemy.isElite) {
+        xp *= 2;
+        souls += 2;
+    }
+    if (enemy.isBoss) {
+        xp *= 3;
+        souls += 5;
+    }
+
+    // 10% chance for bonus soul drop (+3-5 souls)
+    const bonusSouls = Math.random() < 0.1 ? (3 + Math.floor(Math.random() * 3)) : 0;
+
+    return {
+        xp: xp,
+        souls: souls + bonusSouls,
+        hasBonus: bonusSouls > 0
+    };
+}
+
 // Player class
 class Player {
     constructor(socketId, username) {
@@ -5119,14 +5159,16 @@ io.on('connection', (socket) => {
                     player.eliteKills++;
                 }
 
+                // Calculate drops based on enemy type
+                const drops = calculateEnemyDrops(enemy);
+
                 // XP is now awarded via experience orbs only, not direct kills
                 // Spawn XP orb at enemy death location
                 const orbId = `orb_${Date.now()}_${Math.random()}`;
-                const orbValue = 1; // Base XP value (1 soul per orb)
                 lobby.gameState.experienceOrbs.set(orbId, {
                     x: enemy.position.x,
                     y: enemy.position.y,
-                    expValue: orbValue
+                    expValue: drops.xp
                 });
 
                 lobby.broadcast('enemy:killed', {
@@ -5137,36 +5179,39 @@ io.on('connection', (socket) => {
                     level: player.level,
                     position: enemy.position,
                     orbId: orbId,
-                    orbValue: orbValue
+                    orbValue: drops.xp
                 });
 
-                // Always drop a soul (currency)
-                const soulId = uuidv4();
-                // enemy.position is in PIXELS, convert to tiles
-                
-                const soulTileX = enemy.position.x / TILE_SIZE;
-                const soulTileY = enemy.position.y / TILE_SIZE;
+                // Drop souls (currency) - amount varies by enemy type
+                for (let i = 0; i < drops.souls; i++) {
+                    const soulId = uuidv4();
+                    // enemy.position is in PIXELS, convert to tiles
+                    // Scatter souls slightly if multiple
+                    const scatter = i > 0 ? (Math.random() - 0.5) * 2 : 0;
+                    const soulTileX = (enemy.position.x / TILE_SIZE) + scatter;
+                    const soulTileY = (enemy.position.y / TILE_SIZE) + scatter;
 
-                lobby.gameState.items.set(soulId, {
-                    id: soulId,
-                    type: 'soul',
-                    color: 0x9d00ff, // Purple color for souls
-                    position: {
+                    lobby.gameState.items.set(soulId, {
+                        id: soulId,
+                        type: 'soul',
+                        color: drops.hasBonus && i >= drops.souls - 3 ? 0xFFD700 : 0x9d00ff, // Gold for bonus souls
+                        position: {
+                            x: soulTileX,
+                            y: soulTileY
+                        },
+                        spawnedAt: Date.now()
+                    });
+
+                    lobby.broadcast('item:spawned', {
+                        itemId: soulId,
+                        type: 'soul',
+                        color: drops.hasBonus && i >= drops.souls - 3 ? 0xFFD700 : 0x9d00ff, // Gold for bonus
                         x: soulTileX,
                         y: soulTileY
-                    },
-                    spawnedAt: Date.now()
-                });
+                    });
+                }
 
-                lobby.broadcast('item:spawned', {
-                    itemId: soulId,
-                    type: 'soul',
-                    color: 0x9d00ff, // Purple color for souls
-                    x: soulTileX,
-                    y: soulTileY
-                });
-
-                console.log(`👻 Soul dropped at tiles (${soulTileX.toFixed(2)}, ${soulTileY.toFixed(2)})`);
+                console.log(`💀 ${enemy.type || 'enemy'} killed → ${drops.xp} XP, ${drops.souls} souls${drops.hasBonus ? ' (BONUS!)' : ''}`);
             } else {
                 lobby.broadcast('enemy:damaged', {
                     enemyId: data.enemyId,

@@ -12,9 +12,9 @@ const GameConfig = {
     PLAYER: {
         SPEED: 120,  // Reduced from 200 for more tactical kiting gameplay
         HEALTH: 100,
-        // XP: 100 XP per level (1 orb = 1 level)
+        // XP: Balanced curve - level 10 = ~126 souls (enough for pet or best skill)
         XP_BASE: 100,
-        XP_EXPONENT: 1.0  // Linear progression: 100 XP per level
+        XP_EXPONENT: 0.15  // Logarithmic curve: Fast early levels, slower later
     },
 
     DEBUG: {
