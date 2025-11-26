@@ -1018,8 +1018,8 @@
                                 <div class="player-stat-label">Games</div>
                             </div>
                             <div class="player-stat">
-                                <div class="player-stat-value">${user.deepestFloor || 0}</div>
-                                <div class="player-stat-label">Best Floor</div>
+                                <div class="player-stat-value" style="font-size: 0.9rem;">${user.lastLogin ? getTimeAgo(new Date(user.lastLogin)) : 'Never'}</div>
+                                <div class="player-stat-label">Last Active</div>
                             </div>
                         </div>
                     </div>
@@ -1033,6 +1033,18 @@
             document.getElementById('totalUsers').textContent = users.length;
             document.getElementById('verifiedUsers').textContent = users.filter(u => u.isVerified).length;
             document.getElementById('adminUsers').textContent = users.filter(u => u.isAdmin).length;
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            if (seconds < 2592000) return `${Math.floor(seconds / 86400)}d ago`;
+            if (seconds < 31536000) return `${Math.floor(seconds / 2592000)}mo ago`;
+            return `${Math.floor(seconds / 31536000)}y ago`;
         }
 
         function openResetModal(userId, username) {
