@@ -380,8 +380,7 @@ class CharacterSelectManager {
                     const frameX = (frameIndex % framesPerRow) * frameWidth;
                     const frameY = Math.floor(frameIndex / framesPerRow) * frameHeight;
 
-                    // Clear and draw current frame
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    // Draw current frame (no need to clear since we're drawing full frame)
                     ctx.drawImage(
                         img,
                         frameX, frameY, // Source x, y
