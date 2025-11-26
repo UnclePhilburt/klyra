@@ -4575,15 +4575,14 @@ io.on('connection', (socket) => {
             let player;
 
             if (disconnectedPlayer && Date.now() - disconnectedPlayer.disconnectedAt < RECONNECT_TIMEOUT) {
-                // Reconnection - restore player but reset vital stats
+                // Reconnection - restore player with EXACT state (position, health, level, souls, etc.)
                 player = disconnectedPlayer;
                 player.id = socket.id;
                 player.isReconnecting = false;
                 player.disconnectedAt = null;
-                player.isAlive = true; // Reset to alive on reconnect
-                player.health = player.maxHealth; // Restore full health
                 player.userId = userId; // Update user ID in case token changed
                 console.log(`🔐 Reconnected player ${finalUsername} - userId set to: ${userId}`);
+                console.log(`📍 Restoring state: HP ${player.health}/${player.maxHealth}, Level ${player.level}, Position (${Math.floor(player.position.x)}, ${Math.floor(player.position.y)}), Souls ${player.souls}`);
 
                 // IMPORTANT: Update character class if player selected a different one
                 if (characterClass && typeof characterClass === 'string' && characterClass !== player.class) {
@@ -4595,7 +4594,7 @@ io.on('connection', (socket) => {
                 }
 
                 disconnectedPlayers.delete(finalUsername);
-                console.log(`🔄 ${finalUsername} reconnected (restored to full health)`);
+                console.log(`🔄 ${finalUsername} reconnected (exact state restored)`);
             } else {
                 // New player
                 player = new Player(socket.id, finalUsername);
