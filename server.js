@@ -6469,11 +6469,20 @@ io.on('connection', (socket) => {
                 return;
             }
 
-            // Remove pet from stored_pets array and set as current_pet
+            // Remove ONLY FIRST occurrence of pet from stored_pets array and set as current_pet
+            // array_remove removes ALL occurrences, so we need custom logic to remove just one
             const result = await auth.pool.query(
                 `UPDATE users
-                 SET stored_pets = array_remove(COALESCE(stored_pets, ARRAY[]::text[]), $1),
-                     current_pet = $1
+                 SET stored_pets = (
+                     CASE
+                         WHEN COALESCE(stored_pets, ARRAY[]::text[]) = ARRAY[]::text[] THEN ARRAY[]::text[]
+                         WHEN stored_pets @> ARRAY[$1]::text[] THEN
+                             stored_pets[1:(array_position(stored_pets, $1) - 1)] ||
+                             stored_pets[(array_position(stored_pets, $1) + 1):array_length(stored_pets, 1)]
+                         ELSE stored_pets
+                     END
+                 ),
+                 current_pet = $1
                  WHERE id = $2
                  RETURNING stored_pets, current_pet`,
                 [petId, userId]
