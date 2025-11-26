@@ -4618,8 +4618,17 @@ io.on('connection', (socket) => {
                 metrics.peakPlayers = players.size;
             }
 
-            // Find or create lobby
-            const lobby = findOrCreateLobby(difficulty || 'normal');
+            // Find or create lobby - if reconnecting, try to rejoin their old lobby
+            let lobby;
+            if (player.lobbyId && lobbies.has(player.lobbyId)) {
+                // Reconnecting to same lobby
+                lobby = lobbies.get(player.lobbyId);
+                console.log(`🔄 ${finalUsername} reconnecting to same lobby ${lobby.id.slice(0, 8)}`);
+            } else {
+                // New player or old lobby gone - find/create lobby
+                lobby = findOrCreateLobby(difficulty || 'normal');
+                player.lobbyId = lobby.id; // Update lobby reference
+            }
 
             // CLEANUP: Remove all old minions for this player before they join
             // This prevents duplicate minions when rejoining or changing characters
