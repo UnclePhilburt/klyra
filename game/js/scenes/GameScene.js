@@ -800,8 +800,8 @@ class GameScene extends Phaser.Scene {
         // Enhance spawn point with visuals
         this.createSpawnPoint();
 
-        // Create local player
-        const myData = this.gameData.players.find(p => p.id === networkManager.currentPlayer.id);
+        // Create local player - use gameData.player directly (has authoritative data including souls)
+        const myData = this.gameData.player || this.gameData.players.find(p => p.id === networkManager.currentPlayer.id);
         if (myData) {
             this.localPlayer = new Player(this, myData, true);
 
