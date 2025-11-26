@@ -30,11 +30,27 @@ class ScreenManager {
     }
 
     init() {
-        // Set initial screen state
-        this.setScreen('START', false);
+        // Check if user is already logged in
+        const token = localStorage.getItem('klyra_token');
+        const userData = localStorage.getItem('klyra_user');
 
-        // Setup start screen interaction
-        this.setupStartScreen();
+        if (token && userData) {
+            // User is logged in - skip start screen, go directly to lobby
+            debug.info('CORE', 'User logged in - skipping start screen');
+            this.setScreen('LOBBY', false);
+
+            // Initialize main menu immediately
+            if (!this.initialized) {
+                window.mainMenuInstance = new MainMenu();
+                this.initialized = true;
+            }
+        } else {
+            // User not logged in - show start screen
+            this.setScreen('START', false);
+
+            // Setup start screen interaction
+            this.setupStartScreen();
+        }
 
         debug.info('CORE', 'ScreenManager initialized');
     }
