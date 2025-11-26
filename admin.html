@@ -181,29 +181,27 @@
             font-size: 0.9rem;
         }
 
-        /* Users Table */
-        .users-table-container {
-            background: var(--bg-secondary);
-            border: 1px solid rgba(139, 92, 246, 0.2);
-            border-radius: 12px;
-            overflow: hidden;
+        /* Player Cards Grid */
+        .users-container {
             margin-bottom: 2rem;
         }
 
-        .table-header {
+        .controls-bar {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
             padding: 1.5rem;
-            background: var(--bg-tertiary);
-            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            margin-bottom: 2rem;
         }
 
-        .table-header h2 {
+        .controls-bar h2 {
             font-family: 'Space Grotesk', sans-serif;
             font-size: 1.5rem;
             color: var(--text-primary);
+            margin-bottom: 1rem;
         }
 
         .search-box {
-            margin-top: 1rem;
             width: 100%;
             padding: 0.8rem 1rem;
             background: var(--bg-primary);
@@ -219,36 +217,79 @@
             border-color: var(--accent-primary);
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
         }
 
-        thead {
-            background: var(--bg-tertiary);
+        .player-card {
+            background: var(--bg-secondary);
+            border: 2px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
 
-        th {
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
+        .player-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.3);
+        }
+
+        .player-card.banned {
+            border-color: var(--accent-red);
+            opacity: 0.8;
+        }
+
+        .player-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .player-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .player-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
+
+        .player-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .player-stat {
+            text-align: center;
+        }
+
+        .player-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .player-stat-label {
+            font-size: 0.8rem;
             color: var(--text-secondary);
-            font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-        }
-
-        td {
-            padding: 1rem;
-            border-top: 1px solid rgba(139, 92, 246, 0.1);
-        }
-
-        tbody tr {
-            transition: background 0.2s;
-        }
-
-        tbody tr:hover {
-            background: rgba(139, 92, 246, 0.05);
         }
 
         .badge {
@@ -282,6 +323,86 @@
         .banned-row {
             background: rgba(239, 68, 68, 0.05);
             opacity: 0.7;
+        }
+
+        /* Player Detail Modal */
+        .player-detail-modal .modal-content {
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .player-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .detail-section {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .detail-section h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--accent-primary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .action-section {
+            grid-column: 1 / -1;
+        }
+
+        .action-groups {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .action-group h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .player-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .players-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .btn {
@@ -584,10 +705,10 @@
                 </div>
             </div>
 
-            <div class="users-table-container">
-                <div class="table-header">
+            <div class="users-container">
+                <div class="controls-bar">
                     <h2>All Users</h2>
-                    <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; align-items: center;">
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
                         <input type="text" id="searchBox" class="search-box" placeholder="Search by username or email..." style="flex: 1; min-width: 200px; margin: 0;">
                         <select id="filterStatus" class="search-box" style="width: auto; margin: 0;">
                             <option value="all">All Status</option>
@@ -597,10 +718,9 @@
                             <option value="banned">Banned</option>
                         </select>
                         <button class="btn btn-success btn-small" onclick="exportToCSV()">📊 Export CSV</button>
-                        <button class="btn btn-primary btn-small" id="bulkActionsBtn" onclick="showBulkActions()" style="display: none;">Bulk Actions</button>
                     </div>
                 </div>
-                <div id="tableContent">
+                <div id="playersGrid" class="players-grid">
                     <div class="loading">Loading users...</div>
                 </div>
             </div>
@@ -755,18 +875,15 @@
         </div>
     </div>
 
-    <!-- User Detail Modal -->
-    <div id="userDetailModal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
+    <!-- Player Detail Modal -->
+    <div id="playerDetailModal" class="modal player-detail-modal">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2 id="userDetailName">User Details</h2>
-                <button class="close-btn" onclick="closeUserDetailModal()">&times;</button>
+                <h2 id="playerDetailName">Player Details</h2>
+                <button class="close-btn" onclick="closePlayerDetailModal()">&times;</button>
             </div>
-            <div id="userDetailContent" style="margin-bottom: 1.5rem;">
-                <!-- User details will be inserted here -->
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn btn-primary" onclick="closeUserDetailModal()">Close</button>
+            <div id="playerDetailContent" class="player-detail-grid">
+                <!-- Player details will be inserted here -->
             </div>
         </div>
     </div>
@@ -864,88 +981,52 @@
         }
 
         function displayUsers(users) {
-            const tableContent = document.getElementById('tableContent');
+            const playersGrid = document.getElementById('playersGrid');
 
             if (users.length === 0) {
-                tableContent.innerHTML = '<div class="loading">No users found</div>';
+                playersGrid.innerHTML = '<div class="loading">No users found</div>';
                 return;
             }
 
-            const table = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll()"></th>
-                            <th>ID</th>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Status</th>
-                            <th>Souls</th>
-                            <th>Games</th>
-                            <th>Floor</th>
-                            <th>Kills</th>
-                            <th>Chars</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${users.map(user => `
-                            <tr class="${user.isBanned ? 'banned-row' : ''}">
-                                <td><input type="checkbox" class="user-select" value="${user.id}"></td>
-                                <td>${user.id}</td>
-                                <td>
-                                    <div style="cursor: pointer;" onclick="showUserDetail(${user.id})">
-                                        ${user.username}
-                                        ${user.isAdmin ? '<span class="badge badge-admin">ADMIN</span>' : ''}
-                                        ${user.isBanned ? '<span class="badge badge-banned">BANNED</span>' : ''}
-                                    </div>
-                                </td>
-                                <td>${user.email}</td>
-                                <td>
-                                    <span class="badge ${user.isVerified ? 'badge-verified' : 'badge-unverified'}"
-                                          style="cursor: pointer;"
-                                          onclick="resendVerification(${user.id}, '${user.username}')"
-                                          title="Click to resend verification email">
-                                        ${user.isVerified ? '✓' : '✗'}
+            const cards = users.map(user => {
+                const bannedClass = user.isBanned ? 'banned' : '';
+                return `
+                    <div class="player-card ${bannedClass}" onclick="showPlayerDetail(${user.id})">
+                        <div class="player-card-header">
+                            <div>
+                                <div class="player-name">${user.username}</div>
+                                <div class="player-badges">
+                                    ${user.isAdmin ? '<span class="badge badge-admin">ADMIN</span>' : ''}
+                                    ${user.isBanned ? '<span class="badge badge-banned">BANNED</span>' : ''}
+                                    <span class="badge ${user.isVerified ? 'badge-verified' : 'badge-unverified'}">
+                                        ${user.isVerified ? '✓ Verified' : '✗ Unverified'}
                                     </span>
-                                </td>
-                                <td onclick="openSoulsModal(${user.id}, '${user.username}', ${user.bankedSouls || 0})" style="cursor: pointer; color: var(--accent-gold);">
-                                    <strong>${user.bankedSouls || 0}</strong>
-                                </td>
-                                <td>${user.gamesPlayed || 0}</td>
-                                <td>${user.deepestFloor || 0}</td>
-                                <td>${user.totalKills || 0}</td>
-                                <td>
-                                    <button class="btn btn-primary btn-small" onclick="showCharacters(${user.id}, '${user.username}', ${JSON.stringify(user.unlockedCharacters || []).replace(/"/g, '&quot;')})">
-                                        ${(user.unlockedCharacters || []).length}/${TOTAL_CHARACTERS}
-                                    </button>
-                                </td>
-                                <td>
-                                    <div style="display: flex; flex-direction: column; gap: 0.4rem;">
-                                        <button class="btn btn-primary btn-small" onclick="openResetModal(${user.id}, '${user.username}')">
-                                            Password
-                                        </button>
-                                        <button class="btn btn-success btn-small" onclick="openUnlockCharactersModal(${user.id}, '${user.username}', ${JSON.stringify(user.unlockedCharacters || []).replace(/"/g, '&quot;')})">
-                                            Unlock
-                                        </button>
-                                        <button class="btn ${user.isAdmin ? 'btn-danger' : 'btn-success'} btn-small" onclick="toggleAdmin(${user.id}, '${user.username}', ${!user.isAdmin})">
-                                            ${user.isAdmin ? 'Demote' : 'Promote'}
-                                        </button>
-                                        <button class="btn ${user.isBanned ? 'btn-success' : 'btn-danger'} btn-small" onclick="openBanModal(${user.id}, '${user.username}', ${!user.isBanned})">
-                                            ${user.isBanned ? 'Unban' : 'Ban'}
-                                        </button>
-                                        <button class="btn btn-danger btn-small" onclick="confirmDeleteUser(${user.id}, '${user.username}')">
-                                            Delete
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
+                                </div>
+                            </div>
+                        </div>
+                        <div class="player-stats">
+                            <div class="player-stat">
+                                <div class="player-stat-value" style="color: var(--accent-gold);">${user.bankedSouls || 0}</div>
+                                <div class="player-stat-label">Souls</div>
+                            </div>
+                            <div class="player-stat">
+                                <div class="player-stat-value">${(user.unlockedCharacters || []).length}/${TOTAL_CHARACTERS}</div>
+                                <div class="player-stat-label">Characters</div>
+                            </div>
+                            <div class="player-stat">
+                                <div class="player-stat-value">${user.gamesPlayed || 0}</div>
+                                <div class="player-stat-label">Games</div>
+                            </div>
+                            <div class="player-stat">
+                                <div class="player-stat-value">${user.deepestFloor || 0}</div>
+                                <div class="player-stat-label">Best Floor</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
 
-            tableContent.innerHTML = table;
+            playersGrid.innerHTML = cards;
         }
 
         function updateStats(users) {
@@ -1227,142 +1308,153 @@
             }
         }
 
-        // User Detail View
-        async function showUserDetail(userId) {
+        // Player Detail View
+        async function showPlayerDetail(userId) {
             const user = allUsers.find(u => u.id === userId);
             if (!user) return;
 
-            document.getElementById('userDetailName').textContent = `${user.username}'s Profile`;
-            document.getElementById('userDetailContent').innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
-                    <div>
-                        <h3 style="color: var(--accent-primary); margin-bottom: 1rem;">Account Info</h3>
-                        <p><strong>ID:</strong> ${user.id}</p>
-                        <p><strong>Username:</strong> ${user.username}</p>
-                        <p><strong>Email:</strong> ${user.email}</p>
-                        <p><strong>Verified:</strong> ${user.isVerified ? '✓ Yes' : '✗ No'}</p>
-                        <p><strong>Admin:</strong> ${user.isAdmin ? '✓ Yes' : '✗ No'}</p>
-                        <p><strong>Banned:</strong> ${user.isBanned ? '✓ Yes' : '✗ No'}</p>
-                        ${user.bannedReason ? `<p><strong>Ban Reason:</strong> ${user.bannedReason}</p>` : ''}
-                        <p><strong>Created:</strong> ${new Date(user.createdAt).toLocaleString()}</p>
-                        <p><strong>Last Login:</strong> ${user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}</p>
+            document.getElementById('playerDetailName').textContent = `${user.username}'s Profile`;
+            document.getElementById('playerDetailContent').innerHTML = `
+                <!-- Account Info Section -->
+                <div class="detail-section">
+                    <h3>👤 Account Information</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">User ID:</span>
+                        <span class="detail-value">${user.id}</span>
                     </div>
-                    <div>
-                        <h3 style="color: var(--accent-green); margin-bottom: 1rem;">Game Stats</h3>
-                        <p><strong>Banked Souls:</strong> ${user.bankedSouls || 0}</p>
-                        <p><strong>Games Played:</strong> ${user.gamesPlayed || 0}</p>
-                        <p><strong>Deepest Floor:</strong> ${user.deepestFloor || 0}</p>
-                        <p><strong>Total Kills:</strong> ${user.totalKills || 0}</p>
-                        <p><strong>Characters Unlocked:</strong> ${(user.unlockedCharacters || []).length}/${TOTAL_CHARACTERS}</p>
-                        <p style="margin-top: 0.5rem; color: var(--text-secondary);">
-                            ${(user.unlockedCharacters || []).join(', ') || 'None'}
-                        </p>
+                    <div class="detail-row">
+                        <span class="detail-label">Username:</span>
+                        <span class="detail-value">${user.username}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value">${user.email}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Verified:</span>
+                        <span class="detail-value ${user.isVerified ? '' : 'style="color: var(--accent-red);"'}">
+                            ${user.isVerified ? '✓ Yes' : '✗ No'}
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Admin Status:</span>
+                        <span class="detail-value">${user.isAdmin ? '✓ Admin' : 'User'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Ban Status:</span>
+                        <span class="detail-value ${user.isBanned ? 'style="color: var(--accent-red);"' : ''}">${user.isBanned ? '🚫 Banned' : '✓ Active'}</span>
+                    </div>
+                    ${user.bannedReason ? `
+                    <div class="detail-row">
+                        <span class="detail-label">Ban Reason:</span>
+                        <span class="detail-value" style="color: var(--accent-red);">${user.bannedReason}</span>
+                    </div>
+                    ` : ''}
+                    <div class="detail-row">
+                        <span class="detail-label">Created:</span>
+                        <span class="detail-value">${new Date(user.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Last Login:</span>
+                        <span class="detail-value">${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}</span>
+                    </div>
+                </div>
+
+                <!-- Game Stats Section -->
+                <div class="detail-section">
+                    <h3>🎮 Game Statistics</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Banked Souls:</span>
+                        <span class="detail-value" style="color: var(--accent-gold);">${user.bankedSouls || 0}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Games Played:</span>
+                        <span class="detail-value">${user.gamesPlayed || 0}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Deepest Floor:</span>
+                        <span class="detail-value">${user.deepestFloor || 0}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Total Kills:</span>
+                        <span class="detail-value">${user.totalKills || 0}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Characters Unlocked:</span>
+                        <span class="detail-value">${(user.unlockedCharacters || []).length}/${TOTAL_CHARACTERS}</span>
+                    </div>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(139, 92, 246, 0.1);">
+                        <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">Unlocked Characters:</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                            ${(user.unlockedCharacters || []).map(char =>
+                                `<span class="badge badge-verified">${char}</span>`
+                            ).join('') || '<span style="color: var(--text-tertiary);">None</span>'}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Actions Section -->
+                <div class="detail-section action-section">
+                    <h3>⚙️ Admin Actions</h3>
+                    <div class="action-groups">
+                        <div class="action-group">
+                            <h4>Account Management</h4>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary" onclick="event.stopPropagation(); openResetModal(${user.id}, '${user.username}')">
+                                    🔑 Reset Password
+                                </button>
+                                <button class="btn ${user.isVerified ? 'btn-secondary' : 'btn-primary'}" onclick="event.stopPropagation(); resendVerification(${user.id}, '${user.username}')">
+                                    ✉️ ${user.isVerified ? 'Resend' : 'Send'} Verification
+                                </button>
+                                <button class="btn ${user.isAdmin ? 'btn-danger' : 'btn-success'}" onclick="event.stopPropagation(); toggleAdmin(${user.id}, '${user.username}', ${!user.isAdmin})">
+                                    ${user.isAdmin ? '⬇️ Demote from Admin' : '⬆️ Promote to Admin'}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="action-group">
+                            <h4>Game Resources</h4>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary" onclick="event.stopPropagation(); openSoulsModal(${user.id}, '${user.username}', ${user.bankedSouls || 0})">
+                                    💰 Manage Souls
+                                </button>
+                                <button class="btn btn-success" onclick="event.stopPropagation(); openUnlockCharactersModal(${user.id}, '${user.username}', ${JSON.stringify(user.unlockedCharacters || []).replace(/"/g, '&quot;')})">
+                                    🎭 Unlock Characters
+                                </button>
+                                <button class="btn btn-secondary" onclick="event.stopPropagation(); showCharacters(${user.id}, '${user.username}', ${JSON.stringify(user.unlockedCharacters || []).replace(/"/g, '&quot;')})">
+                                    👁️ View Characters
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="action-group">
+                            <h4>Moderation</h4>
+                            <div class="action-buttons">
+                                <button class="btn ${user.isBanned ? 'btn-success' : 'btn-danger'}" onclick="event.stopPropagation(); openBanModal(${user.id}, '${user.username}', ${!user.isBanned})">
+                                    ${user.isBanned ? '✓ Unban User' : '🚫 Ban User'}
+                                </button>
+                                <button class="btn btn-danger" onclick="event.stopPropagation(); confirmDeleteUser(${user.id}, '${user.username}')">
+                                    🗑️ Delete Account
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
-            document.getElementById('userDetailModal').classList.add('active');
+            document.getElementById('playerDetailModal').classList.add('active');
         }
 
-        function closeUserDetailModal() {
-            document.getElementById('userDetailModal').classList.remove('active');
+        function closePlayerDetailModal() {
+            document.getElementById('playerDetailModal').classList.remove('active');
         }
 
-        // Bulk Actions
-        function toggleSelectAll() {
-            const selectAll = document.getElementById('selectAll');
-            const checkboxes = document.querySelectorAll('.user-select');
-            checkboxes.forEach(cb => cb.checked = selectAll.checked);
-            updateBulkActionsBtn();
-        }
-
-        function updateBulkActionsBtn() {
-            const selectedCount = document.querySelectorAll('.user-select:checked').length;
-            const bulkBtn = document.getElementById('bulkActionsBtn');
-            if (selectedCount > 0) {
-                bulkBtn.style.display = 'block';
-                bulkBtn.textContent = `Bulk Actions (${selectedCount})`;
-            } else {
-                bulkBtn.style.display = 'none';
+        // Close modals when clicking outside
+        document.getElementById('playerDetailModal').addEventListener('click', (e) => {
+            if (e.target.id === 'playerDetailModal') {
+                closePlayerDetailModal();
             }
-        }
+        });
 
-        function showBulkActions() {
-            const selected = Array.from(document.querySelectorAll('.user-select:checked')).map(cb => parseInt(cb.value));
-            if (selected.length === 0) return;
-
-            const action = prompt(`Select action for ${selected.length} users:\n1 = Delete\n2 = Ban\n3 = Unban\n4 = Unlock All Characters`);
-
-            if (action === '1') {
-                if (confirm(`Delete ${selected.length} users? This cannot be undone!`)) {
-                    bulkDelete(selected);
-                }
-            } else if (action === '2') {
-                const reason = prompt('Enter ban reason (optional):');
-                bulkBan(selected, true, reason);
-            } else if (action === '3') {
-                bulkBan(selected, false, null);
-            } else if (action === '4') {
-                bulkUnlockCharacters(selected);
-            }
-        }
-
-        async function bulkDelete(userIds) {
-            const token = localStorage.getItem('klyra_token');
-            let success = 0;
-            for (const userId of userIds) {
-                try {
-                    const response = await fetch(`${API_URL}/admin/delete-user/${userId}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (response.ok) success++;
-                } catch (error) {
-                    console.error('Error deleting user:', userId, error);
-                }
-            }
-            showAlert(`Deleted ${success}/${userIds.length} users`, 'success');
-            loadUsers();
-        }
-
-        async function bulkBan(userIds, isBanned, reason) {
-            const token = localStorage.getItem('klyra_token');
-            let success = 0;
-            for (const userId of userIds) {
-                try {
-                    const response = await fetch(`${API_URL}/admin/ban-user/${userId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ isBanned, reason })
-                    });
-                    if (response.ok) success++;
-                } catch (error) {
-                    console.error('Error banning user:', userId, error);
-                }
-            }
-            showAlert(`${isBanned ? 'Banned' : 'Unbanned'} ${success}/${userIds.length} users`, 'success');
-            loadUsers();
-        }
-
-        async function bulkUnlockCharacters(userIds) {
-            const token = localStorage.getItem('klyra_token');
-            let success = 0;
-            for (const userId of userIds) {
-                try {
-                    const response = await fetch(`${API_URL}/admin/unlock-characters/${userId}`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (response.ok) success++;
-                } catch (error) {
-                    console.error('Error unlocking characters:', userId, error);
-                }
-            }
-            showAlert(`Unlocked characters for ${success}/${userIds.length} users`, 'success');
-            loadUsers();
-        }
 
         // Export to CSV
         function exportToCSV() {
@@ -1490,13 +1582,6 @@
 
         document.getElementById('searchBox').addEventListener('input', () => {
             applyFilters();
-        });
-
-        // Add event listener to checkboxes after table is rendered
-        document.addEventListener('change', (e) => {
-            if (e.target.classList.contains('user-select')) {
-                updateBulkActionsBtn();
-            }
         });
 
         document.getElementById('logoutLink').addEventListener('click', (e) => {
