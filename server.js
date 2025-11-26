@@ -116,7 +116,7 @@ function generateGuestName() {
 const TILE_SIZE = 48; // CRITICAL: Client uses 48px tiles (was 32px)
 const MAX_PLAYERS_PER_LOBBY = 10;
 const LOBBY_START_DELAY = 5000; // 5 seconds before game starts
-const RECONNECT_TIMEOUT = 30000; // 30 seconds to reconnect
+const RECONNECT_TIMEOUT = 120000; // 2 minutes to reconnect
 const AFK_TIMEOUT = 180000; // 3 minutes AFK kick
 const RATE_LIMIT_INTERVAL = 100; // Min ms between actions
 const MAX_MESSAGE_LENGTH = 200;
@@ -6832,7 +6832,7 @@ io.on('connection', (socket) => {
             if (lobby) {
                 player.disconnectedAt = Date.now();
                 disconnectedPlayers.set(player.username, player);
-                console.log(`💾 Saved ${player.username} for reconnection (30s window)`);
+                console.log(`💾 Saved ${player.username} for reconnection (2 min window)`);
             }
         }
 
