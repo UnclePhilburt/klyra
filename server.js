@@ -7733,6 +7733,18 @@ server.listen(PORT, async () => {
     if (process.env.DATABASE_URL) {
         await db.initDatabase();
         await auth.initUsersTable();
+
+        // Run Pet Storage migration
+        try {
+            await auth.pool.query(`
+                ALTER TABLE users
+                ADD COLUMN IF NOT EXISTS stored_pets TEXT[] DEFAULT '{}',
+                ADD COLUMN IF NOT EXISTS current_pet TEXT DEFAULT NULL;
+            `);
+            console.log('✅ Pet Storage migration completed');
+        } catch (error) {
+            console.error('❌ Pet Storage migration failed:', error.message);
+        }
     } else {
         console.warn('⚠️  DATABASE_URL not set - stats will not persist');
     }
