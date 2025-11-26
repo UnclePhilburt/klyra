@@ -4585,7 +4585,7 @@ io.on('connection', (socket) => {
                 console.log(`📍 Restoring state: HP ${player.health}/${player.maxHealth}, Level ${player.level}, Position (${Math.floor(player.position.x)}, ${Math.floor(player.position.y)}), Souls ${player.souls}`);
 
                 // IMPORTANT: Update character class if player selected a different one
-                if (characterClass && typeof characterClass === 'string' && characterClass !== player.class) {
+                if (characterClass && typeof characterClass === 'string' && characterClass.toLowerCase() !== player.class.toLowerCase()) {
                     console.log(`🔄 ${finalUsername} changed character from ${player.class} to ${characterClass}`);
                     player.class = characterClass.toLowerCase(); // Normalize to lowercase
                     player.stats = player.getClassStats(player.class); // getClassStats sets maxHealth and health internally
