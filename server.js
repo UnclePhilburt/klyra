@@ -182,26 +182,22 @@ function calculateEnemyDrops(enemy) {
     } else if (enemy.type === 'minotaur') {
         // Tanks: Tough, better rewards
         xp = 20;
-        souls = 2;
+        souls = 1;
     }
 
-    // Bonus for elite/boss
+    // Bonus for elite/boss (XP only, souls stay at 1)
     if (enemy.isElite) {
         xp *= 2;
-        souls += 2;
     }
     if (enemy.isBoss) {
         xp *= 3;
-        souls += 5;
     }
 
-    // 1% chance for bonus soul drop (+1-2 souls)
-    const bonusSouls = Math.random() < 0.01 ? (1 + Math.floor(Math.random() * 2)) : 0;
-
+    // All enemies drop exactly 1 soul
     return {
         xp: xp,
-        souls: souls + bonusSouls,
-        hasBonus: bonusSouls > 0
+        souls: souls,
+        hasBonus: false
     };
 }
 
