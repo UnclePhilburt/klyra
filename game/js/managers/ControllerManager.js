@@ -378,21 +378,21 @@ class ControllerManager {
         if (!interactHandled && this.isButtonPressed('A')) {
             console.log('🎮 Controller: A pressed (E ability) - calling useAbility');
             this.scene.abilityManager.useAbility('e');
-            this.vibrateAbility();
+            this.vibrateAbility('e'); // Pass ability key for custom vibration
         }
 
         // B Button = R ability
         if (this.isButtonPressed('B')) {
             console.log('🎮 Controller: B pressed (R ability)');
             this.scene.abilityManager.useAbility('r');
-            this.vibrateAbility();
+            this.vibrateAbility('r'); // Pass ability key for custom vibration
         }
 
         // X Button = Q ability
         if (this.isButtonPressed('X')) {
             console.log('🎮 Controller: X pressed (Q ability)');
             this.scene.abilityManager.useAbility('q');
-            this.vibrateAbility();
+            this.vibrateAbility('q'); // Pass ability key for custom vibration
         }
     }
 
@@ -902,16 +902,180 @@ class ControllerManager {
         this.vibrate(300, 0.8, 0.8); // Heavy impact
     }
 
-    vibrateAttack() {
-        this.vibrate(150, 0.4, 0.6); // Attack feedback
-    }
-
     vibrateDamage() {
         this.vibrate(250, 0.7, 0.9); // Taking damage
     }
 
-    vibrateAbility() {
-        this.vibrate(200, 0.5, 0.7); // Ability cast
+    // ═══════════════════════════════════════════════════════════════════════
+    // CHARACTER-SPECIFIC VIBRATIONS - Auto Attacks
+    // ═══════════════════════════════════════════════════════════════════════
+
+    vibrateAttack() {
+        // Get character-specific auto-attack vibration
+        const player = this.scene.localPlayer;
+        const characterClass = (player.data?.characterId || player.class)?.toUpperCase();
+
+        switch (characterClass) {
+            case 'KELISE':
+                // Swift Strike - rapid light tap (fast assassin)
+                this.vibrate(80, 0.3, 0.5);
+                break;
+
+            case 'ALDRIC':
+                // Crushing Blow - heavy thud (tank warrior)
+                this.vibrate(250, 0.6, 0.9);
+                break;
+
+            case 'ZENRYU':
+                // Dragon Slash - sharp precise cut
+                this.vibrate(150, 0.4, 0.7);
+                setTimeout(() => this.vibrate(50, 0.3, 0.4), 150); // Echo
+                break;
+
+            case 'ORION':
+                // Arcane Arrow - bow release (weak pull, strong release)
+                this.vibrate(120, 0.2, 0.6);
+                break;
+
+            case 'LUNARE':
+                // Shadow Bolt - dark magic pulse
+                this.vibrate(140, 0.5, 0.3); // Reverse pattern for eerie feel
+                break;
+
+            case 'BASTION':
+                // Weapon-specific (handled separately by BastionAbilityHandler)
+                this.vibrate(100, 0.3, 0.5);
+                break;
+
+            default:
+                this.vibrate(150, 0.4, 0.6); // Generic attack
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // CHARACTER-SPECIFIC VIBRATIONS - Abilities
+    // ═══════════════════════════════════════════════════════════════════════
+
+    vibrateAbility(abilityKey) {
+        const player = this.scene.localPlayer;
+        const characterClass = (player.data?.characterId || player.class)?.toUpperCase();
+
+        // Character + ability specific patterns
+        const vibrationKey = `${characterClass}_${abilityKey?.toUpperCase()}`;
+
+        switch (vibrationKey) {
+            // ──────── KELISE ────────
+            case 'KELISE_E': // Dash Strike
+                // Quick double tap (dash momentum)
+                this.vibrate(60, 0.4, 0.6);
+                setTimeout(() => this.vibrate(60, 0.5, 0.7), 80);
+                break;
+
+            case 'KELISE_Q': // Life Drain
+                // Pulsing suction effect
+                this.vibrate(150, 0.6, 0.4);
+                setTimeout(() => this.vibrate(150, 0.5, 0.3), 150);
+                setTimeout(() => this.vibrate(150, 0.4, 0.2), 300);
+                break;
+
+            // ──────── ALDRIC ────────
+            case 'ALDRIC_E': // Shockwave
+                // Building earthquake then explosion
+                this.vibrate(100, 0.3, 0.3);
+                setTimeout(() => this.vibrate(200, 0.7, 0.9), 100);
+                setTimeout(() => this.vibrate(150, 0.5, 0.6), 300);
+                break;
+
+            case 'ALDRIC_R': // Titan's Fury
+                // Massive power-up surge
+                this.vibrate(200, 0.5, 0.7);
+                setTimeout(() => this.vibrate(250, 0.7, 0.9), 200);
+                setTimeout(() => this.vibrate(300, 0.9, 1.0), 450);
+                break;
+
+            // ──────── ZENRYU ────────
+            case 'ZENRYU_E':
+            case 'ZENRYU_Q':
+            case 'ZENRYU_R':
+                // Martial arts precision strike
+                this.vibrate(80, 0.4, 0.7);
+                setTimeout(() => this.vibrate(120, 0.5, 0.8), 80);
+                break;
+
+            // ──────── ORION ────────
+            case 'ORION_E': // Shadow Roll
+                // Quick tumble
+                this.vibrate(100, 0.3, 0.5);
+                setTimeout(() => this.vibrate(50, 0.2, 0.3), 100);
+                break;
+
+            case 'ORION_Q': // Arrow Barrage
+                // Rapid fire sequence
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => this.vibrate(60, 0.3, 0.5), i * 80);
+                }
+                break;
+
+            // ──────── LUNARE ────────
+            case 'LUNARE_E': // Shadow Vortex
+                // Swirling pull effect
+                this.vibrate(200, 0.4, 0.6);
+                setTimeout(() => this.vibrate(180, 0.5, 0.7), 150);
+                setTimeout(() => this.vibrate(160, 0.6, 0.8), 280);
+                setTimeout(() => this.vibrate(100, 0.7, 0.9), 380); // Vortex peak
+                break;
+
+            case 'LUNARE_Q': // Dark Veil
+                // Protective shadow wrapping
+                this.vibrate(250, 0.5, 0.3); // Weak strong, strong weak (dark magic)
+                setTimeout(() => this.vibrate(150, 0.3, 0.2), 250);
+                break;
+
+            // ──────── BASTION ────────
+            case 'BASTION_E': // Tactical Stance (weapon switch)
+                // Mechanical click and lock
+                this.vibrate(120, 0.6, 0.4);
+                setTimeout(() => this.vibrate(80, 0.4, 0.6), 120);
+                break;
+
+            case 'BASTION_Q': // Reload
+                // Magazine out, magazine in, chamber
+                this.vibrate(100, 0.4, 0.3); // Eject
+                setTimeout(() => this.vibrate(120, 0.3, 0.4), 200); // Insert
+                setTimeout(() => this.vibrate(80, 0.5, 0.5), 400); // Chamber
+                break;
+
+            // ──────── DEFAULT ────────
+            default:
+                this.vibrate(200, 0.5, 0.7); // Generic ability
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // BASTION WEAPON-SPECIFIC VIBRATIONS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    vibrateBastionWeapon(weaponType) {
+        switch (weaponType) {
+            case 'SCAR':
+                // Assault rifle - short punchy
+                this.vibrate(80, 0.3, 0.5);
+                break;
+
+            case 'SHIELD_PISTOL':
+                // Pistol - controlled single shot
+                this.vibrate(120, 0.4, 0.6);
+                break;
+
+            case 'SHOTGUN':
+                // Shotgun - heavy blast with kickback
+                this.vibrate(200, 0.7, 0.9);
+                setTimeout(() => this.vibrate(100, 0.4, 0.5), 200); // Recoil
+                break;
+
+            default:
+                this.vibrate(100, 0.4, 0.6);
+        }
     }
 
     destroy() {
