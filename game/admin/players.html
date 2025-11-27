@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Management - Atlas Security</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg-dark: #080810; --bg-card: #0d0d18; --border: #1a1a2e; --accent: #3b82f6; --text: #e0e0e0; --text-dim: #888; --success: #22c55e; --warning: #f59e0b; --danger: #ef4444; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text); min-height: 100vh; }
+
+        .header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+        .header .nav { display: flex; align-items: center; gap: 24px; }
+        .header .back { color: var(--text-dim); text-decoration: none; }
+        .header .back:hover { color: #fff; }
+        .header h1 { font-size: 18px; color: #fff; }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 32px; }
+
+        .search-bar { display: flex; gap: 12px; margin-bottom: 24px; }
+        .search-bar input { flex: 1; padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 14px; }
+        .search-bar input:focus { outline: none; border-color: var(--accent); }
+        .search-bar button { padding: 12px 24px; background: var(--accent); border: none; border-radius: 8px; color: #fff; font-weight: 600; cursor: pointer; }
+
+        .section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; }
+        .section-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .section-header h2 { font-size: 15px; font-weight: 600; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+        th { color: var(--text-dim); font-weight: 600; text-transform: uppercase; font-size: 11px; }
+        tr:hover { background: rgba(59, 130, 246, 0.05); }
+        tr.banned { background: rgba(239, 68, 68, 0.1); }
+
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+        .badge.verified { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge.unverified { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .badge.admin { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; }
+        .badge.banned { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+        .actions { display: flex; gap: 6px; }
+        .btn { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-dim); font-size: 11px; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { border-color: var(--accent); color: var(--accent); }
+        .btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 1000; }
+        .modal { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; width: 100%; max-width: 400px; }
+        .modal h3 { font-size: 18px; margin-bottom: 8px; }
+        .modal p { color: var(--text-dim); font-size: 13px; margin-bottom: 20px; }
+        .modal .form-group { margin-bottom: 16px; }
+        .modal label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+        .modal input, .modal select { width: 100%; padding: 10px 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: #fff; font-size: 14px; }
+        .modal .btn-row { display: flex; gap: 12px; margin-top: 20px; }
+        .modal .btn-row button { flex: 1; padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .modal .cancel { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
+        .modal .confirm { background: var(--accent); border: none; color: #fff; }
+        .modal .confirm.danger { background: var(--danger); }
+
+        .char-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .char-btn { padding: 8px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-dim); font-size: 11px; cursor: pointer; }
+        .char-btn.selected { border-color: var(--success); color: var(--success); background: rgba(34, 197, 94, 0.1); }
+
+        .empty { text-align: center; padding: 40px; color: var(--text-dim); }
+        .loading { text-align: center; padding: 40px; color: var(--text-dim); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav">
+            <a href="index.html" class="back">← Back</a>
+            <h1>👥 Player Management</h1>
+        </div>
+        <span id="userCount" style="color: var(--text-dim); font-size: 13px;">-</span>
+    </header>
+
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search by username or email...">
+            <button onclick="filterUsers()">Search</button>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2>Registered Players</h2>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Souls</th>
+                        <th>Characters</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersBody">
+                    <tr><td colspan="6" class="loading">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Souls Modal -->
+    <div class="modal-overlay" id="soulsModal">
+        <div class="modal">
+            <h3>💎 Update Souls</h3>
+            <p>Set souls for <strong id="soulsUser">-</strong></p>
+            <div class="form-group">
+                <label>Current: <span id="currentSouls">0</span></label>
+                <input type="number" id="newSouls" min="0" placeholder="New soul count">
+            </div>
+            <div class="btn-row">
+                <button class="cancel" onclick="closeModal('soulsModal')">Cancel</button>
+                <button class="confirm" onclick="updateSouls()">Update</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Characters Modal -->
+    <div class="modal-overlay" id="charsModal">
+        <div class="modal">
+            <h3>🎮 Unlock Characters</h3>
+            <p>Select characters to unlock for <strong id="charsUser">-</strong></p>
+            <div class="char-grid" id="charGrid"></div>
+            <div class="btn-row">
+                <button class="cancel" onclick="closeModal('charsModal')">Cancel</button>
+                <button class="confirm" onclick="unlockChars()">Unlock Selected</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ban Modal -->
+    <div class="modal-overlay" id="banModal">
+        <div class="modal">
+            <h3>🚫 Ban User</h3>
+            <p>Ban <strong id="banUser">-</strong> from KLYRA</p>
+            <div class="form-group">
+                <label>Reason</label>
+                <input type="text" id="banReason" placeholder="Reason for ban">
+            </div>
+            <div class="btn-row">
+                <button class="cancel" onclick="closeModal('banModal')">Cancel</button>
+                <button class="confirm danger" onclick="banUser()">Ban User</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div class="modal-overlay" id="passModal">
+        <div class="modal">
+            <h3>🔑 Reset Password</h3>
+            <p>Set new password for <strong id="passUser">-</strong></p>
+            <div class="form-group">
+                <label>New Password (min 8 chars)</label>
+                <input type="password" id="newPass" minlength="8" placeholder="New password">
+            </div>
+            <div class="btn-row">
+                <button class="cancel" onclick="closeModal('passModal')">Cancel</button>
+                <button class="confirm" onclick="resetPassword()">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://api.klyra.lol';
+        const token = localStorage.getItem('atlasToken');
+        if (!token) location.href = 'index.html';
+
+        const CHARS = ['KELISE', 'MALACHAR', 'ALDRIC', 'ZENRYU', 'ORION', 'LUNARE', 'BASTION'];
+        let users = [];
+        let selectedUser = null;
+        let selectedChars = [];
+
+        async function fetchUsers() {
+            try {
+                const res = await fetch(`${API}/atlas/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.status === 401) { location.href = 'index.html'; return; }
+                const data = await res.json();
+                users = data.users || [];
+                document.getElementById('userCount').textContent = `${users.length} registered`;
+                renderUsers(users);
+            } catch (e) {
+                console.error(e);
+                document.getElementById('usersBody').innerHTML = '<tr><td colspan="6" class="empty">Failed to load users</td></tr>';
+            }
+        }
+
+        function renderUsers(list) {
+            const tbody = document.getElementById('usersBody');
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty">No users found</td></tr>';
+                return;
+            }
+            tbody.innerHTML = list.map(u => `
+                <tr class="${u.isBanned ? 'banned' : ''}">
+                    <td><strong>${u.username}</strong>${u.isAdmin ? ' <span class="badge admin">Admin</span>' : ''}</td>
+                    <td>${u.email}</td>
+                    <td>${u.bankedSouls || 0}</td>
+                    <td>${(u.unlockedCharacters || []).length}/${CHARS.length}</td>
+                    <td>
+                        ${u.isBanned ? '<span class="badge banned">Banned</span>' : u.isVerified ? '<span class="badge verified">Verified</span>' : '<span class="badge unverified">Unverified</span>'}
+                    </td>
+                    <td class="actions">
+                        <button class="btn" onclick="openSouls(${u.id})">Souls</button>
+                        <button class="btn" onclick="openChars(${u.id})">Chars</button>
+                        <button class="btn" onclick="openPass(${u.id})">Pass</button>
+                        <button class="btn danger" onclick="${u.isBanned ? `unban(${u.id})` : `openBan(${u.id})`}">${u.isBanned ? 'Unban' : 'Ban'}</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterUsers() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = users.filter(u => u.username.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+            renderUsers(filtered);
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function openSouls(id) {
+            selectedUser = users.find(u => u.id === id);
+            document.getElementById('soulsUser').textContent = selectedUser.username;
+            document.getElementById('currentSouls').textContent = selectedUser.bankedSouls || 0;
+            document.getElementById('newSouls').value = selectedUser.bankedSouls || 0;
+            document.getElementById('soulsModal').style.display = 'flex';
+        }
+
+        async function updateSouls() {
+            const souls = parseInt(document.getElementById('newSouls').value);
+            try {
+                const res = await fetch(`${API}/atlas/users/${selectedUser.id}/souls`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ souls })
+                });
+                const data = await res.json();
+                if (data.success) { closeModal('soulsModal'); fetchUsers(); }
+                else alert(data.error);
+            } catch (e) { alert('Failed'); }
+        }
+
+        function openChars(id) {
+            selectedUser = users.find(u => u.id === id);
+            selectedChars = [...(selectedUser.unlockedCharacters || [])];
+            document.getElementById('charsUser').textContent = selectedUser.username;
+            document.getElementById('charGrid').innerHTML = CHARS.map(c => `
+                <button class="char-btn ${selectedChars.includes(c) ? 'selected' : ''}" onclick="toggleChar('${c}', this)">${c}</button>
+            `).join('');
+            document.getElementById('charsModal').style.display = 'flex';
+        }
+
+        function toggleChar(c, btn) {
+            if (selectedChars.includes(c)) {
+                selectedChars = selectedChars.filter(x => x !== c);
+                btn.classList.remove('selected');
+            } else {
+                selectedChars.push(c);
+                btn.classList.add('selected');
+            }
+        }
+
+        async function unlockChars() {
+            const newChars = selectedChars.filter(c => !(selectedUser.unlockedCharacters || []).includes(c));
+            if (newChars.length === 0) { closeModal('charsModal'); return; }
+            try {
+                const res = await fetch(`${API}/atlas/users/${selectedUser.id}/characters`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ characters: newChars })
+                });
+                const data = await res.json();
+                if (data.success) { closeModal('charsModal'); fetchUsers(); }
+                else alert(data.error);
+            } catch (e) { alert('Failed'); }
+        }
+
+        function openBan(id) {
+            selectedUser = users.find(u => u.id === id);
+            document.getElementById('banUser').textContent = selectedUser.username;
+            document.getElementById('banReason').value = '';
+            document.getElementById('banModal').style.display = 'flex';
+        }
+
+        async function banUser() {
+            const reason = document.getElementById('banReason').value;
+            try {
+                const res = await fetch(`${API}/atlas/users/${selectedUser.id}/ban`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ banned: true, reason })
+                });
+                const data = await res.json();
+                if (data.success) { closeModal('banModal'); fetchUsers(); }
+                else alert(data.error);
+            } catch (e) { alert('Failed'); }
+        }
+
+        async function unban(id) {
+            if (!confirm('Unban this user?')) return;
+            try {
+                const res = await fetch(`${API}/atlas/users/${id}/ban`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ banned: false })
+                });
+                const data = await res.json();
+                if (data.success) fetchUsers();
+                else alert(data.error);
+            } catch (e) { alert('Failed'); }
+        }
+
+        function openPass(id) {
+            selectedUser = users.find(u => u.id === id);
+            document.getElementById('passUser').textContent = selectedUser.username;
+            document.getElementById('newPass').value = '';
+            document.getElementById('passModal').style.display = 'flex';
+        }
+
+        async function resetPassword() {
+            const newPassword = document.getElementById('newPass').value;
+            if (newPassword.length < 8) { alert('Password must be at least 8 characters'); return; }
+            try {
+                const res = await fetch(`${API}/atlas/users/${selectedUser.id}/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newPassword })
+                });
+                const data = await res.json();
+                if (data.success) { closeModal('passModal'); alert('Password reset!'); }
+                else alert(data.error);
+            } catch (e) { alert('Failed'); }
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', e => { if (e.key === 'Enter') filterUsers(); });
+        fetchUsers();
+    </script>
+</body>
+</html>

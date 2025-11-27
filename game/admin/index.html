@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas Security - KLYRA Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-dark: #080810;
+            --bg-card: #0d0d18;
+            --bg-card-hover: #12121f;
+            --border: #1a1a2e;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.3);
+            --text: #e0e0e0;
+            --text-dim: #888;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Login Screen */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: radial-gradient(ellipse at top, #0a0a1a 0%, #080810 100%);
+        }
+
+        .login-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 48px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-logo .shield {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .login-logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 2px;
+        }
+
+        .login-logo p {
+            color: var(--text-dim);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .login-btn:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-msg {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .setup-link {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .setup-link a {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        /* Admin Hub */
+        .admin-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-header .brand h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .admin-header .brand span {
+            color: var(--accent);
+        }
+
+        .admin-header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .admin-header .user-badge {
+            background: var(--bg-dark);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-header .logout-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .admin-header .logout-btn:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .admin-body {
+            padding: 32px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .welcome-section {
+            margin-bottom: 40px;
+        }
+
+        .welcome-section h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .welcome-section p {
+            color: var(--text-dim);
+        }
+
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .hub-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hub-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--card-accent);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .hub-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--card-accent);
+            transform: translateY(-2px);
+        }
+
+        .hub-card:hover::before {
+            opacity: 1;
+        }
+
+        .hub-card.dashboard { --card-accent: #8b5cf6; }
+        .hub-card.players { --card-accent: #3b82f6; }
+        .hub-card.logs { --card-accent: #22c55e; }
+        .hub-card.stats { --card-accent: #f59e0b; }
+        .hub-card.settings { --card-accent: #ec4899; }
+
+        .card-icon {
+            font-size: 36px;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .card-stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .card-stat {
+            text-align: center;
+        }
+
+        .card-stat .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .card-stat .label {
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 10px 32px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Setup Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .modal h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .modal p {
+            color: var(--text-dim);
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <div class="login-logo">
+                <div class="shield">🛡️</div>
+                <h1>ATLAS SECURITY</h1>
+                <p>KLYRA Administrative Access</p>
+            </div>
+
+            <div class="error-msg" id="loginError"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" autocomplete="username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
+            </form>
+
+            <div class="setup-link" id="setupLink" style="display: none;">
+                <a href="#" onclick="showSetup()">First time? Set up admin account</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Hub -->
+    <div class="admin-container" id="adminHub">
+        <header class="admin-header">
+            <div class="brand">
+                <span>🛡️</span>
+                <h1>ATLAS <span>SECURITY</span></h1>
+            </div>
+            <div class="user-info">
+                <div class="user-badge">
+                    <span id="adminRole">Admin</span>
+                    <strong id="adminName">-</strong>
+                </div>
+                <button class="logout-btn" onclick="logout()">Sign Out</button>
+            </div>
+        </header>
+
+        <main class="admin-body">
+            <div class="welcome-section">
+                <h2>Control Center</h2>
+                <p>Manage KLYRA game server, players, and system settings</p>
+            </div>
+
+            <div class="hub-grid">
+                <a href="dashboard.html" class="hub-card dashboard">
+                    <div class="card-icon">📊</div>
+                    <div class="card-title">Server Dashboard</div>
+                    <div class="card-desc">Real-time server metrics, memory usage, active lobbies, and performance monitoring.</div>
+                    <div class="card-stats">
+                        <div class="card-stat">
+                            <div class="value" id="statPlayers">-</div>
+                            <div class="label">Online</div>
+                        </div>
+                        <div class="card-stat">
+                            <div class="value" id="statLobbies">-</div>
+                            <div class="label">Lobbies</div>
+                        </div>
+                        <div class="card-stat">
+                            <div class="value" id="statUptime">-</div>
+                            <div class="label">Uptime</div>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="players.html" class="hub-card players">
+                    <div class="card-icon">👥</div>
+                    <div class="card-title">Player Management</div>
+                    <div class="card-desc">Search players, manage accounts, add souls, unlock characters, and moderate users.</div>
+                    <div class="card-stats">
+                        <div class="card-stat">
+                            <div class="value" id="statTotalPlayers">-</div>
+                            <div class="label">Registered</div>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="logs.html" class="hub-card logs">
+                    <div class="card-icon">📜</div>
+                    <div class="card-title">Activity Logs</div>
+                    <div class="card-desc">View admin actions, player events, and system activity in real-time.</div>
+                </a>
+
+                <a href="stats.html" class="hub-card stats">
+                    <div class="card-icon">🏆</div>
+                    <div class="card-title">Global Statistics</div>
+                    <div class="card-desc">All-time game statistics, leaderboards, and aggregate player data.</div>
+                </a>
+
+                <a href="admins.html" class="hub-card settings" id="adminManagement" style="display: none;">
+                    <div class="card-icon">⚙️</div>
+                    <div class="card-title">Admin Management</div>
+                    <div class="card-desc">Create and manage Atlas Security administrator accounts.</div>
+                </a>
+            </div>
+        </main>
+
+        <div class="status-bar">
+            <div>
+                <span class="status-dot"></span>
+                <span id="connectionStatus">Connected to server</span>
+            </div>
+            <div id="lastUpdate">-</div>
+        </div>
+    </div>
+
+    <!-- Setup Modal -->
+    <div class="modal-overlay" id="setupModal">
+        <div class="modal">
+            <h3>🔐 Initial Setup</h3>
+            <p>Create the first Atlas Security super admin account. This can only be done once.</p>
+
+            <div class="error-msg" id="setupError"></div>
+
+            <form id="setupForm">
+                <div class="form-group">
+                    <label>Admin Username</label>
+                    <input type="text" id="setupUsername" required minlength="3">
+                </div>
+                <div class="form-group">
+                    <label>Display Name</label>
+                    <input type="text" id="setupDisplayName">
+                </div>
+                <div class="form-group">
+                    <label>Password (min 12 characters)</label>
+                    <input type="password" id="setupPassword" required minlength="12">
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="setupConfirm" required>
+                </div>
+                <button type="submit" class="login-btn">Create Super Admin</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost'
+            ? 'http://localhost:3001'
+            : 'https://api.klyra.lol';
+
+        let atlasToken = localStorage.getItem('atlasToken');
+        let adminData = null;
+
+        // Check if setup is needed
+        async function checkSetup() {
+            try {
+                const res = await fetch(`${API_BASE}/atlas/admins`, {
+                    headers: { 'Authorization': `Bearer ${atlasToken}` }
+                });
+                if (res.status === 401) {
+                    // Not logged in, check if setup needed
+                    const admins = await (await fetch(`${API_BASE}/atlas/verify`)).json();
+                    if (admins.error) {
+                        document.getElementById('setupLink').style.display = 'block';
+                    }
+                }
+            } catch (e) {
+                document.getElementById('setupLink').style.display = 'block';
+            }
+        }
+
+        // Initialize
+        async function init() {
+            if (atlasToken) {
+                const valid = await verifyToken();
+                if (valid) {
+                    showHub();
+                    return;
+                }
+            }
+            checkSetup();
+        }
+
+        // Verify token
+        async function verifyToken() {
+            try {
+                const res = await fetch(`${API_BASE}/atlas/verify`, {
+                    headers: { 'Authorization': `Bearer ${atlasToken}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    adminData = data.admin;
+                    return true;
+                }
+            } catch (e) {}
+            localStorage.removeItem('atlasToken');
+            atlasToken = null;
+            return false;
+        }
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const errorEl = document.getElementById('loginError');
+
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
+            errorEl.style.display = 'none';
+
+            try {
+                const res = await fetch(`${API_BASE}/atlas/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    atlasToken = data.token;
+                    adminData = data.admin;
+                    localStorage.setItem('atlasToken', atlasToken);
+                    showHub();
+                } else {
+                    errorEl.textContent = data.error || 'Login failed';
+                    errorEl.style.display = 'block';
+                }
+            } catch (err) {
+                errorEl.textContent = 'Connection failed. Is the server running?';
+                errorEl.style.display = 'block';
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Sign In';
+        });
+
+        // Show setup modal
+        function showSetup() {
+            document.getElementById('setupModal').style.display = 'flex';
+        }
+
+        // Setup form
+        document.getElementById('setupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorEl = document.getElementById('setupError');
+            errorEl.style.display = 'none';
+
+            const password = document.getElementById('setupPassword').value;
+            const confirm = document.getElementById('setupConfirm').value;
+
+            if (password !== confirm) {
+                errorEl.textContent = 'Passwords do not match';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/atlas/setup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('setupUsername').value,
+                        password: password,
+                        displayName: document.getElementById('setupDisplayName').value
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('setupModal').style.display = 'none';
+                    document.getElementById('username').value = document.getElementById('setupUsername').value;
+                    alert('Super admin created! Please log in.');
+                } else {
+                    errorEl.textContent = data.error;
+                    errorEl.style.display = 'block';
+                }
+            } catch (err) {
+                errorEl.textContent = 'Connection failed';
+                errorEl.style.display = 'block';
+            }
+        });
+
+        // Show admin hub
+        function showHub() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminHub').style.display = 'block';
+            document.getElementById('adminName').textContent = adminData?.display_name || adminData?.username || '-';
+            document.getElementById('adminRole').textContent = adminData?.role === 'super' ? 'Super Admin' : 'Admin';
+
+            // Show admin management for super admins
+            if (adminData?.role === 'super') {
+                document.getElementById('adminManagement').style.display = 'block';
+            }
+
+            fetchStats();
+            setInterval(fetchStats, 10000);
+        }
+
+        // Fetch stats
+        async function fetchStats() {
+            try {
+                const res = await fetch(`${API_BASE}/admin/dashboard`);
+                const data = await res.json();
+
+                document.getElementById('statPlayers').textContent = data.game?.activePlayers || 0;
+                document.getElementById('statLobbies').textContent = data.game?.activeLobbies || 0;
+
+                const uptime = data.server?.uptime || 0;
+                const hours = Math.floor(uptime / 3600);
+                const days = Math.floor(hours / 24);
+                document.getElementById('statUptime').textContent = days > 0 ? `${days}d` : `${hours}h`;
+
+                document.getElementById('lastUpdate').textContent = `Updated ${new Date().toLocaleTimeString()}`;
+            } catch (e) {
+                console.error('Failed to fetch stats:', e);
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/global-stats`);
+                const data = await res.json();
+                document.getElementById('statTotalPlayers').textContent = data.totalPlayers || 0;
+            } catch (e) {}
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('atlasToken');
+            atlasToken = null;
+            adminData = null;
+            document.getElementById('adminHub').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('password').value = '';
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>

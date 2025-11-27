@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Statistics - Atlas Security</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg-dark: #080810; --bg-card: #0d0d18; --border: #1a1a2e; --accent: #f59e0b; --text: #e0e0e0; --text-dim: #888; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text); min-height: 100vh; }
+        .header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+        .header .nav { display: flex; align-items: center; gap: 24px; }
+        .header .back { color: var(--text-dim); text-decoration: none; }
+        .header h1 { font-size: 18px; color: #fff; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 32px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+        .stat-card .icon { font-size: 28px; margin-bottom: 12px; }
+        .stat-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 8px; }
+        .stat-card .value { font-size: 32px; font-weight: 700; color: #fff; }
+        .stat-card .sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+        .section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; }
+        .section-header { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+        .section-header h2 { font-size: 15px; font-weight: 600; }
+        .section-body { padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+        th { color: var(--text-dim); font-weight: 600; text-transform: uppercase; font-size: 11px; }
+        .rank { color: var(--accent); font-weight: 700; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav">
+            <a href="index.html" class="back">← Back</a>
+            <h1>🏆 Global Statistics</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card"><div class="icon">⚔️</div><div class="label">Total Kills</div><div class="value" id="totalKills">-</div></div>
+            <div class="stat-card"><div class="icon">💀</div><div class="label">Total Deaths</div><div class="value" id="totalDeaths">-</div></div>
+            <div class="stat-card"><div class="icon">💥</div><div class="label">Damage Dealt</div><div class="value" id="totalDamage">-</div></div>
+            <div class="stat-card"><div class="icon">👹</div><div class="label">Boss Kills</div><div class="value" id="bossKills">-</div></div>
+            <div class="stat-card"><div class="icon">⭐</div><div class="label">Elite Kills</div><div class="value" id="eliteKills">-</div></div>
+            <div class="stat-card"><div class="icon">🏛️</div><div class="label">Deepest Floor</div><div class="value" id="deepestFloor">-</div></div>
+            <div class="stat-card"><div class="icon">🎮</div><div class="label">Games Completed</div><div class="value" id="gamesCompleted">-</div></div>
+            <div class="stat-card"><div class="icon">⏱️</div><div class="label">Total Playtime</div><div class="value" id="totalPlaytime">-</div></div>
+            <div class="stat-card"><div class="icon">💰</div><div class="label">Gold Collected</div><div class="value" id="totalGold">-</div></div>
+            <div class="stat-card"><div class="icon">🧪</div><div class="label">Potions Used</div><div class="value" id="potionsUsed">-</div></div>
+            <div class="stat-card"><div class="icon">✨</div><div class="label">Abilities Used</div><div class="value" id="abilitiesUsed">-</div></div>
+            <div class="stat-card"><div class="icon">🚶</div><div class="label">Distance Traveled</div><div class="value" id="distance">-</div></div>
+        </div>
+
+        <div class="section">
+            <div class="section-header"><h2>Top Players by Kills</h2></div>
+            <div class="section-body">
+                <table>
+                    <thead><tr><th>#</th><th>Player</th><th>Kills</th><th>Deaths</th><th>Games</th></tr></thead>
+                    <tbody id="killsLeaderboard"><tr><td colspan="5" style="text-align:center;color:var(--text-dim);">Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header"><h2>Top Players by Damage</h2></div>
+            <div class="section-body">
+                <table>
+                    <thead><tr><th>#</th><th>Player</th><th>Damage</th><th>Games</th></tr></thead>
+                    <tbody id="damageLeaderboard"><tr><td colspan="4" style="text-align:center;color:var(--text-dim);">Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://api.klyra.lol';
+
+        function fmt(n) { return n >= 1e9 ? (n/1e9).toFixed(1)+'B' : n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : n.toString(); }
+        function fmtTime(ms) { const h = Math.floor(ms/3600000); const d = Math.floor(h/24); return d > 0 ? `${d}d ${h%24}h` : `${h}h`; }
+
+        async function fetchStats() {
+            try {
+                const [globalRes, liveRes, killsRes, damageRes] = await Promise.all([
+                    fetch(`${API}/global-stats`),
+                    fetch(`${API}/live-stats`),
+                    fetch(`${API}/leaderboard/kills`),
+                    fetch(`${API}/leaderboard/damage`)
+                ]);
+
+                const global = await globalRes.json();
+                const live = await liveRes.json();
+                const kills = await killsRes.json();
+                const damage = await damageRes.json();
+
+                document.getElementById('totalKills').textContent = fmt(global.totalKills || 0);
+                document.getElementById('totalDeaths').textContent = fmt(global.totalDeaths || 0);
+                document.getElementById('totalDamage').textContent = fmt(live.totalDamageDealt || 0);
+                document.getElementById('bossKills').textContent = fmt(live.bossKills || 0);
+                document.getElementById('eliteKills').textContent = fmt(live.eliteKills || 0);
+                document.getElementById('deepestFloor').textContent = live.deepestFloor || 0;
+                document.getElementById('gamesCompleted').textContent = fmt(live.gamesCompleted || 0);
+                document.getElementById('totalPlaytime').textContent = fmtTime(live.totalPlaytime || 0);
+                document.getElementById('totalGold').textContent = fmt(live.totalGold || 0);
+                document.getElementById('potionsUsed').textContent = fmt(live.potionsConsumed || 0);
+                document.getElementById('abilitiesUsed').textContent = fmt(live.abilitiesUsed || 0);
+                document.getElementById('distance').textContent = fmt(Math.floor((live.distanceTraveled || 0) / 1000)) + ' km';
+
+                // Leaderboards
+                const killsBody = document.getElementById('killsLeaderboard');
+                killsBody.innerHTML = kills.map((p, i) => `
+                    <tr><td class="rank">${i+1}</td><td><strong>${p.username}</strong></td><td>${fmt(p.total_kills)}</td><td>${fmt(p.total_deaths)}</td><td>${p.games_played}</td></tr>
+                `).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);">No data</td></tr>';
+
+                const damageBody = document.getElementById('damageLeaderboard');
+                damageBody.innerHTML = damage.map((p, i) => `
+                    <tr><td class="rank">${i+1}</td><td><strong>${p.username}</strong></td><td>${fmt(p.total_damage_dealt)}</td><td>${p.games_played}</td></tr>
+                `).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text-dim);">No data</td></tr>';
+
+            } catch (e) { console.error(e); }
+        }
+
+        fetchStats();
+        setInterval(fetchStats, 30000);
+    </script>
+</body>
+</html>

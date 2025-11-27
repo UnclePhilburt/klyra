@@ -910,6 +910,280 @@ async function sendPasswordResetEmail(email, username, token) {
     });
 }
 
+// ==========================================
+// ATLAS SECURITY - Separate Admin System
+// ==========================================
+
+const ATLAS_JWT_SECRET = process.env.ATLAS_JWT_SECRET || 'atlas-security-secret-change-in-production';
+const ATLAS_JWT_EXPIRES_IN = '24h'; // Admin sessions expire in 24 hours
+
+// Initialize Atlas Security admin table
+async function initAtlasTable() {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS atlas_admins (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(255) UNIQUE NOT NULL,
+                password_hash VARCHAR(255) NOT NULL,
+                display_name VARCHAR(255),
+                role VARCHAR(50) DEFAULT 'admin',
+                permissions JSONB DEFAULT '["view"]',
+                last_login TIMESTAMP,
+                login_count INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                created_by INTEGER,
+                is_active BOOLEAN DEFAULT TRUE
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_atlas_username ON atlas_admins(username);
+        `);
+
+        // Create activity log table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS atlas_activity_log (
+                id SERIAL PRIMARY KEY,
+                admin_id INTEGER REFERENCES atlas_admins(id),
+                action VARCHAR(255) NOT NULL,
+                target_type VARCHAR(100),
+                target_id VARCHAR(255),
+                details JSONB,
+                ip_address VARCHAR(45),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_atlas_log_admin ON atlas_activity_log(admin_id);
+            CREATE INDEX IF NOT EXISTS idx_atlas_log_created ON atlas_activity_log(created_at DESC);
+        `);
+
+        console.log('✅ Atlas Security tables initialized');
+    } catch (error) {
+        console.error('❌ Failed to initialize Atlas Security tables:', error);
+    }
+}
+
+// Register Atlas admin (can only be done by existing admin or first setup)
+async function atlasRegisterAdmin(username, password, displayName, role = 'admin', createdBy = null) {
+    try {
+        if (!username || username.length < 3) {
+            return { success: false, error: 'Username must be at least 3 characters' };
+        }
+        if (!password || password.length < 12) {
+            return { success: false, error: 'Password must be at least 12 characters' };
+        }
+
+        // Check if username exists
+        const existing = await pool.query(
+            'SELECT id FROM atlas_admins WHERE username = $1',
+            [username]
+        );
+        if (existing.rows.length > 0) {
+            return { success: false, error: 'Username already exists' };
+        }
+
+        const passwordHash = await bcrypt.hash(password, 12); // Higher rounds for admin
+
+        const result = await pool.query(`
+            INSERT INTO atlas_admins (username, password_hash, display_name, role, created_by)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id, username, display_name, role, created_at
+        `, [username, passwordHash, displayName || username, role, createdBy]);
+
+        return { success: true, admin: result.rows[0] };
+    } catch (error) {
+        console.error('Error registering Atlas admin:', error);
+        return { success: false, error: 'Failed to register admin' };
+    }
+}
+
+// Atlas admin login
+async function atlasLogin(username, password) {
+    try {
+        const result = await pool.query(
+            'SELECT * FROM atlas_admins WHERE username = $1 AND is_active = TRUE',
+            [username]
+        );
+
+        if (result.rows.length === 0) {
+            return { success: false, error: 'Invalid credentials' };
+        }
+
+        const admin = result.rows[0];
+        const passwordMatch = await bcrypt.compare(password, admin.password_hash);
+
+        if (!passwordMatch) {
+            return { success: false, error: 'Invalid credentials' };
+        }
+
+        // Update last login
+        await pool.query(
+            'UPDATE atlas_admins SET last_login = CURRENT_TIMESTAMP, login_count = login_count + 1 WHERE id = $1',
+            [admin.id]
+        );
+
+        // Generate Atlas JWT token
+        const token = jwt.sign(
+            {
+                atlasId: admin.id,
+                username: admin.username,
+                role: admin.role,
+                isAtlas: true // Flag to distinguish from player tokens
+            },
+            ATLAS_JWT_SECRET,
+            { expiresIn: ATLAS_JWT_EXPIRES_IN }
+        );
+
+        return {
+            success: true,
+            token,
+            admin: {
+                id: admin.id,
+                username: admin.username,
+                displayName: admin.display_name,
+                role: admin.role,
+                permissions: admin.permissions,
+                lastLogin: admin.last_login
+            }
+        };
+    } catch (error) {
+        console.error('Error Atlas login:', error);
+        return { success: false, error: 'Login failed' };
+    }
+}
+
+// Verify Atlas token
+function atlasVerifyToken(token) {
+    try {
+        const decoded = jwt.verify(token, ATLAS_JWT_SECRET);
+        if (!decoded.isAtlas) {
+            return { success: false, error: 'Not an Atlas token' };
+        }
+        return {
+            success: true,
+            atlasId: decoded.atlasId,
+            username: decoded.username,
+            role: decoded.role
+        };
+    } catch (error) {
+        return { success: false, error: 'Invalid or expired token' };
+    }
+}
+
+// Get Atlas admin by ID
+async function atlasGetAdmin(adminId) {
+    try {
+        const result = await pool.query(
+            'SELECT id, username, display_name, role, permissions, last_login, login_count, created_at, is_active FROM atlas_admins WHERE id = $1',
+            [adminId]
+        );
+        return result.rows[0] || null;
+    } catch (error) {
+        console.error('Error getting Atlas admin:', error);
+        return null;
+    }
+}
+
+// Get all Atlas admins
+async function atlasGetAllAdmins() {
+    try {
+        const result = await pool.query(
+            'SELECT id, username, display_name, role, permissions, last_login, login_count, created_at, is_active FROM atlas_admins ORDER BY created_at DESC'
+        );
+        return result.rows;
+    } catch (error) {
+        console.error('Error getting Atlas admins:', error);
+        return [];
+    }
+}
+
+// Log Atlas activity
+async function atlasLogActivity(adminId, action, targetType = null, targetId = null, details = null, ipAddress = null) {
+    try {
+        await pool.query(`
+            INSERT INTO atlas_activity_log (admin_id, action, target_type, target_id, details, ip_address)
+            VALUES ($1, $2, $3, $4, $5, $6)
+        `, [adminId, action, targetType, targetId, details ? JSON.stringify(details) : null, ipAddress]);
+    } catch (error) {
+        console.error('Error logging Atlas activity:', error);
+    }
+}
+
+// Get Atlas activity log
+async function atlasGetActivityLog(limit = 100, adminId = null) {
+    try {
+        let query = `
+            SELECT l.*, a.username as admin_username, a.display_name as admin_display_name
+            FROM atlas_activity_log l
+            LEFT JOIN atlas_admins a ON l.admin_id = a.id
+        `;
+        const params = [];
+
+        if (adminId) {
+            query += ' WHERE l.admin_id = $1';
+            params.push(adminId);
+        }
+
+        query += ' ORDER BY l.created_at DESC LIMIT $' + (params.length + 1);
+        params.push(limit);
+
+        const result = await pool.query(query, params);
+        return result.rows;
+    } catch (error) {
+        console.error('Error getting Atlas activity log:', error);
+        return [];
+    }
+}
+
+// Change Atlas admin password
+async function atlasChangePassword(adminId, currentPassword, newPassword) {
+    try {
+        if (!newPassword || newPassword.length < 12) {
+            return { success: false, error: 'Password must be at least 12 characters' };
+        }
+
+        const result = await pool.query(
+            'SELECT password_hash FROM atlas_admins WHERE id = $1',
+            [adminId]
+        );
+
+        if (result.rows.length === 0) {
+            return { success: false, error: 'Admin not found' };
+        }
+
+        const passwordMatch = await bcrypt.compare(currentPassword, result.rows[0].password_hash);
+        if (!passwordMatch) {
+            return { success: false, error: 'Current password is incorrect' };
+        }
+
+        const newPasswordHash = await bcrypt.hash(newPassword, 12);
+        await pool.query(
+            'UPDATE atlas_admins SET password_hash = $1 WHERE id = $2',
+            [newPasswordHash, adminId]
+        );
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error changing Atlas password:', error);
+        return { success: false, error: 'Failed to change password' };
+    }
+}
+
+// Deactivate Atlas admin
+async function atlasDeactivateAdmin(adminId) {
+    try {
+        const result = await pool.query(
+            'UPDATE atlas_admins SET is_active = FALSE WHERE id = $1 RETURNING username',
+            [adminId]
+        );
+        if (result.rows.length === 0) {
+            return { success: false, error: 'Admin not found' };
+        }
+        return { success: true, username: result.rows[0].username };
+    } catch (error) {
+        console.error('Error deactivating Atlas admin:', error);
+        return { success: false, error: 'Failed to deactivate admin' };
+    }
+}
+
 module.exports = {
     initUsersTable,
     registerUser,
@@ -930,5 +1204,16 @@ module.exports = {
     resetPassword,
     updateUserProfile,
     changePassword,
-    pool
+    pool,
+    // Atlas Security exports
+    initAtlasTable,
+    atlasRegisterAdmin,
+    atlasLogin,
+    atlasVerifyToken,
+    atlasGetAdmin,
+    atlasGetAllAdmins,
+    atlasLogActivity,
+    atlasGetActivityLog,
+    atlasChangePassword,
+    atlasDeactivateAdmin
 };

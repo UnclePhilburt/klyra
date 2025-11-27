@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Dashboard - Atlas Security</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-dark: #080810;
+            --bg-card: #0d0d18;
+            --border: #1a1a2e;
+            --accent: #8b5cf6;
+            --text: #e0e0e0;
+            --text-dim: #888;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text); min-height: 100vh; }
+
+        .header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+        .header .nav { display: flex; align-items: center; gap: 24px; }
+        .header .back { color: var(--text-dim); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .header .back:hover { color: #fff; }
+        .header h1 { font-size: 18px; color: #fff; }
+        .header .status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--success); }
+        .header .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 32px; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+        .stat-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 8px; }
+        .stat-card .value { font-size: 28px; font-weight: 700; color: #fff; }
+        .stat-card .sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+        .stat-card.accent { border-color: var(--accent); }
+
+        .section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; }
+        .section-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .section-header h2 { font-size: 15px; font-weight: 600; }
+        .section-body { padding: 20px; }
+
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+        th { color: var(--text-dim); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+        tr:hover { background: rgba(139, 92, 246, 0.05); }
+
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+        .badge.playing { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge.waiting { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+
+        .player-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+        .player-card { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 12px; }
+        .player-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #6366f1); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+        .player-info { flex: 1; }
+        .player-name { font-weight: 600; font-size: 13px; }
+        .player-details { font-size: 11px; color: var(--text-dim); }
+
+        .memory-bar { height: 8px; background: var(--bg-dark); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+        .memory-fill { height: 100%; background: linear-gradient(90deg, var(--success), #84cc16); transition: width 0.3s; }
+        .memory-fill.warning { background: linear-gradient(90deg, var(--warning), var(--danger)); }
+
+        .empty { text-align: center; padding: 40px; color: var(--text-dim); }
+        code { font-family: 'JetBrains Mono', monospace; background: var(--bg-dark); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav">
+            <a href="index.html" class="back">← Back</a>
+            <h1>📊 Server Dashboard</h1>
+        </div>
+        <div class="status" id="status">
+            <span class="status-dot"></span>
+            <span>Connected</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card accent">
+                <div class="label">Online Players</div>
+                <div class="value" id="activePlayers">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Active Lobbies</div>
+                <div class="value" id="activeLobbies">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Total Games</div>
+                <div class="value" id="totalGames">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Peak Players</div>
+                <div class="value" id="peakPlayers">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Uptime</div>
+                <div class="value" id="uptime">-</div>
+                <div class="sub" id="uptimeSub">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Free Character</div>
+                <div class="value" id="freeChar">-</div>
+                <div class="sub" id="freeCharSub">-</div>
+            </div>
+        </div>
+
+        <div class="two-col">
+            <div class="section">
+                <div class="section-header">
+                    <h2>Active Lobbies</h2>
+                </div>
+                <div class="section-body">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Players</th><th>Floor</th><th>Enemies</th><th>Status</th></tr>
+                        </thead>
+                        <tbody id="lobbiesBody">
+                            <tr><td colspan="5" class="empty">No active lobbies</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>Server Health</h2>
+                </div>
+                <div class="section-body">
+                    <div class="stat-card" style="margin-bottom: 16px;">
+                        <div class="label">Heap Memory</div>
+                        <div class="value" id="memUsage">-</div>
+                        <div class="memory-bar"><div class="memory-fill" id="memBar" style="width: 0%"></div></div>
+                        <div class="sub" id="memSub">-</div>
+                    </div>
+                    <div class="stat-card" style="margin-bottom: 16px;">
+                        <div class="label">Node Version</div>
+                        <div class="value" id="nodeVersion">-</div>
+                        <div class="sub" id="platform">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Avg Game Duration</div>
+                        <div class="value" id="avgDuration">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2>Online Players</h2>
+                <span id="playerCount">0 players</span>
+            </div>
+            <div class="section-body">
+                <div class="player-list" id="playerList">
+                    <div class="empty">No players online</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = (location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://api.klyra.lol');
+
+        function fmt(n) { return n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : n.toString(); }
+        function fmtTime(ms) {
+            const s = Math.floor(ms/1000), m = Math.floor(s/60), h = Math.floor(m/60), d = Math.floor(h/24);
+            return d > 0 ? `${d}d ${h%24}h` : h > 0 ? `${h}h ${m%60}m` : `${m}m`;
+        }
+        function fmtUptime(s) {
+            const d = Math.floor(s/86400), h = Math.floor((s%86400)/3600), m = Math.floor((s%3600)/60);
+            return d > 0 ? `${d}d` : h > 0 ? `${h}h` : `${m}m`;
+        }
+
+        async function fetchData() {
+            try {
+                const res = await fetch(`${API}/admin/dashboard`);
+                const data = await res.json();
+
+                document.getElementById('activePlayers').textContent = data.game?.activePlayers || 0;
+                document.getElementById('activeLobbies').textContent = data.game?.activeLobbies || 0;
+                document.getElementById('totalGames').textContent = data.metrics?.totalGames || 0;
+                document.getElementById('peakPlayers').textContent = data.metrics?.peakPlayers || 0;
+
+                const up = data.server?.uptime || 0;
+                document.getElementById('uptime').textContent = fmtUptime(up);
+                document.getElementById('uptimeSub').textContent = `${Math.floor(up)}s total`;
+
+                document.getElementById('nodeVersion').textContent = data.server?.nodeVersion || '-';
+                document.getElementById('platform').textContent = data.server?.platform || '-';
+
+                if (data.server?.memory) {
+                    const used = data.server.memory.heapUsed, total = data.server.memory.heapTotal;
+                    const pct = (used/total*100).toFixed(1);
+                    document.getElementById('memUsage').textContent = `${(used/1024/1024).toFixed(0)} MB`;
+                    document.getElementById('memSub').textContent = `${pct}% of ${(total/1024/1024).toFixed(0)} MB`;
+                    document.getElementById('memBar').style.width = pct + '%';
+                    document.getElementById('memBar').classList.toggle('warning', pct > 80);
+                }
+
+                if (data.game?.freeCharacter) {
+                    document.getElementById('freeChar').textContent = data.game.freeCharacter;
+                    const left = Math.max(0, data.game.freeCharacterRotationTime + 1800000 - Date.now());
+                    document.getElementById('freeCharSub').textContent = `Rotates in ${fmtTime(left)}`;
+                }
+
+                if (data.metrics?.averageGameDuration) {
+                    document.getElementById('avgDuration').textContent = fmtTime(data.metrics.averageGameDuration);
+                }
+
+                // Lobbies
+                const tbody = document.getElementById('lobbiesBody');
+                if (data.lobbies?.length > 0) {
+                    tbody.innerHTML = data.lobbies.map(l => `
+                        <tr>
+                            <td><code>${l.id}</code></td>
+                            <td>${l.playerCount}/${l.maxPlayers || 10}</td>
+                            <td>${l.floor || 1}</td>
+                            <td>${l.enemyCount || 0}</td>
+                            <td><span class="badge ${l.status}">${l.status}</span></td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" class="empty">No active lobbies</td></tr>';
+                }
+
+                // Players
+                const plist = document.getElementById('playerList');
+                document.getElementById('playerCount').textContent = `${data.players?.length || 0} players`;
+                if (data.players?.length > 0) {
+                    plist.innerHTML = data.players.map(p => `
+                        <div class="player-card">
+                            <div class="player-avatar">${(p.username||'G')[0].toUpperCase()}</div>
+                            <div class="player-info">
+                                <div class="player-name">${p.username || 'Guest'}${p.isGuest ? ' <span style="color:var(--text-dim)">(Guest)</span>' : ''}</div>
+                                <div class="player-details">${p.class || '-'} • Lvl ${p.level || 1}${p.lobbyId ? ` • ${p.lobbyId}` : ''}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    plist.innerHTML = '<div class="empty">No players online</div>';
+                }
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('status').innerHTML = '<span class="status-dot" style="background:var(--danger)"></span><span style="color:var(--danger)">Disconnected</span>';
+            }
+        }
+
+        fetchData();
+        setInterval(fetchData, 5000);
+    </script>
+</body>
+</html>
