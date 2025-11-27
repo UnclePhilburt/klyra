@@ -238,6 +238,12 @@ class Player {
 
         this.lastAutoAttackTime = now;
 
+        // Trigger vibration for automatic attacks (not from controller right stick)
+        // Controller right stick attacks already vibrate in ControllerManager
+        if (!customDirection && this.scene.controllerManager) {
+            this.scene.controllerManager.vibrateAttack();
+        }
+
         // Handle different auto-attack types
         if (config.target === 'minion_or_ally' || config.target === 'minion_lowest_hp') {
             // Command Bolt: Buff nearest minion OR ally
