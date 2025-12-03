@@ -12,6 +12,8 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 // Connect to backend server (configured in config.js)
 const socket = io(window.CONFIG.BACKEND_URL);
 let isReceivingUpdate = false; // Flag to prevent infinite loops
+let myEditorColor = '#ffffff'; // My assigned editor color
+const otherEditorPreviews = {}; // Store other editors' preview objects
 
 // Join the editor session
 socket.on('connect', () => {
@@ -23,6 +25,14 @@ socket.on('connect', () => {
 // Receive list of active editors
 socket.on('activeEditors', (editors) => {
     console.log('[Collaboration] Active editors:', editors);
+
+    // Find and store my own editor color
+    const myEditor = editors.find(e => e.id === socket.id);
+    if (myEditor) {
+        myEditorColor = myEditor.color;
+        console.log('[Collaboration] My editor color:', myEditorColor);
+    }
+
     updateActiveEditorsList(editors);
 });
 
@@ -111,6 +121,23 @@ socket.on('editor:groundTextureChanged', (data) => {
     loadGroundTextureToMaterial(data.texture);
 });
 
+socket.on('editor:skyColorChanged', (data) => {
+    console.log('[Collaboration] Sky color changed:', data.color);
+    const color = new THREE.Color(data.color);
+    scene.background = color;
+    scene.fog = new THREE.Fog(data.color, 50, 500);
+});
+
+socket.on('editor:previewUpdate', (data) => {
+    console.log('[Collaboration] Preview update from:', data.editorId);
+    updateOtherEditorPreview(data);
+});
+
+socket.on('editor:previewClear', (data) => {
+    console.log('[Collaboration] Preview cleared from:', data.editorId);
+    clearOtherEditorPreview(data.editorId);
+});
+
 socket.on('editor:levelSaved', (data) => {
     showNotification(`Level saved by ${data.savedBy}`, 'info');
 });
@@ -162,6 +189,62 @@ function broadcastObjectDeleted(object) {
 
 function broadcastGroundTextureChange(texture) {
     socket.emit('editor:groundTextureChanged', { texture });
+}
+
+function broadcastSkyColorChange(color) {
+    socket.emit('editor:skyColorChanged', { color });
+}
+
+function broadcastPreviewUpdate(modelPath, position, rotation, scale) {
+    socket.emit('editor:previewUpdate', {
+        modelPath,
+        position: { x: position.x, y: position.y, z: position.z },
+        rotation: { x: rotation.x, y: rotation.y, z: rotation.z },
+        scale: { x: scale.x, y: scale.y, z: scale.z }
+    });
+}
+
+function broadcastPreviewClear() {
+    socket.emit('editor:previewClear');
+}
+
+// Update/create preview object for another editor
+function updateOtherEditorPreview(data) {
+    const { editorId, color, modelPath, position, rotation, scale } = data;
+
+    // Remove existing preview for this editor
+    clearOtherEditorPreview(editorId);
+
+    // Load the model
+    loader.load(modelPath, (gltf) => {
+        const preview = gltf.scene.clone();
+        preview.position.set(position.x, position.y, position.z);
+        preview.rotation.set(rotation.x, rotation.y, rotation.z);
+        preview.scale.set(scale.x, scale.y, scale.z);
+
+        // Apply the editor's color to all meshes
+        preview.traverse((child) => {
+            if (child.isMesh) {
+                child.material = child.material.clone();
+                child.material.color.set(color);
+                child.material.transparent = true;
+                child.material.opacity = 0.5;
+                child.material.emissive = new THREE.Color(color);
+                child.material.emissiveIntensity = 0.3;
+            }
+        });
+
+        scene.add(preview);
+        otherEditorPreviews[editorId] = preview;
+    });
+}
+
+// Clear preview object for another editor
+function clearOtherEditorPreview(editorId) {
+    if (otherEditorPreviews[editorId]) {
+        scene.remove(otherEditorPreviews[editorId]);
+        delete otherEditorPreviews[editorId];
+    }
 }
 
 // Helper function to display active editors
@@ -322,6 +405,9 @@ function changeSkybox(skyboxId) {
 
     currentSkybox = skyboxId;
     showNotification(`Sky: ${skybox.name}`, 'success');
+
+    // Broadcast sky color change to other editors
+    broadcastSkyColorChange('#' + skybox.fogColor.toString(16).padStart(6, '0'));
 }
 
 function updateSunPosition() {
@@ -2803,6 +2889,7 @@ function createPreviewObject() {
             });
 
             preview.userData.isPreview = true;
+            preview.userData.modelPath = path; // Store path for broadcasting
 
             // Calculate Y offset ONCE when preview is created
             const bbox = new THREE.Box3().setFromObject(preview);
@@ -2835,6 +2922,8 @@ function removePreviewObject() {
         scene.remove(editorState.previewObject);
         disposeObject(editorState.previewObject);
         editorState.previewObject = null;
+        // Broadcast preview clear to other editors
+        broadcastPreviewClear();
     }
     // Reset preview rotation when removing preview
     editorState.previewRotation = 0;
@@ -2887,6 +2976,16 @@ function updatePreviewPosition(intersectionPoint) {
     } else if (!editorState.randomPlacement) {
         // Apply manual preview rotation (only when random placement is off)
         editorState.previewObject.rotation.y = editorState.previewRotation;
+    }
+
+    // Broadcast preview update to other editors
+    if (editorState.previewObject.userData.modelPath) {
+        broadcastPreviewUpdate(
+            editorState.previewObject.userData.modelPath,
+            editorState.previewObject.position,
+            editorState.previewObject.rotation,
+            editorState.previewObject.scale
+        );
     }
 }
 
