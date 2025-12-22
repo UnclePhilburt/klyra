@@ -55,8 +55,8 @@ app.get('/live-trackers.html', (req, res) => res.sendFile(path.join(__dirname, '
 // Serve assets folder for landing page images/styles
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-// Serve static game files (game directory only)
-app.use(express.static('game'));
+// Serve static game files at /game path
+app.use('/game', express.static('game'));
 
 // Health check endpoint for client status checking
 app.get('/health', (req, res) => {
