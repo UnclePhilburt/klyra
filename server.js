@@ -1,6 +1,7 @@
 require('dotenv').config(); // Load environment variables
 
 const express = require('express');
+const path = require('path');
 const http = require('http');
 const socketIO = require('socket.io');
 const cors = require('cors');
@@ -18,7 +19,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server, {
     cors: {
-        origin: ["https://unclephilburt.github.io", "https://klyra.lol", "https://www.klyra.lol", "http://localhost:3000", "http://localhost:5500"],
+        origin: ["https://unclephilburt.github.io", "https://klyra.lol", "https://www.klyra.lol", "https://play.klyra.lol", "http://localhost:3000", "http://localhost:5500"],
         methods: ["GET", "POST"],
         credentials: true
     },
@@ -30,11 +31,29 @@ const io = socketIO(server, {
 });
 
 app.use(cors({
-    origin: ["https://unclephilburt.github.io", "https://klyra.lol", "https://www.klyra.lol", "http://localhost:3000", "http://localhost:5500"],
+    origin: ["https://unclephilburt.github.io", "https://klyra.lol", "https://www.klyra.lol", "https://play.klyra.lol", "http://localhost:3000", "http://localhost:5500"],
     methods: ["GET", "POST"],
     credentials: true
 }));
 app.use(express.json());
+
+// Serve landing pages from root directory
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/account', (req, res) => res.sendFile(path.join(__dirname, 'account.html')));
+app.get('/account.html', (req, res) => res.sendFile(path.join(__dirname, 'account.html')));
+app.get('/characters', (req, res) => res.sendFile(path.join(__dirname, 'characters.html')));
+app.get('/characters.html', (req, res) => res.sendFile(path.join(__dirname, 'characters.html')));
+app.get('/enemies', (req, res) => res.sendFile(path.join(__dirname, 'enemies.html')));
+app.get('/enemies.html', (req, res) => res.sendFile(path.join(__dirname, 'enemies.html')));
+app.get('/lore', (req, res) => res.sendFile(path.join(__dirname, 'lore.html')));
+app.get('/lore.html', (req, res) => res.sendFile(path.join(__dirname, 'lore.html')));
+app.get('/reset-password', (req, res) => res.sendFile(path.join(__dirname, 'reset-password.html')));
+app.get('/reset-password.html', (req, res) => res.sendFile(path.join(__dirname, 'reset-password.html')));
+app.get('/live-trackers', (req, res) => res.sendFile(path.join(__dirname, 'live-trackers.html')));
+app.get('/live-trackers.html', (req, res) => res.sendFile(path.join(__dirname, 'live-trackers.html')));
+
+// Serve assets folder for landing page images/styles
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // Serve static game files (game directory only)
 app.use(express.static('game'));
