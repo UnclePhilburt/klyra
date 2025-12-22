@@ -1,6 +1,6 @@
-// Game Configuration v5.10 - Home Server
+// Game Configuration v5.10 - Render Server
 const GameConfig = {
-    SERVER_URL: 'https://api.klyra.lol',
+    SERVER_URL: 'https://klyra-server.onrender.com',
 
     GAME: {
         WIDTH: 1280,
