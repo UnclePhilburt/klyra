@@ -6576,30 +6576,35 @@ class GameScene extends Phaser.Scene {
         let velocityX = 0;
         let velocityY = 0;
 
-        // Get mobile joystick input
-        const mobileInput = typeof mobileControls !== 'undefined' ? mobileControls.getInput() : { x: 0, y: 0, active: false };
+        // Check if idle mode is enabled - skip manual input if so
+        const idleModeEnabled = this.idleModeManager && this.idleModeManager.enabled;
 
-        // Get controller input
-        const controllerInput = this.controllerManager ? this.controllerManager.getMovementInput() : { x: 0, y: 0, active: false };
+        // Only process manual input if idle mode is disabled
+        if (!idleModeEnabled) {
+            // Get mobile joystick input
+            const mobileInput = typeof mobileControls !== 'undefined' ? mobileControls.getInput() : { x: 0, y: 0, active: false };
 
-        // Check if inventory is open - disable WASD movement
-        const inventoryOpen = this.inventoryUI && this.inventoryUI.isOpen;
+            // Get controller input
+            const controllerInput = this.controllerManager ? this.controllerManager.getMovementInput() : { x: 0, y: 0, active: false };
 
-        // Check if player is channeling an ability (e.g., Aldric's Titan's Fury)
-        const isChanneling = this.localPlayer && this.localPlayer.isChanneling;
+            // Check if inventory is open - disable WASD movement
+            const inventoryOpen = this.inventoryUI && this.inventoryUI.isOpen;
 
-        // Controller input (highest priority) - but not if channeling
-        if (controllerInput.active && !isChanneling) {
-            velocityX = controllerInput.x;
-            velocityY = controllerInput.y;
-        }
-        // Mobile joystick input (second priority) - but not if channeling
-        else if (mobileInput.active && !isChanneling) {
-            velocityX = mobileInput.x;
-            velocityY = mobileInput.y;
-        }
-        // Keyboard input (only if inventory is closed, no other input, not channeling, and blackjack UI not open)
-        else if (!inventoryOpen && !isChanneling && !this.blackjackUIOpen && this.cursors && this.wasd) {
+            // Check if player is channeling an ability (e.g., Aldric's Titan's Fury)
+            const isChanneling = this.localPlayer && this.localPlayer.isChanneling;
+
+            // Controller input (highest priority) - but not if channeling
+            if (controllerInput.active && !isChanneling) {
+                velocityX = controllerInput.x;
+                velocityY = controllerInput.y;
+            }
+            // Mobile joystick input (second priority) - but not if channeling
+            else if (mobileInput.active && !isChanneling) {
+                velocityX = mobileInput.x;
+                velocityY = mobileInput.y;
+            }
+            // Keyboard input (only if inventory is closed, no other input, not channeling, and blackjack UI not open)
+            else if (!inventoryOpen && !isChanneling && !this.blackjackUIOpen && this.cursors && this.wasd) {
             if (this.cursors.left.isDown || this.wasd.left.isDown) {
                 velocityX = -1;
             } else if (this.cursors.right.isDown || this.wasd.right.isDown) {
@@ -6617,13 +6622,15 @@ class GameScene extends Phaser.Scene {
                 velocityX *= 0.707;
                 velocityY *= 0.707;
             }
+            }
+
+            // Apply speed multiplier
+            velocityX *= this.devSettings.speedMultiplier;
+            velocityY *= this.devSettings.speedMultiplier;
+
+            this.localPlayer.move(velocityX, velocityY);
         }
-
-        // Apply speed multiplier
-        velocityX *= this.devSettings.speedMultiplier;
-        velocityY *= this.devSettings.speedMultiplier;
-
-        this.localPlayer.move(velocityX, velocityY);
+        // If idle mode is enabled, movement is handled by IdleModeManager
 
         // Decorations are now handled by updateVisibleDecorations only
         // Chunks are handled by BiomeChunkSystem in the main update loop

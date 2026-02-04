@@ -96,6 +96,8 @@ class IdleModeManager {
         if (time - this.lastUpdate < this.updateInterval) return;
         this.lastUpdate = time;
 
+        console.log('🤖 Idle Mode: Running update...');
+
         // Auto-loot nearby items and souls
         if (this.autoLootEnabled) {
             this.autoLoot();
@@ -164,6 +166,7 @@ class IdleModeManager {
 
         if (!target) {
             // No enemies nearby, stop moving
+            console.log('🤖 No enemies found nearby');
             if (this.autoMoveEnabled) {
                 this.player.move(0, 0);
             }
@@ -171,6 +174,7 @@ class IdleModeManager {
             return;
         }
 
+        console.log('🤖 Target found! Moving toward enemy...');
         this.currentTarget = target;
 
         const playerPos = {
@@ -261,6 +265,7 @@ class IdleModeManager {
             // Normalize and move
             const velocityX = dx / distance;
             const velocityY = dy / distance;
+            console.log(`🤖 Moving: vX=${velocityX.toFixed(2)}, vY=${velocityY.toFixed(2)}, dist=${distance.toFixed(0)}`);
             this.player.move(velocityX, velocityY);
         }
     }
