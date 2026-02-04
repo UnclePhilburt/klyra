@@ -27,6 +27,12 @@ class IdleModeManager {
         this.isRetreating = false;
         this.retreatTimer = 0;
         this.retreatDuration = 3000; // Retreat for 3 seconds
+        this.retreatAttempts = 0; // Track how many times we've retreated
+        this.maxRetreatAttempts = 3; // After 3 retreats with low HP, switch to careful mode
+
+        // Careful mode - when low HP with no potions
+        this.carefulMode = false;
+        this.carefulModeEngageDistance = 600; // Only engage enemies within this range in careful mode
 
         // Exploration state
         this.isExploring = false;
@@ -177,6 +183,16 @@ class IdleModeManager {
     }
 
     autoCombat() {
+        // Check if we're in careful mode (low HP, no potions)
+        const healthPercent = this.player.health / this.player.maxHealth;
+
+        // Exit careful mode if HP recovers
+        if (this.carefulMode && healthPercent > 0.5) {
+            this.carefulMode = false;
+            this.retreatAttempts = 0;
+            console.log('✅ HP recovered, exiting careful mode');
+        }
+
         // Find nearest enemy
         const target = this.findNearestEnemy();
 
@@ -188,7 +204,23 @@ class IdleModeManager {
             return;
         }
 
-        console.log('🤖 Target found! Engaging enemy...');
+        // In careful mode, only engage enemies that are very close
+        if (this.carefulMode) {
+            const distance = Phaser.Math.Distance.Between(
+                this.player.sprite.x, this.player.sprite.y,
+                target.x, target.y
+            );
+
+            if (distance > this.carefulModeEngageDistance) {
+                console.log('⚠️ Careful mode: Enemy too far, avoiding combat');
+                this.explore(); // Move away to safer area
+                return;
+            }
+            console.log('⚠️ Careful mode: Engaging nearby enemy cautiously');
+        } else {
+            console.log('🤖 Target found! Engaging enemy...');
+        }
+
         this.currentTarget = target;
         this.isExploring = false; // Stop exploring when enemy found
 
@@ -380,7 +412,15 @@ class IdleModeManager {
     startRetreat() {
         this.isRetreating = true;
         this.retreatTimer = 0;
-        console.log('🏃 LOW HP! Retreating to safety...');
+        this.retreatAttempts++;
+
+        // If we've retreated too many times, enter careful mode
+        if (this.retreatAttempts >= this.maxRetreatAttempts) {
+            this.carefulMode = true;
+            console.log('⚠️ Multiple retreats! Entering CAREFUL MODE - only engaging close enemies');
+        } else {
+            console.log(`🏃 LOW HP! Retreating to safety... (attempt ${this.retreatAttempts}/${this.maxRetreatAttempts})`);
+        }
     }
 
     updateRetreat(delta) {
@@ -395,23 +435,48 @@ class IdleModeManager {
                 y: this.player.sprite.y
             };
 
+            const distance = Phaser.Math.Distance.Between(
+                playerPos.x, playerPos.y,
+                nearestEnemy.x, nearestEnemy.y
+            );
+
+            // If we're far enough away (500+ pixels), stop retreating
+            if (distance > 500) {
+                this.isRetreating = false;
+                console.log('✅ Retreat successful - far from enemies, resuming combat at low HP');
+                return;
+            }
+
             // Move AWAY from enemy
             const dx = playerPos.x - nearestEnemy.x;
             const dy = playerPos.y - nearestEnemy.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance > 0) {
                 const velocityX = dx / distance;
                 const velocityY = dy / distance;
                 this.player.move(velocityX, velocityY);
             }
+        } else {
+            // No enemies nearby, stop retreating
+            this.isRetreating = false;
+            console.log('✅ No enemies nearby, stopping retreat');
+            return;
         }
 
-        // Stop retreating after duration or if HP is recovered
+        // Stop retreating after max duration or if HP is recovered
         const healthPercent = this.player.health / this.player.maxHealth;
-        if (this.retreatTimer >= this.retreatDuration || healthPercent > 0.6) {
+        if (this.retreatTimer >= this.retreatDuration) {
             this.isRetreating = false;
-            console.log('✅ Retreat finished, resuming combat');
+            if (this.carefulMode) {
+                console.log('⚠️ Retreat timeout - entering careful mode (only close enemies)');
+            } else {
+                console.log('⚔️ Retreat timeout - resuming normal combat');
+            }
+        } else if (healthPercent > 0.6) {
+            this.isRetreating = false;
+            this.retreatAttempts = 0; // Reset counter when HP recovers
+            this.carefulMode = false;
+            console.log('✅ HP recovered, resuming normal combat');
         }
     }
 
