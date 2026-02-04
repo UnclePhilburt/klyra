@@ -14,8 +14,10 @@ class IdleModeManager {
         this.currentTarget = null;
         this.lastAbilityUse = {};
         this.retreatThreshold = 0.3; // Retreat when below 30% HP
-        this.attackRange = 300; // Range to detect enemies
-        this.lootRange = 150; // Range to pick up items
+        this.healThreshold = 0.6; // Use health potion when below 60% HP
+        this.attackRange = 800; // Range to detect enemies (increased from 300)
+        this.lootRange = 200; // Range to pick up items
+        this.explorationRange = 1500; // Range to explore when no enemies
 
         // Update intervals
         this.lastUpdate = 0;
@@ -25,6 +27,17 @@ class IdleModeManager {
         this.isRetreating = false;
         this.retreatTimer = 0;
         this.retreatDuration = 3000; // Retreat for 3 seconds
+
+        // Exploration state
+        this.isExploring = false;
+        this.explorationTarget = null;
+        this.lastExplorationTime = 0;
+        this.explorationInterval = 5000; // Find new exploration target every 5 seconds
+
+        // Kiting state
+        this.isKiting = false;
+        this.kiteDistance = 200; // Maintain this distance from melee enemies
+        this.lastKiteCheck = 0;
 
         // UI Indicator
         this.createIdleIndicator();
@@ -96,15 +109,13 @@ class IdleModeManager {
         if (time - this.lastUpdate < this.updateInterval) return;
         this.lastUpdate = time;
 
-        console.log('🤖 Idle Mode: Running update...');
-
-        // Auto-loot nearby items and souls
-        if (this.autoLootEnabled) {
-            this.autoLoot();
+        // Check health and use potions if needed
+        const healthPercent = this.player.health / this.player.maxHealth;
+        if (healthPercent < this.healThreshold) {
+            this.tryUseHealthPotion();
         }
 
-        // Check if we need to retreat
-        const healthPercent = this.player.health / this.player.maxHealth;
+        // Check if we need to retreat (low HP and no potions)
         if (healthPercent < this.retreatThreshold && !this.isRetreating) {
             this.startRetreat();
         }
@@ -113,6 +124,11 @@ class IdleModeManager {
         if (this.isRetreating) {
             this.updateRetreat(delta);
             return; // Skip combat while retreating
+        }
+
+        // Auto-loot nearby items and souls
+        if (this.autoLootEnabled) {
+            this.autoLoot();
         }
 
         // Auto-combat logic
@@ -165,17 +181,16 @@ class IdleModeManager {
         const target = this.findNearestEnemy();
 
         if (!target) {
-            // No enemies nearby, stop moving
-            console.log('🤖 No enemies found nearby');
-            if (this.autoMoveEnabled) {
-                this.player.move(0, 0);
-            }
+            // No enemies nearby, explore to find more
+            console.log('🤖 No enemies found nearby, exploring...');
+            this.explore();
             this.currentTarget = null;
             return;
         }
 
-        console.log('🤖 Target found! Moving toward enemy...');
+        console.log('🤖 Target found! Engaging enemy...');
         this.currentTarget = target;
+        this.isExploring = false; // Stop exploring when enemy found
 
         const playerPos = {
             x: this.player.sprite.x,
@@ -197,12 +212,20 @@ class IdleModeManager {
             (this.player.autoAttackConfig.range * GameConfig.GAME.TILE_SIZE) :
             (10 * GameConfig.GAME.TILE_SIZE); // Default 10 tiles
 
-        // Move toward enemy if too far
-        if (this.autoMoveEnabled && distance > attackRange * 0.8) {
-            this.moveTowardTarget(enemyPos);
-        } else if (this.autoMoveEnabled) {
-            // Stop moving when in range
-            this.player.move(0, 0);
+        // Smart movement AI
+        if (this.autoMoveEnabled) {
+            // Check if we should kite (ranged characters staying away from enemies)
+            if (this.shouldKite(target)) {
+                this.kiteAway(target);
+            }
+            // Move toward enemy if too far
+            else if (distance > attackRange * 0.7) {
+                this.moveTowardTarget(enemyPos);
+            }
+            // Stop moving when in optimal range
+            else {
+                this.player.move(0, 0);
+            }
         }
 
         // Use abilities if in range
@@ -265,7 +288,6 @@ class IdleModeManager {
             // Normalize and move
             const velocityX = dx / distance;
             const velocityY = dy / distance;
-            console.log(`🤖 Moving: vX=${velocityX.toFixed(2)}, vY=${velocityY.toFixed(2)}, dist=${distance.toFixed(0)}`);
             this.player.move(velocityX, velocityY);
         }
     }
@@ -277,15 +299,31 @@ class IdleModeManager {
         const abilityManager = this.scene.abilityManager;
         if (!abilityManager) return;
 
-        // List of ability keys to try (prioritize based on cooldowns)
+        // Calculate distance to target for range checks
+        const distance = Phaser.Math.Distance.Between(
+            this.player.sprite.x, this.player.sprite.y,
+            target.x, target.y
+        );
+
+        // List of ability keys with priority (E is usually primary, Q/W secondary, R is ultimate)
         const abilityKeys = ['E', 'Q', 'W', 'R'];
+
+        // Get ability ranges (approximate)
+        const abilityRanges = {
+            'E': 400, // Primary ability - medium range
+            'Q': 350, // Secondary ability
+            'W': 300, // Tertiary ability
+            'R': 500  // Ultimate - longer range
+        };
 
         abilityKeys.forEach(key => {
             // Check if ability is off cooldown
             const lastUse = this.lastAbilityUse[key] || 0;
             const cooldown = this.getAbilityCooldown(key);
+            const abilityRange = abilityRanges[key] || 400;
 
-            if (now - lastUse >= cooldown) {
+            // Only use ability if off cooldown AND enemy is in range
+            if (now - lastUse >= cooldown && distance < abilityRange) {
                 // Try to use the ability
                 this.tryUseAbility(key, target);
                 this.lastAbilityUse[key] = now;
@@ -377,9 +415,98 @@ class IdleModeManager {
         }
     }
 
+    explore() {
+        const now = Date.now();
+
+        // Generate new exploration target periodically
+        if (!this.explorationTarget || now - this.lastExplorationTime > this.explorationInterval) {
+            // Pick a random direction and distance
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 300 + Math.random() * 400; // 300-700 pixels away
+
+            this.explorationTarget = {
+                x: this.player.sprite.x + Math.cos(angle) * distance,
+                y: this.player.sprite.y + Math.sin(angle) * distance
+            };
+
+            this.lastExplorationTime = now;
+            console.log('🤖 New exploration target generated');
+        }
+
+        // Move toward exploration target
+        if (this.explorationTarget) {
+            const playerPos = {
+                x: this.player.sprite.x,
+                y: this.player.sprite.y
+            };
+
+            const distance = Phaser.Math.Distance.Between(
+                playerPos.x, playerPos.y,
+                this.explorationTarget.x, this.explorationTarget.y
+            );
+
+            // If close to target, find a new one
+            if (distance < 50) {
+                this.explorationTarget = null;
+                return;
+            }
+
+            // Move toward target
+            this.moveTowardTarget(this.explorationTarget);
+        }
+    }
+
+    tryUseHealthPotion() {
+        // Try to use health potion (simulate pressing key)
+        // The game typically uses number keys (1, 2, 3, 4) for consumables
+        // Check if player has health potions and use them
+
+        // Note: This depends on how your game handles potions
+        // You may need to adjust based on your inventory system
+        console.log('🤖 Attempting to use health potion...');
+
+        // For now, just log - you'll need to implement potion usage based on your game's system
+        // Example: this.scene.events.emit('use:potion', { slot: 1 });
+    }
+
+    shouldKite(target) {
+        // Ranged characters should kite melee enemies
+        const isRangedCharacter = ['ORION', 'LUNARE', 'BASTION'].includes(this.player.class);
+
+        if (!isRangedCharacter) return false;
+
+        const distance = Phaser.Math.Distance.Between(
+            this.player.sprite.x, this.player.sprite.y,
+            target.x, target.y
+        );
+
+        // Too close! Need to kite
+        return distance < this.kiteDistance;
+    }
+
+    kiteAway(target) {
+        const playerPos = {
+            x: this.player.sprite.x,
+            y: this.player.sprite.y
+        };
+
+        // Move AWAY from target while still in attack range
+        const dx = playerPos.x - target.x;
+        const dy = playerPos.y - target.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance > 0) {
+            const velocityX = dx / distance;
+            const velocityY = dy / distance;
+            console.log('🤖 Kiting away from enemy');
+            this.player.move(velocityX, velocityY);
+        }
+    }
+
     destroy() {
         this.enabled = false;
         this.currentTarget = null;
+        this.explorationTarget = null;
 
         // Clean up UI
         if (this.idleText) {
