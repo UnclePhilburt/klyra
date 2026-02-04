@@ -1,0 +1,18 @@
+services:
+  # Backend server
+  - type: web
+    name: klyra-server
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false  # Set this in Render dashboard (sensitive)
+      - key: JWT_SECRET
+        sync: false  # Set this in Render dashboard (sensitive)
+      - key: PORT
+        value: 3001
