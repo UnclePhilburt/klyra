@@ -8001,19 +8001,20 @@ app.post('/atlas/users/:userId/reset-password', atlasAuthMiddleware, async (req,
     res.json(result);
 });
 
-// AFK check interval
-setInterval(() => {
-    players.forEach((player, socketId) => {
-        if (player.isAFK() && player.lobbyId) {
-            console.log(`⏰ Kicking AFK player: ${player.username}`);
-            const socket = io.sockets.sockets.get(socketId);
-            if (socket) {
-                socket.emit('kicked', { reason: 'AFK' });
-                socket.disconnect(true);
-            }
-        }
-    });
-}, 60000); // Check every minute
+// AFK check interval - DISABLED for idle gameplay
+// Players can now AFK without being kicked (idle-friendly game mode)
+// setInterval(() => {
+//     players.forEach((player, socketId) => {
+//         if (player.isAFK() && player.lobbyId) {
+//             console.log(`⏰ Kicking AFK player: ${player.username}`);
+//             const socket = io.sockets.sockets.get(socketId);
+//             if (socket) {
+//                 socket.emit('kicked', { reason: 'AFK' });
+//                 socket.disconnect(true);
+//             }
+//         }
+//     });
+// }, 60000); // Check every minute
 
 // Game loop - update enemy AI
 setInterval(() => {

@@ -80,6 +80,13 @@ class GameScene extends Phaser.Scene {
             this.abilityManager = null;
         }
 
+        // Destroy idle mode manager
+        if (this.idleModeManager) {
+            debug.debug('CORE', 'Destroying IdleModeManager');
+            this.idleModeManager.destroy();
+            this.idleModeManager = null;
+        }
+
         // Destroy music system
         if (this.musicManager) {
             debug.debug('AUDIO', 'Destroying MusicManager');
@@ -3116,6 +3123,13 @@ class GameScene extends Phaser.Scene {
             console.error('❌ Error creating AbilityManager:', error);
         }
 
+        // Create idle mode manager (auto-combat/AFK gameplay)
+        try {
+            this.idleModeManager = new IdleModeManager(this, this.localPlayer);
+        } catch (error) {
+            console.error('❌ Error creating IdleModeManager:', error);
+        }
+
         // Create music system
         this.musicManager = new MusicManager(this);
         this.musicUI = new MusicUI(this, this.musicManager);
@@ -3561,6 +3575,15 @@ class GameScene extends Phaser.Scene {
                     this.showMinionHealEffect(minion.sprite.x, minion.sprite.y);
                 }
             });
+        });
+
+        // I key to toggle Idle Mode (auto-combat/AFK mode)
+        this.keyI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I);
+        this.keyI.on('down', () => {
+            if (this.idleModeManager) {
+                const enabled = this.idleModeManager.toggle();
+                console.log(`🤖 Idle Mode toggled: ${enabled ? 'ON' : 'OFF'}`);
+            }
         });
 
         // Mouse click to attack
@@ -6528,6 +6551,11 @@ class GameScene extends Phaser.Scene {
         // Update ability manager cooldowns
         if (this.abilityManager) {
             this.abilityManager.update(time, delta);
+        }
+
+        // Update idle mode manager (auto-combat AI)
+        if (this.idleModeManager) {
+            this.idleModeManager.update(time, delta);
         }
 
         // Update pet manager
