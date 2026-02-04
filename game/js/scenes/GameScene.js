@@ -3126,6 +3126,22 @@ class GameScene extends Phaser.Scene {
         // Create idle mode manager (auto-combat/AFK gameplay)
         try {
             this.idleModeManager = new IdleModeManager(this, this.localPlayer);
+
+            // Auto-enable idle mode when browser loses focus (for multi-tasking with RuneScape, etc.)
+            this.game.events.on('blur', () => {
+                if (this.idleModeManager && !this.idleModeManager.enabled) {
+                    console.log('🔄 Browser lost focus - auto-enabling idle mode');
+                    this.idleModeManager.setEnabled(true);
+                }
+            });
+
+            // Keep idle mode on when regaining focus (don't auto-disable)
+            // Player can manually press X to disable if desired
+            this.game.events.on('focus', () => {
+                if (this.idleModeManager && this.idleModeManager.enabled) {
+                    console.log('🔄 Browser regained focus - idle mode still active (press X to disable)');
+                }
+            });
         } catch (error) {
             console.error('❌ Error creating IdleModeManager:', error);
         }
@@ -3577,9 +3593,9 @@ class GameScene extends Phaser.Scene {
             });
         });
 
-        // I key to toggle Idle Mode (auto-combat/AFK mode)
-        this.keyI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I);
-        this.keyI.on('down', () => {
+        // X key to toggle Idle Mode (auto-combat/AFK mode)
+        this.keyX = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+        this.keyX.on('down', () => {
             if (this.idleModeManager) {
                 const enabled = this.idleModeManager.toggle();
                 console.log(`🤖 Idle Mode toggled: ${enabled ? 'ON' : 'OFF'}`);
