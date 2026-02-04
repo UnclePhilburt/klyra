@@ -45,6 +45,24 @@ class IdleModeManager {
         this.kiteDistance = 200; // Maintain this distance from melee enemies
         this.lastKiteCheck = 0;
 
+        // Dynamic positioning - NEVER stand still!
+        this.optimalMeleeRange = 150; // Melee characters stay at edge of attack range
+        this.optimalRangedRange = 350; // Ranged characters maintain safe distance
+        this.repositionInterval = 500; // Reposition every 500ms
+        this.lastRepositionTime = 0;
+        this.circleDirection = 1; // 1 = clockwise, -1 = counter-clockwise
+
+        // Threat detection
+        this.nearbyEnemyThreshold = 3; // If 3+ enemies within 200px, retreat
+        this.swarmDistance = 200; // Distance to check for swarming
+        this.lastThreatCheck = 0;
+        this.threatCheckInterval = 300; // Check threats every 300ms
+
+        // Projectile dodging
+        this.lastDodgeTime = 0;
+        this.dodgeCooldown = 1000; // Can dodge every 1 second
+        this.projectileDodgeRange = 150; // Dodge if projectile within this range
+
         // UI Indicator
         this.createIdleIndicator();
 
@@ -239,24 +257,39 @@ class IdleModeManager {
             enemyPos.x, enemyPos.y
         );
 
+        // Check for swarm/overrun situation
+        const nearbyEnemies = this.countNearbyEnemies(this.swarmDistance);
+        if (nearbyEnemies >= this.nearbyEnemyThreshold) {
+            console.log(`⚠️ SWARM DETECTED! ${nearbyEnemies} enemies nearby - retreating!`);
+            this.retreatFromSwarm();
+            return;
+        }
+
+        // Determine optimal range based on character type
+        const isRanged = ['ORION', 'LUNARE', 'BASTION'].includes(this.player.class);
+        const optimalRange = isRanged ? this.optimalRangedRange : this.optimalMeleeRange;
+
         // Get character's auto-attack range
         const attackRange = this.player.autoAttackConfig ?
             (this.player.autoAttackConfig.range * GameConfig.GAME.TILE_SIZE) :
-            (10 * GameConfig.GAME.TILE_SIZE); // Default 10 tiles
+            (10 * GameConfig.GAME.TILE_SIZE);
 
-        // Smart movement AI
+        // DYNAMIC POSITIONING - Always stay at optimal range and keep moving
         if (this.autoMoveEnabled) {
-            // Check if we should kite (ranged characters staying away from enemies)
-            if (this.shouldKite(target)) {
-                this.kiteAway(target);
-            }
-            // Move toward enemy if too far
-            else if (distance > attackRange * 0.7) {
+            const now = Date.now();
+
+            // Too far - move toward enemy
+            if (distance > optimalRange + 50) {
                 this.moveTowardTarget(enemyPos);
             }
-            // Stop moving when in optimal range
-            else {
-                this.player.move(0, 0);
+            // Too close - back away
+            else if (distance < optimalRange - 50) {
+                this.retreatFromTarget(target);
+            }
+            // At optimal range - CIRCLE STRAFE (never stand still!)
+            else if (now - this.lastRepositionTime > this.repositionInterval) {
+                this.circleStrafeTarget(target, optimalRange);
+                this.lastRepositionTime = now;
             }
         }
 
@@ -566,6 +599,144 @@ class IdleModeManager {
             console.log('🤖 Kiting away from enemy');
             this.player.move(velocityX, velocityY);
         }
+    }
+
+    // Count enemies within a certain radius
+    countNearbyEnemies(radius) {
+        const playerPos = {
+            x: this.player.sprite.x,
+            y: this.player.sprite.y
+        };
+
+        let count = 0;
+        const enemyCollections = [
+            this.scene.enemies,
+            this.scene.swordDemons,
+            this.scene.minotaurs,
+            this.scene.mushrooms,
+            this.scene.emberclaws
+        ];
+
+        enemyCollections.forEach(collection => {
+            if (!collection) return;
+
+            Object.values(collection).forEach(enemy => {
+                if (!enemy || !enemy.sprite || enemy.health <= 0) return;
+
+                const distance = Phaser.Math.Distance.Between(
+                    playerPos.x, playerPos.y,
+                    enemy.sprite.x, enemy.sprite.y
+                );
+
+                if (distance < radius) {
+                    count++;
+                }
+            });
+        });
+
+        return count;
+    }
+
+    // Retreat when surrounded by too many enemies
+    retreatFromSwarm() {
+        // Find average position of all nearby enemies
+        const playerPos = {
+            x: this.player.sprite.x,
+            y: this.player.sprite.y
+        };
+
+        let avgX = 0;
+        let avgY = 0;
+        let enemyCount = 0;
+
+        const enemyCollections = [
+            this.scene.enemies,
+            this.scene.swordDemons,
+            this.scene.minotaurs,
+            this.scene.mushrooms,
+            this.scene.emberclaws
+        ];
+
+        enemyCollections.forEach(collection => {
+            if (!collection) return;
+
+            Object.values(collection).forEach(enemy => {
+                if (!enemy || !enemy.sprite || enemy.health <= 0) return;
+
+                const distance = Phaser.Math.Distance.Between(
+                    playerPos.x, playerPos.y,
+                    enemy.sprite.x, enemy.sprite.y
+                );
+
+                if (distance < this.swarmDistance) {
+                    avgX += enemy.sprite.x;
+                    avgY += enemy.sprite.y;
+                    enemyCount++;
+                }
+            });
+        });
+
+        if (enemyCount > 0) {
+            avgX /= enemyCount;
+            avgY /= enemyCount;
+
+            // Move AWAY from the center of the swarm
+            const dx = playerPos.x - avgX;
+            const dy = playerPos.y - avgY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > 0) {
+                const velocityX = dx / distance;
+                const velocityY = dy / distance;
+                this.player.move(velocityX, velocityY);
+            }
+        }
+    }
+
+    // Retreat from a single target (when too close)
+    retreatFromTarget(target) {
+        const playerPos = {
+            x: this.player.sprite.x,
+            y: this.player.sprite.y
+        };
+
+        // Move AWAY from target
+        const dx = playerPos.x - target.x;
+        const dy = playerPos.y - target.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance > 0) {
+            const velocityX = dx / distance;
+            const velocityY = dy / distance;
+            this.player.move(velocityX, velocityY);
+        }
+    }
+
+    // Circle strafe around target (never stand still!)
+    circleStrafeTarget(target, radius) {
+        const playerPos = {
+            x: this.player.sprite.x,
+            y: this.player.sprite.y
+        };
+
+        // Calculate angle to target
+        const dx = target.x - playerPos.x;
+        const dy = target.y - playerPos.y;
+        const angleToTarget = Math.atan2(dy, dx);
+
+        // Perpendicular angle for strafing (90 degrees offset)
+        const strafeAngle = angleToTarget + (Math.PI / 2) * this.circleDirection;
+
+        // Move perpendicular to target (circle strafe)
+        const velocityX = Math.cos(strafeAngle);
+        const velocityY = Math.sin(strafeAngle);
+
+        // Occasionally switch direction for unpredictability
+        if (Math.random() < 0.1) {
+            this.circleDirection *= -1;
+        }
+
+        this.player.move(velocityX, velocityY);
     }
 
     destroy() {
