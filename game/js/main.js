@@ -55,23 +55,45 @@ game.events.on('pause', () => {
     console.log('🔇 Game paused - stopping all sounds');
     if (game.sound) {
         game.sound.stopAll();
+        // Also mute to prevent queued sounds
+        game.sound.mute = true;
     }
 });
 
 game.events.on('resume', () => {
     console.log('🔊 Game resumed - sounds cleared');
-    // Sounds are already stopped, resume will start fresh
+    if (game.sound) {
+        game.sound.stopAll();
+        // Unmute after a short delay to skip queued sounds
+        setTimeout(() => {
+            if (game.sound) {
+                game.sound.mute = false;
+            }
+        }, 100);
+    }
 });
 
-// Also handle browser visibility changes
+// Also handle browser visibility changes (more reliable than pause/resume)
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         console.log('🔇 Tab hidden - stopping all sounds');
         if (game.sound) {
             game.sound.stopAll();
+            game.sound.mute = true;
         }
     } else {
-        console.log('🔊 Tab visible - ready for new sounds');
+        console.log('🔊 Tab visible - clearing queued sounds');
+        if (game.sound) {
+            // Stop everything first
+            game.sound.stopAll();
+            // Brief mute period to skip any queued sounds
+            setTimeout(() => {
+                if (game.sound) {
+                    game.sound.mute = false;
+                    console.log('✅ Sound system ready');
+                }
+            }, 200);
+        }
     }
 });
 
