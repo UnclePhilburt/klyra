@@ -6595,20 +6595,34 @@ class GameScene extends Phaser.Scene {
         // Check if idle mode is enabled - skip manual input if so
         const idleModeEnabled = this.idleModeManager && this.idleModeManager.enabled;
 
+        // Get mobile joystick input
+        const mobileInput = typeof mobileControls !== 'undefined' ? mobileControls.getInput() : { x: 0, y: 0, active: false };
+
+        // Get controller input
+        const controllerInput = this.controllerManager ? this.controllerManager.getMovementInput() : { x: 0, y: 0, active: false };
+
+        // Check if inventory is open - disable WASD movement
+        const inventoryOpen = this.inventoryUI && this.inventoryUI.isOpen;
+
+        // Check if player is channeling an ability (e.g., Aldric's Titan's Fury)
+        const isChanneling = this.localPlayer && this.localPlayer.isChanneling;
+
+        // Check if ANY movement key is pressed (to exit idle mode)
+        const movementKeyPressed = this.cursors && this.wasd && (
+            this.cursors.left.isDown || this.cursors.right.isDown ||
+            this.cursors.up.isDown || this.cursors.down.isDown ||
+            this.wasd.left.isDown || this.wasd.right.isDown ||
+            this.wasd.up.isDown || this.wasd.down.isDown
+        );
+
+        // Auto-disable idle mode if player presses movement keys
+        if (idleModeEnabled && movementKeyPressed && this.idleModeManager) {
+            console.log('🎮 Movement detected - disabling idle mode');
+            this.idleModeManager.setEnabled(false);
+        }
+
         // Only process manual input if idle mode is disabled
-        if (!idleModeEnabled) {
-            // Get mobile joystick input
-            const mobileInput = typeof mobileControls !== 'undefined' ? mobileControls.getInput() : { x: 0, y: 0, active: false };
-
-            // Get controller input
-            const controllerInput = this.controllerManager ? this.controllerManager.getMovementInput() : { x: 0, y: 0, active: false };
-
-            // Check if inventory is open - disable WASD movement
-            const inventoryOpen = this.inventoryUI && this.inventoryUI.isOpen;
-
-            // Check if player is channeling an ability (e.g., Aldric's Titan's Fury)
-            const isChanneling = this.localPlayer && this.localPlayer.isChanneling;
-
+        if (!idleModeEnabled || movementKeyPressed) {
             // Controller input (highest priority) - but not if channeling
             if (controllerInput.active && !isChanneling) {
                 velocityX = controllerInput.x;
