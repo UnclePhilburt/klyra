@@ -1,16 +1,19 @@
 {
-  "name": "klyra-server",
+  "name": "klyra-site",
   "version": "1.0.0",
-  "description": "Multiplayer server for Klyra roguelike game",
+  "description": "Klyra Broken Front website and legacy multiplayer server tools",
   "main": "server.js",
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "deploy:cloudflare": "npm run build && wrangler pages deploy out --project-name klyra --branch main",
     "start": "node server.js"
   },
   "keywords": [
+    "klyra",
+    "broken-front",
     "multiplayer",
-    "roguelike",
-    "websocket",
-    "game-server"
+    "tactical"
   ],
   "author": "",
   "license": "MIT",
@@ -20,11 +23,15 @@
     "dotenv": "^17.2.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
+    "next": "^15.5.4",
     "nodemailer": "^6.9.7",
     "pg": "^8.16.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "socket.io": "^4.6.1",
     "uuid": "^9.0.0"
   },
+  "devDependencies": {},
   "engines": {
     "node": ">=18.0.0"
   }
