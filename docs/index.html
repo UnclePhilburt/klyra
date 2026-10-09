@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Klyra: Broken Front</title>
   <meta name="description" content="Klyra: Broken Front is a three-team tactical sandbox about infantry, logistics, FOBs, vehicles, stash progression and a moving front." />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
       color-scheme:dark;
@@ -163,7 +162,7 @@
           <input id="email" type="email" autocomplete="email" required />
           <label for="password">Password</label>
           <input id="password" type="password" autocomplete="new-password" minlength="8" required />
-          <button class="btn primary" type="submit">Create Account</button>
+          <button class="btn primary" type="submit" id="createAccount">Create Account</button>
           <button class="btn" type="button" id="reset">Send Password Reset</button>
         </form>
         <p id="status" class="form-status"></p>
@@ -172,8 +171,8 @@
         <h2 class="section-title">Download</h2>
         <p class="section-copy">Download the launcher for your machine. The launcher installs Broken Front, checks for new builds, and patches the game when we publish updates.</p>
         <div class="download-buttons">
-          <a class="btn primary" href="https://cdn.klyra.lol/KlyraBrokenFrontLauncher-win-x64-0.1.3.exe">Windows Launcher</a>
-          <a class="btn" href="https://cdn.klyra.lol/KlyraBrokenFrontLauncher-mac-universal-0.1.3.dmg">Mac Launcher</a>
+          <a class="btn primary" href="https://cdn.klyra.lol/KlyraBrokenFrontLauncher-win-x64-0.1.5.exe">Windows Launcher</a>
+          <a class="btn" href="https://cdn.klyra.lol/KlyraBrokenFrontLauncher-mac-universal-0.1.5.dmg">Mac Launcher</a>
         </div>
         <ul>
           <li>The website only hosts the small launcher download links.</li>
@@ -190,30 +189,76 @@
   </footer>
 
   <script>
-    const supabase = window.supabase.createClient(
-      "https://xmmjygblrinaqtqtcrin.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhtbWp5Z2JscmluYXF0cXRjcmluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1MTQ3MjEsImV4cCI6MjEwNzA5MDcyMX0.M-Zja97uP4in0Gy3Lci048GG5MYc4WCh9BbdjszJGoo"
-    );
+    const SUPABASE_URL = "https://xmmjygblrinaqtqtcrin.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhtbWp5Z2JscmluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1MTQ3MjEsImV4cCI6MjEwNzA5MDcyMX0.M-Zja97uP4in0Gy3Lci048GG5MYc4WCh9BbdjszJGoo";
     const status = document.querySelector("#status");
+    const createButton = document.querySelector("#createAccount");
+    const resetButton = document.querySelector("#reset");
     const setStatus = (text, bad=false) => { status.textContent = text; status.className = bad ? "form-status error" : "form-status"; };
+    window.addEventListener("error", event => setStatus(`Site error: ${event.message}`, true));
+    window.addEventListener("unhandledrejection", event => {
+      const reason = event.reason && event.reason.message ? event.reason.message : event.reason;
+      setStatus(`Account error: ${reason || "Unknown request failure"}`, true);
+    });
+    const supabaseFetch = async (path, body) => {
+      const response = await fetch(`${SUPABASE_URL}${path}`, {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
+      const text = await response.text();
+      let payload = {};
+      if (text) {
+        try { payload = JSON.parse(text); }
+        catch { payload = { message: text }; }
+      }
+      if (!response.ok) {
+        const message = payload.msg || payload.message || payload.error_description || payload.error || `Supabase ${response.status}`;
+        throw new Error(message);
+      }
+      return payload;
+    };
+
     document.querySelector("#signup").addEventListener("submit", async event => {
       event.preventDefault();
-      setStatus("Creating account...");
       const username = document.querySelector("#username").value.trim();
       const email = document.querySelector("#email").value.trim();
       const password = document.querySelector("#password").value;
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { username, display_name: username }, emailRedirectTo: "https://klyra.lol" }
-      });
-      setStatus(error ? error.message : "Account created. Check email if confirmation is enabled, then log in inside the game.", !!error);
+      if (!username || !email || !password) return setStatus("Fill out callsign, email, and password first.", true);
+      createButton.disabled = true;
+      setStatus("Creating account...");
+      try {
+        await supabaseFetch("/auth/v1/signup", {
+          email,
+          password,
+          data: { username, display_name: username },
+          email_redirect_to: "https://klyra.lol"
+        });
+        setStatus("Account created. Check your email if Supabase asks for confirmation, then log in inside the game.");
+      } catch (error) {
+        setStatus(error.message || "Account creation failed.", true);
+      } finally {
+        createButton.disabled = false;
+      }
     });
-    document.querySelector("#reset").addEventListener("click", async () => {
+    resetButton.addEventListener("click", async () => {
       const email = document.querySelector("#email").value.trim();
       if (!email) return setStatus("Enter your email first.", true);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: "https://klyra.lol" });
-      setStatus(error ? error.message : "Password reset email sent.", !!error);
+      resetButton.disabled = true;
+      setStatus("Sending reset email...");
+      try {
+        await supabaseFetch("/auth/v1/recover", { email, redirect_to: "https://klyra.lol" });
+        setStatus("Password reset email sent.");
+      } catch (error) {
+        setStatus(error.message || "Password reset failed.", true);
+      } finally {
+        resetButton.disabled = false;
+      }
     });
   </script>
 </body>
