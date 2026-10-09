@@ -53,25 +53,9 @@
     .status-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:42px;max-width:760px}
     .stat{border:1px solid rgba(195,167,123,.28);background:rgba(38,49,45,.72);padding:18px}
     .stat strong{display:block;font-size:28px}.stat span{color:var(--muted);font-weight:800;text-transform:uppercase;font-size:12px;letter-spacing:.12em}
-    .scene{position:relative;min-height:600px;border:1px solid rgba(195,167,123,.35);background:linear-gradient(#526c72 0 34%,#4d624e 34% 43%,#5c5240 43%);overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.35)}
-    .sun{position:absolute;left:54%;top:15%;width:90px;height:90px;background:#d9b77c;border-radius:50%;box-shadow:0 0 80px #d9b77c}
-    .mountain{position:absolute;bottom:50%;width:360px;height:190px;background:#5e6e6e;clip-path:polygon(0 100%,42% 4%,62% 54%,78% 22%,100% 100%)}
-    .mountain.one{left:0}.mountain.two{right:-45px;background:#6f7770}
-    .ground{position:absolute;left:-12%;right:-12%;bottom:-18%;height:48%;background:repeating-linear-gradient(90deg,rgba(0,0,0,.13) 0 2px,transparent 2px 72px),linear-gradient(145deg,#776d55,#4c4e3c);transform:perspective(700px) rotateX(52deg)}
-    .zone{position:absolute;left:50%;bottom:132px;width:220px;height:82px;border:8px solid rgba(244,241,231,.75);border-radius:50%;transform:translateX(-50%);box-shadow:0 0 0 2px rgba(0,0,0,.22)}
-    .crate{position:absolute;background:var(--sand);border:2px solid rgba(0,0,0,.22);box-shadow:inset -12px -10px rgba(0,0,0,.14)}
-    .crate.a{left:45%;bottom:170px;width:70px;height:52px}.crate.b{right:11%;bottom:86px;width:92px;height:64px}.crate.c{left:10%;bottom:86px;width:86px;height:60px}
-    .truck{position:absolute;right:9%;bottom:145px;width:190px;height:78px;background:var(--steel);clip-path:polygon(0 30%,54% 30%,64% 0,100% 0,100% 74%,0 74%);box-shadow:inset -18px -14px rgba(0,0,0,.18)}
-    .truck:before,.truck:after{content:"";position:absolute;bottom:-17px;width:36px;height:36px;border-radius:50%;background:#161b1b;border:7px solid #2c3333}.truck:before{left:28px}.truck:after{right:26px}
-    .heli{position:absolute;right:12%;top:88px;width:210px;height:54px;background:#596454;clip-path:polygon(0 48%,16% 22%,68% 12%,100% 38%,78% 76%,22% 76%);filter:drop-shadow(0 18px 12px rgba(0,0,0,.28))}
-    .heli:before{content:"";position:absolute;left:58px;top:-28px;width:150px;height:5px;background:#202624;box-shadow:-44px 0 #202624}.heli:after{content:"";position:absolute;right:-42px;top:21px;width:54px;height:7px;background:#202624}
-    .soldier{position:absolute;width:38px;height:86px;filter:drop-shadow(0 12px 7px rgba(0,0,0,.22))}
-    .soldier:before{content:"";position:absolute;left:9px;top:0;width:20px;height:18px;background:#b59b75;clip-path:polygon(20% 0,80% 0,100% 65%,50% 100%,0 65%)}
-    .soldier:after{content:"";position:absolute;left:6px;top:18px;width:27px;height:44px;background:var(--olive);clip-path:polygon(14% 0,86% 0,100% 100%,0 100%)}
-    .soldier i{position:absolute;left:1px;top:34px;width:54px;height:7px;background:#1d2321;transform:rotate(-15deg)}
-    .soldier b{position:absolute;left:9px;top:60px;width:8px;height:25px;background:#262f2b;box-shadow:14px 0 #262f2b}
-    .soldier.red:after{background:var(--red)}.soldier.blue:after{background:var(--blue)}.soldier.green:after{background:var(--green)}
-    .soldier.s1{left:18%;bottom:155px}.soldier.s2{left:28%;bottom:242px;transform:scale(.82)}.soldier.s3{right:30%;bottom:205px;transform:scale(.9)}.soldier.s4{right:20%;bottom:255px;transform:scale(.72)}.soldier.s5{left:39%;bottom:118px;transform:scale(.68)}
+    .asset-shot{position:relative;min-height:600px;border:1px solid rgba(195,167,123,.35);background:linear-gradient(145deg,#18211f,#344039);overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.35)}
+    .asset-shot img{display:block;width:100%;height:100%;min-height:600px;object-fit:cover}
+    .asset-shot:after{content:"Rendered from in-project Synty Polygon Military prefabs";position:absolute;left:18px;bottom:18px;right:18px;padding:12px 14px;background:rgba(16,21,19,.72);border:1px solid rgba(195,167,123,.32);color:var(--muted);font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
     .panel-section{padding:78px clamp(22px,5vw,72px);background:#111714}
     .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
     .card{background:var(--panel);border:1px solid rgba(195,167,123,.24);padding:28px;min-height:220px}
@@ -89,8 +73,8 @@
     .download-buttons .btn{min-width:190px}
     .download-box ul{margin:20px 0 0;padding:0;list-style:none;color:var(--muted);line-height:1.8}
     footer{padding:36px clamp(22px,5vw,72px);border-top:1px solid rgba(195,167,123,.2);background:#0d1210;color:var(--muted);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
-    @media(max-width:1020px){.hero,.account-download{grid-template-columns:1fr}.scene{min-height:520px}.grid{grid-template-columns:1fr}.links a:not(.btn){display:none}}
-    @media(max-width:620px){.nav{height:auto;min-height:82px}.links{gap:8px}.btn{padding:0 12px;font-size:12px}.status-row{grid-template-columns:1fr}h1{font-size:52px}.scene{min-height:440px}.truck{transform:scale(.76);right:0}.heli{transform:scale(.7);right:-12px}}
+    @media(max-width:1020px){.hero,.account-download{grid-template-columns:1fr}.asset-shot,.asset-shot img{min-height:520px}.grid{grid-template-columns:1fr}.links a:not(.btn){display:none}}
+    @media(max-width:620px){.nav{height:auto;min-height:82px}.links{gap:8px}.btn{padding:0 12px;font-size:12px}.status-row{grid-template-columns:1fr}h1{font-size:52px}.asset-shot,.asset-shot img{min-height:440px}}
   </style>
 </head>
 <body>
@@ -121,20 +105,8 @@
         </div>
       </section>
 
-      <section class="scene" aria-label="Synty style battlefield illustration">
-        <div class="sun"></div>
-        <div class="mountain one"></div>
-        <div class="mountain two"></div>
-        <div class="ground"></div>
-        <div class="heli"></div>
-        <div class="truck"></div>
-        <div class="zone"></div>
-        <div class="crate a"></div><div class="crate b"></div><div class="crate c"></div>
-        <div class="soldier red s1"><i></i><b></b></div>
-        <div class="soldier red s2"><i></i><b></b></div>
-        <div class="soldier blue s3"><i></i><b></b></div>
-        <div class="soldier green s4"><i></i><b></b></div>
-        <div class="soldier blue s5"><i></i><b></b></div>
+      <section class="asset-shot" aria-label="Rendered Synty Polygon Military assets">
+        <img src="assets/site/syntymilitary-hero.png" alt="Synty Polygon Military soldiers, helicopter, transport truck and FOB assets from Klyra Broken Front" />
       </section>
     </main>
   </div>
