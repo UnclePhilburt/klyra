@@ -39,7 +39,7 @@ export default function DevlogPage() {
             at 100 points, helicopters, supply trucks, forward bases, a weapon
             builder, revive, and a stash for gear you extract. Online rooms hold
             up to 20 players. The field fills toward 60 soldiers, 20 on a side.
-            Two people can also play on one computer with a second controller.
+            Two people can also play on one computer with two controllers.
           </p>
           <div className="shotGrid">
             <figure>

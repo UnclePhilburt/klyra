@@ -19,7 +19,7 @@ const topics = [
   },
   {
     q: "Do controllers work?",
-    a: "Yes. Keyboard and mouse work, and so do Xbox and PlayStation controllers. On-screen prompts follow the device you are using. For two players on one computer, player one can stay on the keyboard. Press Start on a second controller to join.",
+    a: "Yes. Keyboard and mouse work, and so do Xbox and PlayStation controllers. On-screen prompts follow the device you are using. For two players on one computer, use two controllers. Press Start on one of them to bring in the second player.",
   },
   {
     q: "The download will not open",
@@ -31,7 +31,7 @@ const topics = [
   },
   {
     q: "I cannot get into a multiplayer match",
-    a: "Check that the computer is online. Sign in with your callsign or email. A room holds up to 20 players, and bots fill the sides. If the room will not start, leave it and try again. On one computer, the second person needs their own controller and presses Start.",
+    a: "Check that the computer is online. Sign in with your callsign or email. A room holds up to 20 players, and bots fill the sides. If the room will not start, leave it and try again. On one computer, both people use a controller. Press Start on one of them to bring in the second player.",
   },
   {
     q: "Who do I contact?",
