@@ -32,7 +32,7 @@ async function supabaseRequest(path, body) {
         payload.message ||
         payload.error_description ||
         payload.error ||
-        `Supabase ${response.status}`
+        "Could not reach the account service."
     );
   }
 
@@ -63,7 +63,7 @@ export default function AccountPage() {
     }
 
     setBusy(true);
-    setStatus("Creating account...");
+    setStatus("Creating your account...");
     try {
       await supabaseRequest("/auth/v1/signup", {
         email: cleanEmail,
@@ -75,7 +75,7 @@ export default function AccountPage() {
         email_redirect_to: "https://klyra.lol",
       });
       setStatus(
-        "Account created. Check your email if confirmation is enabled, then log in inside the game."
+        "Account created. Check your email if a confirmation is waiting, then sign in from the launcher."
       );
     } catch (requestError) {
       setStatus(requestError.message || "Account creation failed.", true);
@@ -92,13 +92,13 @@ export default function AccountPage() {
     }
 
     setBusy(true);
-    setStatus("Sending reset email...");
+    setStatus("Sending the reset email...");
     try {
       await supabaseRequest("/auth/v1/recover", {
         email: cleanEmail,
         redirect_to: "https://klyra.lol",
       });
-      setStatus("Password reset email sent.");
+      setStatus("Check your email for the reset link.");
     } catch (requestError) {
       setStatus(requestError.message || "Password reset failed.", true);
     } finally {
@@ -111,12 +111,11 @@ export default function AccountPage() {
       <SiteNav />
       <section className="pageHero">
         <div>
-          <p className="tag">Player Account</p>
-          <h1>Create your callsign.</h1>
+          <p className="tag">Your callsign</p>
+          <h1>Keep what you bring home.</h1>
           <p className="lead">
-            Make your player account here, then log in inside Broken Front.
-            Your personal stash, stats, gear history, and future Steam link all
-            attach to this record.
+            Make an account here, then sign in from the launcher. The gear you
+            extract stays in your stash for the next fight.
           </p>
         </div>
         <form className="accountCard" onSubmit={createAccount}>
@@ -160,7 +159,7 @@ export default function AccountPage() {
             type="button"
             onClick={resetPassword}
           >
-            Send Password Reset
+            Email me a password reset
           </button>
           <p className={error ? "formMessage error" : "formMessage"}>{message}</p>
         </form>

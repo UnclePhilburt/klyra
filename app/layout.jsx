@@ -3,11 +3,11 @@ import "./globals.css";
 export const metadata = {
   title: "Klyra: Broken Front",
   description:
-    "A three-team tactical sandbox with infantry, logistics, FOBs, vehicles, stash progression, and permanent accounts.",
+    "Klyra: Broken Front is a three-team war. Fight the moving front, run supplies, build a base, and bring your gear home.",
   openGraph: {
     title: "Klyra: Broken Front",
     description:
-      "Build FOBs, move troops, loot the battlefield, and hold the moving front.",
+      "Fight the front, run supplies, build a base, and bring your gear home.",
     url: "https://klyra.lol",
     siteName: "Klyra: Broken Front",
     type: "website",

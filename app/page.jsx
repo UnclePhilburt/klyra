@@ -42,108 +42,119 @@ export default function Home() {
 
       <section id="top" className="hero">
         <div className="heroCopy">
-          <p className="tag">Alpha Deployment</p>
-          <h1>Hold the front. Bring the gear home.</h1>
+          <p className="tag">Pre-alpha</p>
+          <h1>Fight the front. Get your gear home.</h1>
           <p className="lead">
-            A three-team tactical sandbox where infantry, pilots, engineers,
-            and logistics crews fight over shifting objectives while every kit
-            and crate has to survive the trip back.
+            Three teams fight over a battle that keeps moving. Push with your
+            squad, run supplies by truck and helicopter, build a base, and
+            bring back what you can carry. What makes it home stays yours.
           </p>
           <div className="actions">
-            <a className="button" href="/download/">
-              Download Launcher
+            <a className="button" href="#trailer">
+              Watch the trailer
             </a>
-            <a className="button ghost" href="/account/">
-              Create Account
+            <a className="button ghost" href="/download/">
+              Download
             </a>
           </div>
         </div>
 
-        <section className="statusPanel" aria-label="Frontline status">
-          <div className="panelSweep" aria-hidden="true" />
-          <div className="panelHeader">
-            <span>Frontline Status</span>
-            <strong>Online</strong>
-          </div>
-          <div className="zoneMap" aria-hidden="true">
-            <span className="ring outer" />
-            <span className="ring inner" />
-            <span className="route routeOne" />
-            <span className="route routeTwo" />
-            <span className="unit red" />
-            <span className="unit green" />
-            <span className="unit blue" />
-          </div>
-          <div className="metricGrid">
-            <div>
-              <span>Teams</span>
-              <strong>3</strong>
-            </div>
-            <div>
-              <span>Soldiers</span>
-              <strong>100</strong>
-            </div>
-            <div>
-              <span>Role</span>
-              <strong>Deploy</strong>
-            </div>
-          </div>
-        </section>
+        <div id="trailer" className="trailerFrame">
+          <iframe
+            src="https://www.youtube-nocookie.com/embed/UCOv0qqh0r0?rel=0"
+            title="Klyra: Broken Front pre-alpha trailer"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+          <a href="https://www.youtube.com/watch?v=UCOv0qqh0r0">
+            Watch on YouTube
+          </a>
+        </div>
       </section>
 
-      <section id="front" className="section frontOnly">
+      <section id="war" className="section frontOnly">
         <div className="sectionIntro">
-          <p className="tag">Combat Loop</p>
-          <h2>Fight, build, transport, extract.</h2>
+          <p className="tag">The war</p>
+          <h2>Fight, haul, and keep it.</h2>
           <p>
-            Broken Front is not just sprinting at a circle. Squads need rides,
-            FOBs need supplies, wounded soldiers need revives, and captured
-            weapons only matter if someone gets them back to storage.
+            Someone has to take the ground. Someone has to drive. A base with
+            nothing in it cannot hold.
           </p>
         </div>
         <div className="cards">
           <article>
             <span>01</span>
-            <h3>Infantry</h3>
+            <h3>Fight</h3>
             <p>
-              Push the zone, loot dead enemies, revive allies, and hold the
-              hotzone.
+              Take the hot zone with your team. Loot weapons off the field.
+              Pick up the soldier next to you before the fight moves on.
             </p>
           </article>
           <article>
             <span>02</span>
-            <h3>Logistics</h3>
+            <h3>Haul</h3>
             <p>
-              Buy vehicles, move troops, deliver supply crates, and haul loot to
-              HQ.
+              Trucks and helicopters move people and supplies. If the crates
+              do not arrive, the base goes quiet.
             </p>
           </article>
           <article>
             <span>03</span>
-            <h3>Engineering</h3>
+            <h3>Keep it</h3>
             <p>
-              Build FOBs, depots, medical support, landing pads, and defenses.
+              Build a forward base and stock it. Gear you get back to safety
+              goes into your stash for the next fight.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="sectionIntro">
+          <p className="tag">One match</p>
+          <h2>The front does not sit still.</h2>
+        </div>
+        <div className="cards">
+          <article>
+            <span>01</span>
+            <h3>Drop in</h3>
+            <p>You join red, green, or blue. The first team to 100 points wins.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Move</h3>
+            <p>
+              The battle zone shifts. Stay on it, or go run the trucks, the
+              helicopters, and the supplies.
+            </p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Get out</h3>
+            <p>
+              A teammate can bring you back. If you do not make it out, the
+              gear you were carrying is still out there.
             </p>
           </article>
         </div>
       </section>
 
       <section className="splitLinks" aria-label="Next steps">
-        <a className="pathCard" href="/account/">
-          <span>Account</span>
-          <strong>Create your callsign</strong>
-          <p>Register your player record before logging in inside the game.</p>
-        </a>
         <a className="pathCard" href="/download/">
-          <span>Download</span>
-          <strong>Install the launcher</strong>
-          <p>Grab the Mac or Windows launcher and patch through Cloudflare.</p>
+          <span>Play</span>
+          <strong>Download the game</strong>
+          <p>Windows or Mac. The launcher installs Broken Front and gets you updates.</p>
+        </a>
+        <a className="pathCard" href="/account/">
+          <span>Callsign</span>
+          <strong>Save your stash</strong>
+          <p>Make an account so the gear you extract is waiting next time.</p>
         </a>
       </section>
 
       <footer>
         <strong>Klyra: Broken Front</strong>
-        <span>Alpha systems online.</span>
+        <span>Pre-alpha. The war is still being built.</span>
       </footer>
     </main>
   );

@@ -7,25 +7,24 @@ export default function DownloadPage() {
       <SiteNav />
       <section className="pageHero downloadPage">
         <div>
-          <p className="tag">Launcher</p>
-          <h1>Install once. Patch from the launcher.</h1>
+          <p className="tag">Play</p>
+          <h1>Download and get in.</h1>
           <p className="lead">
-            Download the launcher for your machine. The launcher checks the
-            Cloudflare manifest, downloads Broken Front, and updates the game
-            when a new package goes live.
+            Grab the launcher for your computer. It installs Broken Front and
+            picks up new versions when they are ready.
           </p>
         </div>
         <div className="downloadCard">
           <a className="button full" href={windowsLauncher}>
-            Windows Launcher
+            Windows
           </a>
           <a className="button ghost full" href={macLauncher}>
-            Mac Launcher
+            Mac
           </a>
           <ul>
-            <li>Launcher version: 0.1.7</li>
-            <li>Current Mac build: 0.1.1 manifest</li>
-            <li>Game builds download from cdn.klyra.lol</li>
+            <li>Free pre-alpha.</li>
+            <li>Sign in after it installs so your stash is saved.</li>
+            <li>New fights show up in the launcher. You do not reinstall.</li>
           </ul>
         </div>
       </section>

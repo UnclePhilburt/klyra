@@ -288,6 +288,26 @@ h3 {
   transform: translate3d(0, calc(var(--drift-slow) * -0.3), 0);
 }
 
+.trailerFrame {
+  display: grid;
+  gap: 14px;
+  min-height: 0;
+}
+
+.trailerFrame iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: #070b0a;
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.4);
+}
+
+.trailerFrame a {
+  color: var(--gold);
+  font-weight: 800;
+}
+
 .panelSweep {
   pointer-events: none;
   position: absolute;

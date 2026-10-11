@@ -6,8 +6,8 @@ export default function SiteNav() {
         <span>Klyra: Broken Front</span>
       </a>
       <div className="navLinks">
-        <a href="/#front">Front</a>
-        <a href="/account/">Account</a>
+        <a href="/#war">The war</a>
+        <a href="/#trailer">Trailer</a>
         <a className="button ghost small" href="/account/">
           Account
         </a>
