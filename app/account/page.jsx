@@ -60,14 +60,18 @@ export default function AccountPage() {
 
   const onSignIn = async (event) => {
     event.preventDefault();
-    if (!email.trim() || !password) {
-      setStatus("Enter your email and password.", true);
+    const form = new FormData(event.currentTarget);
+    const identifier = String(form.get("identifier") || email).trim();
+    const nextPassword = String(form.get("password") || password);
+    setEmail(identifier);
+    if (!identifier || !nextPassword) {
+      setStatus("Enter your callsign or email, and your password.", true);
       return;
     }
     setBusy(true);
     setStatus("Signing in...");
     try {
-      const next = await signIn(email.trim(), password);
+      const next = await signIn(identifier, nextPassword);
       setPassword("");
       setSession(next);
       setStatus("");
@@ -258,7 +262,7 @@ export default function AccountPage() {
           <p className="lead">
             {mode === "create"
               ? "Create the account you will use in the game. Extracted gear stays on it."
-              : "Sign in to see your callsign, your record, and the gear you kept."}
+              : "Sign in with your callsign or your email."}
           </p>
         </div>
 
@@ -314,20 +318,24 @@ export default function AccountPage() {
         ) : (
           <form className="accountCard" onSubmit={onSignIn}>
             <label>
-              Email
+              Callsign or email
               <input
+                name="identifier"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                type="email"
-                autoComplete="email"
+                onInput={(event) => setEmail(event.target.value)}
+                type="text"
+                autoComplete="username"
                 required
               />
             </label>
             <label>
               Password
               <input
+                name="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
+                onInput={(event) => setPassword(event.target.value)}
                 type="password"
                 autoComplete="current-password"
                 required

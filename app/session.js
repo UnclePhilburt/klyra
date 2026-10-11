@@ -53,9 +53,12 @@ export function memberSince(session) {
 }
 
 function errorMessage(payload) {
-  const code = payload?.error_code || payload?.code || "";
+  const code = payload?.error_code || "";
   if (code === "invalid_credentials") {
-    return "That email or password did not match. Confirm the account from your email if you have not yet.";
+    return "That callsign or email and password did not match.";
+  }
+  if (code === "email_not_confirmed") {
+    return "Confirm the account from your email, then sign in.";
   }
   if (code === "user_already_exists" || code === "email_exists") {
     return "That email already has an account. Sign in instead.";
@@ -243,13 +246,48 @@ export function restoreSession() {
   return restoring;
 }
 
-export async function signIn(email, password) {
+async function lookupCallsign(name) {
+  const response = await fetch("https://api.klyra.lol/v1/login-name", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || !payload.email) {
+    throw new Error(payload.message || "No account uses that callsign.");
+  }
+  return payload.email;
+}
+
+async function loginEmail(identifier) {
+  const value = identifier.trim();
+  if (value.includes("@")) return value;
+  return lookupCallsign(value);
+}
+
+async function rememberCallsign(session) {
+  if (!session?.access_token) return;
+  await fetch("https://api.klyra.lol/v1/login-name/save", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: "{}",
+  });
+}
+
+export async function signIn(identifier, password) {
+  const email = await loginEmail(identifier);
   const auth = await authFetch("/auth/v1/token?grant_type=password", {
     method: "POST",
     body: { email, password },
   });
   const session = await hydrate(packAuth(auth));
-  return writeSession(session);
+  writeSession(session);
+  rememberCallsign(session).catch(() => {});
+  return session;
 }
 
 export async function signUp(callsign, email, password) {
@@ -266,13 +304,15 @@ export async function signUp(callsign, email, password) {
   if (result.access_token && result.refresh_token) {
     const session = await hydrate(packAuth(result));
     writeSession(session);
+    rememberCallsign(session).catch(() => {});
     return { session, pending: false };
   }
 
   return { session: null, pending: true };
 }
 
-export async function requestReset(email) {
+export async function requestReset(identifier) {
+  const email = await loginEmail(identifier);
   await authFetch("/auth/v1/recover", {
     method: "POST",
     body: { email, redirect_to: "https://klyra.lol" },
