@@ -1,51 +1,54 @@
 export const metadata = {
-  title: "Support development · Klyra: Broken Front",
+  title: "Founder's Access · Klyra: Broken Front",
   description:
-    "Founder's Access is $4.99. It supports solo development of the KLYRA pre-alpha. Future features are not guaranteed.",
+    "Founder's Access is a $4.99 one-time purchase for the Windows and Mac versions of KLYRA. No gameplay is locked behind it. The game is in pre-alpha.",
 };
+
+const included = [
+  "Access to the Windows desktop version",
+  "Access to the Mac desktop version",
+  "The ability to play without running the game in a browser",
+  "Direct support for KLYRA's ongoing solo development",
+];
 
 export default function SupportPage() {
   return (
     <main>
       <section className="pageIntro">
         <p className="tag">Founder&apos;s Access</p>
-        <h1>Support the build.</h1>
-        <p className="lead">
-          KLYRA: Broken Front is made by one developer. A purchase helps that
-          work continue.
-        </p>
+        <h1>$4.99</h1>
+        <p className="lead">One-time purchase.</p>
       </section>
 
       <section className="section">
         <div className="founderCard">
           <div>
-            <p className="tag">$4.99</p>
+            <p className="tag">KLYRA: Broken Front</p>
             <h2>Founder&apos;s Access</h2>
+            <p>
+              Enjoy KLYRA for free in your browser, or support its development
+              by unlocking the downloadable Windows and Mac versions.
+            </p>
             <a className="button huge" href="/download/">
               Download the pre-alpha
             </a>
             <p className="quiet">
-              The $4.99 checkout is not open on this page yet. The current
-              pre-alpha desktop build can still be downloaded.
+              A browser version is not on this site yet. Checkout is not open.
+              The Windows and Mac downloads are still free to get.
             </p>
           </div>
           <div>
-            <h3>Support Solo Indie Development</h3>
+            <h3>Founder&apos;s Access includes</h3>
+            <ul>
+              {included.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <h3>The fight stays open</h3>
             <p>
-              Your purchase gives you access to KLYRA&apos;s current pre-alpha
-              desktop build while supporting its continued development by a
-              solo creator.
-            </p>
-            <h3>What you receive</h3>
-            <p>
-              The current pre-alpha desktop build on Windows and Mac. That is
-              the build on the Play page today: the factions, the bots, the
-              vehicles, the bases, and the weapon builder as they stand now.
-            </p>
-            <h3>What a purchase supports</h3>
-            <p>
-              More time on the battlefield. New systems are added one at a
-              time by the same person who is building the game.
+              No gameplay content is locked behind a purchase. Everyone can
+              experience KLYRA&apos;s ongoing battles, vehicles, weapon
+              customization, and FOB systems.
             </p>
           </div>
         </div>
@@ -56,8 +59,8 @@ export default function SupportPage() {
           <p className="tag">Pre-alpha</p>
           <h2>Read this before you pay.</h2>
           <p>
-            KLYRA is in pre-alpha. Matches can break. Progress can be reset.
-            Screens, weapons, vehicles, and maps can change or be removed.
+            KLYRA is currently in pre-alpha. Features, performance, and content
+            may change throughout development.
           </p>
           <p>
             Future features are not guaranteed. Founder&apos;s Access is not a

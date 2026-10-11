@@ -37,7 +37,8 @@ const columns = [
     tone: "later",
     items: [
       "A Discord home for bug reports, suggestions, and groups",
-      "Founder's Access checkout",
+      "A free browser version of the battlefield",
+      "Founder's Access checkout, $4.99 once for Windows and Mac",
       "More battlefield systems, added one at a time",
     ],
   },

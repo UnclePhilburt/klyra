@@ -218,7 +218,7 @@ export default function AccountPage() {
               <h2>Founder&apos;s Access</h2>
               <p>Not on this account yet.</p>
               <p className="quiet">
-                A purchase is added here after it is paid. Checkout is not open yet.
+                $4.99, one time, for the Windows and Mac versions. Checkout is not open yet.
               </p>
             </article>
 
@@ -231,7 +231,7 @@ export default function AccountPage() {
             <article className="dashCard">
               <p className="tag">My downloads</p>
               <h2>Current build</h2>
-              <p>The pre-alpha desktop build for this account.</p>
+              <p>The Windows and Mac pre-alpha. These stay available until checkout opens.</p>
               <div className="dashActions">
                 <a className="button" href={windowsLauncher}>Download for Windows</a>
                 <a className="button ghost" href={macLauncher}>Download for Mac</a>

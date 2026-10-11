@@ -68,20 +68,23 @@ export default function DownloadPanel() {
         <div>
           <p className="tag">Founder&apos;s Access</p>
           <h2>$4.99</h2>
-          <p className="quiet">
-            The desktop build for this computer is on this page. A browser demo
-            is not available.
-          </p>
+          <p className="quiet">One-time purchase.</p>
         </div>
         <div>
-          <h3>Support Solo Indie Development</h3>
+          <h3>Play in the browser, or unlock desktop.</h3>
           <p>
-            Your purchase gives you access to KLYRA&apos;s current pre-alpha
-            desktop build while supporting its continued development by a solo
-            creator.
+            Enjoy KLYRA for free in your browser, or support its development by
+            unlocking the downloadable Windows and Mac versions.
+          </p>
+          <p>
+            No gameplay content is locked behind a purchase. Everyone can
+            experience the battles, vehicles, weapon customization, and FOB
+            systems.
           </p>
           <p className="quiet">
-            KLYRA is in pre-alpha. Future features are not guaranteed.
+            A browser version is not on this site yet. Checkout is not open, so
+            the download above is still free. KLYRA is in pre-alpha, and what
+            you play can change.
           </p>
           <a className="button" href="/support/">
             What $4.99 includes

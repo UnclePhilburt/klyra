@@ -11,7 +11,7 @@ const topics = [
   },
   {
     q: "Which computers can run it?",
-    a: "Windows on a 64-bit PC, and Mac on macOS 12 or newer. There is no phone version and no browser demo.",
+    a: "Windows on a 64-bit PC, and Mac on macOS 12 or newer. There is no phone version. A free browser version is part of the plan and is not playable on this site yet.",
   },
   {
     q: "What does my computer need?",
