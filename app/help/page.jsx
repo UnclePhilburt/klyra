@@ -35,7 +35,16 @@ const topics = [
   },
   {
     q: "Who do I contact?",
-    a: "Account sign-in starts on the account page. Bug reports, suggestions, and multiplayer groups are meant for the KLYRA Discord. That invite is not posted yet. It will go on the community page. There is no public email on this site.",
+    a: (
+      <>
+        Account sign-in starts on the account page. Bug reports, suggestions,
+        and multiplayer groups go on the{" "}
+        <a href="https://discord.gg/wWeH446a5" target="_blank" rel="noreferrer">
+          KLYRA Discord
+        </a>
+        . There is no public email on this site.
+      </>
+    ),
   },
 ];
 

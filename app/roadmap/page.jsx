@@ -21,6 +21,7 @@ const columns = [
       "Revive",
       "Keyboard, mouse, and controller",
       "Windows and Mac desktop builds",
+      "KLYRA Discord for bug reports, suggestions, and groups",
     ],
   },
   {
@@ -36,7 +37,6 @@ const columns = [
     status: "Planned",
     tone: "later",
     items: [
-      "A Discord home for bug reports, suggestions, and groups",
       "A free browser version of the battlefield",
       "Founder's Access checkout, $4.99 once for Windows and Mac",
       "More battlefield systems, added one at a time",

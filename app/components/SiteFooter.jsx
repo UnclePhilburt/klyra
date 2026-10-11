@@ -4,6 +4,7 @@ const links = [
   ["Roadmap", "/roadmap/"],
   ["Devlog", "/devlog/"],
   ["Community", "/community/"],
+  ["Discord", "https://discord.gg/wWeH446a5"],
   ["Support", "/support/"],
   ["Help", "/help/"],
   ["Trailer", "/trailer/"],
@@ -19,7 +20,11 @@ export default function SiteFooter() {
       </div>
       <nav className="footerLinks" aria-label="Site">
         {links.map(([label, href]) => (
-          <a key={href} href={href}>
+          <a
+            key={href}
+            href={href}
+            {...(href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
+          >
             {label}
           </a>
         ))}

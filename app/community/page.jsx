@@ -1,7 +1,7 @@
 export const metadata = {
   title: "Community · Klyra: Broken Front",
   description:
-    "How to help test KLYRA: Broken Front, and where bug reports, suggestions, and multiplayer groups will live.",
+    "Join the KLYRA: Broken Front Discord for bug reports, suggestions, and multiplayer groups.",
 };
 
 export default function CommunityPage() {
@@ -41,16 +41,16 @@ export default function CommunityPage() {
           <p className="tag">Discord</p>
           <h2>Reports, ideas, and groups.</h2>
           <p>
-            Bug reports, suggestions, and multiplayer groups belong on the
-            KLYRA Discord. The invite is not posted on this page yet. When it
-            is ready, the join button goes here.
-          </p>
-          <p>
-            Until then, play from the download page. Do not send reports to a
-            server that is not this game.
+            Bug reports, suggestions, and multiplayer groups go on the KLYRA
+            Discord. This is the server for KLYRA: Broken Front.
           </p>
         </div>
-        <a className="button" href="/download/">Play the pre-alpha</a>
+        <div className="actions">
+          <a className="button" href="https://discord.gg/wWeH446a5" target="_blank" rel="noreferrer">
+            Join Discord
+          </a>
+          <a className="button ghost" href="/download/">Play the pre-alpha</a>
+        </div>
       </section>
     </main>
   );
