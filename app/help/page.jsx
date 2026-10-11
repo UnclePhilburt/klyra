@@ -39,7 +39,7 @@ const topics = [
       <>
         Account sign-in starts on the account page. Bug reports, suggestions,
         and multiplayer groups go on the{" "}
-        <a href="https://discord.gg/wWeH446a5" target="_blank" rel="noreferrer">
+        <a href="https://discord.gg/fNkZjwQJBX" target="_blank" rel="noreferrer">
           KLYRA Discord
         </a>
         . There is no public email on this site.

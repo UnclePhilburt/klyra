@@ -4,7 +4,7 @@ const links = [
   ["Roadmap", "/roadmap/"],
   ["Devlog", "/devlog/"],
   ["Community", "/community/"],
-  ["Discord", "https://discord.gg/wWeH446a5"],
+  ["Discord", "https://discord.gg/fNkZjwQJBX"],
   ["Support", "/support/"],
   ["Help", "/help/"],
   ["Trailer", "/trailer/"],

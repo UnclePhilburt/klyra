@@ -46,7 +46,7 @@ export default function CommunityPage() {
           </p>
         </div>
         <div className="actions">
-          <a className="button" href="https://discord.gg/wWeH446a5" target="_blank" rel="noreferrer">
+          <a className="button" href="https://discord.gg/fNkZjwQJBX" target="_blank" rel="noreferrer">
             Join Discord
           </a>
           <a className="button ghost" href="/download/">Play the pre-alpha</a>
