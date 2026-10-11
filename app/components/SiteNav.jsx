@@ -10,6 +10,14 @@ const pages = [
   ["Community", "/community/"],
 ];
 
+const morePages = [
+  ["Devlog", "/devlog/"],
+  ["Support", "/support/"],
+  ["Help", "/help/"],
+  ["Trailer", "/trailer/"],
+  ["Discord", "https://discord.gg/fNkZjwQJBX"],
+];
+
 function AccountMark() {
   return (
     <svg className="accountIcon" viewBox="0 0 24 24" aria-hidden="true">
@@ -46,6 +54,13 @@ export default function SiteNav() {
 
   const callsign = session ? callsignOf(session) : "";
 
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
   return (
     <nav className="nav">
       <a className="brand" href="/" aria-label="Klyra Broken Front home">
@@ -59,11 +74,22 @@ export default function SiteNav() {
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((open) => !open)}
         >
-          Menu
+          {menuOpen ? "Close" : "Menu"}
         </button>
         <div className={menuOpen ? "navPages open" : "navPages"}>
           {pages.map(([label, href]) => (
             <a key={href} href={href} onClick={() => setMenuOpen(false)}>
+              {label}
+            </a>
+          ))}
+          {morePages.map(([label, href]) => (
+            <a
+              key={href}
+              className="navMore"
+              href={href}
+              onClick={() => setMenuOpen(false)}
+              {...(href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
+            >
               {label}
             </a>
           ))}

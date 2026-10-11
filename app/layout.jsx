@@ -3,6 +3,12 @@ import SessionCatch from "./components/SessionCatch";
 import SiteFooter from "./components/SiteFooter";
 import SiteNav from "./components/SiteNav";
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export const metadata = {
   title: "Klyra: Broken Front",
   description:

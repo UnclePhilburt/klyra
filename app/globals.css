@@ -53,7 +53,7 @@ input {
 .nav {
   position: fixed;
   z-index: 10;
-  top: 18px;
+  top: max(10px, env(safe-area-inset-top));
   left: clamp(14px, 3vw, 38px);
   right: clamp(14px, 3vw, 38px);
   display: flex;
@@ -589,6 +589,10 @@ input:focus {
   gap: 18px;
 }
 
+.navMore {
+  display: none;
+}
+
 .trailerBand {
   padding: 8px clamp(20px, 6vw, 88px) 8px;
 }
@@ -882,28 +886,35 @@ footer strong {
 
   .navPages {
     display: none;
-    position: absolute;
-    top: calc(100% + 10px);
-    left: 0;
-    right: 0;
-    align-items: stretch;
-    flex-direction: column;
-    gap: 0;
-    padding: 8px;
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    background: rgba(7, 9, 8, 0.96);
   }
 
   .navPages.open {
     display: flex;
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 8px);
+    right: 0;
+    left: 0;
+    height: calc(100dvh - 76px);
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0;
+    overflow: auto;
+    padding: 8px;
+    border: 1px solid var(--line-strong);
+    border-radius: 22px;
+    background: #101410;
   }
 
+  .navPages.open .navMore,
   .navPages a,
   .navAccount {
     display: block;
-    padding: 14px 12px;
+    padding: 16px 14px;
+    border-bottom: 1px solid var(--line);
     color: var(--text);
+    font-size: 18px;
+    font-weight: 800;
   }
 
   .navLinks > a.button.ghost {
@@ -927,13 +938,10 @@ footer strong {
     display: none;
   }
 
-  footer,
-  .footerLinks {
-    justify-content: flex-start;
-  }
-
   .nav {
     gap: 10px;
+    left: 10px;
+    right: 10px;
   }
 
   .navLinks {
@@ -944,8 +952,98 @@ footer strong {
     flex-shrink: 0;
   }
 
-  h1 {
-    font-size: 56px;
+  .brandMark {
+    width: 40px;
+    height: 40px;
+  }
+
+  h1,
+  .heroCompact h1 {
+    font-size: 42px;
+    line-height: 0.92;
+  }
+
+  h2 {
+    font-size: 30px;
+    line-height: 0.98;
+  }
+
+  h3,
+  .faq summary {
+    font-size: 18px;
+  }
+
+  .lead,
+  .quiet,
+  .section p,
+  .cards p,
+  .mission p,
+  .pageIntro .lead,
+  .pageIntro p,
+  .soloBand p,
+  .post p,
+  .notice p,
+  .founderCard p,
+  .founderCard li,
+  .dashCard p,
+  .dashCard .quiet {
+    font-size: 17px;
+  }
+
+  .section,
+  .splitLinks {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .section {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .pageIntro {
+    padding: 108px 18px 4px;
+  }
+
+  .heroCompact {
+    padding: 100px 18px 8px;
+  }
+
+  .heroLogo {
+    width: 72px;
+    height: 72px;
+  }
+
+  .soloBand,
+  .trailerBand {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .soloBand {
+    padding-top: 28px;
+  }
+
+  .button.huge {
+    min-height: 52px;
+    padding-inline: 18px;
+    font-size: 13px;
+  }
+
+  .actions {
+    gap: 10px;
+  }
+
+  .dashCard,
+  .cards article,
+  .notice,
+  .founderCard {
+    min-height: 0;
+    border-radius: 20px;
+  }
+
+  .dashCard h2 {
+    font-size: 28px;
   }
 
   .button.small {
@@ -954,10 +1052,27 @@ footer strong {
 
   .founderCard .button.huge {
     max-width: 100%;
-    padding-inline: 18px;
-    font-size: 13px;
     letter-spacing: 0.04em;
     white-space: nowrap;
+  }
+
+  footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+    padding: 28px 18px calc(28px + env(safe-area-inset-bottom));
+  }
+
+  .footerLinks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-content: stretch;
+    max-width: none;
+    gap: 14px 12px;
+  }
+
+  .footerLinks a {
+    font-size: 16px;
   }
 }
 
