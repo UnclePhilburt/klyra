@@ -6,7 +6,7 @@ import SiteNav from "./components/SiteNav";
 export const metadata = {
   title: "Klyra: Broken Front",
   description:
-    "Klyra: Broken Front is a pre-alpha war between Ironclad, Timberwolf, and Vanguard. Fight the moving front, run supplies, and bring your gear home.",
+    "KLYRA: Broken Front is a pre-alpha military sandbox. Fight for Ironclad, Timberwolf, or Vanguard, run the supplies, and bring your gear home.",
   openGraph: {
     title: "Klyra: Broken Front",
     description:

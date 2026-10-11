@@ -25,6 +25,7 @@ export default function DownloadPanel() {
   const otherName = choice.other === "mac" ? "Mac" : "Windows";
 
   return (
+    <>
     <section className="pageHero downloadPage">
       <div className="downloadArt" aria-hidden="true" />
       <div className="downloadCopy">
@@ -61,5 +62,33 @@ export default function DownloadPanel() {
         </article>
       </div>
     </section>
+
+    <section className="section founder">
+      <div className="founderCard">
+        <div>
+          <p className="tag">Founder&apos;s Access</p>
+          <h2>$4.99</h2>
+          <p className="quiet">
+            The desktop build for this computer is on this page. A browser demo
+            is not available.
+          </p>
+        </div>
+        <div>
+          <h3>Support Solo Indie Development</h3>
+          <p>
+            Your purchase gives you access to KLYRA&apos;s current pre-alpha
+            desktop build while supporting its continued development by a solo
+            creator.
+          </p>
+          <p className="quiet">
+            KLYRA is in pre-alpha. Future features are not guaranteed.
+          </p>
+          <a className="button" href="/support/">
+            What $4.99 includes
+          </a>
+        </div>
+      </div>
+    </section>
+  </>
   );
 }

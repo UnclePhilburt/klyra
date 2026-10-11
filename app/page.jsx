@@ -26,15 +26,25 @@ const teams = [
   },
 ];
 
+const shots = [
+  { src: "/shots/infantry.jpg", alt: "First-person view on foot in a KLYRA match", caption: "On foot, with all three factions on the board." },
+  { src: "/shots/heli.jpg", alt: "Helicopter cockpit over the battlefield", caption: "Helicopters are part of the fight." },
+  { src: "/shots/truck.jpg", alt: "Driving a supply truck across the map", caption: "Trucks move people and supplies." },
+  { src: "/shots/squad.jpg", alt: "Soldiers riding in the back of a truck", caption: "A squad rides in the back." },
+  { src: "/shots/fight.jpg", alt: "First-person rifle view of a vehicle fight", caption: "The front, from the rifle." },
+  { src: "/shots/split.jpg", alt: "Split-screen match with two players on one computer", caption: "Two players. One computer." },
+];
+
 export default function Home() {
   const [teamId, setTeamId] = useState("ironclad");
   const team = teams.find((item) => item.id === teamId) || teams[0];
 
   return (
     <main>
-      <section className="hero">
+      <section className="hero heroCompact">
         <div className="heroArt" aria-hidden="true" />
         <div className="heroCopy">
+          <img className="heroLogo" src="/brand.png" alt="KLYRA" />
           <p className="tag">Pre-alpha</p>
           <h1>Fight the front.</h1>
           <p className="lead">
@@ -42,13 +52,56 @@ export default function Home() {
             supplies, and bring your gear home.
           </p>
           <div className="actions">
-            <a className="button" href="/download/">
+            <a className="button huge" href="/download/">
               Play
             </a>
-            <a className="button ghost" href="/trailer/">
-              Pre-alpha trailer
+            <a className="button ghost huge" href="/download/">
+              Download
             </a>
           </div>
+        </div>
+      </section>
+
+      <section className="trailerBand" aria-label="Pre-alpha trailer">
+        <p className="tag">Pre-alpha version</p>
+        <div className="trailerFrame">
+          <iframe
+            src="https://www.youtube-nocookie.com/embed/UCOv0qqh0r0?rel=0"
+            title="KLYRA: Broken Front pre-alpha gameplay trailer"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        </div>
+      </section>
+
+      <section className="soloBand">
+        <p className="tag">Independently developed</p>
+        <h2>
+          One developer.
+          <br />
+          Three factions.
+          <br />
+          One battlefield.
+        </h2>
+        <p>
+          KLYRA: Broken Front is a solo-developed military sandbox built around
+          large-scale warfare, player freedom, and an evolving battlefield.
+        </p>
+      </section>
+
+      <section className="section">
+        <div className="sectionIntro">
+          <p className="tag">From the pre-alpha</p>
+          <h2>See the fight.</h2>
+          <p>Frames from the pre-alpha gameplay trailer.</p>
+        </div>
+        <div className="shotGrid">
+          {shots.map((shot) => (
+            <figure key={shot.src}>
+              <img src={shot.src} alt={shot.alt} />
+              <figcaption>{shot.caption}</figcaption>
+            </figure>
+          ))}
         </div>
       </section>
 
@@ -88,46 +141,16 @@ export default function Home() {
         </article>
       </section>
 
-      <section className="section">
-        <div className="sectionIntro">
-          <p className="tag">One match</p>
-          <h2>The front does not sit still.</h2>
-        </div>
-        <div className="cards">
-          <article>
-            <span>01</span>
-            <h3>Drop in</h3>
-            <p>Choose Ironclad, Timberwolf, or Vanguard and get on the field.</p>
-          </article>
-          <article>
-            <span>02</span>
-            <h3>Move</h3>
-            <p>
-              The battle zone shifts. Trucks and helicopters keep people and
-              supplies in the fight.
-            </p>
-          </article>
-          <article>
-            <span>03</span>
-            <h3>Get home</h3>
-            <p>
-              A teammate can bring you back. Gear you extract stays in your
-              stash.
-            </p>
-          </article>
-        </div>
-      </section>
-
       <section className="splitLinks" aria-label="Next steps">
         <a className="pathCard" href="/download/">
           <span>Play</span>
           <strong>Get on the front</strong>
           <p>Download Broken Front and drop into the next fight.</p>
         </a>
-        <a className="pathCard" href="/account/">
-          <span>Callsign</span>
-          <strong>Your account</strong>
-          <p>Sign in to see your callsign, your record, and the gear you kept.</p>
+        <a className="pathCard" href="/features/">
+          <span>The battlefield</span>
+          <strong>What you can do</strong>
+          <p>Factions, helicopters, bases, logistics, and the weapon builder.</p>
         </a>
       </section>
     </main>

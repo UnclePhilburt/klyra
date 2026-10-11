@@ -3,8 +3,16 @@
 import { useEffect, useState } from "react";
 import { callsignOf, readSession, restoreSession } from "../session";
 
+const pages = [
+  ["Features", "/features/"],
+  ["Roadmap", "/roadmap/"],
+  ["Community", "/community/"],
+  ["Devlog", "/devlog/"],
+];
+
 export default function SiteNav() {
   const [session, setSession] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     let live = true;
@@ -30,8 +38,24 @@ export default function SiteNav() {
         <span>Klyra: Broken Front</span>
       </a>
       <div className="navLinks">
-        <a href="/#teams">Teams</a>
-        <a href="/trailer/">Trailer</a>
+        <button
+          className="menuButton"
+          type="button"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          Menu
+        </button>
+        <div className={menuOpen ? "navPages open" : "navPages"}>
+          {pages.map(([label, href]) => (
+            <a key={href} href={href} onClick={() => setMenuOpen(false)}>
+              {label}
+            </a>
+          ))}
+          <a className="navAccount" href="/account/" onClick={() => setMenuOpen(false)}>
+            {callsign || "Account"}
+          </a>
+        </div>
         <a className="button ghost small" href="/account/">
           {callsign || "Account"}
         </a>
