@@ -62,7 +62,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="trailerBand" aria-label="Pre-alpha trailer">
+      <section className="trailerBand homeTrailer" aria-label="Pre-alpha trailer">
         <p className="tag">Pre-alpha version</p>
         <div className="trailerFrame">
           <iframe

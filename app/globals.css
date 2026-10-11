@@ -593,6 +593,16 @@ input:focus {
   padding: 8px clamp(20px, 6vw, 88px) 8px;
 }
 
+.homeTrailer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.homeTrailer .trailerFrame {
+  width: min(720px, 100%);
+}
+
 .soloBand {
   max-width: 980px;
   padding: 36px clamp(20px, 6vw, 88px) 8px;
