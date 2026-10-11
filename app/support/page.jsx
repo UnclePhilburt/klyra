@@ -33,8 +33,9 @@ export default function SupportPage() {
               Download the pre-alpha
             </a>
             <p className="quiet">
-              A browser version is not on this site yet. Checkout is not open.
-              The Windows and Mac downloads are still free to get.
+              A browser version is not on this site yet. When it is, it uses this
+              same sign-in. Checkout is not open. The Windows and Mac downloads
+              are still free to get.
             </p>
           </div>
           <div>

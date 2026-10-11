@@ -377,3 +377,11 @@ export async function signOut(session) {
   }
   clearSession();
 }
+
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (event) => {
+    if (event.key === STORAGE_KEY) {
+      window.dispatchEvent(new Event("klyra-session"));
+    }
+  });
+}

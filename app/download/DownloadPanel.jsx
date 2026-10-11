@@ -82,9 +82,9 @@ export default function DownloadPanel() {
             systems.
           </p>
           <p className="quiet">
-            A browser version is not on this site yet. Checkout is not open, so
-            the download above is still free. KLYRA is in pre-alpha, and what
-            you play can change.
+            A browser version is not on this site yet. When it is, it uses this
+            same sign-in. Checkout is not open, so the download above is still
+            free. KLYRA is in pre-alpha, and what you play can change.
           </p>
           <a className="button" href="/support/">
             What $4.99 includes

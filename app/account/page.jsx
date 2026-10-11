@@ -205,7 +205,7 @@ export default function AccountPage() {
           <p className="tag">KLYRA Account</p>
           <h1>{name}</h1>
           <p className="lead">
-            This is the same account on the website and in the game.
+            This is the same account on the website and in the game. The browser version will use this sign-in when it is on the site.
             {since ? ` Member since ${since}.` : ""}
           </p>
           <p className={error ? "formMessage error" : "formMessage"}>{message}</p>
@@ -340,7 +340,7 @@ export default function AccountPage() {
           <p className="lead">
             {mode === "create"
               ? "Create the account you will use on the website and in the game."
-              : "Sign in with your callsign or your email. This is the same account the game uses."}
+              : "Sign in with your callsign or your email. This is the same account the game uses. The browser version will use it when that build is on the site."}
           </p>
         </div>
 
