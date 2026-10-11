@@ -63,6 +63,9 @@ function errorMessage(payload) {
   if (code === "user_already_exists" || code === "email_exists") {
     return "That email already has an account. Sign in instead.";
   }
+  if (payload?.code === "23505") {
+    return "That callsign is already taken.";
+  }
   return (
     payload?.msg ||
     payload?.message ||
@@ -317,6 +320,39 @@ export async function requestReset(identifier) {
     method: "POST",
     body: { email, redirect_to: "https://klyra.lol" },
   });
+}
+
+export async function updateCallsign(session, callsign) {
+  const name = String(callsign || "").trim().replace(/\s+/g, " ");
+  if (name.length < 3 || name.length > 24 || name.includes("@") || !/^[A-Za-z0-9][A-Za-z0-9 ._-]*[A-Za-z0-9]$/.test(name)) {
+    throw new Error("Use 3 to 24 letters or numbers, with no @ sign.");
+  }
+  const id = session?.user?.id;
+  if (!id || !session?.access_token) throw new Error("Sign in again, then change the callsign.");
+
+  const rows = await authFetch(
+    `/rest/v1/profiles?id=eq.${encodeURIComponent(id)}&select=username,display_name,created_at`,
+    {
+      method: "PATCH",
+      token: session.access_token,
+      headers: { Prefer: "return=representation" },
+      body: { username: name, display_name: name },
+    }
+  );
+  if (!Array.isArray(rows) || !rows[0]) {
+    throw new Error("Could not save that callsign.");
+  }
+
+  await authFetch("/auth/v1/user", {
+    method: "PUT",
+    token: session.access_token,
+    body: { data: { username: name, display_name: name } },
+  });
+
+  const next = await hydrate({ ...session, profile: rows[0] });
+  writeSession(next);
+  rememberCallsign(next).catch(() => {});
+  return next;
 }
 
 export async function updatePassword(session, password) {

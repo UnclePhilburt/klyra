@@ -142,9 +142,19 @@ input {
   box-shadow: none;
 }
 
+.accountIcon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.accountLink {
+  gap: 8px;
+}
+
 .button.small {
   min-height: 40px;
-  max-width: 180px;
+  max-width: 200px;
   padding-inline: 16px;
   border-radius: 14px;
   font-size: 12px;
@@ -783,6 +793,48 @@ footer strong {
   color: var(--text);
 }
 
+.dashGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.dashCard {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 220px;
+  padding: clamp(22px, 3vw, 32px);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: var(--panel);
+}
+
+.dashCard h2 {
+  margin-bottom: 4px;
+  font-size: clamp(28px, 3vw, 44px);
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.dashCard p,
+.dashCard .quiet {
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.45;
+}
+
+.dashCard form,
+.dashActions {
+  display: grid;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.dashWide {
+  grid-column: 1 / -1;
+}
+
 @media (max-width: 980px) {
   .pageHero,
   .teamStage,
@@ -792,7 +844,8 @@ footer strong {
   .splitLinks,
   .shotGrid,
   .founderCard,
-  .roadmap {
+  .roadmap,
+  .dashGrid {
     grid-template-columns: 1fr;
   }
 

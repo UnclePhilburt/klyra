@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { macLauncher, windowsLauncher } from "../site-data";
 import {
   callsignOf,
   memberSince,
@@ -10,6 +11,7 @@ import {
   signIn,
   signOut,
   signUp,
+  updateCallsign,
   updatePassword,
 } from "../session";
 
@@ -25,6 +27,7 @@ export default function AccountPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nextPassword, setNextPassword] = useState("");
+  const [nextCallsign, setNextCallsign] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -62,16 +65,16 @@ export default function AccountPage() {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const identifier = String(form.get("identifier") || email).trim();
-    const nextPassword = String(form.get("password") || password);
+    const enteredPassword = String(form.get("password") || password);
     setEmail(identifier);
-    if (!identifier || !nextPassword) {
+    if (!identifier || !enteredPassword) {
       setStatus("Enter your callsign or email, and your password.", true);
       return;
     }
     setBusy(true);
     setStatus("Signing in...");
     try {
-      const next = await signIn(identifier, nextPassword);
+      const next = await signIn(identifier, enteredPassword);
       setPassword("");
       setSession(next);
       setStatus("");
@@ -108,15 +111,16 @@ export default function AccountPage() {
     }
   };
 
-  const onReset = async () => {
-    if (!email.trim()) {
+  const onReset = async (address) => {
+    const target = String(address || email).trim();
+    if (!target) {
       setStatus("Enter your email first.", true);
       return;
     }
     setBusy(true);
     setStatus("Sending the reset email...");
     try {
-      await requestReset(email.trim());
+      await requestReset(target);
       setStatus("Check your email for the reset link.");
     } catch (requestError) {
       setStatus(requestError.message || "Password reset failed.", true);
@@ -145,6 +149,22 @@ export default function AccountPage() {
     }
   };
 
+  const onCallsign = async (event) => {
+    event.preventDefault();
+    setBusy(true);
+    setStatus("Saving your callsign...");
+    try {
+      const next = await updateCallsign(session, nextCallsign);
+      setNextCallsign("");
+      setSession(next);
+      setStatus("Callsign updated. You can sign in with it.");
+    } catch (requestError) {
+      setStatus(requestError.message || "Could not update the callsign.", true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const onSignOut = async () => {
     setBusy(true);
     await signOut(session);
@@ -156,11 +176,9 @@ export default function AccountPage() {
   if (loading && !session) {
     return (
       <main>
-        <section className="pageHero">
-          <div>
-            <p className="tag">Account</p>
-            <h1>Opening your account.</h1>
-          </div>
+        <section className="pageIntro">
+          <p className="tag">Account</p>
+          <h1>Opening your account.</h1>
         </section>
       </main>
     );
@@ -179,36 +197,83 @@ export default function AccountPage() {
           ["Revives", stats.revives],
         ]
       : [];
+    const accountEmail = session.user?.email || "";
 
     return (
       <main>
-        <section className="pageHero accountHome">
-          <div>
-            <p className="tag">Signed in</p>
-            <h1>{name}</h1>
-            <p className="lead">{session.user?.email}</p>
-            <p className="quiet">
-              {since ? `Member since ${since}. ` : ""}
-              You are signed in. This callsign is the one the game uses. Gear
-              you bring home stays here.
-            </p>
-            <div className="actions">
-              <a className="button" href="/download/">
-                Play
-              </a>
-              <button className="button ghost" type="button" disabled={busy} onClick={onSignOut}>
-                Sign out
-              </button>
-            </div>
-            <p className={error ? "formMessage error" : "formMessage"}>{message}</p>
-          </div>
+        <section className="pageIntro">
+          <p className="tag">KLYRA Account</p>
+          <h1>{name}</h1>
+          <p className="lead">
+            This is the same account on the website and in the game.
+            {since ? ` Member since ${since}.` : ""}
+          </p>
+          <p className={error ? "formMessage error" : "formMessage"}>{message}</p>
+        </section>
 
-          <div className="dossier">
-            {session.recovery ? (
-              <form className="passwordBox" onSubmit={onNewPassword}>
-                <p className="tag">New password</p>
+        <section className="section">
+          <div className="dashGrid">
+            <article className="dashCard">
+              <p className="tag">Game license</p>
+              <h2>Founder&apos;s Access</h2>
+              <p>Not on this account yet.</p>
+              <p className="quiet">
+                A purchase is added here after it is paid. Checkout is not open yet.
+              </p>
+            </article>
+
+            <article className="dashCard">
+              <p className="tag">Development stage</p>
+              <h2>Pre-Alpha</h2>
+              <p>The battlefield is still being built. What you download today can change.</p>
+            </article>
+
+            <article className="dashCard">
+              <p className="tag">My downloads</p>
+              <h2>Current build</h2>
+              <p>The pre-alpha desktop build for this account.</p>
+              <div className="dashActions">
+                <a className="button" href={windowsLauncher}>Download for Windows</a>
+                <a className="button ghost" href={macLauncher}>Download for Mac</a>
+              </div>
+            </article>
+
+            <article className="dashCard">
+              <p className="tag">Purchase history</p>
+              <h2>No purchases</h2>
+              <p>Receipts will show here after you buy Founder&apos;s Access.</p>
+            </article>
+
+            <article className="dashCard">
+              <p className="tag">Profile settings</p>
+              <h2>Callsign</h2>
+              <p>{name}</p>
+              <p className="quiet">{accountEmail}</p>
+              <form onSubmit={onCallsign}>
                 <label>
-                  Password
+                  New callsign
+                  <input
+                    value={nextCallsign}
+                    onChange={(event) => setNextCallsign(event.target.value)}
+                    autoComplete="nickname"
+                    minLength={3}
+                    maxLength={24}
+                    required
+                  />
+                </label>
+                <button className="button" disabled={busy} type="submit">
+                  Save callsign
+                </button>
+              </form>
+            </article>
+
+            <article className="dashCard">
+              <p className="tag">Account security</p>
+              <h2>Password</h2>
+              <p>Reset it from your email, or set a new one while you are signed in.</p>
+              <form onSubmit={onNewPassword}>
+                <label>
+                  New password
                   <input
                     value={nextPassword}
                     onChange={(event) => setNextPassword(event.target.value)}
@@ -218,35 +283,48 @@ export default function AccountPage() {
                     required
                   />
                 </label>
-                <button className="button full" disabled={busy} type="submit">
+                <button className="button" disabled={busy} type="submit">
                   Save password
                 </button>
               </form>
-            ) : null}
+              <button
+                className="textLink"
+                disabled={busy || !accountEmail}
+                type="button"
+                onClick={() => onReset(accountEmail)}
+              >
+                Email me a password reset
+              </button>
+              <button className="textLink" disabled={busy} type="button" onClick={onSignOut}>
+                Sign out
+              </button>
+            </article>
 
-            <p className="tag">Your record</p>
-            {record.length > 0 ? (
-              <div className="statGrid">
-                {record.map(([label, value]) => (
-                  <div key={label}>
-                    <strong>{count(value)}</strong>
-                    <span>{label}</span>
-                  </div>
-                ))}
-                <div>
-                  <strong>{count(stats.cash_earned)}</strong>
-                  <span>Cash earned</span>
-                </div>
-                {session.stashCount != null ? (
+            <article className="dashCard dashWide">
+              <p className="tag">Your record</p>
+              {record.length > 0 ? (
+                <div className="statGrid">
+                  {record.map(([label, value]) => (
+                    <div key={label}>
+                      <strong>{count(value)}</strong>
+                      <span>{label}</span>
+                    </div>
+                  ))}
                   <div>
-                    <strong>{count(session.stashCount)}</strong>
-                    <span>In your stash</span>
+                    <strong>{count(stats.cash_earned)}</strong>
+                    <span>Cash earned</span>
                   </div>
-                ) : null}
-              </div>
-            ) : (
-              <p className="quiet">Your record shows up after you fight.</p>
-            )}
+                  {session.stashCount != null ? (
+                    <div>
+                      <strong>{count(session.stashCount)}</strong>
+                      <span>In your stash</span>
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <p>Your record shows up after you fight.</p>
+              )}
+            </article>
           </div>
         </section>
       </main>
@@ -257,12 +335,12 @@ export default function AccountPage() {
     <main>
       <section className="pageHero">
         <div>
-          <p className="tag">Your callsign</p>
+          <p className="tag">KLYRA Account</p>
           <h1>{mode === "create" ? "Make your name." : "Sign in."}</h1>
           <p className="lead">
             {mode === "create"
-              ? "Create the account you will use in the game. Extracted gear stays on it."
-              : "Sign in with your callsign or your email."}
+              ? "Create the account you will use on the website and in the game."
+              : "Sign in with your callsign or your email. This is the same account the game uses."}
           </p>
         </div>
 
@@ -344,7 +422,7 @@ export default function AccountPage() {
             <button className="button full" disabled={busy} type="submit">
               Sign in
             </button>
-            <button className="textLink" disabled={busy} type="button" onClick={onReset}>
+            <button className="textLink" disabled={busy} type="button" onClick={() => onReset(email)}>
               Email me a password reset
             </button>
             <button

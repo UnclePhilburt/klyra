@@ -5,10 +5,25 @@ import { callsignOf, readSession, restoreSession } from "../session";
 
 const pages = [
   ["Features", "/features/"],
+  ["Download", "/download/"],
   ["Roadmap", "/roadmap/"],
   ["Community", "/community/"],
-  ["Devlog", "/devlog/"],
 ];
+
+function AccountMark() {
+  return (
+    <svg className="accountIcon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="8" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M5 19.2c1.4-3 3.8-4.5 7-4.5s5.6 1.5 7 4.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 
 export default function SiteNav() {
   const [session, setSession] = useState(null);
@@ -56,8 +71,9 @@ export default function SiteNav() {
             {callsign || "Account"}
           </a>
         </div>
-        <a className="button ghost small" href="/account/">
-          {callsign || "Account"}
+        <a className="button ghost small accountLink" href="/account/" aria-label={callsign || "Account"}>
+          <AccountMark />
+          <span>{callsign || "Account"}</span>
         </a>
         <a className="button small" href="/download/">
           Play
