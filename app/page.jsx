@@ -1,112 +1,91 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import SiteNav from "./components/SiteNav";
+import { useState } from "react";
+
+const teams = [
+  {
+    id: "ironclad",
+    name: "Ironclad",
+    logo: "/teams/ironclad.svg",
+    color: "#f15a52",
+    line: "You drop under the red shield. The front does not care which side you picked. Ironclad still has to take it.",
+  },
+  {
+    id: "timberwolf",
+    name: "Timberwolf",
+    logo: "/teams/timberwolf.svg",
+    color: "#61cf88",
+    line: "You drop under the wolf. Same battle, same trucks, same race to 100. Timberwolf holds until the zone moves.",
+  },
+  {
+    id: "vanguard",
+    name: "Vanguard",
+    logo: "/teams/vanguard.svg",
+    color: "#4bb6ff",
+    line: "You drop under the blue mark. Push the fight, keep the base supplied, and get your gear home for Vanguard.",
+  },
+];
 
 export default function Home() {
-  const [scroll, setScroll] = useState(0);
-
-  useEffect(() => {
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (media.matches) {
-      return undefined;
-    }
-
-    let frame = 0;
-    const update = () => {
-      window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(() => {
-        setScroll(window.scrollY);
-      });
-    };
-
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", update);
-    };
-  }, []);
-
-  const parallaxVars = {
-    "--drift-slow": `${scroll * -0.055}px`,
-    "--drift-mid": `${scroll * -0.11}px`,
-    "--drift-fast": `${scroll * -0.18}px`,
-  };
+  const [teamId, setTeamId] = useState("ironclad");
+  const team = teams.find((item) => item.id === teamId) || teams[0];
 
   return (
-    <main className="shell homeShell" style={parallaxVars}>
-      <div className="parallaxLayer layerGrid" aria-hidden="true" />
-      <div className="parallaxLayer layerGlow" aria-hidden="true" />
-      <SiteNav />
-
-      <section id="top" className="hero">
+    <main>
+      <section className="hero">
+        <div className="heroArt" aria-hidden="true" />
         <div className="heroCopy">
           <p className="tag">Pre-alpha</p>
-          <h1>Fight the front. Get your gear home.</h1>
+          <h1>Fight the front.</h1>
           <p className="lead">
-            Three teams fight over a battle that keeps moving. Push with your
-            squad, run supplies by truck and helicopter, build a base, and
-            bring back what you can carry. What makes it home stays yours.
+            Ironclad, Timberwolf, and Vanguard. Push the battle, run the
+            supplies, and bring your gear home.
           </p>
           <div className="actions">
-            <a className="button" href="#trailer">
-              Watch the trailer
+            <a className="button" href="/download/">
+              Play
             </a>
-            <a className="button ghost" href="/download/">
-              Download
+            <a className="button ghost" href="/trailer/">
+              Pre-alpha trailer
             </a>
           </div>
         </div>
-
-        <div id="trailer" className="trailerFrame">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/UCOv0qqh0r0?rel=0"
-            title="Klyra: Broken Front pre-alpha trailer"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          />
-          <a href="https://www.youtube.com/watch?v=UCOv0qqh0r0">
-            Watch on YouTube
-          </a>
-        </div>
       </section>
 
-      <section id="war" className="section frontOnly">
+      <section id="teams" className="section">
         <div className="sectionIntro">
-          <p className="tag">The war</p>
-          <h2>Fight, haul, and keep it.</h2>
-          <p>
-            Someone has to take the ground. Someone has to drive. A base with
-            nothing in it cannot hold.
-          </p>
+          <p className="tag">The sides</p>
+          <h2>Pick your mark.</h2>
+          <p>Three teams. One moving front. First to 100 points wins.</p>
         </div>
-        <div className="cards">
-          <article>
-            <span>01</span>
-            <h3>Fight</h3>
-            <p>
-              Take the hot zone with your team. Loot weapons off the field.
-              Pick up the soldier next to you before the fight moves on.
-            </p>
-          </article>
-          <article>
-            <span>02</span>
-            <h3>Haul</h3>
-            <p>
-              Trucks and helicopters move people and supplies. If the crates
-              do not arrive, the base goes quiet.
-            </p>
-          </article>
-          <article>
-            <span>03</span>
-            <h3>Keep it</h3>
-            <p>
-              Build a forward base and stock it. Gear you get back to safety
-              goes into your stash for the next fight.
-            </p>
-          </article>
+        <div className="teamGrid" role="list">
+          {teams.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              role="listitem"
+              className="teamCard"
+              aria-pressed={item.id === team.id}
+              style={{ "--team": item.color }}
+              onClick={() => setTeamId(item.id)}
+            >
+              <img src={item.logo} alt="" />
+              <strong>{item.name}</strong>
+            </button>
+          ))}
         </div>
+        <article className="teamStage" style={{ "--team": team.color }}>
+          <img src={team.logo} alt="" />
+          <div>
+            <p className="tag">{team.name}</p>
+            <h3>On the front.</h3>
+            <p>{team.line}</p>
+            <div className="meter" aria-hidden="true">
+              <span />
+            </div>
+            <small>First to 100 points.</small>
+          </div>
+        </article>
       </section>
 
       <section className="section">
@@ -118,22 +97,22 @@ export default function Home() {
           <article>
             <span>01</span>
             <h3>Drop in</h3>
-            <p>You join red, green, or blue. The first team to 100 points wins.</p>
+            <p>Choose Ironclad, Timberwolf, or Vanguard and get on the field.</p>
           </article>
           <article>
             <span>02</span>
             <h3>Move</h3>
             <p>
-              The battle zone shifts. Stay on it, or go run the trucks, the
-              helicopters, and the supplies.
+              The battle zone shifts. Trucks and helicopters keep people and
+              supplies in the fight.
             </p>
           </article>
           <article>
             <span>03</span>
-            <h3>Get out</h3>
+            <h3>Get home</h3>
             <p>
-              A teammate can bring you back. If you do not make it out, the
-              gear you were carrying is still out there.
+              A teammate can bring you back. Gear you extract stays in your
+              stash.
             </p>
           </article>
         </div>
@@ -142,20 +121,15 @@ export default function Home() {
       <section className="splitLinks" aria-label="Next steps">
         <a className="pathCard" href="/download/">
           <span>Play</span>
-          <strong>Download the game</strong>
-          <p>Windows or Mac. The launcher installs Broken Front and gets you updates.</p>
+          <strong>Get on the front</strong>
+          <p>Download Broken Front and drop into the next fight.</p>
         </a>
         <a className="pathCard" href="/account/">
           <span>Callsign</span>
-          <strong>Save your stash</strong>
-          <p>Make an account so the gear you extract is waiting next time.</p>
+          <strong>Your account</strong>
+          <p>Sign in to see your callsign, your record, and the gear you kept.</p>
         </a>
       </section>
-
-      <footer>
-        <strong>Klyra: Broken Front</strong>
-        <span>Pre-alpha. The war is still being built.</span>
-      </footer>
     </main>
   );
 }
