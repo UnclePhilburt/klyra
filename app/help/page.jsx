@@ -31,7 +31,7 @@ const topics = [
   },
   {
     q: "I cannot get into a multiplayer match",
-    a: "Check that the computer is online. Sign in with your callsign or email. A room holds up to 12 players, and bots fill the sides. If the room will not start, leave it and try again. On one computer, the second person needs their own controller and presses Start.",
+    a: "Check that the computer is online. Sign in with your callsign or email. A room holds up to 20 players, and bots fill the sides. If the room will not start, leave it and try again. On one computer, the second person needs their own controller and presses Start.",
   },
   {
     q: "Who do I contact?",

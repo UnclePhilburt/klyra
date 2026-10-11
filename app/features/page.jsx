@@ -16,7 +16,7 @@ const shots = [
 const features = [
   ["01", "Three factions", "Ironclad, Timberwolf, and Vanguard share one battlefield. The zone moves. First side to 100 points wins."],
   ["02", "60 bots", "The match fills out to 60 soldiers, 20 on a side. A player on that side takes one of those slots."],
-  ["03", "Multiplayer", "Online rooms hold up to 12 players. Everyone else on the field is part of that soldier count."],
+  ["03", "Multiplayer", "Online rooms hold up to 20 players. Everyone else on the field is part of that soldier count."],
   ["04", "Split-screen", "Two players, one computer. Player one can use the keyboard. Press Start on a second controller to join."],
   ["05", "Helicopters", "Get in a helicopter, fly the fight, and move people across the front."],
   ["06", "FOB building", "Put up a forward operating base and keep it in the fight with supplies."],

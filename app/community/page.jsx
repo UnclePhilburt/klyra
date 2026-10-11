@@ -31,7 +31,7 @@ export default function CommunityPage() {
           <article>
             <span>03</span>
             <h3>Bring a second player</h3>
-            <p>Online rooms hold up to 12 people. On one computer, a second controller can join the same fight.</p>
+            <p>Online rooms hold up to 20 people. On one computer, a second controller can join the same fight.</p>
           </article>
         </div>
       </section>

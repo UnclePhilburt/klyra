@@ -12,7 +12,7 @@ const columns = [
       "Ironclad, Timberwolf, and Vanguard",
       "Moving battle zone, first to 100 points",
       "Up to 60 bots, 20 on a side",
-      "Online matches for up to 12 players",
+      "Online matches for up to 20 players",
       "Split-screen on one computer",
       "Helicopters",
       "Trucks and supply runs",
