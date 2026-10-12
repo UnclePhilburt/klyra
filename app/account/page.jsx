@@ -270,23 +270,29 @@ export default function AccountPage() {
             <article className="dashCard">
               <p className="tag">Account security</p>
               <h2>Password</h2>
-              <p>Reset it from your email, or set a new one while you are signed in.</p>
-              <form onSubmit={onNewPassword}>
-                <label>
-                  New password
-                  <input
-                    value={nextPassword}
-                    onChange={(event) => setNextPassword(event.target.value)}
-                    type="password"
-                    autoComplete="new-password"
-                    minLength={8}
-                    required
-                  />
-                </label>
-                <button className="button" disabled={busy} type="submit">
-                  Save password
-                </button>
-              </form>
+              {session.recovery ? (
+                <>
+                  <p>This link is from your email. Choose a new password.</p>
+                  <form onSubmit={onNewPassword}>
+                    <label>
+                      New password
+                      <input
+                        value={nextPassword}
+                        onChange={(event) => setNextPassword(event.target.value)}
+                        type="password"
+                        autoComplete="new-password"
+                        minLength={8}
+                        required
+                      />
+                    </label>
+                    <button className="button" disabled={busy} type="submit">
+                      Save password
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <p>Reset it from your email.</p>
+              )}
               <button
                 className="textLink"
                 disabled={busy || !accountEmail}
