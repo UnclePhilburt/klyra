@@ -7,11 +7,11 @@ export const metadata = {
 const topics = [
   {
     q: "How do I install it?",
-    a: "Open the Play page and download the file for your computer. Open that file. Let it finish getting the game, then start a match. Sign in with your callsign or your email if you want the gear you extract to stay on your account.",
+    a: "Open the Download page and get the file for your computer. Open that file. Let it finish getting the game, then start a match. Sign in with your callsign or your email if you want the gear you extract to stay on your account.",
   },
   {
     q: "Which computers can run it?",
-    a: "Windows on a 64-bit PC, and Mac on macOS 12 or newer. There is no phone version. A free browser version is part of the plan and is not playable on this site yet. When it is, it uses this same sign-in.",
+    a: "Windows on a 64-bit PC, and Mac on macOS 12 or newer. There is no phone version. A browser version is being added on the play page. It is not playable there yet. Performance is degraded because it is a web browser build. It uses the same sign-in as this site.",
   },
   {
     q: "What does my computer need?",
@@ -59,7 +59,8 @@ export default function HelpPage() {
           refuses to start.
         </p>
         <div className="actions">
-          <a className="button" href="/download/">Play</a>
+          <a className="button" href="/play/">Play in the browser</a>
+          <a className="button ghost" href="/download/">Download</a>
           <a className="button ghost" href="/account/">Account</a>
         </div>
       </section>

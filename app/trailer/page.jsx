@@ -16,8 +16,8 @@ export default function TrailerPage() {
             war on screen is still being built.
           </p>
           <div className="actions">
-            <a className="button" href="/download/">
-              Play
+            <a className="button" href="/play/">
+              Play in the browser
             </a>
             <a className="button ghost" href="https://www.youtube.com/watch?v=UCOv0qqh0r0">
               Watch on YouTube

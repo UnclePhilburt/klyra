@@ -1,5 +1,6 @@
 const links = [
-  ["Play", "/download/"],
+  ["Play", "/play/"],
+  ["Download", "/download/"],
   ["Features", "/features/"],
   ["Roadmap", "/roadmap/"],
   ["Devlog", "/devlog/"],

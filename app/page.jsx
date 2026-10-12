@@ -52,7 +52,7 @@ export default function Home() {
             supplies, and bring your gear home.
           </p>
           <div className="actions">
-            <a className="button huge" href="/download/">
+            <a className="button huge" href="/play/">
               Play
             </a>
             <a className="button ghost huge" href="/download/">
@@ -142,10 +142,10 @@ export default function Home() {
       </section>
 
       <section className="splitLinks" aria-label="Next steps">
-        <a className="pathCard" href="/download/">
-          <span>Play</span>
-          <strong>Get on the front</strong>
-          <p>Download Broken Front and drop into the next fight.</p>
+        <a className="pathCard" href="/play/">
+          <span>Browser</span>
+          <strong>Play in the tab</strong>
+          <p>Performance is degraded because it is a web browser build. The game file is still being added to that page.</p>
         </a>
         <a className="pathCard" href="/features/">
           <span>The battlefield</span>

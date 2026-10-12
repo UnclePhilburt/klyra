@@ -33,10 +33,12 @@ export default function SupportPage() {
               Download the pre-alpha
             </a>
             <p className="quiet">
-              A browser version is not on this site yet. When it is, it uses this
-              same sign-in. Checkout is not open. The Windows and Mac downloads
-              are still free to get.
+              The browser version opens on the play page. The game file is not
+              there yet. Performance is degraded because it is a web browser
+              build. Checkout is not open. The Windows and Mac downloads are
+              still free to get.
             </p>
+            <a className="button ghost" href="/play/">Play in the browser</a>
           </div>
           <div>
             <h3>Founder&apos;s Access includes</h3>

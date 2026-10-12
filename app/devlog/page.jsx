@@ -33,6 +33,22 @@ export default function DevlogPage() {
       <section className="section">
         <article className="post">
           <p className="tag">October 11, 2026</p>
+          <h2>The browser page is up.</h2>
+          <p>
+            The play page is where the browser version will open. The game file
+            is still being built, so it is not playable there yet. Sign in on
+            this site and the browser game uses that account.
+          </p>
+          <p>
+            Performance is degraded because it is a web browser build. Frame
+            rate, view distance, and crowded fights are lower than the Windows
+            and Mac versions. The desktop download remains the full-performance
+            way to play.
+          </p>
+        </article>
+
+        <article className="post">
+          <p className="tag">October 11, 2026</p>
           <h2>The pre-alpha is playable.</h2>
           <p>
             The desktop build has the three factions, a moving front that ends

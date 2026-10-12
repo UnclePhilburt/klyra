@@ -35,7 +35,8 @@ export default function FeaturesPage() {
           sit still. These clips and frames are from the pre-alpha.
         </p>
         <div className="actions">
-          <a className="button" href="/download/">Play</a>
+          <a className="button" href="/play/">Play in the browser</a>
+          <a className="button ghost" href="/download/">Download</a>
         </div>
       </section>
 

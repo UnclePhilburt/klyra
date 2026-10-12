@@ -31,13 +31,13 @@ const columns = [
       "Quieter weather so combat stays in front",
       "Wildlife sounds removed from the battlefield",
       "Pre-alpha testing and fixes",
+      "Browser version on the play page, with degraded performance because it is a web browser build",
     ],
   },
   {
     status: "Planned",
     tone: "later",
     items: [
-      "A free browser version of the battlefield",
       "Founder's Access checkout, $4.99 once for Windows and Mac",
       "More battlefield systems, added one at a time",
     ],

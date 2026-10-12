@@ -11,6 +11,7 @@ const pages = [
 ];
 
 const morePages = [
+  ["Browser", "/play/"],
   ["Devlog", "/devlog/"],
   ["Support", "/support/"],
   ["Help", "/help/"],
@@ -101,7 +102,7 @@ export default function SiteNav() {
           <AccountMark />
           <span>{callsign || "Account"}</span>
         </a>
-        <a className="button small" href="/download/">
+        <a className="button small" href="/play/">
           Play
         </a>
       </div>
