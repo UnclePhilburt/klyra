@@ -33,11 +33,11 @@ export default function DevlogPage() {
       <section className="section">
         <article className="post">
           <p className="tag">October 11, 2026</p>
-          <h2>The browser page is up.</h2>
+          <h2>The browser game is on the play page.</h2>
           <p>
-            The play page is where the browser version will open. The game file
-            is still being built, so it is not playable there yet. Sign in on
-            this site and the browser game uses that account.
+            The browser version opens on the play page. Sign in on this site
+            and the game uses that account. There is no launcher for the
+            browser version.
           </p>
           <p>
             Performance is degraded because it is a web browser build. Frame

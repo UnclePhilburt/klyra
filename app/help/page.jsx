@@ -11,7 +11,7 @@ const topics = [
   },
   {
     q: "Which computers can run it?",
-    a: "Windows on a 64-bit PC, and Mac on macOS 12 or newer. There is no phone version. A browser version is being added on the play page. It is not playable there yet. Performance is degraded because it is a web browser build. It uses the same sign-in as this site.",
+    a: "Windows on a 64-bit PC, and Mac on macOS 12 or newer. There is no phone version. A browser version is on the play page. Performance is degraded because it is a web browser build. It uses the same sign-in as this site.",
   },
   {
     q: "What does my computer need?",

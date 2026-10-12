@@ -1,12 +1,12 @@
 export const metadata = {
   title: "Play in the browser · Klyra: Broken Front",
   description:
-    "The KLYRA browser build opens on this page. Performance is degraded because it runs in a web browser. Sign in on this site first. The game file is still being built.",
+    "The KLYRA browser build opens on this page. Performance is degraded because it runs in a web browser. Sign in on this site first.",
 };
 
 const steps = [
   ["01", "Sign in", "Use your callsign or email on the account page. The browser game uses that same account."],
-  ["02", "Open this page", "When the build is finished, the fight starts here. There is no launcher for the browser version."],
+  ["02", "Open this page", "The fight starts here. There is no launcher for the browser version."],
   ["03", "Expect less", "Performance is degraded because this is a web browser build. The desktop download is the full-performance version."],
 ];
 
@@ -61,12 +61,11 @@ export default function PlayPage() {
 
       <section className="section">
         <div className="notice">
-          <p className="tag">Still building</p>
-          <h2>The game file is not on this page yet.</h2>
+          <p className="tag">This page</p>
+          <h2>The fight opens here.</h2>
           <p>
-            The browser build is being made now. It will open here when that
-            build is finished. Until then, this page is the place it lands, and
-            the Windows and Mac downloads are the way to play today.
+            Sign in on this site first. The browser game uses that account.
+            The Windows and Mac downloads are the full-performance way to play.
           </p>
           <div className="actions">
             <a className="button" href="/download/">Download the pre-alpha</a>

@@ -21,6 +21,7 @@ const columns = [
       "Revive",
       "Keyboard, mouse, and controller",
       "Windows and Mac desktop builds",
+      "Browser version on the play page. Performance is degraded because it is a web browser build",
       "KLYRA Discord for bug reports, suggestions, and groups",
     ],
   },
@@ -31,7 +32,6 @@ const columns = [
       "Quieter weather so combat stays in front",
       "Wildlife sounds removed from the battlefield",
       "Pre-alpha testing and fixes",
-      "Browser version on the play page, with degraded performance because it is a web browser build",
     ],
   },
   {

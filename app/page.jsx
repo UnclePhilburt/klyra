@@ -145,7 +145,7 @@ export default function Home() {
         <a className="pathCard" href="/play/">
           <span>Browser</span>
           <strong>Play in the tab</strong>
-          <p>Performance is degraded because it is a web browser build. The game file is still being added to that page.</p>
+          <p>Performance is degraded because it is a web browser build. Sign in on this site, then the fight opens in the tab.</p>
         </a>
         <a className="pathCard" href="/features/">
           <span>The battlefield</span>
