@@ -38,7 +38,7 @@ const columns = [
     status: "Planned",
     tone: "later",
     items: [
-      "Founder's Access checkout, $4.99 once for Windows and Mac",
+      "Supporter Edition checkout, $4.99 once for Windows and Mac",
       "More battlefield systems, added one at a time",
     ],
   },

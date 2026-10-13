@@ -1,7 +1,8 @@
+import SupporterAccess from "../components/SupporterAccess";
 export const metadata = {
-  title: "Founder's Access · Klyra: Broken Front",
+  title: "Supporter Edition · Klyra: Broken Front",
   description:
-    "Founder's Access is a $4.99 one-time purchase for the Windows and Mac versions of KLYRA. No gameplay is locked behind it. The game is in pre-alpha.",
+    "Supporter Edition is a $4.99 one-time purchase for the Windows and Mac versions of KLYRA. No gameplay is locked behind it. The game is in pre-alpha.",
 };
 
 const included = [
@@ -15,7 +16,7 @@ export default function SupportPage() {
   return (
     <main>
       <section className="pageIntro">
-        <p className="tag">Founder&apos;s Access</p>
+        <p className="tag">Supporter Edition</p>
         <h1>$4.99</h1>
         <p className="lead">One-time purchase.</p>
       </section>
@@ -24,23 +25,16 @@ export default function SupportPage() {
         <div className="founderCard">
           <div>
             <p className="tag">KLYRA: Broken Front</p>
-            <h2>Founder&apos;s Access</h2>
+            <h2>Supporter Edition</h2>
             <p>
               Enjoy KLYRA for free in your browser, or support its development
               by unlocking the downloadable Windows and Mac versions.
             </p>
-            <a className="button huge" href="/download/">
-              Download the pre-alpha
-            </a>
-            <p className="quiet">
-              The browser version opens on the play page. Performance is degraded
-              because it is a web browser build. Checkout is not open. The
-              Windows and Mac downloads are still free to get.
-            </p>
+            <SupporterAccess />
             <a className="button ghost" href="/play/">Play in the browser</a>
           </div>
           <div>
-            <h3>Founder&apos;s Access includes</h3>
+            <h3>Supporter Edition includes</h3>
             <ul>
               {included.map((item) => (
                 <li key={item}>{item}</li>
@@ -65,7 +59,7 @@ export default function SupportPage() {
             may change throughout development.
           </p>
           <p>
-            Future features are not guaranteed. Founder&apos;s Access is not a
+            Future features are not guaranteed. Supporter Edition is not a
             promise that something on the roadmap will ship, and it is not a
             finished game.
           </p>

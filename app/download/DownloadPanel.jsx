@@ -1,29 +1,8 @@
 "use client";
-
-import { useEffect, useState } from "react";
-import { macLauncher, windowsLauncher } from "../site-data";
-
-const files = {
-  windows: { href: windowsLauncher, label: "Download for Windows", other: "mac" },
-  mac: { href: macLauncher, label: "Download for Mac", other: "windows" },
-};
-
-function detectComputer() {
-  const ua = `${navigator.userAgent || ""} ${navigator.platform || ""}`;
-  if (/Mac|iPhone|iPad/i.test(ua)) return "mac";
-  return "windows";
-}
+import { windowsLauncher, macLauncher } from "../site-data";
+import SupporterAccess from "../components/SupporterAccess";
 
 export default function DownloadPanel() {
-  const [computer, setComputer] = useState("windows");
-
-  useEffect(() => {
-    setComputer(detectComputer());
-  }, []);
-
-  const choice = files[computer];
-  const otherName = choice.other === "mac" ? "Mac" : "Windows";
-
   return (
     <>
     <section className="pageHero downloadPage">
@@ -35,14 +14,9 @@ export default function DownloadPanel() {
           One download. Then you are in the fight with Ironclad, Timberwolf,
           and Vanguard.
         </p>
-        <div className="actions">
-          <a className="button huge" href={choice.href}>
-            {choice.label}
-          </a>
-          <button className="textLink" type="button" onClick={() => setComputer(choice.other)}>
-            Need it for {otherName}?
-          </button>
-        </div>
+        <div className="actions"><a className="button" href={windowsLauncher}>Download Windows launcher</a><a className="button ghost" href={macLauncher}>Download Mac launcher</a></div>
+        <p className="quiet">The launcher is free. Supporter Edition is required for desktop game access through the updated launcher.</p>
+        <SupporterAccess />
       </div>
       <div className="mission">
         <article>
@@ -63,10 +37,21 @@ export default function DownloadPanel() {
       </div>
     </section>
 
+    <section className="section" id="mac-server">
+      <div className="founderCard">
+        <div><p className="tag">Experimental hosting</p><h2>Mac dedicated server</h2></div>
+        <div>
+          <p>Host a test match on an Apple Silicon Mac. This download runs the server without a playable character.</p>
+          <div className="actions"><a className="button ghost" href="https://cdn.klyra.lol/servers/Klyra-Mac-Server-20261013-r9.zip">Download Mac server · 208 MB</a></div>
+          <p className="quiet">Extract the ZIP. Open Terminal in the extracted folder and run <code>bash Start-Klyra-Server.command</code>. Wait for READY in Logs/server.log before joining. This package starts KlyraTestRoom2; use that room name on your game client.</p>
+          <p className="quiet">Includes headless minimap broadcasts, post-purchase inventory synchronization, server rifle equip recovery, equipped weapon-pose repair and purchase diagnostics, ability synchronization, ragdoll safeguards, headless zone scoring, and weather selection independent of server rendering. In-game verification is pending. Requires matching freshly rebuilt game clients; the existing public launcher build may not be compatible yet.</p>
+        </div>
+      </div>
+    </section>
     <section className="section founder">
       <div className="founderCard">
         <div>
-          <p className="tag">Founder&apos;s Access</p>
+          <p className="tag">Supporter Edition</p>
           <h2>$4.99</h2>
           <p className="quiet">One-time purchase.</p>
         </div>
@@ -83,9 +68,8 @@ export default function DownloadPanel() {
           </p>
           <p className="quiet">
             The browser version opens on the play page. Performance is degraded
-            because it is a web browser build. Checkout is not open, so the
-            download above is still free. KLYRA is in pre-alpha, and what you
-            play can change.
+            because it is a web browser build. Supporter Edition unlocks Windows
+            and Mac. KLYRA is in pre-alpha, and what you play can change.
           </p>
           <div className="actions">
             <a className="button" href="/play/">Play in the browser</a>

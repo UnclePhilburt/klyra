@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { macLauncher, windowsLauncher } from "../site-data";
+import SupporterAccess from "../components/SupporterAccess";
 import {
   callsignOf,
   memberSince,
@@ -215,33 +215,14 @@ export default function AccountPage() {
           <div className="dashGrid">
             <article className="dashCard">
               <p className="tag">Game license</p>
-              <h2>Founder&apos;s Access</h2>
-              <p>Not on this account yet.</p>
-              <p className="quiet">
-                $4.99, one time, for the Windows and Mac versions. Checkout is not open yet.
-              </p>
+              <h2>Supporter Edition</h2>
+              <SupporterAccess />
             </article>
 
             <article className="dashCard">
               <p className="tag">Development stage</p>
               <h2>Pre-Alpha</h2>
               <p>The battlefield is still being built. What you download today can change.</p>
-            </article>
-
-            <article className="dashCard">
-              <p className="tag">My downloads</p>
-              <h2>Current build</h2>
-              <p>The Windows and Mac pre-alpha. These stay available until checkout opens.</p>
-              <div className="dashActions">
-                <a className="button" href={windowsLauncher}>Download for Windows</a>
-                <a className="button ghost" href={macLauncher}>Download for Mac</a>
-              </div>
-            </article>
-
-            <article className="dashCard">
-              <p className="tag">Purchase history</p>
-              <h2>No purchases</h2>
-              <p>Receipts will show here after you buy Founder&apos;s Access.</p>
             </article>
 
             <article className="dashCard">

@@ -1089,3 +1089,42 @@ footer strong {
     width: 68%;
   }
 }
+
+/* Supporter purchase and account identity */
+.supporterAccess { width:100%; min-width:0; }
+.supporterTest { padding:12px 16px; margin-bottom:18px; border:1px solid #68604b; border-radius:8px; color:#d0c7b3; font-size:13px; line-height:1.6; background:#211f19; }
+.supporterTest span { display:inline-block; margin-right:10px; font-size:10px; font-weight:800; letter-spacing:.12em; color:#f1d6a4; }
+.supporterWelcome { padding:clamp(22px,4vw,40px); border:1px solid #806a42; border-radius:14px; background:radial-gradient(ellipse at top right,#51402a55,transparent 70%),#121612; position:relative; overflow:hidden; }
+.supporterSeal { width:52px; height:52px; display:grid; place-items:center; border:1px solid var(--gold); border-radius:50%; color:var(--gold); font-size:28px; margin-bottom:20px; background:#d7b57a12; }
+.supporterBadge { display:inline-block; font-size:10px; font-weight:800; letter-spacing:.16em; color:var(--gold); padding:6px 0; }
+.supporterWelcome h2 { font-size:clamp(25px,3vw,38px); line-height:1.12; margin:10px 0 16px; }
+.supporterWelcome .supporterThanks { color:#c6c4b9; line-height:1.7; font-size:15px; max-width:46ch; }
+.supporterLicense { display:grid; gap:8px; padding:19px 0; margin:24px 0; border-block:1px solid #d7b57a33; }
+.supporterLicense span { font-size:10px; letter-spacing:.14em; color:var(--gold); }
+.supporterLicense strong { font-size:19px; }
+.supporterLicense small { color:var(--muted); font-size:13px; }
+.supporterAccount { display:inline-block; margin-top:15px; color:var(--gold); font-size:14px; }
+.supporterPending,.supporterOffer { padding:22px 0; }
+.supporterPending p { font-size:14px; line-height:1.7; color:var(--muted); }
+.supporterOffer h3 { margin:10px 0; font-size:24px; }
+.supporterReceipts { margin-top:22px; border-top:1px solid var(--line); padding-top:16px; }
+.supporterReceipts summary { cursor:pointer; color:var(--muted); font-size:14px; }
+.supporterReceipt { display:flex; flex-wrap:wrap; align-items:center; gap:16px; padding:18px 0; border-bottom:1px solid var(--line); font-size:13px; }
+.supporterReceipt div { display:grid; gap:6px; flex:1; min-width:140px; }
+.supporterReceipt small { color:var(--muted); }
+.supporterReceipt a { color:var(--gold); text-decoration:underline; }
+.supporterAccess .button { white-space:normal; text-align:center; }
+
+.embeddedCheckout { margin-top:22px; padding:clamp(16px,3vw,28px); border:1px solid var(--line-strong); border-radius:12px; background:radial-gradient(ellipse at top right,#d7b57a0d,transparent 70%),#101610; color:var(--text); }
+.embeddedCheckout .supporterBadge { color:var(--gold); }
+.embeddedCheckout .quiet,.embeddedCheckout small { color:var(--muted); }
+.checkoutHeading p { display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; }
+.embeddedCheckout fieldset { border:0; padding:0; margin:18px 0; }
+.embeddedCheckout legend { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+.embeddedCheckout label { display:grid; gap:6px; font-size:13px; margin-bottom:12px; }
+.embeddedCheckout input, .embeddedCheckout select { width:100%; min-width:0; padding:12px; border:1px solid #57594e; border-radius:6px; background:#0b100d; color:var(--text); font:inherit; color-scheme:dark; }
+.checkoutNames { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.squareCard { min-height:90px; margin:16px 0; }
+.embeddedCheckout .button { width:100%; background:var(--gold); color:#14180f; }
+.embeddedCheckout .formMessage { color:var(--bad); }
+@media(max-width:480px){.checkoutNames { grid-template-columns:1fr; gap:0; }}

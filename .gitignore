@@ -41,3 +41,7 @@ coverage/
 tmp/
 temp/
 nul
+
+# Worker secrets
+.dev.vars
+.dev.vars.*
