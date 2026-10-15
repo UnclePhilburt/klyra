@@ -1,45 +1,70 @@
+import styles from "./roadmap.module.css";
+
 export const metadata = {
-  title: "Roadmap · Klyra: Broken Front",
+  title: "Development Roadmap · Klyra: Broken Front",
   description:
-    "What is playable in KLYRA now, what is in progress, and what is planned. No release dates.",
+    "KLYRA's current development priorities, upcoming improvements, and future plans through pre-alpha.",
 };
 
-const columns = [
+const phases = [
   {
-    status: "Completed",
-    tone: "done",
-    items: [
-      "Ironclad, Timberwolf, and Vanguard",
-      "Moving battle zone, first to 100 points",
-      "Up to 60 bots, 20 on a side",
-      "Online matches for up to 20 players",
-      "Split-screen on one computer",
-      "Helicopters",
-      "Trucks and supply runs",
-      "Forward operating bases",
-      "Weapon builder and extracted gear stash",
-      "Revive",
-      "Keyboard, mouse, and controller",
-      "Windows and Mac desktop builds",
-      "Browser version on the play page. Performance is degraded because it is a web browser build",
-      "KLYRA Discord for bug reports, suggestions, and groups",
+    number: "01", title: "Current Focus", label: "In development", tone: "current",
+    cards: [
+      { title: "Frostline Valley", items: [
+        "Continued development of the 64 km² snow-covered map",
+        "Expanded forests, roads, terrain details, and points of interest",
+        "Improved baked lighting and environmental visuals",
+        "Four selectable times of day", "Nine weather presets",
+        "Environmental optimization and performance improvements",
+      ]},
+      { title: "Night Combat Overhaul", items: [
+        "Complete night vision system overhaul", "Improved flashlight visuals and functionality",
+        "Better nighttime lighting and visibility",
+        "Improved interactions between artificial lighting and night vision",
+      ]},
+      { title: "Artificial Intelligence", items: [
+        "Improved squad coordination and combat behavior", "Better navigation and pathfinding",
+        "More intelligent vehicle and logistics operations", "Improved objective participation",
+        "AI performance optimization",
+      ]},
     ],
   },
   {
-    status: "In Progress",
-    tone: "now",
-    items: [
-      "Quieter weather so combat stays in front",
-      "Wildlife sounds removed from the battlefield",
-      "Pre-alpha testing and fixes",
+    number: "02", title: "Upcoming Improvements", label: "Next on the route", tone: "upcoming",
+    cards: [
+      { title: "User Interface Overhaul", items: [
+        "Redesigned HUD and menus", "Improved inventory and equipment management",
+        "Weapon builder interface improvements", "Tactical map and navigation improvements",
+        "Better visual feedback and notifications",
+      ]},
+      { title: "Player Progression", items: [
+        "Player leveling and experience system", "Ranks and progression rewards",
+        "Potential skill and specialization system", "Additional progression incentives",
+      ]},
+      { title: "Gameplay & Combat", items: [
+        "Improved weapon handling and combat feedback", "Character movement and animation improvements",
+        "Battlefield audio and visual effects", "Continued weapon, vehicle, and economy balancing",
+      ]},
     ],
   },
   {
-    status: "Planned",
-    tone: "later",
-    items: [
-      "Supporter Edition checkout, $4.99 once for Windows and Mac",
-      "More battlefield systems, added one at a time",
+    number: "03", title: "Future Development", label: "Planned", tone: "future",
+    cards: [
+      { title: "Battlefield Systems", items: [
+        "Expanded logistics and supply mechanics", "Improved squad commands and coordination",
+        "Additional battlefield locations and activities", "Further equipment and customization options",
+      ]},
+      { title: "Multiplayer & Optimization", items: [
+        "Dedicated-server improvements",
+        "Player-run custom dedicated servers with names, passwords, and configurable rules",
+        "Community servers listed automatically in the in-game server browser",
+        "Improved multiplayer stability and synchronization", "CPU and AI performance optimization",
+        "Continued Windows, macOS, and browser improvements",
+      ]},
+      { title: "Quality of Life", items: [
+        "Improved new-player experience", "Better tutorials and gameplay explanations",
+        "Expanded graphics and control settings", "Ongoing bug fixes and community-requested improvements",
+      ]},
     ],
   },
 ];
@@ -47,28 +72,45 @@ const columns = [
 export default function RoadmapPage() {
   return (
     <main>
-      <section className="pageIntro">
-        <p className="tag">Roadmap</p>
-        <h1>Where the fight stands.</h1>
+      <section className={`pageIntro ${styles.intro}`}>
+        <p className="tag">Development route</p>
+        <h1>KLYRA Development Roadmap</h1>
         <p className="lead">
-          Completed means you can do it in the current pre-alpha. In Progress
-          means it is being built and is not in the download yet. Planned means
-          it is intended. There are no release dates on this page.
+          The route from today&apos;s pre-alpha battlefield to a deeper, sharper,
+          and more stable war. Work moves forward in phases as core systems become ready.
         </p>
+        <div className={styles.legend} aria-label="Roadmap phase key">
+          <span><i className={styles.currentDot} />Current focus</span>
+          <span><i className={styles.upcomingDot} />Upcoming</span>
+          <span><i className={styles.futureDot} />Future</span>
+        </div>
       </section>
-      <section className="section">
-        <div className="roadmap">
-          {columns.map((column) => (
-            <article key={column.status}>
-              <p className={`status ${column.tone}`}>{column.status}</p>
-              <ul>
-                {column.items.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
+
+      <section className={`section ${styles.section}`}>
+        <div className={styles.route}>
+          {phases.map((phase) => (
+            <article className={`${styles.phase} ${styles[phase.tone]}`} key={phase.title}>
+              <div className={styles.marker} aria-hidden="true">{phase.number}</div>
+              <div>
+                <header className={styles.phaseHeader}>
+                  <h2>{phase.title}</h2><span>{phase.label}</span>
+                </header>
+                <div className={styles.cards}>
+                  {phase.cards.map((card) => (
+                    <section className={styles.card} key={card.title}>
+                      <h3>{card.title}</h3>
+                      <ul>{card.items.map((item) => <li key={item}>{item}</li>)}</ul>
+                    </section>
+                  ))}
+                </div>
+              </div>
             </article>
           ))}
         </div>
+        <p className={styles.disclaimer}>
+          This roadmap reflects current development priorities. Features and plans may change
+          as KLYRA continues through pre-alpha development.
+        </p>
       </section>
     </main>
   );
