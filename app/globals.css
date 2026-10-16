@@ -1486,3 +1486,57 @@ html.kxMobile .kxDesktopCopy { display: none; }html .kxIntro h1.kxCallsignTitle,
 @media (max-width: 700px) { html .kxIntro h1.kxCallsignTitle, html .pageIntro h1.kxCallsignTitle { font-size: clamp(22px, 7.4vw, 48px); } }
 .kxFooter .kxCallsign { max-width: 100%; }.kxFooter a:has(.kxCallsign) { flex-wrap: wrap; column-gap: .3em; }
 .kxFooter a .kxCallsign { flex: 0 1 auto; }
+
+/* ===== Account page */
+@keyframes kxAcctIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.kxAcctIn { animation: kxAcctIn .6s cubic-bezier(.2,.7,.2,1) both; animation-delay: var(--d, 0ms); }
+@media (prefers-reduced-motion: reduce) { .kxAcctIn { animation: none; } }
+.kxAcctHero { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: clamp(40px, 7vw, 88px) 0 clamp(24px, 4vw, 40px); display: grid; gap: 18px; }
+.kxAcctId { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: clamp(14px, 2.4vw, 28px); }
+.kxAcctBadge { width: clamp(64px, 9vw, 112px); aspect-ratio: 1; display: grid; place-items: center; font-weight: 900; font-size: clamp(30px, 4.6vw, 58px); color: #12140f; background: linear-gradient(140deg, #f1d58f, #c99a3c); clip-path: polygon(0 0, 100% 0, 100% 78%, 78% 100%, 0 100%); box-shadow: 0 0 40px rgba(216,180,90,.25); }
+.kxAcctIdText { min-width: 0; display: grid; gap: 8px; }
+.kxAcctIdText .tag { margin: 0; }
+html .kxAcctHero h1.kxCallsignTitle { margin: 0; font-size: clamp(28px, 6vw, 84px); line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kxAcctChips { display: flex; flex-wrap: wrap; gap: 8px; }
+.kxAcctChip { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.03); font-family: var(--mono, ui-monospace, monospace); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: rgba(236,230,214,.8); text-decoration: none; }
+.kxAcctChip.gold { border-color: rgba(216,180,90,.5); color: #e8c873; }
+.kxAcctChip.gold:hover { background: rgba(216,180,90,.1); }
+.kxAcctHero .lead { margin: 0; max-width: 60ch; font-size: 17px; color: rgba(236,230,214,.75); }
+.kxAcctHero .formMessage:empty { display: none; }
+.kxAcctBody { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 8px 0 clamp(56px, 8vw, 104px); border-top: 1px solid rgba(255,255,255,.08); padding-top: clamp(24px, 4vw, 40px); }
+.kxAcctGrid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.kxAcctCard { min-width: 0; display: grid; align-content: start; gap: 16px; padding: clamp(20px, 3vw, 32px); background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012)); border: 1px solid rgba(255,255,255,.09); position: relative; }
+.kxAcctCard::before { content: ""; position: absolute; left: -1px; top: -1px; width: 44px; height: 3px; background: #d8b45a; }
+.kxAcctCard header { display: grid; gap: 6px; }
+.kxAcctCard .tag { margin: 0; }
+.kxAcctCard h2 { margin: 0; font-size: clamp(24px, 3vw, 34px); line-height: 1.05; text-transform: uppercase; }
+.kxAcctCard p { margin: 0; font-size: 16px; color: rgba(236,230,214,.75); }
+.kxAcctCard.license { border-color: rgba(216,180,90,.3); background: radial-gradient(ellipse at 100% 0%, rgba(216,180,90,.1), transparent 55%), linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.012)); }
+.kxAcctCard.slim { gap: 8px; }
+.kxAcctCard.slim h2 { font-size: 20px; }
+.kxAcctCard form { display: grid; gap: 12px; margin: 0; }
+.kxAcctCard form label { display: grid; gap: 8px; font-family: var(--mono, ui-monospace, monospace); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: rgba(236,230,214,.7); }
+.kxAcctCard input { width: 100%; min-height: 48px; font-size: 16px; }
+.kxAcctCard .button { width: 100%; min-height: 48px; justify-content: center; }
+.kxAcctFacts { margin: 0; display: grid; gap: 1px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); }
+.kxAcctFacts div { display: grid; grid-template-columns: 96px minmax(0, 1fr); align-items: center; gap: 12px; padding: 12px 14px; background: #0c0f0b; }
+.kxAcctFacts dt { font-family: var(--mono, ui-monospace, monospace); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: rgba(236,230,214,.55); }
+.kxAcctFacts dd { margin: 0; font-size: 16px; color: #ece6d6; max-width: 100%; }
+.kxAcctActions { display: grid; gap: 8px; }
+.kxAcctSignOut { min-height: 44px; color: #e58b7a !important; }
+.kxAcctStats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); }
+.kxAcctStats div { display: grid; gap: 4px; padding: 16px; background: #0c0f0b; }
+.kxAcctStats strong { font-size: clamp(26px, 3.4vw, 40px); line-height: 1; font-variant-numeric: tabular-nums; }
+.kxAcctStats span { font-family: var(--mono, ui-monospace, monospace); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: rgba(236,230,214,.6); }
+@media (min-width: 760px) {
+  .kxAcctGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .kxAcctCard.wide { grid-column: 1 / -1; }
+  .kxAcctStats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .kxAcctCard.license { grid-template-columns: minmax(200px, 300px) minmax(0, 1fr); align-items: start; column-gap: 32px; }
+}
+/* signed-out */
+.kxAcctAuth .accountCard { gap: 12px; padding: clamp(22px, 3vw, 32px); border: 1px solid rgba(216,180,90,.25); }
+.kxAcctAuth .accountCard input { width: 100%; }
+.kxAcctAuth .accountCard .formMessage:empty { display: none; }.kxAcctHero { padding-top: calc(88px + clamp(16px, 4vw, 56px)); }
+.kxAcctStats { background: transparent; gap: 0; border: 0; }
+.kxAcctStats div { border: 1px solid rgba(255,255,255,.08); margin: -1px 0 0 -1px; }

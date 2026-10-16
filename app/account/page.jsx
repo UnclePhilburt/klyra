@@ -190,35 +190,73 @@ export default function AccountPage() {
 
     return (
       <main>
-        <section className="pageIntro kxIntro">
-          <p className="tag">KLYRA Account</p>
-          <h1 className="kxCallsignTitle" title={name}>{name}</h1>
-          <p className="lead">
+        <section className="kxAcctHero">
+          <div className="kxAcctId kxAcctIn">
+            <span className="kxAcctBadge" aria-hidden="true">{(name || "?").trim().charAt(0).toUpperCase()}</span>
+            <div className="kxAcctIdText">
+              <p className="tag">KLYRA Account</p>
+              <h1 className="kxCallsignTitle" title={name}>{name}</h1>
+              <div className="kxAcctChips">
+                {since ? <span className="kxAcctChip">Member since {since}</span> : null}
+                <a className="kxAcctChip gold" href="#license">Supporter Edition status &darr;</a>
+                <span className="kxAcctChip">Pre-alpha</span>
+              </div>
+            </div>
+          </div>
+          <p className="lead kxAcctIn" style={{ "--d": "80ms" }}>
             This is the same account on the website and in the game.<span className="kxDesktopCopy"> The browser version on the play page uses this sign-in. That build has degraded performance because it runs in a web browser.</span>
-            {since ? ` Member since ${since}.` : ""}
           </p>
           <p className={error ? "formMessage error" : "formMessage"}>{message}</p>
         </section>
 
-        <section className="section">
-          <div className="dashGrid">
-            <article className="dashCard">
-              <p className="tag">Game license</p>
-              <h2>Supporter Edition</h2>
+        <section className="kxAcctBody">
+          <div className="kxAcctGrid">
+            <article className="kxAcctCard wide license kxAcctIn" id="license" style={{ "--d": "120ms" }}>
+              <header>
+                <p className="tag">Game license</p>
+                <h2>Supporter Edition</h2>
+              </header>
               <SupporterAccess />
             </article>
 
-            <article className="dashCard">
-              <p className="tag">Development stage</p>
-              <h2>Pre-Alpha</h2>
-              <p>The battlefield is still being built. What you download today can change.</p>
+            <article className="kxAcctCard wide kxAcctIn" style={{ "--d": "180ms" }}>
+              <header>
+                <p className="tag">Your record</p>
+                <h2>Service record</h2>
+              </header>
+              {record.length > 0 ? (
+                <div className="kxAcctStats">
+                  {record.map(([label, value]) => (
+                    <div key={label}>
+                      <strong>{count(value)}</strong>
+                      <span>{label}</span>
+                    </div>
+                  ))}
+                  <div>
+                    <strong>{count(stats.cash_earned)}</strong>
+                    <span>Cash earned</span>
+                  </div>
+                  {session.stashCount != null ? (
+                    <div>
+                      <strong>{count(session.stashCount)}</strong>
+                      <span>In your stash</span>
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <p>Your record shows up after you fight.</p>
+              )}
             </article>
 
-            <article className="dashCard">
-              <p className="tag">Profile settings</p>
-              <h2>Callsign</h2>
-              <p>{name}</p>
-              <p className="quiet">{accountEmail}</p>
+            <article className="kxAcctCard kxAcctIn" style={{ "--d": "240ms" }}>
+              <header>
+                <p className="tag">Profile settings</p>
+                <h2>Callsign</h2>
+              </header>
+              <dl className="kxAcctFacts">
+                <div><dt>Callsign</dt><dd className="kxCallsign">{name}</dd></div>
+                <div><dt>Email</dt><dd className="kxCallsign">{accountEmail}</dd></div>
+              </dl>
               <form onSubmit={onCallsign}>
                 <label>
                   New callsign
@@ -237,9 +275,11 @@ export default function AccountPage() {
               </form>
             </article>
 
-            <article className="dashCard">
-              <p className="tag">Account security</p>
-              <h2>Password</h2>
+            <article className="kxAcctCard kxAcctIn" style={{ "--d": "300ms" }}>
+              <header>
+                <p className="tag">Account security</p>
+                <h2>Password</h2>
+              </header>
               {session.recovery ? (
                 <>
                   <p>This link is from your email. Choose a new password.</p>
@@ -263,53 +303,34 @@ export default function AccountPage() {
               ) : (
                 <p>Reset it from your email.</p>
               )}
-              <button
-                className="textLink"
-                disabled={busy || !accountEmail}
-                type="button"
-                onClick={() => onReset(accountEmail)}
-              >
-                Email me a password reset
-              </button>
-              <button className="textLink" disabled={busy} type="button" onClick={onSignOut}>
-                Sign out
-              </button>
+              <div className="kxAcctActions">
+                <button
+                  className="button ghost"
+                  disabled={busy || !accountEmail}
+                  type="button"
+                  onClick={() => onReset(accountEmail)}
+                >
+                  Email me a password reset
+                </button>
+                <button className="textLink kxAcctSignOut" disabled={busy} type="button" onClick={onSignOut}>
+                  Sign out
+                </button>
+              </div>
             </article>
 
-            <article className="dashCard dashWide">
-              <p className="tag">Your record</p>
-              {record.length > 0 ? (
-                <div className="statGrid">
-                  {record.map(([label, value]) => (
-                    <div key={label}>
-                      <strong>{count(value)}</strong>
-                      <span>{label}</span>
-                    </div>
-                  ))}
-                  <div>
-                    <strong>{count(stats.cash_earned)}</strong>
-                    <span>Cash earned</span>
-                  </div>
-                  {session.stashCount != null ? (
-                    <div>
-                      <strong>{count(session.stashCount)}</strong>
-                      <span>In your stash</span>
-                    </div>
-                  ) : null}
-                </div>
-              ) : (
-                <p>Your record shows up after you fight.</p>
-              )}
+            <article className="kxAcctCard wide slim kxAcctIn" style={{ "--d": "360ms" }}>
+              <p className="tag">Development stage</p>
+              <h2>Pre-Alpha</h2>
+              <p>The battlefield is still being built. What you download today can change.</p>
             </article>
           </div>
-        </section>
-      </main>
+        </section>      </main>
     );
   }
 
   return (
     <main>
-      <section className="pageHero kxIntro" style={{ "--kx-bg": "url(/shots/trailer/gunship.jpg)" }}>
+      <section className="pageHero kxIntro kxAcctAuth" style={{ "--kx-bg": "url(/shots/trailer/gunship.jpg)" }}>
         <div>
           <p className="tag">KLYRA Account</p>
           <h1>{mode === "create" ? "Make your name." : "Sign in."}</h1>
@@ -322,7 +343,7 @@ export default function AccountPage() {
         </div>
 
         {mode === "create" ? (
-          <form className="accountCard" onSubmit={onCreate}>
+          <form className="accountCard kxAcctIn" style={{ "--d": "100ms" }} onSubmit={onCreate}>
             <label>
               Callsign
               <input
@@ -371,7 +392,7 @@ export default function AccountPage() {
             <p className={error ? "formMessage error" : "formMessage"}>{message}</p>
           </form>
         ) : (
-          <form className="accountCard" onSubmit={onSignIn}>
+          <form className="accountCard kxAcctIn" style={{ "--d": "100ms" }} onSubmit={onSignIn}>
             <label>
               Callsign or email
               <input
