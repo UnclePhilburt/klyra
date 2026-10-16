@@ -168,40 +168,22 @@ export default function Home() {
 
       <section className="kxMusic" ref={musicRef} aria-labelledby="music-credit-title">
         <div className="kxMusicBg" aria-hidden="true" />
-        <div className="kxMusicStage" aria-hidden="true">
-          <div className="kxMusicWave">
-            {Array.from({ length: 64 }, (_, index) => (
-              <i key={index} style={{ "--wave-index": index, "--h": `${28 + ((index * 37) % 72)}%` }} />
-            ))}
-          </div>
-          <div className="kxMusicWave kxMusicWaveMirror">
-            {Array.from({ length: 64 }, (_, index) => (
-              <i key={index} style={{ "--wave-index": index, "--h": `${28 + ((index * 37) % 72)}%` }} />
-            ))}
-          </div>
-        </div>
         <div className="kxMusicInner">
+          <div className="kxMusicStage" aria-hidden="true">
+            <div className="kxMusicWave">
+              {Array.from({ length: 64 }, (_, index) => (
+                <i key={index} style={{ "--wave-index": index, "--h": `${28 + ((index * 37) % 72)}%` }} />
+              ))}
+            </div>
+          </div>
           <div className="kxMusicCover" aria-hidden="true">
             <img src="/shots/trailer/squad.jpg" alt="" loading="lazy" decoding="async" />
             <span className="kxMusicCoverShade" />
-            <span className="kxMusicCoverText">
-              <small>Official soundtrack partner</small>
-              <strong>TROY</strong>
-              <em>The Reality of Yourself</em>
-            </span>
-            <span className="kxMusicNote">♪</span>
           </div>
           <div className="kxMusicCopy">
             <p className="kxKicker">Official music partner</p>
-            <h2 id="music-credit-title">
-              The battlefield moves to the sound of{" "}
-              <strong>The Reality of Yourself (TROY).</strong>
-            </h2>
-            <p className="kxMusicLead">Discover the music behind the front.</p>
-            <div className="kxNowPlaying">
-              <span className="kxEq" aria-hidden="true"><i /><i /><i /><i /></span>
-              <span><small>Now playing on the front</small><strong>The Reality of Yourself</strong></span>
-            </div>
+            <h2 id="music-credit-title">The front moves to the sound of <strong>TROY.</strong></h2>
+            <p className="kxMusicLead">The Reality of Yourself. Discover the music behind the front.</p>
             <div className="kxMusicActions">
               <a
                 className="kxMusicBtn spotify"

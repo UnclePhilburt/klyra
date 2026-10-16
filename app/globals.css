@@ -1420,3 +1420,30 @@ footer strong {
   .kxDlServers .serverDownloadGrid { grid-template-columns: 1fr; }
   .kxDlServers { padding: 20px 16px; }
 }
+
+/* ===== Music: one-of-each structure + phone waves ===== */
+.kxMusicInner { grid-template-columns: minmax(240px, 400px) minmax(0, 1fr); grid-template-areas: "stage stage" "cover copy"; }
+.kxMusicStage { grid-area: stage; margin: 0 0 clamp(8px, 2vw, 24px); transform: translate3d(0, calc(var(--kx-par, 0px) * -0.35), 0); will-change: transform; }
+.kxMusicCover { grid-area: cover; }
+.kxMusicCopy { grid-area: copy; }
+.kxMusicWave { -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.kxMusicWaveMirror { -webkit-mask-image: linear-gradient(180deg, transparent 15%, #000); }
+.kxMusicCopy h2 { text-wrap: balance; }
+.kxMusicCopy h2 strong { display: inline; }
+.kxNowPlaying strong { font-size: 15px; }
+@media (max-width: 860px) {
+  .kxMusicInner { grid-template-columns: 1fr; grid-template-areas: "cover" "stage" "copy"; gap: 22px; }
+  .kxMusicCover { width: min(78%, 300px); }
+  .kxMusicStage { margin: 0 -8px; }
+}
+@media (max-width: 700px) {
+  .kxMusicWave { height: 170px; gap: 3px; }
+  .kxMusicWave i { max-width: 9px; }
+  .kxMusicWave i:nth-child(2n) { display: block; }
+  .kxMusicWave i:nth-child(n+41) { display: none; }
+  .kxMusicWaveMirror { height: 44px; }
+  .kxMusicCopy h2 { font-size: clamp(28px, 8vw, 34px); line-height: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .kxMusicStage { transform: none; } }
+.kxMusicBg { background: url("/shots/trailer/heli-cabin.jpg") center/cover; filter: blur(44px) brightness(.24) saturate(.6); }
+.kxMusicCover { transform: none; }
