@@ -1374,3 +1374,49 @@ footer strong {
   ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
   .kxPageIn { animation: none; }
 }
+
+/* ===== Download redesign ===== */
+.kxDlHero { position: relative; isolation: isolate; overflow: hidden; padding: clamp(116px, 15vh, 160px) clamp(18px, 6vw, 88px) clamp(40px, 6vw, 64px); text-align: center; }
+.kxDlBg { position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg, #0b0e0b 0%, rgba(11,14,11,.82) 45%, rgba(11,14,11,.6) 100%), url("/shots/trailer/tanks.jpg") center/cover; filter: saturate(.7); }
+.kxDlHero h1 { margin: 0 0 14px; font-size: clamp(46px, 8vw, 108px); line-height: .9; font-weight: 900; text-transform: uppercase; }
+.kxDlHero .lead { max-width: 560px; margin: 0 auto; font-size: clamp(17px, 1.6vw, 20px); color: rgba(244,239,230,.86); }
+.kxDlPlatforms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 1080px; margin: 0 auto; padding: 0 clamp(16px, 5vw, 48px); }
+.kxDlCard { position: relative; display: grid; justify-items: start; gap: 8px; padding: clamp(26px, 4vw, 44px); background: linear-gradient(180deg, #141a13, #0d110d); border: 1px solid rgba(255,255,255,.1); border-top: 3px solid var(--gold); }
+.kxDlIcon { display: grid; place-items: center; width: 64px; height: 64px; margin-bottom: 10px; background: rgba(216,180,90,.12); border: 1px solid rgba(216,180,90,.4); color: var(--gold); }
+.kxDlIcon svg { width: 34px; height: 34px; }
+.kxDlCard h2 { margin: 0; font-size: clamp(30px, 3.4vw, 44px); font-weight: 900; text-transform: uppercase; line-height: 1; }
+.kxDlCard p:not(.tag) { margin: 0 0 18px; font-size: 16px; color: rgba(244,239,230,.75); }
+.kxDlBtn { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 60px; padding: 0 20px; background: var(--gold); color: #111; font-size: 16px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px)); transition: filter .2s ease, transform .2s ease; }
+.kxDlBtn svg { width: 22px; height: 22px; flex: none; }
+.kxDlBtn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+.kxDlExplain { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; max-width: 1080px; margin: 16px auto 0; padding: 20px clamp(18px, 3vw, 28px); background: rgba(216,180,90,.08); border: 1px solid rgba(216,180,90,.4); width: calc(100% - 2 * clamp(16px, 5vw, 48px)); }
+.kxDlFree { display: grid; gap: 4px; }
+.kxDlFree strong { font-size: 19px; font-weight: 900; color: var(--gold); text-transform: uppercase; letter-spacing: .04em; }
+.kxDlFree span { font-size: 16px; color: rgba(244,239,230,.85); }
+.kxDlAccess { max-width: 1080px; margin: 0 auto; }
+.kxDlAccessBox { max-width: 720px; }
+.kxDlAlt { margin: 18px 0 0; font-size: 16px; color: rgba(244,239,230,.7); }
+.kxDlAlt a { color: var(--gold); font-weight: 800; }
+.kxDlSteps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.kxDlSteps li { padding: 24px; background: #0f130f; border: 1px solid rgba(255,255,255,.08); border-left: 3px solid var(--gold); }
+.kxDlSteps span { font: 800 13px ui-monospace, Consolas, monospace; letter-spacing: .16em; color: var(--gold); }
+.kxDlSteps h3 { margin: 8px 0; font-size: 21px; font-weight: 900; text-transform: uppercase; }
+.kxDlSteps p { margin: 0; font-size: 16px; color: rgba(244,239,230,.75); }
+.kxDlServers { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(20px, 4vw, 48px); padding: clamp(24px, 4vw, 40px); background: linear-gradient(180deg, #121812, #0d110d); border: 1px solid rgba(255,255,255,.08); border-left: 4px solid #8a9384; }
+.kxDlServers h2 { margin: 6px 0 10px; text-transform: uppercase; font-weight: 900; }
+.kxDlServers .serverDownloadGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.kxDlServers .serverDownloadGrid article { padding: 18px; }
+.kxDlServers .serverDownloadGrid .button { width: 100%; justify-content: center; }
+@media (max-width: 860px) {
+  .kxDlPlatforms, .kxDlSteps, .kxDlServers { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  .kxDlHero { padding: 104px 18px 32px; }
+  .kxDlPlatforms { padding: 0 14px; gap: 12px; }
+  .kxDlCard { padding: 22px 18px; }
+  .kxDlIcon { width: 52px; height: 52px; }
+  .kxDlExplain { width: calc(100% - 28px); padding: 18px 16px; }
+  .kxDlExplain .button { width: 100%; justify-content: center; }
+  .kxDlServers .serverDownloadGrid { grid-template-columns: 1fr; }
+  .kxDlServers { padding: 20px 16px; }
+}
