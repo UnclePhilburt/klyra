@@ -1,4 +1,6 @@
 import styles from "./roadmap.module.css";
+import RoadmapFX from "./RoadmapFX";
+import { RevealRoot } from "../features/FeatureFX";
 
 export const metadata = {
   title: "Development Roadmap · Klyra: Broken Front",
@@ -75,6 +77,9 @@ export default function RoadmapPage() {
   const total = phases.reduce((sum, phase) => sum + phase.cards.reduce((n, card) => n + card.items.length, 0), 0);
   return (
     <main className={styles.page}>
+      <RevealRoot />
+      <RoadmapFX routeId="rm-route" barId="rm-progress" />
+      <div className={styles.progress} aria-hidden="true"><i id="rm-progress" /></div>
       <section className={styles.hero}>
         <div className={styles.heroBg} aria-hidden="true" />
         <div className={styles.heroCopy}>
@@ -104,10 +109,11 @@ export default function RoadmapPage() {
         ))}
       </nav>
 
-      <section className={styles.route}>
+      <section id="rm-route" className={styles.route}>
+        <div className={styles.routeFill} aria-hidden="true" />
         {phases.map((phase) => (
           <article id={`phase-${phase.number}`} className={`${styles.phase} ${styles[phase.tone]}`} key={phase.title}>
-            <header className={styles.phaseHeader}>
+            <header className={styles.phaseHeader} data-reveal>
               <div className={styles.marker} aria-hidden="true">{phase.number}</div>
               <div>
                 <p className={styles.phaseLabel}><i aria-hidden="true" />{phase.label}</p>
@@ -117,7 +123,7 @@ export default function RoadmapPage() {
             </header>
             <div className={styles.cards}>
               {phase.cards.map((card, index) => (
-                <section className={styles.card} key={card.title}>
+                <section className={styles.card} key={card.title} data-reveal style={{ "--d": `${index * 90}ms` }}>
                   <p className={styles.cardCode}>OBJ {phase.number}-{String(index + 1).padStart(2, "0")}</p>
                   <h3>{card.title}</h3>
                   <ul>{card.items.map((item) => <li key={item}>{item}</li>)}</ul>
@@ -129,7 +135,7 @@ export default function RoadmapPage() {
       </section>
 
       <section className={styles.footer}>
-        <p className={styles.disclaimer}>
+        <p className={styles.disclaimer} data-reveal>
           This roadmap reflects current development priorities. Features and plans may change
           as KLYRA continues through pre-alpha development.
         </p>
