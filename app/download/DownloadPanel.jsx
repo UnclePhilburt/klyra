@@ -6,7 +6,7 @@ import ServerDownloads from "./ServerDownloads";
 export default function DownloadPanel() {
   return (
     <>
-    <section className="pageHero downloadPage">
+    <section className="pageHero downloadPage kxIntro" style={{ "--kx-bg": "url(/shots/truck.jpg)" }}>
       <div className="downloadArt" aria-hidden="true" />
       <div className="downloadCopy">
         <p className="tag">Pre-alpha</p>
