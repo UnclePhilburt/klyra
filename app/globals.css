@@ -1353,3 +1353,9 @@ footer strong {
   .kxDiscordBtn { width: 100%; min-height: 60px; padding: 0 16px; }
   .kxPerks { grid-template-columns: 1fr; }
 }
+
+/* desktop: graphics live in the sticky stage only */
+@media (min-width: 901px) { .kxChapterList .kxGfxInline { display: none; } }
+.kxChapterStage .kxGfx { padding-bottom: 90px; }
+.kxChapterStage .kxGfx .kxGfxCaption { display: none; }
+.kxChapterStage .kxGfxSplit { padding-bottom: 0; }
