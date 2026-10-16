@@ -30,12 +30,12 @@ const teams = [
 ];
 
 const shots = [
-  { src: "/shots/infantry.jpg", alt: "First-person view on foot in a KLYRA match", caption: "On foot, with all three factions on the board." },
-  { src: "/shots/heli.jpg", alt: "Helicopter cockpit over the battlefield", caption: "Helicopters are part of the fight." },
-  { src: "/shots/truck.jpg", alt: "Driving a supply truck across the map", caption: "Trucks move people and supplies." },
-  { src: "/shots/squad.jpg", alt: "Soldiers riding in the back of a truck", caption: "A squad rides in the back." },
-  { src: "/shots/fight.jpg", alt: "First-person rifle view of a vehicle fight", caption: "The front, from the rifle." },
-  { src: "/shots/split.jpg", alt: "Split-screen match with two players on one computer", caption: "Two players. One computer." },
+  { src: "/shots/trailer/assault.jpg", alt: "An assault under fire with explosions across the front", caption: "The push, under fire." },
+  { src: "/shots/trailer/heli.jpg", alt: "Helicopter cockpit flying over the coast", caption: "Helicopters are part of the fight." },
+  { src: "/shots/trailer/tanks.jpg", alt: "Tanks rolling across the battlefield", caption: "Armor on the front." },
+  { src: "/shots/trailer/squad.jpg", alt: "A squad riding a helicopter at night", caption: "Night insertion by helicopter." },
+  { src: "/shots/trailer/action-1.jpg", alt: "First-person rifle fire", caption: "The front, from the rifle." },
+  { src: "/shots/trailer/heli-cabin.jpg", alt: "Door gunner in a helicopter cabin", caption: "Door gunner on the run in." },
 ];
 
 const intel = [
@@ -68,7 +68,7 @@ function TrailerPlayer() {
             onClick={() => setPlaying(true)}
             aria-label="Play the KLYRA: Broken Front pre-alpha trailer"
           >
-            <img src="/shots/fight.jpg" alt="" loading="lazy" decoding="async" />
+            <img src="/shots/trailer/hero.jpg" alt="" loading="lazy" decoding="async" />
             <span className="kxPosterShade" aria-hidden="true" />
             <span className="kxPlay" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
@@ -182,7 +182,7 @@ export default function Home() {
         </div>
         <div className="kxMusicInner">
           <div className="kxMusicCover" aria-hidden="true">
-            <img src="/front.jpg" alt="" loading="lazy" decoding="async" />
+            <img src="/shots/trailer/squad.jpg" alt="" loading="lazy" decoding="async" />
             <span className="kxMusicCoverShade" />
             <span className="kxMusicCoverText">
               <small>Official soundtrack partner</small>

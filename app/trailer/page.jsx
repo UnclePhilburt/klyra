@@ -9,7 +9,7 @@ export const metadata = {
 export default function TrailerPage() {
   return (
     <main>
-      <section className="pageIntro kxIntro kxIntroCenter" style={{ "--kx-bg": "url(/shots/fight.jpg)" }}>
+      <section className="pageIntro kxIntro kxIntroCenter" style={{ "--kx-bg": "url(/shots/trailer/assault.jpg)" }}>
         <div>
           <p className="tag">Pre-alpha version</p>
           <h1>Pre-alpha trailer.</h1>

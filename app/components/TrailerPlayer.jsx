@@ -6,7 +6,7 @@ export const TRAILER_ID = "Bq7vnDIWrbc";
 
 // Framed trailer with a poster + custom play button. The YouTube player only
 // loads after the click, so pages stay light on mobile.
-export default function TrailerPlayer({ id = TRAILER_ID, poster = "/shots/fight.jpg", label = "Watch the trailer" }) {
+export default function TrailerPlayer({ id = TRAILER_ID, poster = "/shots/trailer/hero.jpg", label = "Watch the trailer" }) {
   const [playing, setPlaying] = useState(false);
   return (
     <div className="kxPlayer">

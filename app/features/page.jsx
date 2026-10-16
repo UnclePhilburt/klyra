@@ -7,12 +7,12 @@ export const metadata = {
 };
 
 const shots = [
-  ["/shots/fight.jpg", "A rifle fight between the factions", "The moving front"],
-  ["/shots/heli.jpg", "Helicopter cockpit", "Helicopters"],
-  ["/shots/truck.jpg", "Supply truck on the road", "Logistics"],
-  ["/shots/squad.jpg", "Soldiers in a truck", "The ride in"],
-  ["/shots/infantry.jpg", "First-person infantry", "On foot"],
-  ["/shots/split.jpg", "Two players split across one screen", "Split-screen"],
+  ["/shots/trailer/assault.jpg", "An assault under fire with explosions", "The moving front"],
+  ["/shots/trailer/heli.jpg", "Helicopter cockpit over the coast", "Helicopters"],
+  ["/shots/trailer/tanks.jpg", "Tanks on the battlefield", "Armor"],
+  ["/shots/trailer/action-2.jpg", "Red-dot sight view in a firefight", "On foot"],
+  ["/shots/trailer/armory.jpg", "A built weapon on a dark background", "Weapon builder"],
+  ["/shots/trailer/gunship-thermal.jpg", "Thermal view from a gunship", "Thermal from the gunship"],
 ];
 
 const features = [
@@ -29,7 +29,7 @@ const features = [
 export default function FeaturesPage() {
   return (
     <main>
-      <section className="pageIntro kxIntro" style={{ "--kx-bg": "url(/shots/heli.jpg)" }}>
+      <section className="pageIntro kxIntro" style={{ "--kx-bg": "url(/shots/trailer/heli.jpg)" }}>
         <p className="tag">The battlefield</p>
         <h1>What you can do.</h1>
         <p className="lead">
@@ -46,7 +46,7 @@ export default function FeaturesPage() {
         <div className="kxTrailerHead">
           <p className="tag">Pre-alpha version</p>
         </div>
-        <TrailerPlayer poster="/shots/heli.jpg" />
+        <TrailerPlayer />
       </section>
 
       <section className="section">

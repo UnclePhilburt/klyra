@@ -53,7 +53,7 @@ const topics = [
 export default function HelpPage() {
   return (
     <main>
-      <section className="pageIntro kxIntro" style={{ "--kx-bg": "url(/shots/infantry.jpg)" }}>
+      <section className="pageIntro kxIntro" style={{ "--kx-bg": "url(/shots/trailer/action-2.jpg)" }}>
         <p className="tag">Help</p>
         <h1>Get into the match.</h1>
         <p className="lead">

@@ -16,7 +16,7 @@ const steps = [
 export default function PlayPage() {
   return (
     <main>
-      <section className="pageIntro kxIntro" style={{ "--kx-bg": "url(/shots/fight.jpg)" }}>
+      <section className="pageIntro kxIntro" style={{ "--kx-bg": "url(/shots/trailer/action-1.jpg)" }}>
         <p className="tag">Browser build</p>
         <h1>Play in the browser.</h1>
         <p className="lead">

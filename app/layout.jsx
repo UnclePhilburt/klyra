@@ -22,13 +22,13 @@ export const metadata = {
     url: "https://klyra.lol",
     siteName: "Klyra: Broken Front",
     type: "website",
-    images: [{ url: "/front.jpg", width: 1600, height: 900, alt: "Klyra: Broken Front battlefield" }],
+    images: [{ url: "/shots/trailer/hero.jpg", width: 1600, height: 900, alt: "Klyra: Broken Front battlefield" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Klyra: Broken Front",
     description: "Fight the front for Ironclad, Timberwolf, or Vanguard.",
-    images: ["/front.jpg"],
+    images: ["/shots/trailer/hero.jpg"],
   },
   icons: { icon: "/brand.png" },
 };

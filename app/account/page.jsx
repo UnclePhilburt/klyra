@@ -309,7 +309,7 @@ export default function AccountPage() {
 
   return (
     <main>
-      <section className="pageHero kxIntro" style={{ "--kx-bg": "url(/front.jpg)" }}>
+      <section className="pageHero kxIntro" style={{ "--kx-bg": "url(/shots/trailer/gunship-thermal.jpg)" }}>
         <div>
           <p className="tag">KLYRA Account</p>
           <h1>{mode === "create" ? "Make your name." : "Sign in."}</h1>

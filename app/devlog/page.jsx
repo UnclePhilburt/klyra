@@ -7,7 +7,7 @@ export const metadata = {
 export default function DevlogPage() {
   return (
     <main>
-      <section className="pageIntro kxIntro" style={{ "--kx-bg": "url(/shots/squad.jpg)" }}>
+      <section className="pageIntro kxIntro" style={{ "--kx-bg": "url(/shots/trailer/squad.jpg)" }}>
         <p className="tag">Development</p>
         <h1>Built by one developer.</h1>
         <p className="lead">
@@ -59,16 +59,16 @@ export default function DevlogPage() {
           </p>
           <div className="kxShots kxShotsThree">
             <figure>
-              <img src="/shots/heli.jpg" alt="Helicopter cockpit in the pre-alpha" loading="lazy" decoding="async" />
+              <img src="/shots/trailer/heli.jpg" alt="Helicopter cockpit over the coast in the pre-alpha" loading="lazy" decoding="async" />
               <figcaption>Helicopter cockpit from the current trailer.</figcaption>
             </figure>
             <figure>
-              <img src="/shots/truck.jpg" alt="Supply truck in the pre-alpha" loading="lazy" decoding="async" />
-              <figcaption>A supply run on the road.</figcaption>
+              <img src="/shots/trailer/tanks.jpg" alt="Tanks on the front in the pre-alpha" loading="lazy" decoding="async" />
+              <figcaption>Armor on the move.</figcaption>
             </figure>
             <figure>
-              <img src="/shots/split.jpg" alt="Split-screen in the pre-alpha" loading="lazy" decoding="async" />
-              <figcaption>Split-screen on one computer.</figcaption>
+              <img src="/shots/trailer/heli-cabin.jpg" alt="Door gunner in a helicopter cabin in the pre-alpha" loading="lazy" decoding="async" />
+              <figcaption>Door gunner on the run in.</figcaption>
             </figure>
           </div>
         </article>
