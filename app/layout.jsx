@@ -1,7 +1,6 @@
 import "./globals.css";
 import SessionCatch from "./components/SessionCatch";
 import CanonicalHost from "./components/CanonicalHost";
-import MobilePlayGuard from "./components/MobilePlayGuard";
 import SiteFooter from "./components/SiteFooter";
 import SiteNav from "./components/SiteNav";
 
@@ -36,10 +35,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <head>
         <CanonicalHost />
-        <MobilePlayGuard />
       </head>
       <body>
         <SessionCatch />
