@@ -65,25 +65,7 @@ input {
     #070908;
 }
 
-.nav {
-  position: fixed;
-  z-index: 10;
-  top: max(10px, env(safe-area-inset-top));
-  left: clamp(14px, 3vw, 38px);
-  right: clamp(14px, 3vw, 38px);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 10px 12px 10px 14px;
-  background: rgba(7, 9, 8, 0.72);
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  backdrop-filter: blur(18px);
-}
-
 .brand,
-.navLinks,
 .actions {
   display: flex;
   align-items: center;
@@ -96,27 +78,6 @@ input {
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-}
-
-.brandMark {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  object-fit: cover;
-}
-
-.navLinks {
-  gap: 18px;
-}
-
-.navLinks > a:not(.button) {
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.navLinks > a:not(.button):hover {
-  color: var(--text);
 }
 
 .button,
@@ -170,10 +131,6 @@ input {
   flex: none;
 }
 
-.accountLink {
-  gap: 8px;
-}
-
 .button.small {
   min-height: 40px;
   max-width: 200px;
@@ -211,7 +168,6 @@ input {
   padding: 150px clamp(20px, 6vw, 88px) 72px;
 }
 
-.heroArt,
 .downloadArt {
   position: absolute;
   inset: 0;
@@ -553,9 +509,7 @@ h3 {
 
 .cards article,
 .mission article,
-.accountCard,
-.dossier,
-.pathCard {
+.accountCard {
   border: 1px solid var(--line);
   border-radius: 28px;
   background: var(--panel);
@@ -580,37 +534,6 @@ h3 {
   margin-top: 36px;
 }
 
-.splitLinks {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  padding: 0 clamp(20px, 6vw, 88px) clamp(72px, 8vw, 110px);
-}
-
-.pathCard {
-  display: grid;
-  gap: 12px;
-  min-height: 210px;
-  padding: clamp(24px, 3vw, 36px);
-}
-
-.pathCard span,
-.dossier .tag {
-  color: var(--gold);
-}
-
-.pathCard strong {
-  font-size: clamp(32px, 4vw, 52px);
-  line-height: 0.95;
-  letter-spacing: -0.04em;
-  text-transform: uppercase;
-}
-
-.pathCard p {
-  max-width: 460px;
-  color: var(--muted);
-}
-
 .pageHero {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.8fr);
@@ -622,10 +545,6 @@ h3 {
 
 .pageHero h1 {
   font-size: clamp(56px, 7vw, 104px);
-}
-
-.accountHome h1 {
-  overflow-wrap: anywhere;
 }
 
 .downloadPage {
@@ -646,21 +565,7 @@ h3 {
   margin-top: 54px;
 }
 
-.trailerPage {
-  align-items: center;
-}
-
-.trailerFrame iframe {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border: 1px solid var(--line);
-  border-radius: 28px;
-  background: #070908;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
-}
-
-.accountCard,
-.dossier {
+.accountCard {
   display: grid;
   gap: 14px;
   padding: clamp(22px, 3vw, 34px);
@@ -728,142 +633,17 @@ input:focus {
   text-transform: uppercase;
 }
 
-.passwordBox {
-  display: grid;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-
-.heroCompact {
-  align-items: center;
-  min-height: 0;
-  padding: 118px clamp(20px, 6vw, 88px) 28px;
-}
-
-.heroCompact h1 {
-  font-size: clamp(56px, 7.4vw, 104px);
-}
-
-.heroLogo {
-  width: 88px;
-  height: 88px;
-  margin-bottom: 18px;
-  border-radius: 22px;
-  object-fit: cover;
-}
-
-.menuButton {
-  display: none;
-  min-height: 40px;
-  align-items: center;
-  border: 1px solid var(--line-strong);
-  border-radius: 14px;
-  background: transparent;
-  color: var(--text);
-  padding: 0 14px;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.navPages {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-
-.navMore {
-  display: none;
-}
-
-.trailerBand {
-  padding: 8px clamp(20px, 6vw, 88px) 8px;
-}
-
-.homeTrailer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.homeTrailer .trailerFrame {
-  width: min(720px, 100%);
-}
-
-.soloBand {
-  max-width: 980px;
-  padding: 36px clamp(20px, 6vw, 88px) 8px;
-}
-
 .pageIntro {
   max-width: 980px;
   padding: 140px clamp(20px, 6vw, 88px) 8px;
-}
-
-.navAccount {
-  display: none;
 }
 
 .pageHero.downloadPage {
   min-height: 0;
 }
 
-.navPages a {
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.navPages a:hover {
-  color: var(--text);
-}
-
-.navPages a[aria-current="page"] {
-  color: var(--gold);
-}
-
-.accountLink[aria-current="page"] {
-  border-color: var(--gold);
-}
-
-.heroFacts {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
-  margin: 0 clamp(20px, 6vw, 88px) 48px;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  background: var(--line);
-}
-
-.heroFacts > * {
-  display: grid;
-  gap: 7px;
-  min-height: 92px;
-  align-content: center;
-  padding: 18px 22px;
-  background: rgba(10, 14, 12, .96);
-}
-
-.heroFacts span {
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-}
-
-.heroFacts strong { font-size: 15px; text-transform: uppercase; }
-.heroFacts a strong { color: var(--gold); }
-.heroFacts a:hover { background: rgba(21, 27, 23, .98); }
-
 .pageIntro .lead,
 .pageIntro p,
-.soloBand p,
 .post p,
 .notice p,
 .founderCard p {
@@ -874,32 +654,6 @@ input:focus {
 
 .pageIntro .lead {
   max-width: 46ch;
-}
-
-.shotGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.shotGrid figure {
-  margin: 0;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 28px;
-  background: var(--panel);
-}
-
-.shotGrid img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-}
-
-.shotGrid figcaption {
-  padding: 14px 16px 16px;
-  color: var(--muted);
 }
 
 .featureList {
@@ -979,16 +733,8 @@ input:focus {
   text-transform: uppercase;
 }
 
-.status.done {
-  color: #8fd7a8;
-}
-
 .status.now {
   color: var(--gold);
-}
-
-.status.later {
-  color: var(--muted);
 }
 
 .post + .post {
@@ -1030,24 +776,6 @@ footer p {
   margin: 6px 0 0;
 }
 
-.footerLinks {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 12px 18px;
-  max-width: 640px;
-}
-
-.footerLinks a {
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.footerLinks a:hover {
-  color: var(--text);
-}
-
 footer strong {
   color: var(--text);
 }
@@ -1083,8 +811,7 @@ footer strong {
   line-height: 1.45;
 }
 
-.dashCard form,
-.dashActions {
+.dashCard form {
   display: grid;
   gap: 12px;
   margin-top: 8px;
@@ -1100,60 +827,16 @@ footer strong {
   .teamGrid,
   .cards,
   .mission,
-  .splitLinks,
-  .shotGrid,
   .founderCard,
   .roadmap,
   .dashGrid {
     grid-template-columns: 1fr;
   }
   .serverDownloadGrid { grid-template-columns:1fr; }
-  .heroFacts { grid-template-columns:repeat(2,minmax(0,1fr)); }
 
   .roadmap article + article {
     border-top: 1px solid var(--line);
     border-left: 0;
-  }
-
-  .menuButton {
-    display: inline-flex;
-  }
-
-  .navPages {
-    display: none;
-  }
-
-  .navPages.open {
-    display: flex;
-    position: absolute;
-    z-index: 30;
-    top: calc(100% + 8px);
-    right: 0;
-    left: 0;
-    height: calc(100dvh - 76px);
-    align-items: stretch;
-    flex-direction: column;
-    gap: 0;
-    overflow: auto;
-    padding: 8px;
-    border: 1px solid var(--line-strong);
-    border-radius: 22px;
-    background: #101410;
-  }
-
-  .navPages.open .navMore,
-  .navPages a,
-  .navAccount {
-    display: block;
-    padding: 16px 14px;
-    border-bottom: 1px solid var(--line);
-    color: var(--text);
-    font-size: 18px;
-    font-weight: 800;
-  }
-
-  .navLinks > a.button.ghost {
-    display: none;
   }
 
   .teamCard {
@@ -1173,34 +856,7 @@ footer strong {
     display: none;
   }
 
-  .heroFacts {
-    grid-template-columns: 1fr;
-    margin: 18px 18px 36px;
-  }
-
-  .heroFacts > * { min-height: 74px; }
-
-  .nav {
-    gap: 10px;
-    left: 10px;
-    right: 10px;
-  }
-
-  .navLinks {
-    gap: 8px;
-  }
-
-  .navLinks > a.button {
-    flex-shrink: 0;
-  }
-
-  .brandMark {
-    width: 40px;
-    height: 40px;
-  }
-
-  h1,
-  .heroCompact h1 {
+  h1 {
     font-size: 42px;
     line-height: 0.92;
   }
@@ -1222,7 +878,6 @@ footer strong {
   .mission p,
   .pageIntro .lead,
   .pageIntro p,
-  .soloBand p,
   .post p,
   .notice p,
   .founderCard p,
@@ -1232,8 +887,7 @@ footer strong {
     font-size: 17px;
   }
 
-  .section,
-  .splitLinks {
+  .section {
     padding-left: 18px;
     padding-right: 18px;
   }
@@ -1245,25 +899,6 @@ footer strong {
 
   .pageIntro {
     padding: 108px 18px 4px;
-  }
-
-  .heroCompact {
-    padding: 100px 18px 8px;
-  }
-
-  .heroLogo {
-    width: 72px;
-    height: 72px;
-  }
-
-  .soloBand,
-  .trailerBand {
-    padding-left: 18px;
-    padding-right: 18px;
-  }
-
-  .soloBand {
-    padding-top: 28px;
   }
 
   .button.huge {
@@ -1303,18 +938,6 @@ footer strong {
     align-items: stretch;
     gap: 18px;
     padding: 28px 18px calc(28px + env(safe-area-inset-bottom));
-  }
-
-  .footerLinks {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    justify-content: stretch;
-    max-width: none;
-    gap: 14px 12px;
-  }
-
-  .footerLinks a {
-    font-size: 16px;
   }
 }
 
@@ -1597,3 +1220,16 @@ footer strong {
   .section .actions .button { width: 100%; justify-content: center; }
 }
 @media (prefers-reduced-motion: reduce) { .cards article { transition: none; } }
+
+/* ===== Final mobile pass ===== */
+.accountCard .textLink, .dashCard .textLink { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; }
+.mission article { min-height: 0; }
+.mission h3 { margin-top: 14px; }
+@media (max-width: 700px) {
+  .mission { margin-top: 28px; gap: 10px; }
+  .mission article { padding: 18px; }
+  .downloadCopy { padding-top: 0; }
+  .supporterAccess .button { width: 100%; justify-content: center; }
+  .faq details summary { padding-right: 8px; }
+  .kxIntro h1 { overflow-wrap: anywhere; }
+}
