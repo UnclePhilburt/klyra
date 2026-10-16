@@ -33,27 +33,28 @@ export default function GetKlyraPage() {
         <div className="sectionIntro">
           <p className="tag">01 // Buy</p>
           <h2>Supporter Edition &mdash; $4.99</h2>
-          <p>One-time purchase. Windows and Mac on your account. No subscription.</p>
+          <p>One price, paid once. The full desktop build on Windows and Mac, tied to your account. No subscription.</p>
         </div>
         <div className="founderCard">
           <div>
             <p className="tag">KLYRA: Broken Front</p>
             <h2>Supporter Edition</h2>
             <p>
-              Enjoy KLYRA for free in your browser, or support its development
-              by unlocking the downloadable Windows and Mac versions.
+              The browser build is free and always will be. Supporter Edition
+              gives you the full-performance Windows and Mac build: higher frame
+              rates, longer view distance, and room for crowded fights.
             </p>
             <SupporterAccess />
             <a className="button ghost" href="/play/">Play in the browser</a>
           </div>
           <div>
-            <h3>Supporter Edition includes</h3>
+            <h3>What you get</h3>
             <ul>
               {included.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <h3>The fight stays open</h3>
+            <h3>Same war, no paywall</h3>
             <p>
               No gameplay content is locked behind a purchase. Everyone can
               experience KLYRA&apos;s ongoing battles, vehicles, weapon
@@ -61,9 +62,17 @@ export default function GetKlyraPage() {
             </p>
           </div>
         </div>
+        <figure className="kxDevNote">
+          <blockquote>
+            Klyra is built by one developer. The Supporter Edition gets you the
+            full Windows and Mac build, and it pays for new maps, vehicles and
+            fixes. Thanks for being on the front.
+          </blockquote>
+          <figcaption>&mdash; Uncle Philburt</figcaption>
+        </figure>
         <div className="notice">
           <p className="tag">Pre-alpha</p>
-          <h2>Read this before you pay.</h2>
+          <h2>Know what you&apos;re buying.</h2>
           <p>
             KLYRA is currently in pre-alpha. Features, performance, and content
             may change throughout development.
@@ -79,14 +88,14 @@ export default function GetKlyraPage() {
       <section id="team" className="section kxAnchor">
         <div className="sectionIntro">
           <p className="tag">02 // Reach the team</p>
-          <h2>Talk to us.</h2>
-          <p>Bug reports, purchase questions, and account trouble all land here.</p>
+          <h2>Straight to the developer.</h2>
+          <p>Bug reports, purchase questions, and account issues all go to the same place, and they get read.</p>
         </div>
         <div className="cards kxContact">
           <article>
             <span>Discord</span>
             <h3>The KLYRA Discord</h3>
-            <p>Bug reports, suggestions, purchase questions, and multiplayer groups. This is the fastest way to reach the developer.</p>
+            <p>Report a bug, pitch an idea, ask about a purchase, or find a squad. It&apos;s the fastest line to the developer.</p>
             <a className="button" href="https://discord.gg/fNkZjwQJBX" target="_blank" rel="noreferrer">Join Discord ↗</a>
           </article>
           <article>
@@ -103,7 +112,7 @@ export default function GetKlyraPage() {
           <article>
             <span>Purchases</span>
             <h3>Payment questions</h3>
-            <p>Receipts are on your account page after checkout. If a payment went through but access did not show up, post on Discord with your callsign.</p>
+            <p>Every receipt is on your account page after checkout. If a payment went through and access hasn&apos;t shown up, post on Discord with your callsign and it gets sorted.</p>
             <a className="button ghost" href="#buy">Back to Buy</a>
           </article>
         </div>

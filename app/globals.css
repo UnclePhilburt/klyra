@@ -1191,3 +1191,7 @@ footer strong {
   .kxContact article .button { align-self: stretch; justify-content: center; }
   .kxContact { grid-template-columns: 1fr; }
 }
+.kxDevNote { position: relative; margin: 16px 0 0; padding: clamp(24px, 3vw, 36px) clamp(22px, 3vw, 40px); background: linear-gradient(135deg, #17150e, #0f120d); border: 1px solid rgba(216,180,90,.35); border-left: 4px solid var(--gold); }
+.kxDevNote::before { content: "\201C"; position: absolute; top: -10px; right: 22px; font-size: 120px; line-height: 1; color: rgba(216,180,90,.18); font-weight: 900; }
+.kxDevNote blockquote { margin: 0 0 14px; max-width: 760px; font-size: clamp(18px, 1.8vw, 23px); line-height: 1.45; font-weight: 600; color: #f4efe6; }
+.kxDevNote figcaption { font: 800 13px ui-monospace, Consolas, monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
