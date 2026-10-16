@@ -1470,3 +1470,14 @@ footer strong {
   .kxDlPlatforms, .kxDlExplain, .kxDlAccess, .kxDlWrap { width: calc(100% - 28px); }
 }
 .kxDlExplain { padding: 20px clamp(18px, 3vw, 28px); }
+
+/* ===== Mobile: browser build is desktop-only */
+html.kxMobile a[href^="/play"] { pointer-events: none; cursor: default; position: relative; color: transparent !important; background-image: none !important; background-color: rgba(255,255,255,.04) !important; border-color: rgba(255,255,255,.18) !important; box-shadow: none !important; text-shadow: none !important; }
+html.kxMobile a[href^="/play"] * { visibility: hidden; }
+html.kxMobile a[href^="/play"]::after { content: "Desktop only"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; color: rgba(236,230,214,.7); font-family: var(--mono, ui-monospace, monospace); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; visibility: visible; white-space: nowrap; }
+html.kxMobile .kxDlAlt a[href^="/play"], html.kxMobile .kxFooter a[href^="/play"], html.kxMobile .kxNav a[href^="/play"]:not(.kxPlayBtn):not(.button) { color: rgba(236,230,214,.6) !important; background: none !important; border: 0 !important; }
+html.kxMobile .kxDlAlt a[href^="/play"]::after, html.kxMobile .kxFooter a[href^="/play"]::after, html.kxMobile .kxNav a[href^="/play"]:not(.kxPlayBtn):not(.button)::after { content: none; }
+html.kxMobile .kxDlAlt a[href^="/play"] { font-size: 0; }
+html.kxMobile .kxDlAlt a[href^="/play"]::before { content: "Play in your browser on a computer."; font-size: 15px; }
+html.kxMobile .button.huge[href^="/play"]::after, html.kxMobile .kxDeployCard[href^="/play"]::after { content: "Desktop only · Play in your browser on a computer"; white-space: normal; padding: 0 12px; font-size: 13px; line-height: 1.35; }html.kxMobile .kxPlayBtn[href^="/play"] { min-width: 116px; padding-left: 8px; padding-right: 8px; }
+html.kxMobile .kxPlayBtn[href^="/play"]::after { font-size: 13px; letter-spacing: .04em; }
