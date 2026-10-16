@@ -15,8 +15,7 @@ const pages = [
 const morePages = [
   ["Browser", "/play/"],
   ["Devlog", "/devlog/"],
-  ["Support", "/support/"],
-  ["Help", "/help/"],
+  ["Get Klyra", "/support/"],
   ["Trailer", "/trailer/"],
   ["Discord", "https://discord.gg/fNkZjwQJBX"],
 ];
@@ -85,7 +84,7 @@ export default function SiteNav() {
               {label}
             </a>
           ))}
-          <a href="/support/" aria-current={isActive("/support/") ? "page" : undefined}>Support</a>
+          <a href="/support/" aria-current={isActive("/support/") ? "page" : undefined}>Get Klyra</a>
         </div>
 
         <div className="kxNavActions">

@@ -1169,3 +1169,25 @@ footer strong {
   .kxMusicBg { transform: scale(1.08); }
   .kxMusicCover { transform: none; transition: none; }
 }
+
+/* ===== Get Klyra (support + store) ===== */
+.kxGold { color: var(--gold); }
+.kxJump { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.kxJump a { display: inline-flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 26px; border: 1px solid rgba(216,180,90,.55); background: rgba(10,13,10,.8); font-size: 16px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: #f4efe6; transition: background .2s ease, transform .2s ease; }
+.kxJump a:first-child { background: var(--gold); color: #111; border-color: var(--gold); clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px)); }
+.kxJump a small { font: 800 13px ui-monospace, Consolas, monospace; opacity: .7; }
+.kxJump a:hover { transform: translateY(-2px); }
+.kxJump a:not(:first-child):hover { background: rgba(216,180,90,.14); }
+.kxAnchor { scroll-margin-top: 80px; }
+.kxAnchor + .kxAnchor { border-top: 1px solid rgba(255,255,255,.07); }
+#buy .notice { margin-top: 16px; }
+.kxContact article { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+.kxContact article h3 { margin-top: 6px; }
+.kxContact article .button { margin-top: auto; align-self: flex-start; }
+.kxFaqHead { margin-top: clamp(40px, 6vw, 72px); }
+@media (max-width: 700px) {
+  .kxJump { display: grid; grid-template-columns: 1fr 1fr; }
+  .kxJump a { justify-content: center; padding: 0 10px; font-size: 15px; letter-spacing: .06em; }
+  .kxContact article .button { align-self: stretch; justify-content: center; }
+  .kxContact { grid-template-columns: 1fr; }
+}

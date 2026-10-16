@@ -73,7 +73,7 @@ export default function DownloadPanel() {
           </p>
           <div className="actions">
             <a className="button" href="/play/">Play in the browser</a>
-            <a className="button ghost" href="/support/">What $4.99 includes</a>
+            <a className="button ghost" href="/support/#buy">What $4.99 includes</a>
           </div>
         </div>
       </div>

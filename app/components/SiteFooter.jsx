@@ -5,8 +5,8 @@ import { useSession } from "../useSession";
 
 const groups = [
   ["Game", [["Play", "/play/"], ["Download", "/download/"], ["Features", "/features/"], ["Trailer", "/trailer/"]]],
-  ["Development", [["Roadmap", "/roadmap/"], ["Devlog", "/devlog/"], ["Support", "/support/"]]],
-  ["Community", [["Community", "/community/"], ["Discord", "https://discord.gg/fNkZjwQJBX"], ["Help", "/help/"]]],
+  ["Development", [["Roadmap", "/roadmap/"], ["Devlog", "/devlog/"], ["Get Klyra", "/support/"]]],
+  ["Community", [["Community", "/community/"], ["Discord", "https://discord.gg/fNkZjwQJBX"]]],
 ];
 
 export default function SiteFooter() {
