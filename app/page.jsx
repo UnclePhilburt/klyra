@@ -141,48 +141,62 @@ export default function Home() {
         <TrailerPlayer />
       </section>
 
-      <section className="musicCredit" aria-labelledby="music-credit-title">
-        <div className="musicWave" aria-hidden="true">
-          {Array.from({ length: 36 }, (_, index) => (
-            <i key={index} style={{ "--wave-index": index }} />
+      <section className="kxMusic" aria-labelledby="music-credit-title">
+        <div className="kxMusicBg" aria-hidden="true" />
+        <div className="kxMusicWave" aria-hidden="true">
+          {Array.from({ length: 48 }, (_, index) => (
+            <i key={index} style={{ "--wave-index": index, "--h": `${30 + ((index * 37) % 70)}%` }} />
           ))}
         </div>
-        <div className="musicCreditMark" aria-hidden="true">
-          <span>♪</span>
-        </div>
-        <div className="musicCreditCopy">
-          <p className="tag">Official music partner</p>
-          <h2 id="music-credit-title">
-            The battlefield moves to the sound of{" "}
-            <strong>The Reality of Yourself (TROY).</strong>
-          </h2>
-          <p>Discover the music behind the front.</p>
-        </div>
-        <div className="musicCreditActions">
-          <a
-            className="button spotifyButton"
-            href="https://open.spotify.com/artist/0ZcBV5wpdzrQOKuC7hUGQs?si=44Oq1W4LQHeqPBMm8DKFaw"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Listen on Spotify ↗
-          </a>
-          <a
-            className="button youtubeButton"
-            href="https://www.youtube.com/channel/UC_tSPmI8_iRieBMvpWvtpFg"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Watch on YouTube ↗
-          </a>
-          <a
-            className="textLink"
-            href="https://www.store.therealityofyourself.com/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Official store ↗
-          </a>
+        <div className="kxMusicInner">
+          <div className="kxMusicCover" aria-hidden="true">
+            <img src="/front.jpg" alt="" loading="lazy" decoding="async" />
+            <span className="kxMusicCoverShade" />
+            <span className="kxMusicCoverText">
+              <small>Official soundtrack partner</small>
+              <strong>TROY</strong>
+              <em>The Reality of Yourself</em>
+            </span>
+            <span className="kxMusicNote">♪</span>
+          </div>
+          <div className="kxMusicCopy">
+            <p className="kxKicker">Official music partner</p>
+            <h2 id="music-credit-title">
+              The battlefield moves to the sound of{" "}
+              <strong>The Reality of Yourself (TROY).</strong>
+            </h2>
+            <p className="kxMusicLead">Discover the music behind the front.</p>
+            <div className="kxNowPlaying">
+              <span className="kxEq" aria-hidden="true"><i /><i /><i /><i /></span>
+              <span><small>Now playing on the front</small><strong>The Reality of Yourself</strong></span>
+            </div>
+            <div className="kxMusicActions">
+              <a
+                className="kxMusicBtn spotify"
+                href="https://open.spotify.com/artist/0ZcBV5wpdzrQOKuC7hUGQs?si=44Oq1W4LQHeqPBMm8DKFaw"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Listen on Spotify ↗
+              </a>
+              <a
+                className="kxMusicBtn youtube"
+                href="https://www.youtube.com/channel/UC_tSPmI8_iRieBMvpWvtpFg"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Watch on YouTube ↗
+              </a>
+              <a
+                className="kxMusicBtn store"
+                href="https://www.store.therealityofyourself.com/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Official store ↗
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
