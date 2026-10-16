@@ -39,8 +39,8 @@ export default function SupporterAccess() {
   </section>:returned&&state.signedIn?<div className="supporterPending" role="status"><span className="supporterBadge">PAYMENT CONFIRMATION</span><h3>We're checking your purchase.</h3><p>Waiting for Square to confirm payment. This page updates automatically. If you left checkout before paying, you can try again.</p><button className="button ghost" onClick={()=>setReturned(false)}>Return to checkout options</button></div>:state.checkoutEnabled?<div className="supporterOffer">
    <span className="supporterBadge">BACK THE FRONT</span><h3>One purchase. Both platforms.</h3>
    <p>Support development and get Windows and Mac access on your account.</p>
-   {state.signedIn?(checkout?<EmbeddedCheckout onComplete={()=>{setCheckout(false);setReturned(true);refresh();}}/>:<button className="button huge" onClick={()=>setCheckout(true)}>Get Supporter Edition - $4.99</button>):<a className="button" href="/account/">Sign in to get Supporter Edition</a>}
-   <p className="quiet">One-time purchase &middot; No subscription</p>
+   {state.signedIn?(checkout?<EmbeddedCheckout onComplete={()=>{setCheckout(false);setReturned(true);refresh();}}/>:<button className="button huge" onClick={()=>setCheckout(true)}>Get Supporter Edition - $4.99</button>):<a className="button" href="/account/">Sign in to buy</a>}
+   <p className="quiet supporterTerms">One-time purchase &middot; No subscription</p>
   </div>:<p>Supporter Edition checkout is being prepared.</p>}
   {message&&state&&<p role="status" className="formMessage">{message}</p>}
   {!!state?.purchases?.length&&<details className="supporterReceipts"><summary>Your purchases &amp; receipts</summary>{state.purchases.map(p=><div className="supporterReceipt" key={p.payment_id}><div><strong>Supporter Edition</strong><small>{p.refunded>0?"Refunded":p.status==="COMPLETED"?"Confirmed":p.status} {state.sandbox?"(Sandbox)":""}</small></div><span>${(p.amount/100).toFixed(2)} {p.currency}</span>{p.receipt_url?.startsWith("https://")&&<a href={p.receipt_url} target="_blank" rel="noopener noreferrer">View receipt</a>}</div>)}</details>}

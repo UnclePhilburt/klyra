@@ -1264,3 +1264,71 @@ footer strong {
   [data-reveal] { opacity: 1; transform: none; transition: none; }
   .kxChapterStage img, .kxChapterBar i, .kxChapterList li, .kxBotPanel, .kxBotField i { transition: none; }
 }
+
+/* ===== Download phone fixes ===== */
+.launcherNote { margin: 16px 0; padding: 14px 16px; background: rgba(8,10,8,.86); border: 1px solid rgba(255,255,255,.1); border-left: 3px solid var(--gold); color: rgba(244,239,230,.88) !important; font-size: 15px; line-height: 1.5; backdrop-filter: blur(6px); }
+.supporterTerms { margin-top: 14px !important; }
+.supporterOffer { padding: clamp(22px, 4vw, 32px) !important; }
+.supporterOffer .button { white-space: nowrap; }
+@media (max-width: 700px) {
+  .launcherNote { font-size: 16px; }
+  .supporterOffer { padding: 22px 18px !important; }
+  .supporterOffer h3 { font-size: 22px; line-height: 1.15; }
+}
+
+/* ===== Feature graphics (no-photo chapters) ===== */
+.kxCallout { display: inline-block; padding: 12px 18px; font-size: 16px; }
+.kxBotPanels.single { grid-template-columns: minmax(0, 760px); }
+.kxShotsTwo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.kxGfxLayer { position: absolute; inset: 0; opacity: 0; transition: opacity .5s ease; }
+.kxGfxLayer.on { opacity: 1; }
+.kxGfx { position: relative; width: 100%; height: 100%; display: grid; place-items: center; align-content: center; gap: 18px; padding: 28px; background: radial-gradient(ellipse at 50% 40%, rgba(216,180,90,.12), transparent 65%), repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 28px), repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 28px), #0b0e0b; overflow: hidden; }
+.kxGfxCaption { margin: 0; font: 800 13px ui-monospace, Consolas, monospace; letter-spacing: .16em; text-transform: uppercase; color: rgba(244,239,230,.75); text-align: center; }
+.kxGfxCaption b { color: var(--gold); font-size: 15px; }
+.kxGfxFactions { grid-template-columns: repeat(3, 1fr); }
+.kxGfxFactions .kxGfxCaption { grid-column: 1 / -1; }
+.kxGfxFactions > div { display: grid; justify-items: center; gap: 10px; }
+.kxGfxFactions img { width: clamp(56px, 8vw, 110px); height: auto; filter: drop-shadow(0 0 18px var(--c)); animation: kxFloat 3s ease-in-out infinite; animation-delay: calc(var(--i) * -1s); }
+.kxGfxFactions span { font-weight: 900; text-transform: uppercase; letter-spacing: .06em; color: var(--c); font-size: 14px; }
+.kxGfxBotGrid { display: grid; grid-template-columns: repeat(15, 1fr); gap: 5px; width: min(100%, 420px); }
+.kxGfxBotGrid i { aspect-ratio: 1; border-radius: 2px; animation: kxBlip 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * -53ms); }
+.kxGfxBotGrid i.t0 { background: #f15a52; } .kxGfxBotGrid i.t1 { background: #61cf88; } .kxGfxBotGrid i.t2 { background: #4bb6ff; }
+.kxGfxPlayers strong { font-size: clamp(80px, 11vw, 150px); line-height: .85; font-weight: 900; color: var(--gold); text-shadow: 0 0 40px rgba(216,180,90,.35); }
+.kxGfxSlots { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; width: min(100%, 360px); }
+.kxGfxSlots i { height: 14px; background: var(--gold); opacity: .25; animation: kxSlot 3s ease-in-out infinite; animation-delay: calc(var(--i) * 90ms); }
+.kxGfxSplit { grid-template-columns: 1fr 1fr; gap: 0; padding: 0; }
+.kxGfxSplit > div { height: 100%; display: grid; place-items: center; align-content: center; gap: 12px; color: #f4efe6; }
+.kxGfxSplit > div:first-child { background: rgba(241,90,82,.08); border-right: 2px solid var(--gold); }
+.kxGfxSplit > div:nth-child(2) { background: rgba(75,182,255,.08); }
+.kxGfxSplit span { font-size: clamp(40px, 6vw, 72px); font-weight: 900; }
+.kxGfxSplit .kxGfxCaption { position: absolute; left: 0; right: 0; bottom: 16px; }
+.kxGfxFob { justify-items: stretch; }
+.kxGfxFob > * { width: min(100%, 420px); justify-self: center; }
+.kxGfxFobBox { display: grid; place-items: center; width: 110px !important; height: 110px; border: 3px solid var(--gold); clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); background: rgba(216,180,90,.12); }
+.kxGfxFobBox span { font-size: 28px; font-weight: 900; letter-spacing: .1em; color: var(--gold); }
+.kxGfxMeter { display: grid; gap: 6px; }
+.kxGfxMeter span { font: 800 13px ui-monospace, Consolas, monospace; letter-spacing: .14em; text-transform: uppercase; color: rgba(244,239,230,.75); }
+.kxGfxMeter i { display: block; height: 10px; background: rgba(255,255,255,.08); position: relative; overflow: hidden; }
+.kxGfxMeter i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--v); background: var(--gold); box-shadow: 0 0 10px var(--gold); transform-origin: left; animation: kxFill 2.6s ease-out infinite; animation-delay: calc(var(--i) * .3s); }
+.kxGfxRoute svg { width: 100%; height: 50%; overflow: visible; }
+.kxGfxRoute path { fill: none; stroke: var(--gold); stroke-width: 3; stroke-dasharray: 10 8; animation: kxDash 1.2s linear infinite; filter: drop-shadow(0 0 6px rgba(216,180,90,.6)); }
+.kxGfxEnds { display: flex; justify-content: space-between; width: 100%; font: 800 13px ui-monospace, Consolas, monospace; letter-spacing: .16em; color: var(--gold); }
+.kxGfxInline { aspect-ratio: 16 / 9; display: block; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,.1); margin-bottom: 14px; }
+.kxGfxInline .kxGfx { position: absolute; inset: 0; padding: 14px; gap: 10px; }
+@keyframes kxFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes kxBlip { 0%,100% { opacity: .9; } 50% { opacity: .25; } }
+@keyframes kxSlot { 0%,100% { opacity: .2; } 40%,60% { opacity: 1; } }
+@keyframes kxFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes kxDash { to { stroke-dashoffset: -36; } }
+@media (max-width: 700px) {
+  .kxGfxInline .kxGfxPlayers strong { font-size: 64px; }
+  .kxGfxInline .kxGfxFobBox { width: 64px !important; height: 64px; }
+  .kxGfxInline .kxGfxFobBox span { font-size: 16px; }
+  .kxGfxInline .kxGfxMeter span { font-size: 11px; }
+  .kxGfxInline .kxGfxBotGrid { gap: 3px; width: min(100%, 300px); }
+  .kxShotsTwo { grid-template-columns: 1fr; }
+  .kxCallout { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kxGfx *, .kxGfx *::after, .kxGfxLayer { animation: none !important; transition: none !important; }
+}

@@ -72,8 +72,8 @@ export default function GetKlyraPage() {
         <figure className="kxDevNote">
           <blockquote>
             Klyra is built by one developer. The Supporter Edition gets you the
-            full Windows and Mac build, and it pays for new maps, vehicles and
-            fixes. Thanks for being on the front.
+            full Windows and Mac build and supports development. Thanks for
+            being on the front.
           </blockquote>
           <figcaption>&mdash; Uncle Philburt</figcaption>
         </figure>

@@ -16,7 +16,7 @@ export default function DownloadPanel() {
           and Vanguard.
         </p>
         <div className="actions"><a className="button" href={windowsLauncher}>Download Windows launcher</a><a className="button ghost" href={macLauncher}>Download Mac launcher</a></div>
-        <p className="quiet">The launcher is free. Supporter Edition is required for desktop game access through the updated launcher.</p>
+        <p className="quiet launcherNote">The launcher is free. Supporter Edition is required for desktop game access through the updated launcher.</p>
         <SupporterAccess />
       </div>
       <div className="mission">
