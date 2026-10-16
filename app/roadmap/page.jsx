@@ -10,9 +10,9 @@ const phases = [
   {
     number: "01", title: "Current Focus", label: "In development", tone: "current",
     cards: [
-      { title: "Frostline Valley", items: [
-        "Continued development of the 64 km² snow-covered map",
-        "Expanded forests, roads, terrain details, and points of interest",
+      { title: "An Nafud", items: [
+        "Continued development of the An Nafud desert map",
+        "Expanded roads, terrain details, and points of interest",
         "Improved baked lighting and environmental visuals",
         "Four selectable times of day", "Nine weather presets",
         "Environmental optimization and performance improvements",
