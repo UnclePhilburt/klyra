@@ -17,7 +17,6 @@ const morePages = [
   ["Devlog", "/devlog/"],
   ["Get Klyra", "/support/"],
   ["Trailer", "/trailer/"],
-  ["Discord", "https://discord.gg/fNkZjwQJBX"],
 ];
 
 function AccountMark() {
