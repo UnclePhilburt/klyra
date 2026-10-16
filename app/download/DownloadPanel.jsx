@@ -57,7 +57,7 @@ export default function DownloadPanel() {
         <a className="button ghost" href="/support/#buy">See Supporter Edition</a>
       </section>
 
-      <section className="section kxDlAccess">
+      <section className="kxDlAccess">
         <div className="sectionIntro" data-reveal>
           <p className="tag">Your access</p>
           <h2>Supporter Edition</h2>
@@ -66,7 +66,7 @@ export default function DownloadPanel() {
         <p className="kxDlAlt" data-reveal>Rather not download? <a href="/play/">Play free in your browser &rarr;</a></p>
       </section>
 
-      <section className="section">
+      <section className="kxDlWrap">
         <div className="sectionIntro" data-reveal>
           <p className="tag">How it works</p>
           <h2>Three steps in.</h2>
@@ -78,7 +78,7 @@ export default function DownloadPanel() {
         </ol>
       </section>
 
-      <section className="section" id="dedicated-servers">
+      <section className="kxDlWrap" id="dedicated-servers">
         <div className="kxDlServers" data-reveal>
           <div>
             <p className="tag">Private developer tools</p>
