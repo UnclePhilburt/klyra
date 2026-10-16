@@ -7,7 +7,7 @@ export const metadata = {
 export default function DevlogPage() {
   return (
     <main>
-      <section className="pageIntro">
+      <section className="pageIntro kxIntro" style={{ "--kx-bg": "url(/shots/squad.jpg)" }}>
         <p className="tag">Development</p>
         <h1>Built by one developer.</h1>
         <p className="lead">
@@ -35,8 +35,8 @@ export default function DevlogPage() {
           <p className="tag">October 11, 2026</p>
           <h2>The browser game is on the play page.</h2>
           <p>
-            The browser version opens on the play page. Sign in on this site
-            and the game uses that account. There is no launcher for the
+            The browser version opens on the play page, and it uses the same
+            KLYRA account as this site. There is no launcher for the
             browser version.
           </p>
           <p>
@@ -57,17 +57,17 @@ export default function DevlogPage() {
             up to 20 players. The field fills toward 60 soldiers, 20 on a side.
             Two people can also play on one computer with two controllers.
           </p>
-          <div className="shotGrid">
+          <div className="kxShots kxShotsThree">
             <figure>
-              <img src="/shots/heli.jpg" alt="Helicopter cockpit in the pre-alpha" />
+              <img src="/shots/heli.jpg" alt="Helicopter cockpit in the pre-alpha" loading="lazy" decoding="async" />
               <figcaption>Helicopter cockpit from the current trailer.</figcaption>
             </figure>
             <figure>
-              <img src="/shots/truck.jpg" alt="Supply truck in the pre-alpha" />
+              <img src="/shots/truck.jpg" alt="Supply truck in the pre-alpha" loading="lazy" decoding="async" />
               <figcaption>A supply run on the road.</figcaption>
             </figure>
             <figure>
-              <img src="/shots/split.jpg" alt="Split-screen in the pre-alpha" />
+              <img src="/shots/split.jpg" alt="Split-screen in the pre-alpha" loading="lazy" decoding="async" />
               <figcaption>Split-screen on one computer.</figcaption>
             </figure>
           </div>

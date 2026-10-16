@@ -1,13 +1,14 @@
 import AccountLink from "../components/AccountLink";
+import { SignedIn, SignedOut } from "../components/AuthGate";
 
 export const metadata = {
   title: "Play in the browser · Klyra: Broken Front",
   description:
-    "The KLYRA browser build opens on this page. Performance is degraded because it runs in a web browser. Sign in on this site first.",
+    "The KLYRA browser build opens on this page. Performance is degraded because it runs in a web browser. It uses your KLYRA account.",
 };
 
 const steps = [
-  ["01", "Sign in", "Use your callsign or email on the account page. The browser game uses that same account."],
+  ["01", "Your account", "The browser game uses the same KLYRA account (callsign or email) as this site."],
   ["02", "Open this page", "The fight starts here. There is no launcher for the browser version."],
   ["03", "Expect less", "Performance is degraded because this is a web browser build. The desktop download is the full-performance version."],
 ];
@@ -15,12 +16,13 @@ const steps = [
 export default function PlayPage() {
   return (
     <main>
-      <section className="pageIntro">
+      <section className="pageIntro kxIntro" style={{ "--kx-bg": "url(/shots/fight.jpg)" }}>
         <p className="tag">Browser build</p>
         <h1>Play in the browser.</h1>
         <p className="lead">
-          This page is where the browser version of KLYRA opens. Sign in on
-          this site first. The game uses that account.
+          This page is where the browser version of KLYRA opens.{" "}
+          <SignedOut>Sign in on this site first. The game uses that account.</SignedOut>
+          <SignedIn>You&apos;re signed in, so the game uses your account.</SignedIn>
         </p>
         <div className="actions">
           <AccountLink className="button" signedOutLabel="Sign in" signedInPrefix="Playing as" />
@@ -66,7 +68,7 @@ export default function PlayPage() {
           <p className="tag">This page</p>
           <h2>The fight opens here.</h2>
           <p>
-            Sign in on this site first. The browser game uses that account.
+            <SignedOut>Sign in on this site first. </SignedOut>The browser game uses your KLYRA account.
             The Windows and Mac downloads are the full-performance way to play.
           </p>
           <div className="actions">

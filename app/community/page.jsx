@@ -7,7 +7,7 @@ export const metadata = {
 export default function CommunityPage() {
   return (
     <main>
-      <section className="pageIntro">
+      <section className="pageIntro kxIntro" style={{ "--kx-bg": "url(/shots/split.jpg)" }}>
         <p className="tag">Community</p>
         <h1>Help test the front.</h1>
         <p className="lead">

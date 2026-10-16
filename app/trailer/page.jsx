@@ -1,3 +1,5 @@
+import TrailerPlayer, { TRAILER_ID } from "../components/TrailerPlayer";
+
 export const metadata = {
   title: "Pre-alpha trailer · Klyra: Broken Front",
   description:
@@ -7,7 +9,7 @@ export const metadata = {
 export default function TrailerPage() {
   return (
     <main>
-      <section className="pageHero trailerPage">
+      <section className="pageIntro kxIntro kxIntroCenter" style={{ "--kx-bg": "url(/shots/fight.jpg)" }}>
         <div>
           <p className="tag">Pre-alpha version</p>
           <h1>Pre-alpha trailer.</h1>
@@ -19,19 +21,14 @@ export default function TrailerPage() {
             <a className="button" href="/play/">
               Play in the browser
             </a>
-            <a className="button ghost" href="https://www.youtube.com/watch?v=UCOv0qqh0r0">
+            <a className="button ghost" href={`https://www.youtube.com/watch?v=${TRAILER_ID}`} target="_blank" rel="noreferrer">
               Watch on YouTube
             </a>
           </div>
         </div>
-        <div className="trailerFrame">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/UCOv0qqh0r0?rel=0"
-            title="Klyra: Broken Front pre-alpha version trailer"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          />
-        </div>
+      </section>
+      <section className="kxTrailer" aria-label="Trailer">
+        <TrailerPlayer />
       </section>
     </main>
   );

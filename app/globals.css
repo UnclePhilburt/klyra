@@ -1549,3 +1549,51 @@ footer strong {
   .kxDrawer, .kxBurger span, .kxNavLinks a::after { transition: none; }
   .kxDrawer.open .kxDrawerLinks a { animation: none; }
 }
+
+/* ===== Design system for inner pages (kxIntro + shared panels) ===== */
+.kxIntro { position: relative; isolation: isolate; max-width: none; margin: 0; padding: clamp(120px, 16vh, 170px) clamp(20px, 6vw, 88px) clamp(44px, 6vw, 72px); overflow: hidden; }
+.kxIntro::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--kx-bg, none) center/cover no-repeat; filter: saturate(.65) sepia(.2) contrast(1.1); }
+.kxIntro::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(8,10,8,.96) 0%, rgba(8,10,8,.8) 55%, rgba(8,10,8,.45) 100%), linear-gradient(0deg, #0b0e0b 0%, transparent 45%); border-bottom: 10px solid transparent; border-image: repeating-linear-gradient(-45deg, var(--gold) 0 14px, #12150f 14px 28px) 10; }
+.kxIntro > * { max-width: 780px; }
+.kxIntro h1 { margin: 0 0 18px; font-size: clamp(44px, 7.5vw, 104px); line-height: .9; font-weight: 900; text-transform: uppercase; letter-spacing: -.01em; }
+.kxIntro .lead { max-width: 620px; font-size: clamp(16px, 1.5vw, 20px); color: rgba(240,236,220,.84); }
+.kxIntro > p:not(.tag):not(.lead) { max-width: 640px; color: rgba(240,236,220,.72); }
+.kxIntroCenter { text-align: center; }
+.kxIntroCenter > *, .kxIntroCenter .lead { margin-left: auto; margin-right: auto; }
+.kxIntroCenter .actions { justify-content: center; }
+.pageHero.kxIntro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 440px); gap: clamp(24px, 4vw, 56px); align-items: start; min-height: 0; }
+.pageHero.kxIntro > * { max-width: none; }
+.tag { font-family: ui-monospace, Consolas, monospace; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+.button { min-height: 48px; border-radius: 0; text-transform: uppercase; letter-spacing: .1em; font-weight: 900; }
+.button:not(.ghost) { clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
+.sectionIntro h2 { text-transform: uppercase; font-weight: 900; line-height: .95; font-size: clamp(30px, 4.5vw, 58px); }
+.cards article, .notice, .founderCard, .post, .dashCard, .accountCard, .faq details, .supporterAccess > div, .serverDownloadGrid article, .mission article {
+  border-radius: 0; background: linear-gradient(180deg, #121812, #0d110d); border: 1px solid rgba(255,255,255,.08);
+}
+.cards article, .serverDownloadGrid article, .mission article { border-top: 3px solid var(--gold); transition: transform .2s ease; }
+.cards article:hover { transform: translateY(-3px); }
+.cards span, .mission span { font-family: ui-monospace, Consolas, monospace; font-weight: 800; }
+.cards h3, .post h2, .notice h2, .founderCard h2, .dashCard h2 { text-transform: uppercase; font-weight: 900; }
+.notice, .post, .founderCard, .dashCard { border-left: 4px solid var(--gold); }
+.faq details summary { min-height: 56px; display: flex; align-items: center; cursor: pointer; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
+.faq details[open] { border-left: 4px solid var(--gold); }
+.accountCard input, .dashCard input { min-height: 48px; border-radius: 0; font-size: 16px; }
+.kxFeatureGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.kxShotsThree { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.kxTrailerTight { padding-top: clamp(32px, 5vw, 64px); }
+.post { padding: clamp(22px, 3vw, 36px); }
+.post .kxShots { margin-top: 18px; }
+@media (max-width: 1100px) { .kxFeatureGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 860px) {
+  .pageHero.kxIntro { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  .kxIntro { padding: 108px 18px 40px; }
+  .kxIntro .actions { display: grid; grid-template-columns: 1fr; width: 100%; }
+  .kxIntro .actions .button { width: 100%; justify-content: center; }
+  .kxFeatureGrid, .kxShotsThree { grid-template-columns: 1fr; }
+  .cards article, .notice, .founderCard, .post, .dashCard { padding: 20px 18px; }
+  .section .actions { display: grid; }
+  .section .actions .button { width: 100%; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) { .cards article { transition: none; } }

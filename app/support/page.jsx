@@ -15,7 +15,7 @@ const included = [
 export default function SupportPage() {
   return (
     <main>
-      <section className="pageIntro">
+      <section className="pageIntro kxIntro" style={{ "--kx-bg": "url(/shots/truck.jpg)" }}>
         <p className="tag">Supporter Edition</p>
         <h1>$4.99</h1>
         <p className="lead">One-time purchase.</p>

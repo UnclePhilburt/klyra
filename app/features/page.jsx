@@ -1,3 +1,5 @@
+import TrailerPlayer from "../components/TrailerPlayer";
+
 export const metadata = {
   title: "Features · Klyra: Broken Front",
   description:
@@ -27,7 +29,7 @@ const features = [
 export default function FeaturesPage() {
   return (
     <main>
-      <section className="pageIntro">
+      <section className="pageIntro kxIntro" style={{ "--kx-bg": "url(/shots/heli.jpg)" }}>
         <p className="tag">The battlefield</p>
         <h1>What you can do.</h1>
         <p className="lead">
@@ -40,34 +42,40 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      <section className="trailerBand" aria-label="Pre-alpha gameplay">
-        <p className="tag">Pre-alpha version</p>
-        <div className="trailerFrame">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/UCOv0qqh0r0?rel=0"
-            title="KLYRA: Broken Front pre-alpha gameplay trailer"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          />
+      <section className="kxTrailer kxTrailerTight" aria-label="Pre-alpha gameplay">
+        <div className="kxTrailerHead">
+          <p className="tag">Pre-alpha version</p>
         </div>
+        <TrailerPlayer poster="/shots/heli.jpg" />
       </section>
 
       <section className="section">
-        <div className="shotGrid">
-          {shots.map(([src, alt, caption]) => (
-            <figure key={src}>
-              <img src={src} alt={alt} />
-              <figcaption>{caption}</figcaption>
-            </figure>
-          ))}
+        <div className="sectionIntro">
+          <p className="tag">Field systems</p>
+          <h2>Everything on the front.</h2>
         </div>
-        <div className="cards featureList">
+        <div className="cards featureList kxFeatureGrid">
           {features.map(([index, title, copy]) => (
             <article key={index}>
               <span>{index}</span>
               <h3>{title}</h3>
               <p>{copy}</p>
             </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="sectionIntro">
+          <p className="tag">From the pre-alpha</p>
+          <h2>Frames from the fight.</h2>
+        </div>
+        <div className="kxShots">
+          {shots.map(([src, alt, caption], i) => (
+            <figure key={src} className={i === 0 ? "kxShotWide" : undefined}>
+              <img src={src} alt={alt} loading="lazy" decoding="async" />
+              <figcaption><span>{String(i + 1).padStart(2, "0")}</span>{caption}</figcaption>
+            </figure>
           ))}
         </div>
       </section>
