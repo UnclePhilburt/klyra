@@ -176,14 +176,18 @@ export default function Home() {
               ))}
             </div>
           </div>
-          <div className="kxMusicCover" aria-hidden="true">
+          <div className="kxMusicCover">
             <img src="/shots/trailer/squad.jpg" alt="" loading="lazy" decoding="async" />
             <span className="kxMusicCoverShade" />
+            <span className="kxMusicCoverText">
+              <small>Official soundtrack partner</small>
+              <strong>TROY</strong>
+              <em>The Reality of Yourself</em>
+            </span>
           </div>
           <div className="kxMusicCopy">
-            <p className="kxKicker">Official music partner</p>
-            <h2 id="music-credit-title">The front moves to the sound of <strong>TROY.</strong></h2>
-            <p className="kxMusicLead">The Reality of Yourself. Discover the music behind the front.</p>
+            <h2 id="music-credit-title" className="srOnly">Official soundtrack partner: TROY, The Reality of Yourself</h2>
+            <p className="kxMusicLead">Discover the music behind the front.</p>
             <div className="kxMusicActions">
               <a
                 className="kxMusicBtn spotify"

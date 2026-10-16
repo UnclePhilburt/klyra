@@ -1447,3 +1447,13 @@ footer strong {
 @media (prefers-reduced-motion: reduce) { .kxMusicStage { transform: none; } }
 .kxMusicBg { background: url("/shots/trailer/heli-cabin.jpg") center/cover; filter: blur(44px) brightness(.24) saturate(.6); }
 .kxMusicCover { transform: none; }
+
+/* music: cover left, wave + controls right */
+.kxMusicInner { grid-template-columns: minmax(260px, 420px) minmax(0, 1fr); grid-template-areas: "cover stage" "cover copy"; align-items: center; row-gap: 18px; }
+.kxMusicCover { align-self: center; }
+.kxMusicStage { margin: 0; align-self: end; }
+.kxMusicCopy { align-self: start; }
+.kxMusicBg { background: radial-gradient(ellipse at 70% 40%, rgba(216,180,90,.07), transparent 60%), #080a08; filter: none; }
+.kxMusic::after { background: linear-gradient(0deg, #070907 0%, transparent 25%, transparent 75%, #070907 100%); }
+.kxMusicCoverText strong { font-size: clamp(56px, 7vw, 100px); }
+@media (max-width: 860px) { .kxMusicInner { grid-template-columns: 1fr; grid-template-areas: "cover" "stage" "copy"; } }
