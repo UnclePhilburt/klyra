@@ -1469,3 +1469,4 @@ footer strong {
 @media (max-width: 700px) {
   .kxDlPlatforms, .kxDlExplain, .kxDlAccess, .kxDlWrap { width: calc(100% - 28px); }
 }
+.kxDlExplain { padding: 20px clamp(18px, 3vw, 28px); }
