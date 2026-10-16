@@ -1470,3 +1470,10 @@ footer strong {
   .kxDlPlatforms, .kxDlExplain, .kxDlAccess, .kxDlWrap { width: calc(100% - 28px); }
 }
 .kxDlExplain { padding: 20px clamp(18px, 3vw, 28px); }
+
+/* ===== Phones/tablets: browser build is desktop-only, hide every Play entry */
+html.kxMobile a[href^="/play"],
+html.kxMobile li:has(> a[href^="/play"]),
+html.kxMobile .kxDlAlt:has(a[href^="/play"]),
+html.kxMobile .kxFreeCard:has(a[href^="/play"]) { display: none !important; }
+html.kxMobile .kxDeploy { grid-template-columns: 1fr; }
