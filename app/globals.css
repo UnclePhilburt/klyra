@@ -1195,3 +1195,9 @@ footer strong {
 .kxDevNote::before { content: "\201C"; position: absolute; top: -10px; right: 22px; font-size: 120px; line-height: 1; color: rgba(216,180,90,.18); font-weight: 900; }
 .kxDevNote blockquote { margin: 0 0 14px; max-width: 760px; font-size: clamp(18px, 1.8vw, 23px); line-height: 1.45; font-weight: 600; color: #f4efe6; }
 .kxDevNote figcaption { font: 800 13px ui-monospace, Consolas, monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
+
+.kxCardLead { font-size: clamp(18px, 1.7vw, 22px); font-weight: 800; color: #f4efe6; }
+.kxFreeCard { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin-top: 16px; padding: 22px clamp(20px, 3vw, 32px); background: #0f130f; border: 1px solid rgba(255,255,255,.08); border-left: 4px solid #61cf88; }
+.kxFreeCard h3 { margin: 4px 0 6px; text-transform: uppercase; font-weight: 900; }
+.kxFreeCard p { margin: 0; }
+@media (max-width: 700px) { .kxFreeCard .button { width: 100%; justify-content: center; } }

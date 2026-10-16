@@ -39,13 +39,12 @@ export default function GetKlyraPage() {
           <div>
             <p className="tag">KLYRA: Broken Front</p>
             <h2>Supporter Edition</h2>
+            <p className="kxCardLead">Get the full Windows and Mac build and support development.</p>
             <p>
-              The browser build is free and always will be. Supporter Edition
-              gives you the full-performance Windows and Mac build: higher frame
-              rates, longer view distance, and room for crowded fights.
+              Full performance on desktop: higher frame rates, longer view
+              distance, and room for crowded fights.
             </p>
             <SupporterAccess />
-            <a className="button ghost" href="/play/">Play in the browser</a>
           </div>
           <div>
             <h3>What you get</h3>
@@ -61,6 +60,14 @@ export default function GetKlyraPage() {
               customization, and FOB systems.
             </p>
           </div>
+        </div>
+        <div className="kxFreeCard">
+          <div>
+            <p className="tag">Free</p>
+            <h3>Play free in your browser.</h3>
+            <p>No purchase needed. Same factions, same front, with lower performance because it runs in a browser.</p>
+          </div>
+          <a className="button ghost" href="/play/">Play in the browser</a>
         </div>
         <figure className="kxDevNote">
           <blockquote>

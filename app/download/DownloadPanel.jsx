@@ -58,8 +58,7 @@ export default function DownloadPanel() {
         <div>
           <h3>Play in the browser, or unlock desktop.</h3>
           <p>
-            Enjoy KLYRA for free in your browser, or support its development by
-            unlocking the downloadable Windows and Mac versions.
+            Play free in your browser. Supporter Edition gets you the full Windows and Mac build and supports development.
           </p>
           <p>
             No gameplay content is locked behind a purchase. Everyone can
