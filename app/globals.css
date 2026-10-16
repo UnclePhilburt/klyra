@@ -1540,3 +1540,32 @@ html .kxAcctHero h1.kxCallsignTitle { margin: 0; font-size: clamp(28px, 6vw, 84p
 .kxAcctAuth .accountCard .formMessage:empty { display: none; }.kxAcctHero { padding-top: calc(88px + clamp(16px, 4vw, 56px)); }
 .kxAcctStats { background: transparent; gap: 0; border: 0; }
 .kxAcctStats div { border: 1px solid rgba(255,255,255,.08); margin: -1px 0 0 -1px; }
+/* ===== Account hero banner */
+.kxAcctBanner { display: grid; gap: 20px; }
+.kxAcctBanner > * { max-width: 1080px; }
+.kxAcctBanner .kxAcctId { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: clamp(16px, 2.6vw, 32px); }
+.kxAcctEmblem { width: clamp(64px, 8vw, 104px); aspect-ratio: 1; display: grid; place-items: center; padding: clamp(10px, 1.4vw, 16px); color: #e8c873; background: linear-gradient(160deg, rgba(216,180,90,.18), rgba(10,12,9,.85)); border: 1px solid rgba(216,180,90,.55); clip-path: polygon(14% 0, 100% 0, 100% 86%, 86% 100%, 0 100%, 0 14%); box-shadow: inset 0 0 24px rgba(216,180,90,.15); filter: drop-shadow(0 0 18px rgba(216,180,90,.2)); }
+.kxAcctBanner .kxAcctIdText { min-width: 0; display: grid; gap: 10px; }
+.kxAcctBanner .tag { margin: 0; }
+html .kxAcctBanner h1.kxCallsignTitle { margin: 0; line-height: .92; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -.01em;
+  font-size: min(clamp(40px, 8vw, 116px), calc((100vw - clamp(40px, 12vw, 176px) - clamp(80px, 11vw, 136px)) / (var(--len, 10) * .68))); }
+.kxAcctMeta { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-family: var(--mono, ui-monospace, monospace); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: rgba(236,230,214,.72); }
+.kxAcctMeta i { font-style: normal; color: #d8b45a; }
+.kxAcctMeta .kxAcctChip { min-height: 30px; margin-left: 4px; }
+.kxAcctBanner .lead { margin: 0; max-width: 60ch; }
+.kxAcctBanner .formMessage:empty { display: none; }
+.kxAcctBanner + .kxHazard + .kxAcctBody { border-top: 0; }
+@media (max-width: 700px) {
+  .kxAcctBanner { padding-top: 112px; padding-bottom: 40px; }
+  .kxAcctMeta .kxAcctChip { margin-left: 0; }
+}/* header v2: emblem above, plain one-line meta, supporter tag driven by the license card's own state */
+.kxAcctBanner .kxAcctId { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: start; gap: 12px; }
+.kxAcctEmblem { width: clamp(52px, 6vw, 76px); padding: clamp(8px, 1vw, 12px); margin-bottom: 4px; }
+html .kxAcctBanner h1.kxCallsignTitle { max-width: 100%; font-size: min(clamp(40px, 8vw, 116px), calc((100vw - clamp(40px, 12vw, 176px)) / (var(--len, 10) * .7))); }
+.kxAcctMeta { flex-wrap: nowrap; white-space: nowrap; font-size: 14px; letter-spacing: .06em; max-width: 100%; overflow: hidden; }
+.kxAcctSupporterTag, .kxAcctGetLink { display: none; }
+.kxAcctSupporterTag { align-items: center; min-height: 24px; padding: 0 9px; margin-left: 4px; background: linear-gradient(140deg, #f1d58f, #c99a3c); color: #12140f; font-weight: 700; font-size: 12px; letter-spacing: .12em; }
+.kxAcctGetLink { margin-left: 6px; color: #e8c873; text-decoration: none; }
+.kxAcctPage:has(.supporterWelcome):not(:has(.supporterTest)) .kxAcctSupporterTag { display: inline-flex; }
+.kxAcctPage:has(.supporterOffer) .kxAcctGetLink { display: inline; }
+@media (max-width: 480px) { .kxAcctMeta { font-size: 13px; letter-spacing: .04em; gap: 6px 8px; } .kxAcctGetLink { display: none !important; } }.kxAcctBanner { padding-left: max(16px, calc((100% - 1080px) / 2)); padding-right: max(16px, calc((100% - 1080px) / 2)); }

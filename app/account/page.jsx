@@ -176,6 +176,9 @@ export default function AccountPage() {
   if (session) {
     const name = callsignOf(session);
     const since = memberSince(session);
+    const sinceRaw = session?.profile?.created_at || session?.user?.created_at;
+    const sinceDate = sinceRaw ? new Date(sinceRaw) : null;
+    const sinceShort = sinceDate && !Number.isNaN(sinceDate.getTime()) ? sinceDate.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "";
     const stats = session.stats;
     const record = stats
       ? [
@@ -189,26 +192,29 @@ export default function AccountPage() {
     const accountEmail = session.user?.email || "";
 
     return (
-      <main>
-        <section className="kxAcctHero">
+      <main className="kxAcctPage">
+        <section className="kxIntro kxAcctBanner" style={{ "--kx-bg": "url(/shots/trailer/heli-cabin.jpg)" }}>
           <div className="kxAcctId kxAcctIn">
-            <span className="kxAcctBadge" aria-hidden="true">{(name || "?").trim().charAt(0).toUpperCase()}</span>
-            <div className="kxAcctIdText">
-              <p className="tag">KLYRA Account</p>
-              <h1 className="kxCallsignTitle" title={name}>{name}</h1>
-              <div className="kxAcctChips">
-                {since ? <span className="kxAcctChip">Member since {since}</span> : null}
-                <a className="kxAcctChip gold" href="#license">Supporter Edition status &darr;</a>
-                <span className="kxAcctChip">Pre-alpha</span>
-              </div>
-            </div>
-          </div>
-          <p className="lead kxAcctIn" style={{ "--d": "80ms" }}>
+            <span className="kxAcctEmblem" aria-hidden="true">
+              <svg viewBox="0 0 64 64" width="100%" height="100%">
+                <path d="M32 4 58 16v18c0 14-11 23-26 27C17 57 6 48 6 34V16Z" fill="none" stroke="currentColor" strokeWidth="2.5" />
+                <path d="M18 30l14-8 14 8M18 39l14-8 14 8M18 48l14-8 14 8" fill="none" stroke="currentColor" strokeWidth="4" />
+              </svg>
+            </span>
+            <p className="tag">KLYRA Account</p>
+            <h1 className="kxCallsignTitle" title={name} style={{ "--len": Math.max(6, (name || "").length) }}>{name}</h1>
+            <p className="kxAcctMeta">
+              {sinceShort ? <><span>Member since {sinceShort}</span><i aria-hidden="true">·</i></> : null}
+              <span>Pre-alpha</span>
+              <span className="kxAcctSupporterTag">Supporter</span>
+              <a className="kxAcctGetLink" href="/support/#buy">Get Supporter Edition &rarr;</a>
+            </p>
+          </div>          <p className="lead kxAcctIn" style={{ "--d": "80ms" }}>
             This is the same account on the website and in the game.<span className="kxDesktopCopy"> The browser version on the play page uses this sign-in. That build has degraded performance because it runs in a web browser.</span>
           </p>
           <p className={error ? "formMessage error" : "formMessage"}>{message}</p>
         </section>
-
+        <div className="kxHazard" aria-hidden="true" />
         <section className="kxAcctBody">
           <div className="kxAcctGrid">
             <article className="kxAcctCard wide license kxAcctIn" id="license" style={{ "--d": "120ms" }}>
