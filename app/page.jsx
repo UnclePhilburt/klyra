@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+const TRAILER_ID = "Bq7vnDIWrbc";
+
 const teams = [
   {
     id: "ironclad",
@@ -35,53 +37,162 @@ const shots = [
   { src: "/shots/split.jpg", alt: "Split-screen match with two players on one computer", caption: "Two players. One computer." },
 ];
 
+const intel = [
+  { k: "60-90", v: "Bots on the field" },
+  { k: "Air + armor", v: "Helicopters and tanks" },
+  { k: "Night ops", v: "Night vision" },
+  { k: "An Nafud", v: "Desert front" },
+];
+
+function TrailerPlayer() {
+  const [playing, setPlaying] = useState(false);
+  return (
+    <div className="kxPlayer">
+      <span className="kxCorner tl" aria-hidden="true" />
+      <span className="kxCorner tr" aria-hidden="true" />
+      <span className="kxCorner bl" aria-hidden="true" />
+      <span className="kxCorner br" aria-hidden="true" />
+      <div className="kxPlayerScreen">
+        {playing ? (
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${TRAILER_ID}?rel=0&autoplay=1`}
+            title="KLYRA: Broken Front pre-alpha gameplay trailer"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        ) : (
+          <button
+            type="button"
+            className="kxPoster"
+            onClick={() => setPlaying(true)}
+            aria-label="Play the KLYRA: Broken Front pre-alpha trailer"
+          >
+            <img src="/shots/fight.jpg" alt="" loading="lazy" decoding="async" />
+            <span className="kxPosterShade" aria-hidden="true" />
+            <span className="kxPlay" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
+            </span>
+            <span className="kxPosterLabel">
+              <small>REC // Pre-alpha footage</small>
+              <strong>Watch the trailer</strong>
+            </span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [teamId, setTeamId] = useState("ironclad");
   const team = teams.find((item) => item.id === teamId) || teams[0];
 
   return (
-    <main>
-      <section className="hero heroCompact">
-        <div className="heroArt" aria-hidden="true" />
-        <div className="heroCopy">
-          <img className="heroLogo" src="/brand.png" alt="KLYRA" />
-          <p className="tag">Pre-alpha</p>
-          <h1>Fight the front.</h1>
-          <p className="lead">
+    <main className="kxHome">
+      <section className="kxHero">
+        <div className="kxHeroBg" aria-hidden="true" />
+        <div className="kxHeroGrain" aria-hidden="true" />
+        <div className="kxHeroHud" aria-hidden="true">
+          <span>GRID 27.4N / 41.2E</span>
+          <span>SECTOR: AN NAFUD</span>
+          <span className="kxLive">● LIVE BUILD // PRE-ALPHA</span>
+        </div>
+        <div className="kxHeroCopy">
+          <img className="kxHeroLogo" src="/brand.png" alt="KLYRA" />
+          <p className="kxKicker">Broken Front // Military sandbox shooter</p>
+          <h1>
+            Fight the <span>front.</span>
+          </h1>
+          <p className="kxLead">
             Ironclad, Timberwolf, and Vanguard. Push the battle, run the
             supplies, and bring your gear home.
           </p>
-          <div className="actions">
-            <a className="button huge" href="/play/">
-              Play
-            </a>
-            <a className="button ghost huge" href="/download/">
-              Download
-            </a>
+          <div className="kxActions">
+            <a className="button huge kxCta" href="/play/">Play now</a>
+            <a className="button ghost huge" href="/download/">Download</a>
+            <a className="textLink heroSignIn" href="/account/">Sign in to your account</a>
           </div>
         </div>
+        <a className="kxScroll" href="#trailer" aria-label="Scroll to trailer"><span /></a>
       </section>
 
-      <section className="trailerBand homeTrailer" aria-label="Pre-alpha trailer">
-        <p className="tag">Pre-alpha version</p>
-        <div className="trailerFrame">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/UCOv0qqh0r0?rel=0"
-            title="KLYRA: Broken Front pre-alpha gameplay trailer"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          />
+      <div className="kxHazard" aria-hidden="true" />
+
+      <section className="kxIntel" aria-label="Game overview">
+        {intel.map((item) => (
+          <div key={item.v}>
+            <strong>{item.k}</strong>
+            <span>{item.v}</span>
+          </div>
+        ))}
+        <a href="/account/">
+          <strong>One account</strong>
+          <span>Synced progress &rarr;</span>
+        </a>
+      </section>
+
+      <section id="trailer" className="kxTrailer" aria-labelledby="kx-trailer-title">
+        <div className="kxTrailerBg" aria-hidden="true" />
+        <div className="kxTrailerHead">
+          <p className="tag">Pre-alpha version</p>
+          <h2 id="kx-trailer-title">Incoming transmission.</h2>
+        </div>
+        <TrailerPlayer />
+      </section>
+
+      <section className="musicCredit" aria-labelledby="music-credit-title">
+        <div className="musicWave" aria-hidden="true">
+          {Array.from({ length: 36 }, (_, index) => (
+            <i key={index} style={{ "--wave-index": index }} />
+          ))}
+        </div>
+        <div className="musicCreditMark" aria-hidden="true">
+          <span>♪</span>
+        </div>
+        <div className="musicCreditCopy">
+          <p className="tag">Official music partner</p>
+          <h2 id="music-credit-title">
+            The battlefield moves to the sound of{" "}
+            <strong>The Reality of Yourself (TROY).</strong>
+          </h2>
+          <p>Discover the music behind the front.</p>
+        </div>
+        <div className="musicCreditActions">
+          <a
+            className="button spotifyButton"
+            href="https://open.spotify.com/artist/0ZcBV5wpdzrQOKuC7hUGQs?si=44Oq1W4LQHeqPBMm8DKFaw"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Listen on Spotify ↗
+          </a>
+          <a
+            className="button youtubeButton"
+            href="https://www.youtube.com/channel/UC_tSPmI8_iRieBMvpWvtpFg"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Watch on YouTube ↗
+          </a>
+          <a
+            className="textLink"
+            href="https://www.store.therealityofyourself.com/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Official store ↗
+          </a>
         </div>
       </section>
 
-      <section className="soloBand">
+      <section className="kxSolo">
         <p className="tag">Independently developed</p>
         <h2>
           One developer.
           <br />
           Three factions.
           <br />
-          One battlefield.
+          <span>One battlefield.</span>
         </h2>
         <p>
           KLYRA: Broken Front is a solo-developed military sandbox built around
@@ -89,23 +200,23 @@ export default function Home() {
         </p>
       </section>
 
-      <section className="section">
+      <section className="section kxSection">
         <div className="sectionIntro">
           <p className="tag">From the pre-alpha</p>
           <h2>See the fight.</h2>
           <p>Frames from the pre-alpha gameplay trailer.</p>
         </div>
-        <div className="shotGrid">
-          {shots.map((shot) => (
-            <figure key={shot.src}>
-              <img src={shot.src} alt={shot.alt} />
-              <figcaption>{shot.caption}</figcaption>
+        <div className="kxShots">
+          {shots.map((shot, index) => (
+            <figure key={shot.src} className={index === 0 ? "kxShotWide" : undefined}>
+              <img src={shot.src} alt={shot.alt} loading="lazy" decoding="async" />
+              <figcaption><span>{String(index + 1).padStart(2, "0")}</span>{shot.caption}</figcaption>
             </figure>
           ))}
         </div>
       </section>
 
-      <section id="teams" className="section">
+      <section id="teams" className="section kxSection">
         <div className="sectionIntro">
           <p className="tag">The sides</p>
           <h2>Pick your mark.</h2>
@@ -141,13 +252,18 @@ export default function Home() {
         </article>
       </section>
 
-      <section className="splitLinks" aria-label="Next steps">
-        <a className="pathCard" href="/play/">
+      <section className="kxDeploy" aria-label="Next steps">
+        <a className="kxDeployCard" href="/play/">
           <span>Browser</span>
           <strong>Play in the tab</strong>
           <p>Performance is degraded because it is a web browser build. Sign in on this site, then the fight opens in the tab.</p>
         </a>
-        <a className="pathCard" href="/features/">
+        <a className="kxDeployCard" href="/download/">
+          <span>Desktop</span>
+          <strong>Download the build</strong>
+          <p>The full-performance desktop build for Windows.</p>
+        </a>
+        <a className="kxDeployCard" href="/features/">
           <span>The battlefield</span>
           <strong>What you can do</strong>
           <p>Factions, helicopters, bases, logistics, and the weapon builder.</p>
