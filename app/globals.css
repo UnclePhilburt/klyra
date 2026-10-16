@@ -1233,3 +1233,19 @@ footer strong {
   .faq details summary { padding-right: 8px; }
   .kxIntro h1 { overflow-wrap: anywhere; }
 }
+
+/* ===== Phone readability bump ===== */
+@media (max-width: 700px) {
+  body { font-size: 16px; }
+  p, li, .lead, .kxLead { font-size: max(16px, 1em); }
+  .tag, .kxKicker, .kxIntel span, .kxPosterLabel small, .kxDeployCard span, .kxShots figcaption span,
+  .kxFooterCols h2, .kxDrawerAccount small, .kxDrawerLinks a span, .cards span, .mission span, .kxBrand em {
+    font-size: 13px; letter-spacing: .12em; color: #e2c786;
+  }
+  .kxIntel span { color: rgba(240,236,220,.82); }
+  .kxIntel strong { font-size: 22px; }
+  .kxIntel > * { padding: 18px 16px; gap: 6px; }
+  .kxShots figcaption { font-size: 14px; }
+  .kxFooterBase, .kxFooterBrand p { font-size: 15px; }
+  .kxDeployCard p, .card li { font-size: 16px; }
+}
