@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AccountLink from "./components/AccountLink";
 
 const TRAILER_ID = "Bq7vnDIWrbc";
@@ -87,6 +87,31 @@ function TrailerPlayer() {
 export default function Home() {
   const [teamId, setTeamId] = useState("ironclad");
   const team = teams.find((item) => item.id === teamId) || teams[0];
+  const musicRef = useRef(null);
+
+  // Subtle parallax for the music backdrop. One rAF per scroll, transform-only
+  // (GPU), skipped entirely for reduced-motion users.
+  useEffect(() => {
+    const el = musicRef.current;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const r = el.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > window.innerHeight) return;
+      const progress = (r.top + r.height / 2 - window.innerHeight / 2) / window.innerHeight;
+      el.style.setProperty("--kx-par", `${(progress * 90).toFixed(1)}px`);
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
 
   return (
     <main className="kxHome">
@@ -141,12 +166,19 @@ export default function Home() {
         <TrailerPlayer />
       </section>
 
-      <section className="kxMusic" aria-labelledby="music-credit-title">
+      <section className="kxMusic" ref={musicRef} aria-labelledby="music-credit-title">
         <div className="kxMusicBg" aria-hidden="true" />
-        <div className="kxMusicWave" aria-hidden="true">
-          {Array.from({ length: 48 }, (_, index) => (
-            <i key={index} style={{ "--wave-index": index, "--h": `${30 + ((index * 37) % 70)}%` }} />
-          ))}
+        <div className="kxMusicStage" aria-hidden="true">
+          <div className="kxMusicWave">
+            {Array.from({ length: 64 }, (_, index) => (
+              <i key={index} style={{ "--wave-index": index, "--h": `${28 + ((index * 37) % 72)}%` }} />
+            ))}
+          </div>
+          <div className="kxMusicWave kxMusicWaveMirror">
+            {Array.from({ length: 64 }, (_, index) => (
+              <i key={index} style={{ "--wave-index": index, "--h": `${28 + ((index * 37) % 72)}%` }} />
+            ))}
+          </div>
         </div>
         <div className="kxMusicInner">
           <div className="kxMusicCover" aria-hidden="true">
