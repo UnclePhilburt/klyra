@@ -54,7 +54,7 @@ export default function DevlogPage() {
             The desktop build has the three factions, a moving front that ends
             at 100 points, helicopters, supply trucks, forward bases, a weapon
             builder, revive, and a stash for gear you extract. Online rooms hold
-            up to 20 players. The field fills toward 60 soldiers, 20 on a side.
+            up to 20 players. Official dedicated servers run 90 bots, and when you host your own match you choose the bot count.
             Two people can also play on one computer with two controllers.
           </p>
           <div className="kxShots kxShotsThree">

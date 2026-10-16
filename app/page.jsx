@@ -39,7 +39,7 @@ const shots = [
 ];
 
 const intel = [
-  { k: "60-90", v: "Bots on the field" },
+  { k: "90 bots", v: "On dedicated servers" },
   { k: "Air + armor", v: "Helicopters and tanks" },
   { k: "Night ops", v: "Night vision" },
   { k: "An Nafud", v: "Desert front" },

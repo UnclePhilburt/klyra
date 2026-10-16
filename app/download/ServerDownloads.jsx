@@ -30,10 +30,10 @@ export default function ServerDownloads(){
  if(!session)return <div className="serverAccess"><p>Sign in to access private dedicated server builds.</p><a className="button" href="/account/">Sign in</a></div>;
  return <div className="serverAccess">
   <div className="serverDownloadGrid">
-   <article><p className="tag">Apple Silicon</p><h3>Mac server</h3><p>Headless dedicated server for an M-series Mac.</p><button className="button ghost" disabled={!!busy} onClick={()=>download(MAC_SERVER,"Klyra-Mac-Server-20261013-r9.zip","mac")}>{busy==="mac"?"Preparing...":"Download Mac server"}</button></article>
-   <article><p className="tag">Windows x64</p><h3>Windows server</h3><p>Headless dedicated server for the gaming laptop.</p><button className="button ghost" disabled={!!busy} onClick={()=>download(WINDOWS_SERVER,"Klyra-Windows-Server-20261013-r1.zip","windows")}>{busy==="windows"?"Preparing...":"Download Windows server · 204 MB"}</button></article>
+   <article><p className="tag">Mac</p><h3>Mac server</h3><p>Dedicated server package for Mac.</p><button className="button ghost" disabled={!!busy} onClick={()=>download(MAC_SERVER,"Klyra-Mac-Server-20261013-r9.zip","mac")}>{busy==="mac"?"Preparing...":"Download Mac server"}</button></article>
+   <article><p className="tag">Windows</p><h3>Windows server</h3><p>Dedicated server package for Windows.</p><button className="button ghost" disabled={!!busy} onClick={()=>download(WINDOWS_SERVER,"Klyra-Windows-Server-20261013-r1.zip","windows")}>{busy==="windows"?"Preparing...":"Download Windows server · 204 MB"}</button></article>
   </div>
-  <p className="quiet">Signed in as <strong>{callsignOf(session)||email}</strong>. Cloudflare verifies server-download access for this account.</p>
+  <p className="quiet">Signed in as <strong>{callsignOf(session)||email}</strong>. Server downloads are tied to this account.</p>
   {message&&<p className="formMessage error" role="status">{message}</p>}
  </div>;
 }

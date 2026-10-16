@@ -42,9 +42,9 @@ export default function DownloadPanel() {
       <div className="founderCard">
         <div><p className="tag">Private developer tools</p><h2>Dedicated servers</h2></div>
         <div>
-          <p>Run an unattended KLYRA match from Windows or an Apple Silicon Mac. Server packages require the authorized developer account.</p>
+          <p>Run a KLYRA dedicated server on Windows or Mac. Server packages require the authorized developer account.</p>
           <ServerDownloads />
-          <p className="quiet">Extract the package, run its included start script, and wait for <code>[HeadlessHost] READY</code> in <code>Logs/server.log</code>.</p>
+          <p className="quiet">Extract the package and run its included start script.</p>
         </div>
       </div>
     </section>
