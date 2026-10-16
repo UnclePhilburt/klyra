@@ -69,48 +69,74 @@ const phases = [
   },
 ];
 
+const statusText = { current: "Active", upcoming: "Queued", future: "Planned" };
+
 export default function RoadmapPage() {
+  const total = phases.reduce((sum, phase) => sum + phase.cards.reduce((n, card) => n + card.items.length, 0), 0);
   return (
-    <main>
-      <section className={`pageIntro ${styles.intro}`}>
-        <p className="tag">Development route</p>
-        <h1>KLYRA Development Roadmap</h1>
-        <p className="lead">
-          The route from today&apos;s pre-alpha battlefield to a deeper, sharper,
-          and more stable war. Work moves forward in phases as core systems become ready.
-        </p>
-        <div className={styles.legend} aria-label="Roadmap phase key">
-          <span><i className={styles.currentDot} />Current focus</span>
-          <span><i className={styles.upcomingDot} />Upcoming</span>
-          <span><i className={styles.futureDot} />Future</span>
+    <main className={styles.page}>
+      <section className={styles.hero}>
+        <div className={styles.heroBg} aria-hidden="true" />
+        <div className={styles.heroCopy}>
+          <p className={styles.kicker}>Development route // Pre-alpha</p>
+          <h1>The <span>roadmap.</span></h1>
+          <p className={styles.lead}>
+            The route from today&apos;s pre-alpha battlefield to a deeper, sharper,
+            and more stable war. Work moves forward in phases as core systems become ready.
+          </p>
+          <div className={styles.stats}>
+            <div><strong>03</strong><span>Phases</span></div>
+            <div><strong>{String(total)}</strong><span>Objectives</span></div>
+            <div><strong>An Nafud</strong><span>Primary map</span></div>
+          </div>
         </div>
       </section>
 
-      <section className={`section ${styles.section}`}>
-        <div className={styles.route}>
-          {phases.map((phase) => (
-            <article className={`${styles.phase} ${styles[phase.tone]}`} key={phase.title}>
+      <div className={styles.hazard} aria-hidden="true" />
+
+      <nav className={styles.jump} aria-label="Roadmap phases">
+        {phases.map((phase) => (
+          <a key={phase.number} href={`#phase-${phase.number}`} className={styles[phase.tone]}>
+            <i aria-hidden="true" />
+            <span>{phase.number}</span>
+            <strong>{phase.title}</strong>
+          </a>
+        ))}
+      </nav>
+
+      <section className={styles.route}>
+        {phases.map((phase) => (
+          <article id={`phase-${phase.number}`} className={`${styles.phase} ${styles[phase.tone]}`} key={phase.title}>
+            <header className={styles.phaseHeader}>
               <div className={styles.marker} aria-hidden="true">{phase.number}</div>
               <div>
-                <header className={styles.phaseHeader}>
-                  <h2>{phase.title}</h2><span>{phase.label}</span>
-                </header>
-                <div className={styles.cards}>
-                  {phase.cards.map((card) => (
-                    <section className={styles.card} key={card.title}>
-                      <h3>{card.title}</h3>
-                      <ul>{card.items.map((item) => <li key={item}>{item}</li>)}</ul>
-                    </section>
-                  ))}
-                </div>
+                <p className={styles.phaseLabel}><i aria-hidden="true" />{phase.label}</p>
+                <h2>{phase.title}</h2>
               </div>
-            </article>
-          ))}
-        </div>
+              <span className={styles.status}>{statusText[phase.tone]}</span>
+            </header>
+            <div className={styles.cards}>
+              {phase.cards.map((card, index) => (
+                <section className={styles.card} key={card.title}>
+                  <p className={styles.cardCode}>OBJ {phase.number}-{String(index + 1).padStart(2, "0")}</p>
+                  <h3>{card.title}</h3>
+                  <ul>{card.items.map((item) => <li key={item}>{item}</li>)}</ul>
+                </section>
+              ))}
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <section className={styles.footer}>
         <p className={styles.disclaimer}>
           This roadmap reflects current development priorities. Features and plans may change
           as KLYRA continues through pre-alpha development.
         </p>
+        <div className={styles.actions}>
+          <a className="button huge" href="/play/">Play the pre-alpha</a>
+          <a className="button ghost huge" href="/devlog/">Read the devlog</a>
+        </div>
       </section>
     </main>
   );
