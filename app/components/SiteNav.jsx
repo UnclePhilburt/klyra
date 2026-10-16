@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { callsignOf, readSession, restoreSession } from "../session";
+import { usePathname } from "next/navigation";
+import { callsignOf } from "../session";
+import { useSession } from "../useSession";
 
 const pages = [
   ["Features", "/features/"],
@@ -34,78 +36,113 @@ function AccountMark() {
   );
 }
 
+const external = (href) => (href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {});
+
 export default function SiteNav() {
-  const [session, setSession] = useState(null);
+  const pathname = usePathname();
+  const { session, ready } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    let live = true;
-    const apply = () => {
-      if (live) setSession(readSession());
-    };
-
-    apply();
-    restoreSession().finally(apply);
-    window.addEventListener("klyra-session", apply);
-    return () => {
-      live = false;
-      window.removeEventListener("klyra-session", apply);
-    };
-  }, []);
+  const [scrolled, setScrolled] = useState(false);
 
   const callsign = session ? callsignOf(session) : "";
+  const accountLabel = callsign || "Sign in";
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
+    if (!menuOpen) return () => { document.body.style.overflow = ""; };
+    const onKey = (event) => { if (event.key === "Escape") setMenuOpen(false); };
+    window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const isActive = (href) => (href === "/" ? pathname === "/" : pathname?.startsWith(href));
+
   return (
-    <nav className="nav">
-      <a className="brand" href="/" aria-label="Klyra Broken Front home">
-        <img className="brandMark" src="/brand.png" alt="Klyra" />
-        <span>Klyra: Broken Front</span>
-      </a>
-      <div className="navLinks">
-        <button
-          className="menuButton"
-          type="button"
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((open) => !open)}
-        >
-          {menuOpen ? "Close" : "Menu"}
-        </button>
-        <div className={menuOpen ? "navPages open" : "navPages"}>
+    <>
+      <nav className={`kxNav${scrolled ? " scrolled" : ""}${menuOpen ? " menuOpen" : ""}`} aria-label="Main">
+        <a className="kxBrand" href="/" aria-label="Klyra Broken Front home">
+          <img src="/brand.png" alt="" />
+          <span>Klyra<em>Broken Front</em></span>
+        </a>
+
+        <div className="kxNavLinks">
           {pages.map(([label, href]) => (
-            <a key={href} href={href} onClick={() => setMenuOpen(false)}>
+            <a key={href} href={href} aria-current={isActive(href) ? "page" : undefined}>
               {label}
             </a>
           ))}
-          {morePages.map(([label, href]) => (
+          <a href="/support/" aria-current={isActive("/support/") ? "page" : undefined}>Support</a>
+        </div>
+
+        <div className="kxNavActions">
+          <a
+            className={`kxAccount${session ? " signedIn" : ""}`}
+            href="/account/"
+            aria-label={session ? `Account: ${callsign}` : "Sign in"}
+            aria-current={isActive("/account/") ? "page" : undefined}
+            style={ready ? undefined : { visibility: "hidden" }}
+          >
+            <AccountMark />
+            <span>{accountLabel}</span>
+          </a>
+          <a className="kxPlayBtn" href="/play/">Play</a>
+          <button
+            className="kxBurger"
+            type="button"
+            aria-expanded={menuOpen}
+            aria-controls="kx-mobile-menu"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span /><span /><span />
+          </button>
+        </div>
+      </nav>
+
+      <div id="kx-mobile-menu" className={`kxDrawer${menuOpen ? " open" : ""}`} aria-hidden={!menuOpen} inert={!menuOpen}>
+        <a className={`kxDrawerAccount${session ? " signedIn" : ""}`} href="/account/" onClick={() => setMenuOpen(false)}>
+          <AccountMark />
+          <span>
+            <small>{session ? "Signed in" : "Your account"}</small>
+            <strong>{session ? callsign : "Sign in / Create account"}</strong>
+          </span>
+          <b aria-hidden="true">&rarr;</b>
+        </a>
+        <div className="kxDrawerLinks">
+          {[...pages, ...morePages].map(([label, href], index) => (
             <a
               key={href}
-              className="navMore"
               href={href}
+              aria-current={isActive(href) ? "page" : undefined}
               onClick={() => setMenuOpen(false)}
-              {...(href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
+              style={{ "--i": index }}
+              {...external(href)}
             >
+              <span>{String(index + 1).padStart(2, "0")}</span>
               {label}
+              {href.startsWith("http") ? " ↗" : ""}
             </a>
           ))}
-          <a className="navAccount" href="/account/" onClick={() => setMenuOpen(false)}>
-            {callsign || "Account"}
-          </a>
         </div>
-        <a className="button ghost small accountLink" href="/account/" aria-label={callsign || "Account"}>
-          <AccountMark />
-          <span>{callsign || "Account"}</span>
-        </a>
-        <a className="button small" href="/play/">
-          Play
-        </a>
+        <div className="kxDrawerCta">
+          <a className="button huge" href="/play/" onClick={() => setMenuOpen(false)}>Play in browser</a>
+          <a className="button ghost huge" href="/download/" onClick={() => setMenuOpen(false)}>Download</a>
+        </div>
       </div>
-    </nav>
+    </>
   );
 }

@@ -1,3 +1,5 @@
+import AccountLink from "../components/AccountLink";
+
 export const metadata = {
   title: "Play in the browser · Klyra: Broken Front",
   description:
@@ -21,7 +23,7 @@ export default function PlayPage() {
           this site first. The game uses that account.
         </p>
         <div className="actions">
-          <a className="button" href="/account/">Sign in</a>
+          <AccountLink className="button" signedOutLabel="Sign in" signedInPrefix="Playing as" />
           <a className="button ghost" href="/download/">Download for full performance</a>
         </div>
       </section>

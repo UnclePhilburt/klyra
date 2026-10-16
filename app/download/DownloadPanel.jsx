@@ -1,6 +1,7 @@
 "use client";
 import { windowsLauncher, macLauncher } from "../site-data";
 import SupporterAccess from "../components/SupporterAccess";
+import ServerDownloads from "./ServerDownloads";
 
 export default function DownloadPanel() {
   return (
@@ -32,19 +33,18 @@ export default function DownloadPanel() {
         <article>
           <span>03</span>
           <h3>Come home</h3>
-          <p>Sign in so the gear you extract is waiting next time.</p>
+          <p>Your account keeps the gear you extract for next time.</p>
         </article>
       </div>
     </section>
 
-    <section className="section" id="mac-server">
+    <section className="section" id="dedicated-servers">
       <div className="founderCard">
-        <div><p className="tag">Experimental hosting</p><h2>Mac dedicated server</h2></div>
+        <div><p className="tag">Private developer tools</p><h2>Dedicated servers</h2></div>
         <div>
-          <p>Host a test match on an Apple Silicon Mac. This download runs the server without a playable character.</p>
-          <div className="actions"><a className="button ghost" href="https://cdn.klyra.lol/servers/Klyra-Mac-Server-20261013-r9.zip">Download Mac server · 208 MB</a></div>
-          <p className="quiet">Extract the ZIP. Open Terminal in the extracted folder and run <code>bash Start-Klyra-Server.command</code>. Wait for READY in Logs/server.log before joining. This package starts KlyraTestRoom2; use that room name on your game client.</p>
-          <p className="quiet">Includes headless minimap broadcasts, post-purchase inventory synchronization, server rifle equip recovery, equipped weapon-pose repair and purchase diagnostics, ability synchronization, ragdoll safeguards, headless zone scoring, and weather selection independent of server rendering. In-game verification is pending. Requires matching freshly rebuilt game clients; the existing public launcher build may not be compatible yet.</p>
+          <p>Run an unattended KLYRA match from Windows or an Apple Silicon Mac. Server packages require the authorized developer account.</p>
+          <ServerDownloads />
+          <p className="quiet">Extract the package, run its included start script, and wait for <code>[HeadlessHost] READY</code> in <code>Logs/server.log</code>.</p>
         </div>
       </div>
     </section>

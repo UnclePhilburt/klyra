@@ -1,7 +1,7 @@
 import DownloadPanel from "./DownloadPanel";
 
 export const metadata = {
-  title: "Play · Klyra: Broken Front",
+  title: "Download · Klyra: Broken Front",
   description: "Download Klyra: Broken Front and get on the front.",
 };
 

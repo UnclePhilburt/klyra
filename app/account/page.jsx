@@ -173,17 +173,6 @@ export default function AccountPage() {
     setBusy(false);
   };
 
-  if (loading && !session) {
-    return (
-      <main>
-        <section className="pageIntro">
-          <p className="tag">Account</p>
-          <h1>Opening your account.</h1>
-        </section>
-      </main>
-    );
-  }
-
   if (session) {
     const name = callsignOf(session);
     const since = memberSince(session);
@@ -329,6 +318,7 @@ export default function AccountPage() {
               ? "Create the account you will use on the website and in the game."
               : "Sign in with your callsign or your email. This is the same account the game uses. The browser version on the play page uses it too, with degraded performance because it runs in a web browser."}
           </p>
+          {loading ? <p className="quiet">Restoring any saved sign-in...</p> : null}
         </div>
 
         {mode === "create" ? (

@@ -75,8 +75,23 @@ function errorMessage(payload) {
   );
 }
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error("The account service took too long to respond. Try again.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function authFetch(path, { method = "GET", body, token, headers = {} } = {}) {
-  const response = await fetch(`${supabaseUrl}${path}`, {
+  const response = await fetchWithTimeout(`${supabaseUrl}${path}`, {
     method,
     headers: {
       apikey: supabaseKey,
@@ -126,11 +141,12 @@ function packAuth(auth, previous = {}) {
     stats: previous.stats || null,
     stashCount: previous.stashCount ?? null,
     recovery: Boolean(previous.recovery),
+    hydrated_at: previous.hydrated_at || 0,
   };
 }
 
 async function stashCount(token, id) {
-  const response = await fetch(
+  const response = await fetchWithTimeout(
     `${supabaseUrl}/rest/v1/player_stash?player_id=eq.${encodeURIComponent(id)}&select=id`,
     {
       headers: {
@@ -222,19 +238,53 @@ export function captureAuthHash() {
 }
 
 let restoring = null;
+const HYDRATE_TTL = 5 * 60;
 
-async function restoreFresh() {
+// Only a definite "this refresh token is dead" answer should sign the player out.
+// Network errors, timeouts, 5xx and rate limits keep the stored session.
+function isAuthRejection(error) {
+  return error?.status === 400 || error?.status === 401 || error?.status === 403;
+}
+
+function withLock(fn) {
+  if (typeof navigator !== "undefined" && navigator.locks?.request) {
+    return navigator.locks.request("klyra-session-refresh", fn);
+  }
+  return fn();
+}
+
+async function refreshIfNeeded() {
+  // Re-read inside the lock: another tab may already have rotated the refresh
+  // token. Supabase refresh tokens are single-use, so refreshing twice with the
+  // same one used to fail and wipe the session.
   let session = readSession();
   if (!session) return null;
+  if (session.access_token && session.expires_at >= nowSeconds() + 90) return session;
   try {
-    if (!session.access_token || session.expires_at < nowSeconds() + 90) {
-      session = await refresh(session);
+    return writeSession(await refresh(session));
+  } catch (error) {
+    const latest = readSession();
+    if (latest && latest.refresh_token !== session.refresh_token) return latest;
+    throw error;
+  }
+}
+
+async function restoreFresh() {
+  if (!readSession()) return null;
+  try {
+    let session = await withLock(refreshIfNeeded);
+    if (!session) return null;
+    if (!session.user || !session.hydrated_at || session.hydrated_at < nowSeconds() - HYDRATE_TTL) {
+      session = { ...(await hydrate(session)), hydrated_at: nowSeconds() };
+      writeSession(session);
     }
-    session = await hydrate(session);
-    return writeSession(session);
-  } catch {
-    clearSession();
-    return null;
+    return session;
+  } catch (error) {
+    if (isAuthRejection(error)) {
+      clearSession();
+      return null;
+    }
+    return readSession();
   }
 }
 
@@ -250,7 +300,7 @@ export function restoreSession() {
 }
 
 async function lookupCallsign(name) {
-  const response = await fetch("https://api.klyra.lol/v1/login-name", {
+  const response = await fetchWithTimeout("https://api.klyra.lol/v1/login-name", {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify({ name }),
@@ -270,7 +320,7 @@ async function loginEmail(identifier) {
 
 async function rememberCallsign(session) {
   if (!session?.access_token) return;
-  await fetch("https://api.klyra.lol/v1/login-name/save", {
+  await fetchWithTimeout("https://api.klyra.lol/v1/login-name/save", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -287,7 +337,7 @@ export async function signIn(identifier, password) {
     method: "POST",
     body: { email, password },
   });
-  const session = await hydrate(packAuth(auth));
+  const session = { ...(await hydrate(packAuth(auth))), hydrated_at: nowSeconds() };
   writeSession(session);
   rememberCallsign(session).catch(() => {});
   return session;
@@ -305,7 +355,7 @@ export async function signUp(callsign, email, password) {
   });
 
   if (result.access_token && result.refresh_token) {
-    const session = await hydrate(packAuth(result));
+    const session = { ...(await hydrate(packAuth(result))), hydrated_at: nowSeconds() };
     writeSession(session);
     rememberCallsign(session).catch(() => {});
     return { session, pending: false };
@@ -349,7 +399,7 @@ export async function updateCallsign(session, callsign) {
     body: { data: { username: name, display_name: name } },
   });
 
-  const next = await hydrate({ ...session, profile: rows[0] });
+  const next = { ...(await hydrate({ ...session, profile: rows[0] })), hydrated_at: nowSeconds() };
   writeSession(next);
   rememberCallsign(next).catch(() => {});
   return next;

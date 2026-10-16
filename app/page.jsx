@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import AccountLink from "./components/AccountLink";
 
 const TRAILER_ID = "Bq7vnDIWrbc";
 
@@ -110,7 +111,7 @@ export default function Home() {
           <div className="kxActions">
             <a className="button huge kxCta" href="/play/">Play now</a>
             <a className="button ghost huge" href="/download/">Download</a>
-            <a className="textLink heroSignIn" href="/account/">Sign in to your account</a>
+            <AccountLink className="textLink heroSignIn" />
           </div>
         </div>
         <a className="kxScroll" href="#trailer" aria-label="Scroll to trailer"><span /></a>
@@ -256,7 +257,7 @@ export default function Home() {
         <a className="kxDeployCard" href="/play/">
           <span>Browser</span>
           <strong>Play in the tab</strong>
-          <p>Performance is degraded because it is a web browser build. Sign in on this site, then the fight opens in the tab.</p>
+          <p>Performance is degraded because it is a web browser build. It uses your KLYRA account, and the fight opens in the tab.</p>
         </a>
         <a className="kxDeployCard" href="/download/">
           <span>Desktop</span>
