@@ -12,7 +12,7 @@ const T = "/shots/trailer/";
 const shots = [
   [`${T}heli.jpg`, "Helicopter cockpit over the coast", "Helicopters"],
   [`${T}tanks.jpg`, "A tank on the battlefield", "Armor"],
-  [`${T}gunship.jpg`, "Attack gunship over the treeline", "Attack gunship, chin gun tracks the gunner's view"],
+  [`${T}gunship.jpg`, "Transport helicopter flying over the treeline", "Transport helicopter"],
   [`${T}action-2.jpg`, "Red-dot sight view on foot", "On foot, red-dot up"],
 ];
 
