@@ -312,10 +312,28 @@ async function lookupCallsign(name) {
   return payload.email;
 }
 
+// Phone keyboards and copy/paste add things the callsign lookup will not match:
+// zero-width characters, full-width letters, smart punctuation, an autocorrected
+// space ("Uncle Philburt") or a trailing period. Normalize first, then retry the
+// compact form if the typed form is unknown.
+function cleanIdentifier(raw) {
+  return String(raw || "")
+    .normalize("NFKC")
+    .replace(/[\u200B-\u200D\u2060\uFEFF\u00AD]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 async function loginEmail(identifier) {
-  const value = identifier.trim();
-  if (value.includes("@")) return value;
-  return lookupCallsign(value);
+  const value = cleanIdentifier(identifier);
+  if (value.includes("@")) return value.replace(/\s+/g, "");
+  try {
+    return await lookupCallsign(value);
+  } catch (error) {
+    const compact = value.replace(/\s+/g, "").replace(/[.,;:!?]+$/, "");
+    if (compact && compact !== value) return lookupCallsign(compact);
+    throw error;
+  }
 }
 
 async function rememberCallsign(session) {

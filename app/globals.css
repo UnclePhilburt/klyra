@@ -1477,3 +1477,12 @@ html.kxMobile li:has(> a[href^="/play"]),
 html.kxMobile .kxDlAlt:has(a[href^="/play"]),
 html.kxMobile .kxFreeCard:has(a[href^="/play"]) { display: none !important; }
 html.kxMobile .kxDeploy { grid-template-columns: 1fr; }
+/* ===== Callsigns stay on one line */
+.kxCallsign { display: inline-block; max-width: 100%; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
+.kxAccount .kxCallsign { max-width: 16ch; }
+.kxCallsignTitle { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; word-break: normal; overflow-wrap: normal; hyphens: none; font-size: clamp(30px, 7.6vw, 96px); }
+@media (max-width: 700px) { .kxCallsignTitle { font-size: clamp(24px, 8.2vw, 52px); letter-spacing: -.01em; } .kxAccount .kxCallsign { max-width: 11ch; } }
+html.kxMobile .kxDesktopCopy { display: none; }html .kxIntro h1.kxCallsignTitle, html .pageIntro h1.kxCallsignTitle { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; word-break: normal; font-size: clamp(30px, 6.4vw, 96px); line-height: 1.05; }
+@media (max-width: 700px) { html .kxIntro h1.kxCallsignTitle, html .pageIntro h1.kxCallsignTitle { font-size: clamp(22px, 7.4vw, 48px); } }
+.kxFooter .kxCallsign { max-width: 100%; }.kxFooter a:has(.kxCallsign) { flex-wrap: wrap; column-gap: .3em; }
+.kxFooter a .kxCallsign { flex: 0 1 auto; }

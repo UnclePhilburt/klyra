@@ -36,7 +36,7 @@ export default function SiteFooter() {
           <div>
             <h2>Account</h2>
             <a href="/account/" style={ready ? undefined : { visibility: "hidden" }}>
-              {session ? `${callsignOf(session)} · Account` : "Sign in / Account"}
+              {session ? <><span className="kxCallsign">{callsignOf(session)}</span> &middot; Account</> : "Sign in / Account"}
             </a>
           </div>
         </nav>

@@ -192,9 +192,9 @@ export default function AccountPage() {
       <main>
         <section className="pageIntro kxIntro">
           <p className="tag">KLYRA Account</p>
-          <h1>{name}</h1>
+          <h1 className="kxCallsignTitle" title={name}>{name}</h1>
           <p className="lead">
-            This is the same account on the website and in the game. The browser version on the play page uses this sign-in. That build has degraded performance because it runs in a web browser.
+            This is the same account on the website and in the game.<span className="kxDesktopCopy"> The browser version on the play page uses this sign-in. That build has degraded performance because it runs in a web browser.</span>
             {since ? ` Member since ${since}.` : ""}
           </p>
           <p className={error ? "formMessage error" : "formMessage"}>{message}</p>
@@ -316,7 +316,7 @@ export default function AccountPage() {
           <p className="lead">
             {mode === "create"
               ? "Create the account you will use on the website and in the game."
-              : "Sign in with your callsign or your email. This is the same account the game uses. The browser version on the play page uses it too, with degraded performance because it runs in a web browser."}
+              : <>Sign in with your callsign or your email. This is the same account the game uses.<span className="kxDesktopCopy"> The browser version on the play page uses it too, with degraded performance because it runs in a web browser.</span></>}
           </p>
           {loading ? <p className="quiet">Restoring any saved sign-in...</p> : null}
         </div>
@@ -381,6 +381,9 @@ export default function AccountPage() {
                 onInput={(event) => setEmail(event.target.value)}
                 type="text"
                 autoComplete="username"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 required
               />
             </label>

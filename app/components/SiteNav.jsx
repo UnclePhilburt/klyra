@@ -95,7 +95,7 @@ export default function SiteNav() {
             style={ready ? undefined : { visibility: "hidden" }}
           >
             <AccountMark />
-            <span>{accountLabel}</span>
+            <span className="kxCallsign">{accountLabel}</span>
           </a>
           <a className="kxPlayBtn" href="/play/">Play</a>
           <button
@@ -116,7 +116,7 @@ export default function SiteNav() {
           <AccountMark />
           <span>
             <small>{session ? "Signed in" : "Your account"}</small>
-            <strong>{session ? callsign : "Sign in / Create account"}</strong>
+            <strong className="kxCallsign">{session ? callsign : "Sign in / Create account"}</strong>
           </span>
           <b aria-hidden="true">&rarr;</b>
         </a>

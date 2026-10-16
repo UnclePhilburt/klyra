@@ -10,7 +10,7 @@ export default function AccountLink({ className = "textLink", signedOutLabel = "
   if (!ready) return <span className={className} aria-hidden="true" style={{ visibility: "hidden" }}>{signedOutLabel}</span>;
   return (
     <a className={className} href="/account/">
-      {session ? <>{signedInPrefix} <strong>{callsignOf(session)}</strong> &rarr;</> : signedOutLabel}
+      {session ? <>{signedInPrefix} <strong className="kxCallsign">{callsignOf(session)}</strong> &rarr;</> : signedOutLabel}
     </a>
   );
 }
