@@ -7,25 +7,25 @@ const TRAILER_ID = "Bq7vnDIWrbc";
 
 const teams = [
   {
-    id: "ironclad",
-    name: "Ironclad",
-    logo: "/teams/ironclad.svg",
+    id: "blackline",
+    name: "Blackline Group",
+    logo: "/teams/blackline-group.svg",
     color: "#f15a52",
-    line: "You drop under the red shield. The front does not care which side you picked. Ironclad still has to take it.",
+    line: "You drop under the red shield. The front does not care which side you picked. Blackline Group still has to take it.",
   },
   {
-    id: "timberwolf",
-    name: "Timberwolf",
-    logo: "/teams/timberwolf.svg",
+    id: "hollow",
+    name: "Kin of the Hollow",
+    logo: "/teams/kin-of-the-hollow.svg",
     color: "#61cf88",
-    line: "You drop under the wolf. Same battle, same trucks, same race to 100. Timberwolf holds until the zone moves.",
+    line: "You drop under the green mark. Same battle, same trucks, same race to 100. Kin of the Hollow holds until the zone moves.",
   },
   {
-    id: "vanguard",
-    name: "Vanguard",
-    logo: "/teams/vanguard.svg",
+    id: "regiment",
+    name: "The Regiment",
+    logo: "/teams/regiment.svg",
     color: "#4bb6ff",
-    line: "You drop under the blue mark. Push the fight, keep the base supplied, and get your gear home for Vanguard.",
+    line: "You drop under the blue mark. Push the fight, keep the supplies moving, and get your gear home for The Regiment.",
   },
 ];
 
@@ -85,7 +85,7 @@ function TrailerPlayer() {
 }
 
 export default function Home() {
-  const [teamId, setTeamId] = useState("ironclad");
+  const [teamId, setTeamId] = useState("blackline");
   const team = teams.find((item) => item.id === teamId) || teams[0];
   const musicRef = useRef(null);
 
@@ -130,7 +130,7 @@ export default function Home() {
             Fight the <span>front.</span>
           </h1>
           <p className="kxLead">
-            Ironclad, Timberwolf, and Vanguard. Push the battle, run the
+            The Regiment, Kin of the Hollow, and Blackline Group. Push the battle, run the
             supplies, and bring your gear home.
           </p>
           <div className="kxActions">
@@ -299,7 +299,7 @@ export default function Home() {
         <a className="kxDeployCard" href="/features/">
           <span>The battlefield</span>
           <strong>What you can do</strong>
-          <p>Factions, helicopters, bases, logistics, and the weapon builder.</p>
+          <p>Factions, helicopters, logistics, and the weapon builder.</p>
         </a>
       </section>
     </main>

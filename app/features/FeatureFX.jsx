@@ -119,7 +119,7 @@ export function BotSlider() {
 export function Graphic({ kind }) {
   if (kind === "factions") return (
     <div className="kxGfx kxGfxFactions">
-      {[["ironclad", "#f15a52", "Ironclad"], ["timberwolf", "#61cf88", "Timberwolf"], ["vanguard", "#4bb6ff", "Vanguard"]].map(([id, c, n], i) => (
+      {[["blackline", "#f15a52", "Blackline Group"], ["hollow", "#61cf88", "Kin of the Hollow"], ["regiment", "#4bb6ff", "The Regiment"]].map(([id, c, n], i) => (
         <div key={id} style={{ "--c": c, "--i": i }}><img src={`/teams/${id}.svg`} alt="" /><span>{n}</span></div>
       ))}
       <p className="kxGfxCaption">First to <b>100</b> points</p>

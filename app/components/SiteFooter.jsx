@@ -4,7 +4,7 @@ import { callsignOf } from "../session";
 import { useSession } from "../useSession";
 
 const groups = [
-  ["Game", [["Play", "/play/"], ["Download", "/download/"], ["Features", "/features/"], ["Trailer", "/trailer/"]]],
+  ["Game", [["Play", "/play/"], ["Download", "/download/"], ["Features", "/features/"], ["Factions", "/factions/"], ["Arsenal", "/arsenal/"]]],
   ["Development", [["Roadmap", "/roadmap/"], ["Devlog", "/devlog/"], ["Get Klyra", "/support/"]]],
   ["Community", [["Community", "/community/"]]],
 ];

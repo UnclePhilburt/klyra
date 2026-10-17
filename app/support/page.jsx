@@ -6,7 +6,7 @@ import { topics } from "../components/helpTopics";
 export const metadata = {
   title: "Get Klyra · Klyra: Broken Front",
   description:
-    "Buy KLYRA Supporter Edition ($4.99, one-time, Windows + Mac) or reach the team: Discord, account help, and answers to common questions.",
+    "Buy KLYRA Supporter Edition ($4.99, one-time, Windows + Mac), plus answers to common questions.",
 };
 
 const included = [
@@ -25,7 +25,7 @@ export default function GetKlyraPage() {
         <p className="lead">Play free in your browser. The Supporter Edition unlocks the Windows and Mac download and supports development.</p>
         <nav className="kxJump" aria-label="On this page">
           <a href="#buy"><small>01</small>Buy</a>
-          <a href="#team"><small>02</small>Reach the team</a>
+          <a href="#team"><small>02</small>Questions</a>
         </nav>
       </section>
 
@@ -93,39 +93,8 @@ export default function GetKlyraPage() {
       </section>
 
       <section id="team" className="section kxAnchor">
-        <div className="sectionIntro">
-          <p className="tag">02 // Reach the team</p>
-          <h2>Straight to the developer.</h2>
-          <p>Bug reports, purchase questions, and account issues all go to the same place, and they get read.</p>
-        </div>
-        <div className="cards kxContact">
-          <article>
-            <span>Discord</span>
-            <h3>The KLYRA Discord</h3>
-            <p>Report a bug, pitch an idea, ask about a purchase, or find a squad. It&apos;s the fastest line to the developer.</p>
-            <a className="button" href="https://discord.gg/fNkZjwQJBX" target="_blank" rel="noreferrer">Join Discord ↗</a>
-          </article>
-          <article>
-            <span>Account</span>
-            <h3>Your account</h3>
-            <SignedOut>
-              <p>Sign in or create an account, reset a password, or change your callsign on the account page.</p>
-            </SignedOut>
-            <SignedIn>
-              <p>You&apos;re signed in. Change your callsign, reset your password, and see your purchases and receipts on the account page.</p>
-            </SignedIn>
-            <AccountLink className="button ghost" signedOutLabel="Open account" signedInPrefix="" />
-          </article>
-          <article>
-            <span>Purchases</span>
-            <h3>Payment questions</h3>
-            <p>Every receipt is on your account page after checkout. If a payment went through and access hasn&apos;t shown up, post on Discord with your callsign and it gets sorted.</p>
-            <a className="button ghost" href="#buy">Back to Buy</a>
-          </article>
-        </div>
-
         <div className="sectionIntro kxFaqHead">
-          <p className="tag">Common questions</p>
+          <p className="tag">02 // Common questions</p>
           <h2>Get into the match.</h2>
         </div>
         <div className="faq">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import SupporterAccess from "../components/SupporterAccess";
+import FriendsCard from "./FriendsCard";
 import {
   callsignOf,
   memberSince,
@@ -253,6 +254,8 @@ export default function AccountPage() {
                 <p>Your record shows up after you fight.</p>
               )}
             </article>
+
+            <FriendsCard session={session} />
 
             <article className="kxAcctCard kxAcctIn" style={{ "--d": "240ms" }}>
               <header>

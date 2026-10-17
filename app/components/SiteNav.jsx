@@ -7,16 +7,18 @@ import { useSession } from "../useSession";
 
 const pages = [
   ["Features", "/features/"],
+  ["Factions", "/factions/"],
+  ["Arsenal", "/arsenal/"],
   ["Download", "/download/"],
   ["Roadmap", "/roadmap/"],
   ["Community", "/community/"],
 ];
 
 const morePages = [
+  ["Friends", "/friends/"],
   ["Browser", "/play/"],
   ["Devlog", "/devlog/"],
   ["Get Klyra", "/support/"],
-  ["Trailer", "/trailer/"],
 ];
 
 function AccountMark() {
@@ -41,6 +43,20 @@ export default function SiteNav() {
   const { session, ready } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [requests, setRequests] = useState(0);
+
+  useEffect(() => {
+    const read = () => setRequests(Math.max(0, Number(window.__klyraFriendRequests) || 0));
+    read();
+    window.addEventListener("klyra-friend-requests", read);
+    return () => window.removeEventListener("klyra-friend-requests", read);
+  }, []);
+
+  const badge = requests > 0 ? (
+    <span className="kxFriendBadge" role="img" aria-label={`${requests} pending friend request${requests === 1 ? "" : "s"}`}>
+      {requests > 9 ? "9+" : String(requests)}
+    </span>
+  ) : null;
 
   const callsign = session ? callsignOf(session) : "";
   const accountLabel = callsign || "Sign in";
@@ -67,7 +83,11 @@ export default function SiteNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const isActive = (href) => (href === "/" ? pathname === "/" : pathname?.startsWith(href));
+  const isActive = (href) => {
+    if (href === "/") return pathname === "/";
+    if (href === "/arsenal/") return ["/arsenal", "/weapons", "/vehicles"].some((p) => pathname?.startsWith(p));
+    return pathname?.startsWith(href);
+  };
 
   return (
     <>
@@ -83,6 +103,7 @@ export default function SiteNav() {
               {label}
             </a>
           ))}
+          <a href="/friends/" aria-current={isActive("/friends/") ? "page" : undefined}>Friends{badge}</a>
           <a href="/support/" aria-current={isActive("/support/") ? "page" : undefined}>Get Klyra</a>
         </div>
 
@@ -133,6 +154,7 @@ export default function SiteNav() {
               <span>{String(index + 1).padStart(2, "0")}</span>
               {label}
               {href.startsWith("http") ? " ↗" : ""}
+              {href === "/friends/" ? badge : null}
             </a>
           ))}
         </div>

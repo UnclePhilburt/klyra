@@ -16,8 +16,8 @@ export default function DevlogPage() {
           and player-driven gameplay.
         </p>
         <p>
-          From infantry combat and helicopters to logistics, weapon
-          customization, and forward operating bases, KLYRA is being built and
+          From infantry combat and helicopters to logistics, and weapon
+          customization, KLYRA is being built and
           expanded one system at a time.
         </p>
         <p>
@@ -52,7 +52,7 @@ export default function DevlogPage() {
           <h2>The pre-alpha is playable.</h2>
           <p>
             The desktop build has the three factions, a moving front that ends
-            at 100 points, helicopters, supply trucks, forward bases, a weapon
+            at 100 points, helicopters, supply trucks, a weapon
             builder, revive, and a stash for gear you extract. Online rooms hold
             up to 20 players. Official dedicated servers run 90 bots, and when you host your own match you choose the bot count, up to 90.
             Two people can also play on one computer with two controllers.

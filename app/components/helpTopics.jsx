@@ -33,9 +33,7 @@ export const topics = [
       <>
         Your account lives on the account page. Bug reports, suggestions,
         and multiplayer groups go on the{" "}
-        <a href="https://discord.gg/fNkZjwQJBX" target="_blank" rel="noreferrer">
-          KLYRA Discord
-        </a>
+        <a href="/community/">Community page</a>
         . There is no public email on this site.
       </>
     ),

@@ -1,10 +1,9 @@
-import TrailerPlayer from "../components/TrailerPlayer";
 import { BotSlider, Chapters, Counter, RevealRoot } from "./FeatureFX";
 
 export const metadata = {
   title: "Features · Klyra: Broken Front",
   description:
-    "Three factions, up to 90 bots (official dedicated servers run 90), multiplayer, split-screen, helicopters, forward bases, logistics, and a weapon builder.",
+    "Three factions, up to 90 bots (official dedicated servers run 90), multiplayer, split-screen, helicopters, logistics, and a weapon builder.",
 };
 
 const T = "/shots/trailer/";
@@ -19,13 +18,12 @@ const shots = [
 // Photos only where a trailer still really shows the feature; the rest use
 // typographic / animated UI graphics.
 const features = [
-  { index: "01", title: "Three factions", gfx: "factions", copy: "Ironclad, Timberwolf, and Vanguard share one battlefield. The zone moves. First side to 100 points wins." },
+  { index: "01", title: "Three factions", gfx: "factions", copy: "The Regiment, Kin of the Hollow, and Blackline Group share one battlefield. The zone moves. First side to 100 points wins." },
   { index: "02", title: "Multiplayer", gfx: "players", copy: "Online rooms hold up to 20 players. Bots fill out the rest of the field." },
   { index: "03", title: "Split-screen", gfx: "split", copy: "Two players, one computer. Both people play with a controller." },
   { index: "04", title: "Helicopters", img: `${T}heli.jpg`, alt: "Helicopter cockpit over the coast", copy: "Get in a helicopter, fly the fight, and move people across the front." },
-  { index: "05", title: "FOB building", gfx: "fob", copy: "Put up a forward operating base and keep it in the fight with supplies." },
-  { index: "06", title: "Logistics", gfx: "logistics", copy: "Trucks carry soldiers and supplies. The front only holds if someone runs them." },
-  { index: "07", title: "Weapon builder", img: `${T}armory.jpg`, alt: "A weapon built from parts", copy: "Build a weapon from parts and take that loadout onto the field. Gear you extract stays in your stash." },
+  { index: "05", title: "Logistics", gfx: "logistics", copy: "Trucks carry soldiers and supplies. The front only holds if someone runs them." },
+  { index: "06", title: "Weapon builder", img: `${T}armory.jpg`, alt: "A weapon built from parts", copy: "Build a weapon from parts and take that loadout onto the field. Gear you extract stays in your stash." },
 ];
 
 
@@ -51,13 +49,6 @@ export default function FeaturesPage() {
         <div data-reveal><strong><Counter to={90} /></strong><span>Max bots per match</span></div>
         <div data-reveal><strong><Counter to={20} /></strong><span>Players per online room</span></div>
         <div data-reveal><strong><Counter to={100} /></strong><span>Points to win</span></div>
-      </section>
-
-      <section className="kxTrailer kxTrailerTight" aria-label="Pre-alpha gameplay">
-        <div className="kxTrailerHead">
-          <p className="tag">Pre-alpha version</p>
-        </div>
-        <TrailerPlayer />
       </section>
 
       <section className="section">

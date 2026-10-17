@@ -18,7 +18,7 @@ function AppleIcon() {
 const steps = [
   ["01", "Download the launcher", "Free for Windows and Mac. It keeps the game up to date."],
   ["02", "Sign in", "Use the same KLYRA account as this site."],
-  ["03", "Drop in", "Pick Ironclad, Timberwolf, or Vanguard and push the front. Your account keeps the gear you extract."],
+  ["03", "Drop in", "Pick The Regiment, Kin of the Hollow, or Blackline Group and push the front. Your account keeps the gear you extract."],
 ];
 
 export default function DownloadPanel() {

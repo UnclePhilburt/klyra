@@ -1569,3 +1569,99 @@ html .kxAcctBanner h1.kxCallsignTitle { max-width: 100%; font-size: min(clamp(40
 .kxAcctPage:has(.supporterWelcome):not(:has(.supporterTest)) .kxAcctSupporterTag { display: inline-flex; }
 .kxAcctPage:has(.supporterOffer) .kxAcctGetLink { display: inline; }
 @media (max-width: 480px) { .kxAcctMeta { font-size: 13px; letter-spacing: .04em; gap: 6px 8px; } .kxAcctGetLink { display: none !important; } }.kxAcctBanner { padding-left: max(16px, calc((100% - 1080px) / 2)); padding-right: max(16px, calc((100% - 1080px) / 2)); }
+
+/* ===== 3D model pages (factions, weapons, vehicles) */
+.kx3d { --team: #d8b45a; }
+.kx3d h1 span, .kx3dH2 span { color: var(--team); }
+.kx3dHead, .kx3dSection, .kx3dGrid, .kx3dList { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+.kx3dHead { padding: clamp(112px, 15vh, 160px) 0 clamp(24px, 4vw, 40px); }
+.kx3dHead h1, .kx3dHero h1 { margin: 0 0 14px; font-size: clamp(48px, 9vw, 120px); line-height: .9; font-weight: 900; text-transform: uppercase; }
+.kx3dHead .lead { max-width: 60ch; }
+.kx3dModel, .kxModel { position: relative; width: 100%; aspect-ratio: 1 / 1; min-height: 280px; background: radial-gradient(ellipse at 50% 60%, color-mix(in srgb, var(--team) 18%, transparent), transparent 62%), linear-gradient(180deg, #121510, #0a0c09); border: 1px solid rgba(255,255,255,.09); overflow: hidden; }
+.kxModel::after { content: ""; position: absolute; left: 10%; right: 10%; bottom: 9%; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--team) 70%, transparent), transparent); pointer-events: none; }
+.kxModel model-viewer { position: absolute; inset: 0; opacity: 0; transition: opacity .5s ease; }
+.kxModel.isLoaded model-viewer { opacity: 1; }
+.kxModelLoading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: var(--mono, ui-monospace, monospace); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: rgba(236,230,214,.55); }
+.kxModelLoading i { width: 14px; height: 14px; border: 2px solid rgba(216,180,90,.3); border-top-color: #d8b45a; border-radius: 50%; animation: kxSpin .8s linear infinite; }
+@keyframes kxSpin { to { transform: rotate(360deg); } }
+.kxModelLabel { position: absolute; left: 14px; top: 12px; padding: 5px 10px; background: rgba(8,10,8,.75); border-left: 3px solid var(--team); font-family: var(--mono, ui-monospace, monospace); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: #ece6d6; pointer-events: none; }
+.kxModelHint { position: absolute; right: 14px; bottom: 12px; font-family: var(--mono, ui-monospace, monospace); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: rgba(236,230,214,.45); pointer-events: none; }
+.kx3dHero { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: clamp(104px, 14vh, 150px) 0 clamp(32px, 5vw, 56px); display: grid; gap: clamp(20px, 4vw, 48px); align-items: center; }
+.kx3dHero .tag a { color: inherit; text-decoration: none; }
+.kx3dArchetype { margin: 0 0 14px; font-family: var(--mono, ui-monospace, monospace); font-size: 14px; letter-spacing: .14em; text-transform: uppercase; color: var(--team); }
+.kx3dStage .kxModel { aspect-ratio: 4 / 5; max-height: 78vh; }
+.kx3dFacts { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.kx3dFacts li { padding: 6px 12px; border: 1px solid rgba(255,255,255,.14); font-size: 14px; color: rgba(236,230,214,.8); }
+.kx3dGrid { display: grid; gap: 18px; padding-bottom: clamp(40px, 6vw, 72px); }
+.kx3dCard { display: grid; background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.09); border-top: 3px solid var(--team); }
+.kx3dCard .kxModel { border: 0; }
+.kx3dCardText { padding: clamp(18px, 2.4vw, 26px); display: grid; gap: 8px; align-content: start; }
+.kx3dCardText h2 { margin: 0; font-size: clamp(26px, 3vw, 38px); text-transform: uppercase; line-height: 1; }
+.kx3dCardText p { margin: 0; font-size: 16px; color: rgba(236,230,214,.76); }
+.kx3dCardText .button { justify-self: start; margin-top: 8px; min-height: 48px; }
+.kx3dTeam { font-family: var(--mono, ui-monospace, monospace); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--team); }
+.kx3dSection { padding: clamp(36px, 6vw, 72px) 0 clamp(48px, 7vw, 88px); }
+.kx3dH2 { margin: 6px 0 22px; font-size: clamp(32px, 5vw, 64px); text-transform: uppercase; line-height: .95; }
+.kx3dOthers { display: grid; gap: 14px; margin-top: 14px; }
+.kx3dOther { display: grid; gap: 4px; padding: 22px; border: 1px solid rgba(255,255,255,.1); border-left: 4px solid var(--team); background: rgba(255,255,255,.025); text-decoration: none; color: inherit; transition: background .2s ease, transform .2s ease; }
+.kx3dOther:hover { background: rgba(255,255,255,.05); transform: translateY(-2px); }
+.kx3dOther span { font-family: var(--mono, ui-monospace, monospace); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--team); }
+.kx3dOther strong { font-size: 30px; text-transform: uppercase; line-height: 1; }
+.kx3dOther em { font-style: normal; color: rgba(236,230,214,.7); }
+.kx3dList { display: grid; gap: clamp(20px, 4vw, 40px); padding-bottom: clamp(40px, 6vw, 72px); }
+.kx3dRow { display: grid; background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.09); }
+.kx3dRow .kxModel { border: 0; aspect-ratio: 16 / 10; }
+.kx3dParts { display: grid; gap: 18px; margin-top: 14px; }
+.kx3dParts h3 { margin: 0 0 10px; font-size: 20px; text-transform: uppercase; }
+.kx3dParts ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); }
+.kx3dParts li { padding: 12px 14px; background: #0c0f0b; font-size: 16px; }
+@media (min-width: 760px) {
+  .kx3dGrid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kx3dGrid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .kx3dOthers, .kx3dParts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 960px) {
+  .kx3dHero { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+  .kx3dRow { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); align-items: center; }
+  .kx3dRow.flip .kxModel { order: 2; }
+}
+.kx3dHero h1 { font-size: clamp(44px, 7vw, 96px); overflow-wrap: anywhere; }
+@media (min-width: 960px) { .kx3dHero h1 { font-size: clamp(56px, 6.2vw, 96px); } }
+.kx3dTagline { margin: 6px 0 0; max-width: 22ch; font-size: clamp(22px, 2.6vw, 32px); line-height: 1.15; font-weight: 800; color: #ece6d6; }
+.kx3dLore { display: grid; gap: clamp(24px, 4vw, 56px); }
+.kx3dLoreText { display: grid; gap: 16px; }
+.kx3dLoreText p:not(.tag) { margin: 0; max-width: 62ch; font-size: clamp(17px, 1.4vw, 19px); line-height: 1.6; color: rgba(236,230,214,.84); }
+.kx3dQuotes { display: grid; gap: 14px; align-content: start; }
+.kx3dQuotes figure { margin: 0; padding: 22px 24px; border: 1px solid rgba(255,255,255,.1); border-left: 4px solid var(--team); background: rgba(255,255,255,.03); }
+.kx3dQuotes figure.others { border-left-color: rgba(236,230,214,.35); }
+.kx3dQuotes figcaption { font-family: var(--mono, ui-monospace, monospace); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--team); margin-bottom: 8px; }
+.kx3dQuotes figure.others figcaption { color: rgba(236,230,214,.6); }
+.kx3dQuotes blockquote { margin: 0; font-size: clamp(20px, 2vw, 26px); line-height: 1.25; font-weight: 700; color: #ece6d6; }
+@media (min-width: 960px) { .kx3dLore { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); } }
+.kx3dExtra { display: grid; gap: 18px; padding-top: 0; }
+.kx3dExtraCard { padding: clamp(22px, 3vw, 32px); border: 1px solid rgba(255,255,255,.1); border-top: 3px solid var(--team); background: rgba(255,255,255,.03); display: grid; gap: 12px; align-content: start; }
+.kx3dExtraCard h2 { margin: 0; font-size: clamp(26px, 3vw, 36px); text-transform: uppercase; line-height: 1; }
+.kx3dExtraCard p { margin: 0; font-size: 17px; line-height: 1.6; color: rgba(236,230,214,.84); }
+@media (min-width: 860px) { .kx3dExtra { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 960px) { .kx3dRow.flip { grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); } }
+
+.kx3dRivals { display: grid; gap: 16px; }
+.kx3dRival { padding: clamp(20px, 3vw, 28px); border: 1px solid rgba(255,255,255,.1); border-top: 3px solid var(--team); background: rgba(255,255,255,.03); display: grid; gap: 12px; align-content: start; }
+.kx3dRival h3 { margin: 0; font-size: 22px; text-transform: uppercase; color: var(--team); }
+.kx3dRival ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.kx3dRival li { padding-left: 12px; border-left: 2px solid var(--vs); font-size: 16px; line-height: 1.5; color: rgba(236,230,214,.84); }
+.kx3dRival li span { display: block; font-family: var(--mono, ui-monospace, monospace); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--vs); margin-bottom: 2px; }
+.kx3dRivalNote { margin: 4px 0 0; font-weight: 800; font-size: 18px; color: #ece6d6; }
+@media (min-width: 900px) { .kx3dRivals { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); } }
+/* rim-light look: dark stage, strong back glow + side edge light, soft key from the front-left */
+.kxModel { background:
+  radial-gradient(ellipse 38% 55% at 50% 46%, color-mix(in srgb, var(--team) 34%, transparent), transparent 70%),
+  radial-gradient(ellipse 30% 70% at 88% 40%, rgba(236,230,214,.10), transparent 70%),
+  radial-gradient(ellipse 40% 60% at 12% 30%, rgba(236,230,214,.06), transparent 70%),
+  #070807; }
+.kxModel model-viewer { filter: drop-shadow(0 0 1px rgba(255,240,210,.55)) drop-shadow(6px -2px 10px color-mix(in srgb, var(--team) 45%, transparent)) drop-shadow(-4px 0 14px rgba(236,230,214,.12)); }
+/* Friends link in the main nav (8 links): keep the desktop nav on one line between 961px and 1360px. */
+@media (min-width:961px) and (max-width:1360px){.kxNav{gap:10px}.kxBrand{flex-shrink:0}.kxNavLinks{gap:0}.kxNavLinks a{padding:0 7px;letter-spacing:.06em;white-space:nowrap}.kxNavLinks a:after{left:7px;right:7px}}@media (min-width:961px) and (max-width:1100px){.kxNavLinks a{padding:0 5px;font-size:12px;letter-spacing:.04em}.kxNavLinks a:after{left:5px;right:5px}}@media (min-width:961px) and (max-width:1060px){.kxBrand span{display:none}}
+
+/* Pending friend request badge on the Friends nav link. */
+.kxFriendBadge{display:inline-grid;place-items:center;min-width:18px;height:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:var(--gold,#d8b45a);color:#12140f;font:800 11px/1 ui-monospace,Consolas,monospace;letter-spacing:0;vertical-align:middle;box-shadow:0 0 0 2px rgba(216,180,90,.18)}.kxNavLinks a .kxFriendBadge{position:relative;top:-1px}.kxDrawerLinks .kxFriendBadge{min-width:26px;height:26px;margin-left:12px;padding:0 7px;border-radius:13px;font-size:14px}
