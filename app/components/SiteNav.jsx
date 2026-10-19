@@ -18,6 +18,7 @@ const morePages = [
   ["Friends", "/friends/"],
   ["Browser", "/play/"],
   ["Devlog", "/devlog/"],
+  ["Character Store", "/store/"],
   ["Support Klyra", "/support/"],
 ];
 

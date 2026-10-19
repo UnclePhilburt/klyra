@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import SupporterAccess from "../components/SupporterAccess";
 import FriendsCard from "./FriendsCard";
+import OwnedCharacters from "../store/OwnedCharacters";
 import {
   callsignOf,
   memberSince,
@@ -225,6 +226,8 @@ export default function AccountPage() {
               </header>
               <SupporterAccess />
             </article>
+
+            <OwnedCharacters session={session} />
 
             <article className="kxAcctCard wide kxAcctIn" style={{ "--d": "180ms" }}>
               <header>

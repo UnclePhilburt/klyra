@@ -1898,3 +1898,83 @@ html .kxAcctBanner h1.kxCallsignTitle { max-width: 100%; font-size: min(clamp(40
 .kxSupPerkList em.always { color: var(--gold); border-color: rgba(215,181,122,.5); background: rgba(215,181,122,.08); }
 @keyframes kxLivePulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
 @media (prefers-reduced-motion: reduce) { .kxSupPerkList em.live i { animation: none; } }
+
+/* Character store */
+.kxStorePage { background: #0b0e0b; }
+.kxStoreHero h1 { overflow-wrap: anywhere; }
+.kxStoreFacts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.kxStoreFacts span { display: inline-flex; align-items: baseline; gap: 8px; min-height: 36px; align-items: center; padding: 0 14px; border: 1px solid rgba(255,255,255,.14); background: rgba(8,10,8,.6); font: 700 12px ui-monospace, Consolas, monospace; letter-spacing: .12em; text-transform: uppercase; color: rgba(240,236,220,.78); }
+.kxStoreFacts b { color: var(--gold); font-weight: 900; }
+.kxStoreBody { width: min(1240px, calc(100% - 32px)); margin: 0 auto; padding: clamp(24px, 4vw, 40px) 0 clamp(56px, 8vw, 104px); }
+.kxStore { display: grid; gap: clamp(28px, 4vw, 48px); }
+.kxStoreNotice { display: grid; gap: 6px; padding: 18px 22px; border: 1px solid rgba(111,174,84,.55); border-left: 4px solid #6fae54; background: linear-gradient(90deg, rgba(111,174,84,.16), rgba(111,174,84,.03)); }
+.kxStoreNotice p { margin: 0; font-size: clamp(16px, 1.6vw, 19px); font-weight: 800; color: #e6f0dc; }
+.kxStoreNoticeTag { font: 800 11px ui-monospace, Consolas, monospace; letter-spacing: .2em; color: #8fd06f; }
+.kxStoreError { margin: 0; padding: 14px 18px; border-left: 4px solid var(--bad); background: rgba(236,150,116,.08); color: #f3c3ad; }
+.kxStoreStatus { display: flex; flex-wrap: wrap; gap: 10px 22px; justify-content: space-between; align-items: center; font-size: 15px; color: rgba(236,230,214,.75); }
+.kxStoreStatus a { color: var(--gold); }
+.kxStoreSoon { font: 800 12px ui-monospace, Consolas, monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); padding: 8px 12px; border: 1px dashed rgba(216,180,90,.5); }
+.kxStoreGroup { display: grid; gap: 20px; }
+.kxStoreGroupHead { display: grid; gap: 8px; max-width: 760px; }
+.kxStoreGroupHead .tag { margin: 0; color: var(--gold); font-size: 12px; }
+.kxStoreGroupHead h2 { margin: 0; font-size: clamp(30px, 4.5vw, 52px); line-height: .95; font-weight: 900; text-transform: uppercase; }
+.kxStoreGroupHead p:not(.tag) { margin: 0; color: rgba(236,230,214,.72); font-size: 16px; }
+.kxCharGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+.kxCharGrid.three { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.kxCharCard { position: relative; display: grid; grid-template-rows: auto 1fr; min-width: 0; background: linear-gradient(180deg, #121812, #0d110d); border: 1px solid rgba(255,255,255,.08); border-top: 3px solid var(--team, var(--gold)); scroll-margin-top: 90px; }
+.kxCharCard.exclusive { border-color: rgba(216,180,90,.35); border-top-color: var(--gold); background: radial-gradient(ellipse at 50% 0%, rgba(216,180,90,.12), transparent 60%), linear-gradient(180deg, #15160f, #0e100c); }
+.kxCharCard.isOwned { box-shadow: inset 0 0 0 1px rgba(111,174,84,.45); }
+.kxCharCard.isFocus { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); grid-template-rows: auto; }
+.kxCharStage { position: relative; aspect-ratio: 3 / 4; overflow: hidden; background: radial-gradient(ellipse at 50% 62%, color-mix(in srgb, var(--team, var(--gold)) 22%, transparent), transparent 62%), linear-gradient(180deg, #131711, #0a0c09); }
+.kxCharStage::after { content: ""; position: absolute; left: 12%; right: 12%; bottom: 10%; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--team, var(--gold)) 70%, transparent), transparent); pointer-events: none; }
+.kxCharStage.large { aspect-ratio: 4 / 5; max-height: 78vh; }
+.kxCharPoster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity .4s ease; }
+.kxCharStage model-viewer { position: absolute; inset: 0; opacity: 0; transition: opacity .5s ease; }
+.kxCharStage.isLoaded model-viewer { opacity: 1; }
+.kxCharStage.isLoaded .kxCharPoster { opacity: 0; }
+.kxChar3d { position: absolute; right: 10px; bottom: 10px; min-width: 44px; min-height: 44px; padding: 0 12px; border: 1px solid rgba(255,255,255,.28); background: rgba(8,10,8,.75); color: #f0ecdc; font: 800 12px ui-monospace, Consolas, monospace; letter-spacing: .14em; cursor: pointer; }
+.kxChar3d:hover, .kxChar3d:focus-visible { border-color: var(--gold); color: var(--gold); }
+.kxCharLoading { position: absolute; left: 50%; bottom: 14px; width: 60px; height: 2px; transform: translateX(-50%); background: rgba(255,255,255,.12); overflow: hidden; }
+.kxCharLoading i { position: absolute; inset: 0; width: 40%; background: var(--team, var(--gold)); animation: kxCharLoad 1.1s ease-in-out infinite; }
+@keyframes kxCharLoad { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+.kxCharInfo { display: grid; align-content: start; gap: 10px; padding: 16px 16px 18px; }
+.kxCharCard.isFocus .kxCharInfo { padding: clamp(20px, 3vw, 36px); align-content: center; }
+.kxCharFlag { margin: 0; justify-self: start; padding: 4px 8px; border: 1px solid rgba(216,180,90,.6); background: rgba(216,180,90,.12); color: var(--gold); font: 800 10px ui-monospace, Consolas, monospace; letter-spacing: .18em; }
+.kxCharInfo h3 { margin: 0; font-size: 20px; line-height: 1.1; font-weight: 900; text-transform: uppercase; overflow-wrap: anywhere; }
+.kxCharCard.isFocus .kxCharInfo h3 { font-size: clamp(30px, 4vw, 48px); }
+.kxCharTeams { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.kxCharTeams li { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border: 1px solid color-mix(in srgb, var(--team) 55%, transparent); background: color-mix(in srgb, var(--team) 12%, transparent); font: 700 11px ui-monospace, Consolas, monospace; letter-spacing: .06em; text-transform: uppercase; color: #ece6d6; }
+.kxCharTeams i { width: 8px; height: 8px; background: var(--team); }
+.kxCharBuy { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 4px; }
+.kxCharPrice { font-size: 22px; font-weight: 900; color: var(--gold); font-variant-numeric: tabular-nums; }
+.kxCharCard.exclusive .kxCharPrice { font-size: 13px; font-weight: 700; color: rgba(236,230,214,.75); }
+.kxCharBtn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 16px; border: 1px solid var(--gold); background: linear-gradient(180deg, #e3c48d, #b89255); color: #14110c; font: 900 12px Inter, ui-sans-serif, system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; cursor: pointer; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)); }
+.kxCharBtn.ghost { background: rgba(10,12,11,.55); color: var(--text); border-color: var(--line-strong); clip-path: none; }
+.kxCharBtn:disabled { cursor: not-allowed; opacity: .6; background: rgba(216,180,90,.12); color: var(--gold); }
+.kxCharState { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; font: 900 12px ui-monospace, Consolas, monospace; letter-spacing: .18em; }
+.kxCharState.owned { border: 1px solid rgba(111,174,84,.7); background: rgba(111,174,84,.14); color: #a6e08a; }
+.kxCharState.muted { color: rgba(236,230,214,.5); }
+.kxCharNote { margin: 0; font-size: 13px; color: rgba(236,230,214,.6); }
+.kxStoreFocus { display: grid; gap: 12px; }
+.kxStoreBack { justify-self: start; color: var(--gold); }
+.kxOwnedGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.kxOwnedGrid a { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; padding: 8px 12px 8px 8px; border: 1px solid rgba(255,255,255,.1); border-left: 3px solid var(--team); background: rgba(255,255,255,.02); color: inherit; text-decoration: none; }
+.kxOwnedGrid a:hover { border-color: color-mix(in srgb, var(--team) 60%, transparent); }
+.kxOwnedGrid img { width: 64px; height: 86px; object-fit: contain; background: radial-gradient(ellipse at 50% 60%, color-mix(in srgb, var(--team) 25%, transparent), transparent 70%); }
+.kxOwnedGrid span { display: grid; gap: 4px; min-width: 0; }
+.kxOwnedGrid strong { font-size: 15px; text-transform: uppercase; overflow-wrap: anywhere; }
+.kxOwnedGrid small { font-size: 12px; color: rgba(236,230,214,.6); }
+.kxOwnedLink { justify-self: start; color: var(--gold); }
+@media (max-width: 760px) {
+  .kxCharCard.isFocus { grid-template-columns: 1fr; }
+  .kxCharGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .kxCharGrid.three { grid-template-columns: 1fr; }
+  .kxCharGrid.three .kxCharStage { aspect-ratio: 4 / 4; }
+  .kxCharInfo { padding: 12px; gap: 8px; }
+  .kxCharInfo h3 { font-size: 16px; }
+  .kxCharPrice { font-size: 18px; }
+  .kxCharBuy { flex-direction: column; align-items: stretch; }
+  .kxCharBtn, .kxCharState { justify-content: center; width: 100%; padding: 0 8px; font-size: 11px; letter-spacing: .08em; }
+  .kxCharTeams li { font-size: 10px; padding: 2px 6px; }
+  .kxStoreFacts span { font-size: 11px; }
+}
