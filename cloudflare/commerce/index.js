@@ -254,18 +254,6 @@ async function handle(request,env) {
   if(!request.headers.has("authorization"))return json({owned:false,sandbox:env.SQUARE_ENVIRONMENT!=="production",checkoutEnabled:env.CHECKOUT_ENABLED==="true"});
   const u=await user(request,env);return json({...await access(env,u.id),sandbox:env.SQUARE_ENVIRONMENT!=="production",checkoutEnabled:env.CHECKOUT_ENABLED==="true"});
  }
- if(path==="/checkout"&&request.method==="POST") {
-  if(env.CHECKOUT_ENABLED!=="true")fail(503,"Checkout is not open yet.");
-  if(!env.SQUARE_LOCATION_ID||!env.SQUARE_ACCESS_TOKEN||!env.SQUARE_WEBHOOK_SIGNATURE_KEY)fail(503,"Checkout is not ready yet.");
-  const u=await user(request,env);
-  if((await access(env,u.id)).owned)fail(409,"You already own Supporter Edition.");
-  const id=crypto.randomUUID();
-  await database(env,"supporter_orders","POST",{id,user_id:u.id,environment:env.SQUARE_ENVIRONMENT});
-  const {payment_link}=await square(env,"online-checkout/payment-links",{idempotency_key:id,order:{location_id:env.SQUARE_LOCATION_ID,reference_id:id,line_items:[{name:"KLYRA Supporter Edition",quantity:"1",base_price_money:{amount:PRICE,currency:CURRENCY}}]},checkout_options:{redirect_url:`${request.headers.get("origin")=== "https://www.klyra.lol" && env.SITE_ORIGIN === "https://klyra.lol" ? "https://www.klyra.lol" : env.SITE_ORIGIN}/support/?checkout=returned`,allow_tipping:false},pre_populated_data:{buyer_email:u.email}});
-  if(!payment_link?.order_id||!payment_link?.url)throw new Error("Checkout unavailable");
-  await database(env,`supporter_orders?id=eq.${id}`,"PATCH",{square_order_id:payment_link.order_id});
-  return json({url:payment_link.url});
- }
  if(path==="/download"&&request.method==="POST") {
   if(env.SQUARE_ENVIRONMENT!=="production")fail(403,"Sandbox purchases do not unlock real downloads.");
   const u=await user(request,env);if(!(await access(env,u.id)).owned)fail(403,"Supporter Edition is required.");
