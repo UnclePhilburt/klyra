@@ -41,12 +41,17 @@ const perks = [
   ["Supporter badge", "A gold supporter badge on your player card and next to your callsign in friends lists.", "Rolling out on the site"],
   ["In-game supporter marker", "A gold supporter diamond above your name in matches.", "Coming in the next game update"],
   ["Supporter Edition in the launcher", "Your launcher shows Supporter Edition once you have backed the game.", "Windows launcher 0.1.22"],
+  ["Supporter profile titles", "Five supporter-only titles for your profile card. See the full set below.", "Coming in the next game update"],
+  ["Supporter characters", "Exclusive playable characters for supporters.", "Coming soon"],
   ["Our thanks", "You keep the servers on and the front moving. That matters more than any badge.", "Yours today"],
 ];
+
+const supporterTitles = ["FOUNDING SUPPORTER", "FRONTLINE SUPPORTER", "BACKED THE FRONT", "EARLY REINFORCEMENT", "KLYRA VANGUARD"];
 
 const previewCard = {
   username: "Your callsign",
   supporter: true,
+  profile_title: "FOUNDING SUPPORTER",
   favorite_faction: "the-regiment",
   relationship: "self",
   stats: { matches: 42, wins: 23, kills: 318, deaths: 141, revives: 37, cash_earned: 18450 },
@@ -131,7 +136,7 @@ export default function SupportPage() {
         <div className="sectionIntro">
           <p className="tag">02 // What supporters get</p>
           <h2 id="kx-perks-title">Wear it with pride.</h2>
-          <p>Supporter perks are cosmetic. Supporters and free players fight the same war with the same gear. No advantage is for sale.</p>
+          <p>Supporter perks are cosmetic: a badge, a marker, titles and exclusive characters. Supporters and free players fight the same war with the same gear. No advantage is for sale.</p>
         </div>
         <div className="kxSupPerkGrid">
           <div className="kxSupPreview">
@@ -161,6 +166,25 @@ export default function SupportPage() {
         </div>
       </section>
 
+      <section className="section kxSupTitles" aria-labelledby="kx-titles-title">
+        <div className="sectionIntro">
+          <p className="tag">Supporter titles</p>
+          <h2 id="kx-titles-title">Earn your stripes.</h2>
+          <p>Five titles only supporters can wear on their profile card. Arriving with the next game update.</p>
+        </div>
+        <ul className="kxSupPlates">
+          {supporterTitles.map((title, i) => (
+            <li key={title} className="kxSupPlate" style={{ "--i": i }}>
+              <span className="kxSupPlateRivet l" aria-hidden="true" />
+              <span className="kxSupPlateNo">{String(i + 1).padStart(2, "0")}</span>
+              <strong>{title}</strong>
+              <span className="kxSupPlateStars" aria-hidden="true">&#9733;&#9733;&#9733;</span>
+              <span className="kxSupPlateRivet r" aria-hidden="true" />
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section id="buy" className="section kxAnchor kxSupBuy">
         <div className="sectionIntro">
           <p className="tag">03 // Become a supporter</p>
@@ -171,7 +195,7 @@ export default function SupportPage() {
           <div>
             <p className="tag">KLYRA: Broken Front</p>
             <h2>Supporter Edition</h2>
-            <p className="kxCardLead">Back an independent game and get your supporter badge.</p>
+            <p className="kxCardLead">Back an independent game and unlock supporter cosmetics: badge, titles, characters and an in-game marker.</p>
             <SupporterAccess />
           </div>
           <div>

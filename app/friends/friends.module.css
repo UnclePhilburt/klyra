@@ -65,3 +65,5 @@
 .counter { justify-self: end; font-family: var(--mono, ui-monospace, monospace); font-size: 12px; color: rgba(236,230,214,.55); }
 .cardTag { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .who small { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.cardTitle { margin: -6px 0 0; font: 800 13px/1.2 var(--mono, ui-monospace, monospace); letter-spacing: .2em; text-transform: uppercase; color: rgba(236,230,214,.7); }
+.cardTitleSup { color: var(--gold, #d8b45a); text-shadow: 0 0 12px rgba(215,181,122,.45); }

@@ -56,7 +56,7 @@ export default function DownloadPanel() {
           <span className="kxF2PSupportText">
             <small>Optional</small>
             <strong>Like it? Back the front.</strong>
-            <span>A one-time $4.99 Supporter Edition helps pay for servers and development, and puts a supporter badge on your player card.</span>
+            <span>A one-time $4.99 Supporter Edition helps pay for servers and development, and unlocks supporter cosmetics: badge, profile titles, exclusive characters and an in-game marker.</span>
           </span>
           <span className="kxF2PSupportGo">Support Klyra <b aria-hidden="true">&rarr;</b></span>
         </a>

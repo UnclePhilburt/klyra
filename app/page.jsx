@@ -332,7 +332,7 @@ export default function Home() {
         <a className="kxDeployCard kxDeploySupport" href="/support/">
           <span>Optional</span>
           <strong>Support Klyra</strong>
-          <p>The game is free. A one-time $4.99 Supporter Edition helps pay for servers and development.</p>
+          <p>The game is free. A one-time $4.99 Supporter Edition helps pay for servers and development, and unlocks supporter titles, characters and a badge.</p>
         </a>
       </section>
     </main>

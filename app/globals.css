@@ -1851,3 +1851,21 @@ html .kxAcctBanner h1.kxCallsignTitle { max-width: 100%; font-size: min(clamp(40
 @media (max-width: 420px) { .kxF2PStamp b { display: none; } }
 .kxF2PScan { height: 120px; background: linear-gradient(180deg, transparent 0%, rgba(246,220,152,.09) 50%, transparent 100%); }
 @media (max-width: 700px) { .kxF2PFace .kxF2PLabel strong { font-size: 19px; letter-spacing: .06em; } .kxF2PFace { gap: 14px; } .kxSupMedal { width: min(210px, 56vw); } }
+/* Supporter title nameplates */
+.kxSupPlates { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.kxSupPlate { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; min-height: 76px; padding: 14px 34px; color: #1a1408; background: linear-gradient(180deg, rgba(255,255,255,.35), transparent 38%, rgba(0,0,0,.12) 100%), repeating-linear-gradient(90deg, rgba(0,0,0,.04) 0 2px, transparent 2px 5px), linear-gradient(135deg, #f6dc98 0%, #d7b57a 42%, #b38a45 74%, #e7c985 100%); clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px); box-shadow: inset 0 0 0 2px rgba(26,20,8,.35); filter: drop-shadow(0 10px 22px rgba(0,0,0,.5)) drop-shadow(0 0 14px rgba(215,181,122,.22)); overflow: hidden; animation: kxPlateIn .6s cubic-bezier(.2,1.2,.4,1) both; animation-delay: calc(var(--i) * 90ms); transition: transform .2s ease, filter .2s ease; }
+.kxSupPlate::before { content: ""; position: absolute; inset: 6px; border: 1px dashed rgba(26,20,8,.35); clip-path: inherit; pointer-events: none; }
+.kxSupPlate::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%); transform: translateX(-130%); animation: kxF2PSheen 5s ease-in-out infinite; animation-delay: calc(var(--i) * .6s); pointer-events: none; }
+.kxSupPlate:hover { transform: translateY(-3px) rotate(-.6deg); filter: drop-shadow(0 14px 28px rgba(0,0,0,.55)) drop-shadow(0 0 26px rgba(246,220,152,.45)); }
+.kxSupPlate strong { font: 900 clamp(15px, 1.5vw, 19px)/1.1 "Arial Black", Impact, ui-sans-serif, sans-serif; letter-spacing: .14em; text-transform: uppercase; text-shadow: 0 1px 0 rgba(255,255,255,.45), 0 -1px 0 rgba(0,0,0,.25); }
+.kxSupPlateNo { display: grid; place-items: center; min-width: 34px; height: 34px; padding: 0 6px; background: #1a1408; color: #f6dc98; font: 900 12px ui-monospace, Consolas, monospace; letter-spacing: .08em; clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%); }
+.kxSupPlateStars { font-size: 11px; letter-spacing: .1em; color: rgba(26,20,8,.6); }
+.kxSupPlateRivet { position: absolute; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff2c8, #6f5427 70%); box-shadow: 0 1px 1px rgba(0,0,0,.5); }
+.kxSupPlateRivet.l { left: 14px; } .kxSupPlateRivet.r { right: 14px; }
+@keyframes kxPlateIn { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: none; } }
+@media (max-width: 700px) { .kxSupPlate { padding: 12px 28px; min-height: 66px; } .kxSupPlates { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .kxSupPlate, .kxSupPlate::after { animation: none !important; } .kxSupPlate::after { display: none; } }
+.kxSupPlates { display: flex; flex-wrap: wrap; gap: 14px; }
+.kxSupPlate { flex: 1 1 auto; }
+.kxSupPlate strong { white-space: nowrap; }
+@media (max-width: 700px) { .kxSupPlates { flex-direction: column; } .kxSupPlate strong { font-size: 15px; letter-spacing: .1em; } }

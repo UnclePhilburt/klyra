@@ -21,6 +21,13 @@ export const FACTION_CHOICES = [
 ];
 export const BIO_MAX = 160;
 
+// Profile title shown under the callsign, only when player_card() returns one
+// (`profile_title`, string). Nothing is shown when the field is missing.
+export function profileTitle(card) {
+  const value = card && typeof card.profile_title === "string" ? card.profile_title.trim() : "";
+  return value.slice(0, 40);
+}
+
 export function factionName(value) {
   if (!value) return "";
   const key = String(value).toLowerCase().trim().replace(/\s+/g, "-");
@@ -70,6 +77,7 @@ export function CardBody({ card, available, children }) {
     <div className={`${styles.card}${isSupporter(card) ? " kxSupCard" : ""}`}>
       <p className={`tag ${styles.cardTag}`}>Player card<SupporterBadge row={card} /></p>
       <h2 className={`kxCallsign ${styles.cardName}`}>{name}</h2>
+      {profileTitle(card) ? <p className={`${styles.cardTitle}${isSupporter(card) ? ` ${styles.cardTitleSup}` : ""}`}>{profileTitle(card)}</p> : null}
       <p className={styles.cardMeta}>
         {faction ? <span>Favorite faction: {faction}</span> : null}
         {joined ? <span>Since {joined}</span> : null}
