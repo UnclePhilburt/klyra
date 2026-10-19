@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export const TRAILER_ID = "Bq7vnDIWrbc";
+export const TRAILER_ID = "PqRKp7qlRx4";
 
 // Framed trailer with a poster + custom play button. The YouTube player only
 // loads after the click, so pages stay light on mobile.
