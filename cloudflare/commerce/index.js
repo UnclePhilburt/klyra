@@ -3,6 +3,8 @@ const CURRENCY = "USD";
 const CHARACTER_PRICE = 199;
 const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const COSMETIC_RE=/^[a-z0-9_]{2,64}$/;
+const BUNDLE_RE=/^[a-z0-9_]{2,64}$/;
+const ORDER_REF_RE=/^bnd_[0-9a-f]{32}$/;
 const json = (body, status=200) => new Response(JSON.stringify(body), {status, headers:{"content-type":"application/json","cache-control":"no-store"}});
 function fail(status,message) { throw Object.assign(new Error(message),{status}); }
 async function database(env,path,method="GET",body) {
@@ -98,6 +100,53 @@ async function characterCheckout(request,env) {
  if(!payment_link?.order_id||!payment_link?.url)throw new Error("Checkout unavailable");
  return json({url:payment_link.url});
 }
+async function bundleCheckout(request,env) {
+ if(env.CHECKOUT_ENABLED!=="true"||env.CHARACTER_STORE_ENABLED!=="true")fail(503,"The character store is opening soon.");
+ if(env.SQUARE_ENVIRONMENT!=="production")fail(503,"The character store is opening soon.");
+ if(!env.SQUARE_LOCATION_ID||!env.SQUARE_ACCESS_TOKEN||!env.SQUARE_WEBHOOK_SIGNATURE_KEY)fail(503,"Checkout is not ready yet.");
+ const u=await user(request,env);
+ const body=await request.json().catch(()=>({}));
+ const bundleId=String(body.bundleId||"");
+ if(!BUNDLE_RE.test(bundleId))fail(400,"Unknown pack.");
+ const id=crypto.randomUUID();
+ const ref=`bnd_${id.replace(/-/g,"")}`;
+ let rows;
+ try{rows=await database(env,"rpc/create_bundle_order","POST",{p_user:u.id,p_bundle:bundleId,p_ref:ref});}catch{fail(503,"Packs are opening soon.");}
+ const q=Array.isArray(rows)?rows[0]:rows;
+ if(!q)fail(503,"Packs are opening soon.");
+ if(!q.ok){
+  if(q.reason==="all_owned")fail(409,"You already own every character in this pack.");
+  if(q.reason==="not_found")fail(404,"Unknown pack.");
+  fail(409,"This pack is not for sale right now.");
+ }
+ const amount=Number(q.expected_cents);
+ if(!Number.isInteger(amount)||amount<199||!Array.isArray(q.items)||!q.items.length)throw new Error("Bundle quote invalid");
+ const site=request.headers.get("origin")==="https://www.klyra.lol"&&env.SITE_ORIGIN==="https://klyra.lol"?"https://www.klyra.lol":env.SITE_ORIGIN;
+ const name=`KLYRA ${String(q.display_name||bundleId).slice(0,60)} (${q.items.length} character${q.items.length===1?"":"s"})`;
+ const {payment_link}=await square(env,"online-checkout/payment-links",{idempotency_key:id,order:{location_id:env.SQUARE_LOCATION_ID,reference_id:ref,metadata:{klyra_kind:"bundle",klyra_user_id:u.id,klyra_order_ref:ref,klyra_bundle_id:bundleId},line_items:[{name,quantity:"1",base_price_money:{amount,currency:CURRENCY}}]},checkout_options:{redirect_url:`${site}/store/?checkout=returned&bundle=${encodeURIComponent(bundleId)}`,allow_tipping:false},pre_populated_data:{buyer_email:u.email}});
+ if(!payment_link?.order_id||!payment_link?.url)throw new Error("Checkout unavailable");
+ await database(env,`store_orders?ref=eq.${ref}&user_id=eq.${u.id}`,"PATCH",{square_order_id:payment_link.order_id});
+ return json({url:payment_link.url,amount});
+}
+async function bundleWebhook(env,payment,order) {
+ const m=order.metadata||{};
+ const userId=m.klyra_user_id||"",ref=m.klyra_order_ref||"";
+ if(!UUID_RE.test(userId)||!ORDER_REF_RE.test(ref)||order.reference_id!==ref)return json({received:true});
+ if(env.SQUARE_ENVIRONMENT!=="production")return json({received:true});
+ const amount=Number(payment.amount_money?.amount||0),refunded=Number(payment.refunded_money?.amount||0);
+ if(refunded>0&&refunded>=amount){
+  await database(env,"rpc/revoke_bundle_payment","POST",{p_payment:payment.id});
+  return json({received:true});
+ }
+ if(payment.status!=="COMPLETED")return json({received:true});
+ if(payment.amount_money?.currency!==CURRENCY||Number(order.total_money?.amount)!==amount||order.total_money?.currency!==CURRENCY){
+  console.error("Bundle payment amount mismatch",JSON.stringify({amount,currency:payment.amount_money?.currency}));
+  return json({received:true});
+ }
+ const result=await database(env,"rpc/grant_bundle_payment","POST",{p_ref:ref,p_user:userId,p_payment:payment.id,p_order:payment.order_id,p_amount:amount,p_currency:CURRENCY});
+ if(typeof result!=="string"||(!result.startsWith("granted")&&result!=="already_granted"))console.error("Bundle grant result",JSON.stringify({result,ref}));
+ return json({received:true});
+}
 async function webhook(request,env) {
  const raw=await request.text();
  if(!env.SQUARE_WEBHOOK_SIGNATURE_KEY||!env.SQUARE_WEBHOOK_URL) fail(503,"Webhook not configured.");
@@ -115,6 +164,7 @@ async function webhook(request,env) {
  if(!payment?.order_id||payment.location_id!==env.SQUARE_LOCATION_ID)return json({received:true});
  const {order}=await square(env,`orders/${encodeURIComponent(payment.order_id)}`);
  if(order?.metadata?.klyra_kind==="character")return characterWebhook(env,payment,order);
+ if(order?.metadata?.klyra_kind==="bundle")return bundleWebhook(env,payment,order);
  if(!/^[0-9a-f-]{36}$/i.test(order?.reference_id||""))return json({received:true});
  const records=await database(env,`supporter_orders?id=eq.${order.reference_id}&environment=eq.${env.SQUARE_ENVIRONMENT}`);
  if(!records.length)return json({received:true});
@@ -155,8 +205,9 @@ async function handle(request,env) {
  const path=new URL(request.url).pathname;
  if(path==="/payment-config"&&request.method==="GET")return json({applicationId:env.SQUARE_APPLICATION_ID,locationId:env.SQUARE_LOCATION_ID,sandbox:env.SQUARE_ENVIRONMENT!=="production",enabled:env.CHECKOUT_ENABLED==="true",amount:"4.99",currency:CURRENCY});
  if(path==="/pay"&&request.method==="POST")return embeddedPayment(request,env);
- if(path==="/characters/config"&&request.method==="GET")return json({enabled:env.CHECKOUT_ENABLED==="true"&&env.CHARACTER_STORE_ENABLED==="true"&&env.SQUARE_ENVIRONMENT==="production",price:"1.99",amount:CHARACTER_PRICE,currency:CURRENCY});
+ if(path==="/characters/config"&&request.method==="GET")return json({enabled:env.CHECKOUT_ENABLED==="true"&&env.CHARACTER_STORE_ENABLED==="true"&&env.SQUARE_ENVIRONMENT==="production",price:"1.99",amount:CHARACTER_PRICE,currency:CURRENCY,bundles:true});
  if(path==="/characters/checkout"&&request.method==="POST")return characterCheckout(request,env);
+ if(path==="/bundles/checkout"&&request.method==="POST")return bundleCheckout(request,env);
  if(path==="/webhook"&&request.method==="POST")return webhook(request,env);
  if(path==="/status"&&request.method==="GET") {
   if(!request.headers.has("authorization"))return json({owned:false,sandbox:env.SQUARE_ENVIRONMENT!=="production",checkoutEnabled:env.CHECKOUT_ENABLED==="true"});
