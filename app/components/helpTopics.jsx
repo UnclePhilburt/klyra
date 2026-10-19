@@ -5,7 +5,7 @@ export const topics = [
   },
   {
     q: "What is the Supporter Edition?",
-    a: "An optional, one-time $4.99 purchase that helps pay for servers and development. Supporters get cosmetics only: a supporter badge, supporter profile titles, exclusive supporter characters and an in-game supporter marker (some arrive with upcoming game updates). It does not unlock gameplay and it is not needed to play.",
+    a: "An optional, one-time $4.99 purchase that helps pay for servers and development. Supporters get cosmetics only: a supporter badge, supporter profile titles, exclusive supporter characters and an in-game supporter marker, all live in the game now. It does not unlock gameplay and it is not needed to play.",
   },
   {
     q: "Do supporters get an advantage?",

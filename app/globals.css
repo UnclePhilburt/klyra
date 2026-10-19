@@ -1893,3 +1893,8 @@ html .kxAcctBanner h1.kxCallsignTitle { max-width: 100%; font-size: min(clamp(40
 @media (prefers-reduced-motion: reduce) { .kxSupMedal, .kxSupMedalGlow, .kxSupMedalShine { animation: none !important; } .kxSupMedalShine { display: none; } }
 .kxSupPreviewCrest { top: 4px; right: 4px; bottom: auto; width: 108px; opacity: .9; filter: drop-shadow(0 0 16px rgba(215,181,122,.3)); }
 @media (max-width: 700px) { .kxSupPreviewCrest { width: 60px; top: 10px; right: 6px; } }
+.kxSupPerkList em.live { display: inline-flex; align-items: center; gap: 7px; color: #8ff0b0; background: rgba(97,207,136,.12); border-color: rgba(97,207,136,.55); box-shadow: 0 0 14px rgba(97,207,136,.15) inset; }
+.kxSupPerkList em.live i { width: 7px; height: 7px; border-radius: 50%; background: #61cf88; box-shadow: 0 0 8px #61cf88; animation: kxLivePulse 2s ease-in-out infinite; }
+.kxSupPerkList em.always { color: var(--gold); border-color: rgba(215,181,122,.5); background: rgba(215,181,122,.08); }
+@keyframes kxLivePulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .kxSupPerkList em.live i { animation: none; } }

@@ -51,12 +51,12 @@ const funds = [
 ];
 
 const perks = [
-  ["Supporter badge", "A gold supporter badge on your player card and next to your callsign in friends lists.", "Rolling out on the site"],
-  ["In-game supporter marker", "A gold supporter diamond above your name in matches.", "Coming in the next game update"],
-  ["Supporter Edition in the launcher", "Your launcher shows Supporter Edition once you have backed the game.", "Windows launcher 0.1.22"],
-  ["Supporter profile titles", "Five supporter-only titles for your profile card. See the full set below.", "Coming in the next game update"],
-  ["Supporter characters", "Exclusive playable characters for supporters.", "Coming soon"],
-  ["Our thanks", "You keep the servers on and the front moving. That matters more than any badge.", "Yours today"],
+  ["Supporter badge", "A gold supporter badge on your player card and next to your callsign in friends lists.", "Live"],
+  ["In-game supporter marker", "A gold supporter diamond above your name in matches.", "Live"],
+  ["Supporter Edition in the launcher", "Your launcher shows Supporter Edition once you have backed the game.", "Live"],
+  ["Supporter profile titles", "Five supporter-only titles for your profile card. See the full set below.", "Live"],
+  ["Supporter characters", "Exclusive playable characters for supporters.", "Live"],
+  ["Our thanks", "You keep the servers on and the front moving. That matters more than any badge.", "Always"],
 ];
 
 const supporterTitles = ["FOUNDING SUPPORTER", "FRONTLINE SUPPORTER", "BACKED THE FRONT", "EARLY REINFORCEMENT", "KLYRA VANGUARD"];
@@ -155,7 +155,7 @@ export default function SupportPage() {
                   <h3>{title}</h3>
                   <p>{copy}</p>
                 </div>
-                <em className={status === "Yours today" ? "live" : ""}>{status}</em>
+                <em className={status === "Live" ? "live" : "always"}>{status === "Live" ? <><i aria-hidden="true" />Live</> : status}</em>
               </li>
             ))}
           </ul>
@@ -166,7 +166,7 @@ export default function SupportPage() {
         <div className="sectionIntro">
           <p className="tag">Supporter titles</p>
           <h2 id="kx-titles-title">Earn your stripes.</h2>
-          <p>Five titles only supporters can wear on their profile card. Arriving with the next game update.</p>
+          <p>Five titles only supporters can wear on their profile card.</p>
         </div>
         <ul className="kxSupPlates">
           {supporterTitles.map((title, i) => (
