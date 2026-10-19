@@ -94,7 +94,7 @@ export function Chapters({ items }) {
 // Interactive host-your-own demo: pick a bot count, watch the field fill.
 export function BotSlider() {
   const [bots, setBots] = useState(40);
-  const dots = Math.min(bots, 90);
+  const dots = Math.min(bots, 200);
   return (
     <div className="kxBotDemo">
       <div className="kxBotReadout">
@@ -103,14 +103,14 @@ export function BotSlider() {
       </div>
       <label className="kxBotRange">
         <span className="srOnly">Bot count</span>
-        <input type="range" min="0" max="90" step="1" value={bots} onChange={(e) => setBots(Number(e.target.value))} aria-label="Bot count" />
+        <input type="range" min="0" max="200" step="1" value={bots} onChange={(e) => setBots(Number(e.target.value))} aria-label="Bot count" />
       </label>
       <div className="kxBotField" aria-hidden="true">
-        {Array.from({ length: 90 }, (_, i) => (
+        {Array.from({ length: 200 }, (_, i) => (
           <i key={i} className={i < dots ? `on t${i % 3}` : undefined} />
         ))}
       </div>
-      <p className="kxBotNote">Demo only. In the game you set the number, up to 90, when you host.</p>
+      <p className="kxBotNote">Demo only. In the game you set the number, up to 200, when you host.</p>
     </div>
   );
 }
@@ -127,8 +127,8 @@ export function Graphic({ kind }) {
   );
   if (kind === "bots") return (
     <div className="kxGfx kxGfxBots">
-      <div className="kxGfxBotGrid">{Array.from({ length: 90 }, (_, i) => <i key={i} className={`t${i % 3}`} style={{ "--i": i }} />)}</div>
-      <p className="kxGfxCaption"><b>Up to 90</b> bots per match</p>
+      <div className="kxGfxBotGrid">{Array.from({ length: 200 }, (_, i) => <i key={i} className={`t${i % 3}`} style={{ "--i": i }} />)}</div>
+      <p className="kxGfxCaption"><b>Up to 200</b> bots per match</p>
     </div>
   );
   if (kind === "players") return (

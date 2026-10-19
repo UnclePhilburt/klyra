@@ -3,7 +3,7 @@ import { BotSlider, Chapters, Counter, RevealRoot } from "./FeatureFX";
 export const metadata = {
   title: "Features · Klyra: Broken Front",
   description:
-    "Three factions, up to 90 bots (official dedicated servers run 90), multiplayer, split-screen, helicopters, logistics, and a weapon builder.",
+    "Three factions, up to 200 bots (official dedicated servers run 200), multiplayer, split-screen, helicopters, logistics, and a weapon builder.",
 };
 
 const T = "/shots/trailer/";
@@ -46,7 +46,7 @@ export default function FeaturesPage() {
 
       <section className="kxStatRow" aria-label="By the numbers">
         <div data-reveal><strong><Counter to={3} /></strong><span>Factions</span></div>
-        <div data-reveal><strong><Counter to={90} /></strong><span>Max bots per match</span></div>
+        <div data-reveal><strong><Counter to={200} /></strong><span>Max bots per match</span></div>
         <div data-reveal><strong><Counter to={20} /></strong><span>Players per online room</span></div>
         <div data-reveal><strong><Counter to={100} /></strong><span>Points to win</span></div>
       </section>
@@ -65,12 +65,12 @@ export default function FeaturesPage() {
           <p className="tag">Custom bot count</p>
           <h2 id="bots-title">Fill the field your way.</h2>
         </div>
-        <p className="kxCallout" data-reveal>Official dedicated servers run 90 bots and are the recommended way to play.</p>
+        <p className="kxCallout" data-reveal>Official dedicated servers run 200 bots and are the recommended way to play.</p>
         <div className="kxBotPanels single">
           <article className="kxBotPanel custom" data-reveal>
             <p className="tag">Host your own</p>
             <h3>You pick the number</h3>
-            <p>When you host your own match, set the bot count yourself, up to 90. A player on a side takes one of those slots.</p>
+            <p>When you host your own match, set the bot count yourself, up to 200. A player on a side takes one of those slots.</p>
             <BotSlider />
           </article>
         </div>

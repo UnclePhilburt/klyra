@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import AccountLink from "./components/AccountLink";
+import SupporterEmblem from "./components/SupporterEmblem";
 import { WindowsIcon, AppleIcon, StarIcon, BrowserIcon } from "./components/PlatformIcons";
 
 const TRAILER_ID = "PqRKp7qlRx4";
@@ -40,7 +41,7 @@ const shots = [
 ];
 
 const intel = [
-  { k: "90 bots", v: "On dedicated servers" },
+  { k: "200 bots", v: "On dedicated servers" },
   { k: "Air + armor", v: "Helicopters and tanks" },
   { k: "Night ops", v: "Night vision" },
   { k: "An Nafud", v: "Desert front" },
@@ -330,6 +331,7 @@ export default function Home() {
           <p>The full-performance desktop build for Windows and Mac. Free to play.</p>
         </a>
         <a className="kxDeployCard kxDeploySupport" href="/support/">
+          <SupporterEmblem size={140} className="kxDeployCrest" alt="" />
           <span>Optional</span>
           <strong>Support Klyra</strong>
           <p>The game is free. A one-time $4.99 Supporter Edition helps pay for servers and development, and unlocks supporter titles, characters and a badge.</p>

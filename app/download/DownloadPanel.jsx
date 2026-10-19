@@ -1,7 +1,8 @@
 "use client";
 import { windowsLauncher, macLauncher } from "../site-data";
-import { WindowsIcon, AppleIcon, StarIcon } from "../components/PlatformIcons";
+import { WindowsIcon, AppleIcon } from "../components/PlatformIcons";
 import AccountLink from "../components/AccountLink";
+import SupporterEmblem from "../components/SupporterEmblem";
 import ServerDownloads from "./ServerDownloads";
 import { RevealRoot } from "../features/FeatureFX";
 
@@ -52,7 +53,7 @@ export default function DownloadPanel() {
 
       <section className="kxDlWrap kxF2PDlSupport" data-reveal>
         <a className="kxF2PSupportBand" href="/support/">
-          <span className="kxF2PSupportStar" aria-hidden="true"><StarIcon /></span>
+          <SupporterEmblem size={140} className="kxF2PSupportCrest" alt="" />
           <span className="kxF2PSupportText">
             <small>Optional</small>
             <strong>Like it? Back the front.</strong>

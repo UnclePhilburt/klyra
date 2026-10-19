@@ -1,5 +1,6 @@
 import SupporterAccess from "../components/SupporterAccess";
 import SupporterBadge from "../components/SupporterBadge";
+import SupporterEmblem from "../components/SupporterEmblem";
 import { CardBody } from "../friends/PlayerCard";
 import { StarIcon } from "../components/PlatformIcons";
 import { topics } from "../components/helpTopics";
@@ -8,13 +9,25 @@ export const metadata = {
   title: "Support Klyra · Supporter Edition · Klyra: Broken Front",
   description:
     "KLYRA: Broken Front is free to play. The optional $4.99 Supporter Edition is a one-time way to help pay for servers and development, plus answers to common questions.",
+  openGraph: {
+    title: "Support Klyra · Supporter Edition",
+    description: "KLYRA: Broken Front is free to play. Back the front with the optional $4.99 Supporter Edition.",
+    url: "https://klyra.lol/support/",
+    images: [{ url: "/supporter/og-supporter.jpg", width: 1200, height: 630, alt: "KLYRA Supporter Edition emblem" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Support Klyra · Supporter Edition",
+    description: "Free to play. Back the front with the optional $4.99 Supporter Edition.",
+    images: ["/supporter/og-supporter.jpg"],
+  },
 };
 
 const funds = [
   {
     n: "01",
     title: "Servers",
-    copy: "Dedicated servers running 90-bot fronts, plus the accounts, friends and match services behind them. Every hour online costs money.",
+    copy: "Dedicated servers running 200-bot fronts, plus the accounts, friends and match services behind them. Every hour online costs money.",
     icon: (
       <svg viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="currentColor" strokeWidth="2.4"><rect x="7" y="7" width="34" height="10" /><rect x="7" y="19" width="34" height="10" /><rect x="7" y="31" width="34" height="10" /></g><g fill="currentColor"><circle cx="13" cy="12" r="1.8" /><circle cx="13" cy="24" r="1.8" /><circle cx="13" cy="36" r="1.8" /></g><path d="M22 12h14M22 24h14M22 36h14" stroke="currentColor" strokeWidth="2.4" /></svg>
     ),
@@ -87,28 +100,10 @@ export default function SupportPage() {
             </a>
           </div>
         </div>
-        <div className="kxSupMedal" aria-hidden="true">
-          <svg viewBox="0 0 240 240">
-            <defs>
-              <path id="kxSupRing" d="M120 120m-92 0a92 92 0 1 1 184 0a92 92 0 1 1-184 0" />
-              <radialGradient id="kxSupGlow" cx="50%" cy="45%" r="60%">
-                <stop offset="0" stopColor="#f6dc98" stopOpacity=".55" />
-                <stop offset="1" stopColor="#d7b57a" stopOpacity="0" />
-              </radialGradient>
-              <linearGradient id="kxSupGold" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stopColor="#f8e3a6" />
-                <stop offset=".5" stopColor="#d7b57a" />
-                <stop offset="1" stopColor="#9c7a3c" />
-              </linearGradient>
-            </defs>
-            <circle cx="120" cy="120" r="118" fill="url(#kxSupGlow)" />
-            <g className="kxSupSpin">
-              <circle cx="120" cy="120" r="108" fill="none" stroke="#d7b57a" strokeOpacity=".5" strokeWidth="1.5" strokeDasharray="3 9" />
-              <text className="kxSupRingText"><textPath href="#kxSupRing" startOffset="0" textLength="570" lengthAdjust="spacing">SUPPORTER EDITION ★ BACK THE FRONT ★ SUPPORTER EDITION ★ BACK THE FRONT ★</textPath></text>
-            </g>
-            <path d="M120 52 170 74v36c0 30-21 50-50 60-29-10-50-30-50-60V74Z" fill="#11150f" stroke="url(#kxSupGold)" strokeWidth="4" />
-            <path d="m120 86 9.6 20.8 22.8 2.4-17 15.3 4.8 22.5L120 135.6 99.8 147l4.8-22.5-17-15.3 22.8-2.4Z" fill="url(#kxSupGold)" />
-          </svg>
+        <div className="kxSupMedal">
+          <span className="kxSupMedalGlow" aria-hidden="true" />
+          <SupporterEmblem size={520} eager className="kxSupMedalImg" />
+          <span className="kxSupMedalShine" aria-hidden="true" />
         </div>
       </section>
 
@@ -142,6 +137,7 @@ export default function SupportPage() {
           <div className="kxSupPreview">
             <p className="kxSupPreviewLabel">Preview</p>
             <div className="kxSupPreviewCard">
+              <SupporterEmblem size={140} className="kxSupPreviewCrest" alt="" />
               <CardBody card={previewCard} available />
             </div>
             <div className="kxSupPreviewRow">
