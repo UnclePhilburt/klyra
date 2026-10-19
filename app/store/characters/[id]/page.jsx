@@ -1,5 +1,5 @@
 import CharacterStore from "../../CharacterStore";
-import StoreHero from "../../StoreHero";
+import StoreMast from "../../StoreMast";
 import { CHARACTER_PRICE_LABEL, characterById, shopCharacters, teams } from "../../characterData";
 
 export function generateStaticParams() {
@@ -27,14 +27,10 @@ export default async function CharacterPage({ params }) {
   const { id } = await params;
   const ch = characterById(id);
   return (
-    <main className="kxStorePage">
-      <StoreHero title={ch ? ch.name : "Character store"}>
-        {ch ? <>Character skin for {ch.teams.map((t) => teams[t].name).join(" and ")}. {CHARACTER_PRICE_LABEL}, linked to your KLYRA account.</> : null}
-      </StoreHero>
-      <div className="kxHazard" aria-hidden="true" />
-      <section className="kxStoreBody">
-        <CharacterStore focusId={ch ? ch.id : null} />
-      </section>
+    <main className="kgPage">
+      <StoreMast />
+      <h1 className="kgSrOnly">{ch ? ch.name : "Character store"}</h1>
+      <CharacterStore focusId={ch ? ch.id : null} />
     </main>
   );
 }

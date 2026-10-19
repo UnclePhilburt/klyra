@@ -1,5 +1,5 @@
 import CharacterStore from "./CharacterStore";
-import StoreHero from "./StoreHero";
+import StoreMast from "./StoreMast";
 import { CHARACTER_PRICE_LABEL } from "./characterData";
 
 export const metadata = {
@@ -15,12 +15,10 @@ export const metadata = {
 
 export default function StorePage() {
   return (
-    <main className="kxStorePage">
-      <StoreHero />
-      <div className="kxHazard" aria-hidden="true" />
-      <section className="kxStoreBody">
-        <CharacterStore />
-      </section>
+    <main className="kgPage">
+      <StoreMast />
+      <h1 className="kgSrOnly">Character store</h1>
+      <CharacterStore />
     </main>
   );
 }
