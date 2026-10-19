@@ -392,8 +392,8 @@ export async function requestReset(identifier) {
 
 export async function updateCallsign(session, callsign) {
   const name = String(callsign || "").trim().replace(/\s+/g, " ");
-  if (name.length < 3 || name.length > 24 || name.includes("@") || !/^[A-Za-z0-9][A-Za-z0-9 ._-]*[A-Za-z0-9]$/.test(name)) {
-    throw new Error("Use 3 to 24 letters or numbers, with no @ sign.");
+  if (name.length < 3 || name.length > 24 || name.includes("@") || !/^[A-Za-z0-9][A-Za-z0-9 $._-]*[A-Za-z0-9]$/.test(name)) {
+    throw new Error("Use 3 to 24 letters, numbers, spaces, or $ . _ - characters, with no @ sign.");
   }
   const id = session?.user?.id;
   if (!id || !session?.access_token) throw new Error("Sign in again, then change the callsign.");

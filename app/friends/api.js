@@ -17,7 +17,7 @@ import { supabaseKey, supabaseUrl } from "../site-data";
 export const ONLINE_WINDOW_MS = 2 * 60 * 1000;
 export const PRESENCE_INTERVAL_MS = 60 * 1000;
 
-const CALLSIGN_RULE = /^[A-Za-z0-9][A-Za-z0-9 ._-]*[A-Za-z0-9]$/;
+const CALLSIGN_RULE = /^[A-Za-z0-9][A-Za-z0-9 $._-]*[A-Za-z0-9]$/;
 
 export function cleanCallsign(raw) {
   return String(raw || "")
@@ -119,7 +119,7 @@ export async function loadMyProfile() {
 // callsign sign-in lookup stay in sync.
 export async function claimCallsign(raw) {
   const name = cleanCallsign(raw);
-  if (!validCallsign(name)) throw new Error("Use 3 to 24 letters or numbers, with no @ sign.");
+  if (!validCallsign(name)) throw new Error("Use 3 to 24 letters, numbers, spaces, or $ . _ - characters, with no @ sign.");
   const session = await token();
   try {
     await rest("/rest/v1/profiles?on_conflict=id", {
@@ -188,7 +188,7 @@ function likeExact(value) {
 
 export async function findPlayer(raw) {
   const name = cleanCallsign(raw);
-  if (!validCallsign(name)) throw new Error("Enter a callsign: 3 to 24 letters or numbers.");
+  if (!validCallsign(name)) throw new Error("Enter a callsign with 3 to 24 valid characters.");
   const query = `?select=id,username,display_name&username=ilike.${encodeURIComponent(likeExact(name))}&limit=5`;
   let rows;
   try {
