@@ -132,7 +132,7 @@ export default function SupportPage() {
         <div className="sectionIntro">
           <p className="tag">02 // What supporters get</p>
           <h2 id="kx-perks-title">Wear it with pride.</h2>
-          <p>Supporter perks are cosmetic: a badge, a marker, titles, exclusive characters and two gold weapons. Supporters and free players fight the same war with the same gear. No advantage is for sale.</p>
+          <p>Supporters get a badge, a marker, titles, exclusive characters and two gold weapons: the Midas AK-47 and Sunfire RPG-7. Every faction, vehicle and standard weapon stays open to every player.</p>
         </div>
         <div className="kxSupPerkGrid">
           <div className="kxSupPreview">
@@ -192,15 +192,15 @@ export default function SupportPage() {
           <div>
             <p className="tag">KLYRA: Broken Front</p>
             <h2>Supporter Edition</h2>
-            <p className="kxCardLead">Back an independent game and unlock supporter cosmetics: badge, titles, characters and an in-game marker.</p>
+            <p className="kxCardLead">Back an independent game and unlock supporter perks: badge, titles, characters, gold weapons and an in-game marker.</p>
             <SupporterAccess />
           </div>
           <div>
             <h3>Same war for everyone</h3>
             <p>
-              KLYRA is free to play. Every faction, vehicle, weapon and the FOB
-              systems are open to everyone. Supporting changes how you look, never
-              how you fight.
+              KLYRA is free to play. Every faction, vehicle, standard weapon and
+              the FOB systems are open to everyone. Supporters also get the gold
+              Midas AK-47 and Sunfire RPG-7.
             </p>
             <h3>Where to play</h3>
             <p>
