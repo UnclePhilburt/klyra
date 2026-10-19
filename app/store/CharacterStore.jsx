@@ -5,7 +5,7 @@ import { useSession } from "../useSession";
 import CharacterPreview from "./CharacterPreview";
 import { CHARACTER_PRICE_LABEL, characterById, shopCharacters, supporterExclusives, teams } from "./characterData";
 import { catalogReady, ownedCharacters, startBundleCheckout, startCharacterCheckout, storeBundles, storeConfig } from "./storeApi";
-import { PackShop, WeeklyDrop } from "./BundleShop";
+import { WeeklyDrop } from "./BundleShop";
 
 export const RETURN_MESSAGE = "Payment received. Your character will unlock after Square confirms the payment.";
 export const RETURN_MESSAGE_PACK = "Payment received. Your characters will unlock after Square confirms the payment.";
@@ -220,8 +220,6 @@ export default function CharacterStore({ focusId = null }) {
       </section>
 
       <WeeklyDrop data={bundles} owned={owned.ids} signedIn={signedIn} ready={ready} open={bundlesOpen} busyId={busyId} onBuy={onBuyBundle} onExpire={refreshBundles} />
-
-      <PackShop data={bundles} signedIn={signedIn} ready={ready} open={bundlesOpen} busyId={busyId} onBuy={onBuyBundle} />
 
       <section className="kxStoreGroup" id="characters" aria-labelledby="shop-chars">
         <header className="kxStoreGroupHead">

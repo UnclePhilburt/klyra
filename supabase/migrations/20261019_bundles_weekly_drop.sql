@@ -248,10 +248,10 @@ $$;
 revoke all on function public.revoke_bundle_payment(text) from public, anon, authenticated;
 grant execute on function public.revoke_bundle_payment(text) to service_role;
 insert into public.cosmetic_bundles (id, display_name, price_cents, kind, active, sort) values
- ('pack_police_station', 'Police Station Pack', 799, 'pack', true, 10),
- ('pack_palm_city', 'Palm City Pack', 999, 'pack', true, 20),
- ('pack_fantasy', 'Fantasy Pack', 899, 'pack', true, 30),
- ('pack_everything', 'Everything Pack', 1999, 'pack', true, 40),
+ ('pack_police_station', 'Police Station Pack', 799, 'pack', false, 10),
+ ('pack_palm_city', 'Palm City Pack', 999, 'pack', false, 20),
+ ('pack_fantasy', 'Fantasy Pack', 899, 'pack', false, 30),
+ ('pack_everything', 'Everything Pack', 1999, 'pack', false, 40),
  ('weekly_drop', 'Weekly Drop', 399, 'weekly', true, 0)
 on conflict (id) do update set display_name = excluded.display_name, price_cents = excluded.price_cents, kind = excluded.kind, active = excluded.active, sort = excluded.sort;
 insert into public.cosmetic_bundle_items (bundle_id, cosmetic_id)

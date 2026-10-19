@@ -110,10 +110,11 @@ async function rpc(name, session) {
   return r.json();
 }
 
-// Packs and the Weekly Drop come from Supabase. Prices here are display only; the worker recomputes them at checkout.
+// The Weekly Drop comes from Supabase. Prices here are display only; the worker recomputes them at checkout.
 export async function storeBundles(session) {
   try {
-    const [quotes, weekly] = await Promise.all([rpc("my_bundle_quotes", session), rpc("current_weekly_drop", session)]);
+    const [all, weekly] = await Promise.all([rpc("my_bundle_quotes", session), rpc("current_weekly_drop", session)]);
+    const quotes = Array.isArray(all) ? all.filter((q) => q.kind === "weekly") : [];
     if (!Array.isArray(quotes) || !quotes.length) return null;
     const rows = Array.isArray(weekly) ? weekly : [];
     const head = rows[0];
@@ -132,7 +133,7 @@ export async function storeBundles(session) {
 }
 
 export async function startBundleCheckout(session, bundleId) {
-  if (!API) throw new Error("Packs are opening soon.");
+  if (!API) throw new Error("The Weekly Drop is opening soon.");
   const r = await timed(`${API}/bundles/checkout`, {
     method: "POST",
     headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
