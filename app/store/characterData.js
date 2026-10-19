@@ -2,9 +2,9 @@ export const CHARACTER_PRICE_CENTS = 199;
 export const CHARACTER_PRICE_LABEL = "$1.99";
 
 export const teams = {
-  blue: { key: "blue", name: "The Regiment", slug: "the-regiment", color: "#4f8fe0" },
-  red: { key: "red", name: "Blackline Group", slug: "blackline-group", color: "#d9544a" },
-  green: { key: "green", name: "Kin of the Hollow", slug: "kin-of-the-hollow", color: "#6fae54" },
+  blue: { key: "blue", name: "The Regiment", slug: "the-regiment", color: "#4f8fe0", logo: "/teams/regiment-v2-96.webp" },
+  red: { key: "red", name: "Blackline Group", slug: "blackline-group", color: "#d9544a", logo: "/teams/blackline-group-v2-96.webp" },
+  green: { key: "green", name: "Kin of the Hollow", slug: "kin-of-the-hollow", color: "#6fae54", logo: "/teams/kin-of-the-hollow-v2-96.webp" },
 };
 
 const c = (id, name, resource, allowedTeams, exclusive = false) => ({

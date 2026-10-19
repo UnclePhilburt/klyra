@@ -10,6 +10,7 @@ export default function FactionPage({ slug }) {
       <RevealRoot />
       <section className="kx3dHero">
         <div className="kx3dHeroText" data-reveal>
+          <img className="kx3dHeroLogo" src={f.logo} alt={`${f.name} logo`} width="120" height="120" decoding="async" />
           <p className="tag"><a href="/factions/">Factions</a> / {f.team}</p>
           <h1>{f.name}<span>.</span></h1>
           <p className="kx3dArchetype">{f.archetype}</p>
@@ -53,6 +54,7 @@ export default function FactionPage({ slug }) {
         <div className="kx3dOthers">
           {others.map((o, i) => (
             <a key={o.slug} className="kx3dOther" href={`/factions/${o.slug}/`} style={{ "--team": o.color, "--delay": `${i * 90}ms` }} data-reveal>
+              <img className="kx3dOtherLogo" src={o.logo.replace("-512.webp", "-96.webp")} alt="" width="48" height="48" loading="lazy" decoding="async" />
               <span>{o.team}</span>
               <strong>{o.name}</strong>
               <em>{o.hook} &rarr;</em>

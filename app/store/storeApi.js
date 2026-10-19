@@ -13,14 +13,14 @@ async function timed(url, options = {}, ms = 12000) {
 }
 
 export async function storeConfig() {
-  if (!API) return { enabled: false };
+  if (!API) return { enabled: false, bundles: false };
   try {
     const r = await timed(`${API}/characters/config`);
-    if (!r.ok) return { enabled: false };
+    if (!r.ok) return { enabled: false, bundles: false };
     const data = await r.json().catch(() => ({}));
-    return { enabled: data.enabled === true && Number(data.amount) === 199 };
+    return { enabled: data.enabled === true && Number(data.amount) === 199, bundles: data.enabled === true && data.bundles === true };
   } catch {
-    return { enabled: false };
+    return { enabled: false, bundles: false };
   }
 }
 
@@ -90,6 +90,53 @@ export async function startCharacterCheckout(session, cosmeticId) {
     method: "POST",
     headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
     body: JSON.stringify({ cosmeticId }),
+  }, 20000);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok || !data.url) throw new Error(data.message || "Could not start checkout. Try again.");
+  if (!/^https:\/\/([a-z0-9-]+\.)*(square\.link|square\.site|squareup\.com|squareupsandbox\.com)\//i.test(data.url)) {
+    throw new Error("Checkout returned an unexpected address.");
+  }
+  return data.url;
+}
+
+async function rpc(name, session) {
+  const token = session?.access_token || supabaseKey;
+  const r = await timed(`${supabaseUrl}/rest/v1/rpc/${name}`, {
+    method: "POST",
+    headers: { apikey: supabaseKey, Authorization: `Bearer ${token}`, Accept: "application/json", "Content-Type": "application/json" },
+    body: "{}",
+  });
+  if (!r.ok) throw new Error(`rpc ${name} ${r.status}`);
+  return r.json();
+}
+
+// Packs and the Weekly Drop come from Supabase. Prices here are display only; the worker recomputes them at checkout.
+export async function storeBundles(session) {
+  try {
+    const [quotes, weekly] = await Promise.all([rpc("my_bundle_quotes", session), rpc("current_weekly_drop", session)]);
+    if (!Array.isArray(quotes) || !quotes.length) return null;
+    const rows = Array.isArray(weekly) ? weekly : [];
+    const head = rows[0];
+    const week = head
+      ? {
+          weekDate: head.week_date,
+          endsAt: Date.parse(head.ends_at),
+          serverNow: Date.parse(head.server_now),
+          picks: rows.map((row) => ({ team: row.team, id: row.cosmetic_id })),
+        }
+      : null;
+    return { quotes, week, fetchedAt: typeof performance !== "undefined" ? performance.now() : 0 };
+  } catch {
+    return null;
+  }
+}
+
+export async function startBundleCheckout(session, bundleId) {
+  if (!API) throw new Error("Packs are opening soon.");
+  const r = await timed(`${API}/bundles/checkout`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ bundleId }),
   }, 20000);
   const data = await r.json().catch(() => ({}));
   if (!r.ok || !data.url) throw new Error(data.message || "Could not start checkout. Try again.");

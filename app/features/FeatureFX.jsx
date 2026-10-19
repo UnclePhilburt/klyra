@@ -120,7 +120,7 @@ export function Graphic({ kind }) {
   if (kind === "factions") return (
     <div className="kxGfx kxGfxFactions">
       {[["blackline", "#f15a52", "Blackline Group"], ["hollow", "#61cf88", "Kin of the Hollow"], ["regiment", "#4bb6ff", "The Regiment"]].map(([id, c, n], i) => (
-        <div key={id} style={{ "--c": c, "--i": i }}><img src={`/teams/${id}.svg`} alt="" /><span>{n}</span></div>
+        <div key={id} style={{ "--c": c, "--i": i }}><img src={`/teams/${{ blackline: "blackline-group", hollow: "kin-of-the-hollow", regiment: "regiment" }[id]}-v2-256.webp`} alt="" /><span>{n}</span></div>
       ))}
       <p className="kxGfxCaption">First to <b>100</b> points</p>
     </div>

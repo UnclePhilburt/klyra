@@ -2,6 +2,7 @@
 export const factions = [
   {
     slug: "the-regiment",
+    logo: "/teams/regiment-v2-512.webp",
     name: "The Regiment",
     team: "Blue team",
     color: "#4f8fe0",
@@ -31,6 +32,7 @@ export const factions = [
   },
   {
     slug: "kin-of-the-hollow",
+    logo: "/teams/kin-of-the-hollow-v2-512.webp",
     name: "Kin of the Hollow",
     team: "Green team",
     color: "#6fae54",
@@ -51,6 +53,7 @@ export const factions = [
   },
   {
     slug: "blackline-group",
+    logo: "/teams/blackline-group-v2-512.webp",
     name: "Blackline Group",
     team: "Red team",
     color: "#d9544a",

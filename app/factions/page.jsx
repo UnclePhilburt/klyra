@@ -16,6 +16,7 @@ export default function FactionsHub() {
         {factions.map((f, i) => (
           <article key={f.slug} className="kx3dCard" style={{ "--team": f.color, "--delay": `${i * 100}ms` }} data-reveal>
             <div className="kx3dCardText">
+              <img className="kx3dLogo" src={f.logo} alt={`${f.name} logo`} width="160" height="160" loading="lazy" decoding="async" />
               <span className="kx3dTeam">{f.team}</span>
               <h2>{f.name}</h2>
               <p>{f.hook}</p>

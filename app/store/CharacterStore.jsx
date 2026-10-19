@@ -4,16 +4,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "../useSession";
 import CharacterPreview from "./CharacterPreview";
 import { CHARACTER_PRICE_LABEL, characterById, shopCharacters, supporterExclusives, teams } from "./characterData";
-import { catalogReady, ownedCharacters, startCharacterCheckout, storeConfig } from "./storeApi";
+import { catalogReady, ownedCharacters, startBundleCheckout, startCharacterCheckout, storeBundles, storeConfig } from "./storeApi";
+import { PackShop, WeeklyDrop } from "./BundleShop";
 
 export const RETURN_MESSAGE = "Payment received. Your character will unlock after Square confirms the payment.";
+export const RETURN_MESSAGE_PACK = "Payment received. Your characters will unlock after Square confirms the payment.";
 
 function TeamTags({ character }) {
   return (
     <ul className="kxCharTeams" aria-label={character.kind === "weapon" ? "Usable by" : "Compatible factions"}>
       {character.teams.map((key) => (
         <li key={key} style={{ "--team": teams[key].color }}>
-          <i aria-hidden="true" />
+          <img src={teams[key].logo} alt="" width="16" height="16" loading="lazy" decoding="async" />
           {teams[key].name}
         </li>
       ))}
@@ -68,6 +70,9 @@ function CharacterCard({ character, owned, signedIn, ready, open, busy, onBuy, f
 export default function CharacterStore({ focusId = null }) {
   const { session, ready: sessionReady } = useSession();
   const [open, setOpen] = useState(false);
+  const [bundlesOpen, setBundlesOpen] = useState(false);
+  const [bundles, setBundles] = useState(null);
+  const [returnedPack, setReturnedPack] = useState(false);
   const [checked, setChecked] = useState(false);
   const [owned, setOwned] = useState({ ids: new Set(), supporter: false });
   const [ownedReady, setOwnedReady] = useState(false);
@@ -80,15 +85,23 @@ export default function CharacterStore({ focusId = null }) {
     live.current = true;
     const params = new URLSearchParams(window.location.search);
     setReturned(params.get("checkout") === "returned");
+    setReturnedPack(params.get("checkout") === "returned" && params.has("bundle"));
     Promise.all([storeConfig(), catalogReady()]).then(([config, catalog]) => {
       if (!live.current) return;
       setOpen(Boolean(config.enabled && catalog));
+      setBundlesOpen(Boolean(config.enabled && config.bundles && catalog));
       setChecked(true);
     });
     return () => { live.current = false; };
   }, []);
 
+  const refreshBundles = useCallback(async () => {
+    const data = await storeBundles(session);
+    if (live.current) setBundles(data);
+  }, [session]);
+
   const refreshOwned = useCallback(async () => {
+    refreshBundles();
     if (!session) {
       setOwned({ ids: new Set(), supporter: false });
       setOwnedReady(true);
@@ -98,7 +111,7 @@ export default function CharacterStore({ focusId = null }) {
     if (!live.current) return;
     setOwned({ ids: result.ids, supporter: result.supporter });
     setOwnedReady(true);
-  }, [session]);
+  }, [session, refreshBundles]);
 
   useEffect(() => {
     if (!sessionReady) return;
@@ -138,6 +151,20 @@ export default function CharacterStore({ focusId = null }) {
     }
   };
 
+  const onBuyBundle = async (quote) => {
+    if (!session) return;
+    setBusyId(quote.bundle_id);
+    setMessage("");
+    try {
+      const url = await startBundleCheckout(session, quote.bundle_id);
+      window.location.assign(url);
+    } catch (error) {
+      setMessage(error.message || "Could not start checkout. Try again.");
+      setBusyId(null);
+      refreshBundles();
+    }
+  };
+
   const signedIn = Boolean(session);
   const ready = sessionReady && checked && ownedReady;
   const isOwned = (ch) => (ch.exclusive ? owned.supporter : owned.ids.has(ch.id));
@@ -159,7 +186,7 @@ export default function CharacterStore({ focusId = null }) {
       {returned ? (
         <div className="kxStoreNotice" role="status">
           <span className="kxStoreNoticeTag">CHECKOUT</span>
-          <p>{RETURN_MESSAGE}</p>
+          <p>{returnedPack ? RETURN_MESSAGE_PACK : RETURN_MESSAGE}</p>
         </div>
       ) : null}
       {message ? <p className="kxStoreError" role="alert">{message}</p> : null}
@@ -191,6 +218,10 @@ export default function CharacterStore({ focusId = null }) {
           {supporterExclusives.map((ch) => <CharacterCard key={ch.id} {...cardProps(ch)} />)}
         </div>
       </section>
+
+      <WeeklyDrop data={bundles} owned={owned.ids} signedIn={signedIn} ready={ready} open={bundlesOpen} busyId={busyId} onBuy={onBuyBundle} onExpire={refreshBundles} />
+
+      <PackShop data={bundles} signedIn={signedIn} ready={ready} open={bundlesOpen} busyId={busyId} onBuy={onBuyBundle} />
 
       <section className="kxStoreGroup" id="characters" aria-labelledby="shop-chars">
         <header className="kxStoreGroupHead">

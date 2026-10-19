@@ -13,6 +13,12 @@ const FACTIONS = {
   blackline: "Blackline Group",
 };
 
+const FACTION_LOGOS = {
+  "The Regiment": "/teams/regiment-v2-96.webp",
+  "Kin of the Hollow": "/teams/kin-of-the-hollow-v2-96.webp",
+  "Blackline Group": "/teams/blackline-group-v2-96.webp",
+};
+
 export const FACTION_CHOICES = [
   ["", "No favorite"],
   ["the-regiment", "The Regiment"],
@@ -79,7 +85,12 @@ export function CardBody({ card, available, children }) {
       <h2 className={`kxCallsign ${styles.cardName}`}>{name}</h2>
       {profileTitle(card) ? <p className={`${styles.cardTitle}${isSupporter(card) ? ` ${styles.cardTitleSup}` : ""}`}>{profileTitle(card)}</p> : null}
       <p className={styles.cardMeta}>
-        {faction ? <span>Favorite faction: {faction}</span> : null}
+        {faction ? (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            {FACTION_LOGOS[faction] ? <img src={FACTION_LOGOS[faction]} alt="" width="18" height="18" style={{ width: 18, height: 18, objectFit: "contain" }} /> : null}
+            Favorite faction: {faction}
+          </span>
+        ) : null}
         {joined ? <span>Since {joined}</span> : null}
         {presence ? <span className={card.is_online ? styles.onText : ""}>{presence}</span> : null}
       </p>
