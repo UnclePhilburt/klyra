@@ -1,5 +1,8 @@
 const PRICE = 499;
 const CURRENCY = "USD";
+const CHARACTER_PRICE = 199;
+const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const COSMETIC_RE=/^[a-z0-9_]{2,64}$/;
 const json = (body, status=200) => new Response(JSON.stringify(body), {status, headers:{"content-type":"application/json","cache-control":"no-store"}});
 function fail(status,message) { throw Object.assign(new Error(message),{status}); }
 async function database(env,path,method="GET",body) {
@@ -41,6 +44,60 @@ async function access(env,userId) {
  const rows=await database(env,`supporter_payments?order_id=in.(${orders.map(o=>o.id).join(",")})&select=payment_id,status,amount,refunded,currency,receipt_url,updated_at`);
  return {complimentary,owned:complimentary||rows.some(p=>p.status==="COMPLETED"&&p.currency===CURRENCY&&p.amount>=PRICE&&p.refunded===0),purchases:rows};
 }
+async function characterRow(env,cosmeticId) {
+ const rows=await database(env,`cosmetic_catalog?id=eq.${encodeURIComponent(cosmeticId)}&select=id,display_name,price_cents,supporter_exclusive,active`);
+ return rows[0]||null;
+}
+function purchasable(row) {
+ return !!row&&row.active===true&&row.supporter_exclusive!==true&&Number(row.price_cents)===CHARACTER_PRICE;
+}
+async function characterOwned(env,userId,cosmeticId) {
+ const rows=await database(env,`player_cosmetics?user_id=eq.${encodeURIComponent(userId)}&cosmetic_id=eq.${encodeURIComponent(cosmeticId)}&revoked_at=is.null&select=cosmetic_id`);
+ return rows.length>0;
+}
+async function characterWebhook(env,payment,order) {
+ const m=order.metadata||{};
+ const userId=m.klyra_user_id||"",cosmeticId=m.klyra_cosmetic_id||"";
+ if(!UUID_RE.test(userId)||!COSMETIC_RE.test(cosmeticId))return json({received:true});
+ if(env.SQUARE_ENVIRONMENT!=="production")return json({received:true});
+ const amount=Number(payment.amount_money?.amount||0),refunded=Number(payment.refunded_money?.amount||0);
+ if(refunded>0&&refunded>=amount){
+  await database(env,"rpc/revoke_player_cosmetic_by_payment","POST",{p_payment:payment.id});
+  return json({received:true});
+ }
+ if(payment.status!=="COMPLETED")return json({received:true});
+ if(amount!==CHARACTER_PRICE||payment.amount_money?.currency!==CURRENCY||Number(order.total_money?.amount)!==CHARACTER_PRICE||order.total_money?.currency!==CURRENCY){
+  console.error("Character payment amount mismatch",JSON.stringify({amount,currency:payment.amount_money?.currency}));
+  return json({received:true});
+ }
+ const row=await characterRow(env,cosmeticId);
+ if(!purchasable(row)){console.error("Character not purchasable",cosmeticId);return json({received:true});}
+ const result=await database(env,"rpc/grant_player_cosmetic","POST",{p_user:userId,p_cosmetic:cosmeticId,p_payment:payment.id});
+ if(result!=="granted"&&result!=="already_granted")console.error("Character grant result",JSON.stringify({result,cosmeticId}));
+ return json({received:true});
+}
+async function characterCheckout(request,env) {
+ if(env.CHECKOUT_ENABLED!=="true"||env.CHARACTER_STORE_ENABLED!=="true")fail(503,"The character store is opening soon.");
+ if(env.SQUARE_ENVIRONMENT!=="production")fail(503,"The character store is opening soon.");
+ if(!env.SQUARE_LOCATION_ID||!env.SQUARE_ACCESS_TOKEN||!env.SQUARE_WEBHOOK_SIGNATURE_KEY)fail(503,"Checkout is not ready yet.");
+ const u=await user(request,env);
+ const body=await request.json().catch(()=>({}));
+ const cosmeticId=String(body.cosmeticId||"");
+ if(!COSMETIC_RE.test(cosmeticId))fail(400,"Unknown character.");
+ let row;
+ try{row=await characterRow(env,cosmeticId);}catch{fail(503,"The character store is opening soon.");}
+ if(!row)fail(404,"Unknown character.");
+ if(row.supporter_exclusive)fail(403,"This character comes with the Supporter Edition and cannot be bought on its own.");
+ if(!purchasable(row))fail(409,"This character is not for sale right now.");
+ if(await characterOwned(env,u.id,cosmeticId))fail(409,"You already own this character.");
+ const id=crypto.randomUUID();
+ const ref=`chr_${id.replace(/-/g,"")}`;
+ const site=request.headers.get("origin")==="https://www.klyra.lol"&&env.SITE_ORIGIN==="https://klyra.lol"?"https://www.klyra.lol":env.SITE_ORIGIN;
+ const name=`KLYRA Character: ${String(row.display_name||cosmeticId).slice(0,80)}`;
+ const {payment_link}=await square(env,"online-checkout/payment-links",{idempotency_key:id,order:{location_id:env.SQUARE_LOCATION_ID,reference_id:ref,metadata:{klyra_kind:"character",klyra_user_id:u.id,klyra_cosmetic_id:cosmeticId},line_items:[{name,quantity:"1",base_price_money:{amount:CHARACTER_PRICE,currency:CURRENCY}}]},checkout_options:{redirect_url:`${site}/store/?checkout=returned&character=${encodeURIComponent(cosmeticId)}`,allow_tipping:false},pre_populated_data:{buyer_email:u.email}});
+ if(!payment_link?.order_id||!payment_link?.url)throw new Error("Checkout unavailable");
+ return json({url:payment_link.url});
+}
 async function webhook(request,env) {
  const raw=await request.text();
  if(!env.SQUARE_WEBHOOK_SIGNATURE_KEY||!env.SQUARE_WEBHOOK_URL) fail(503,"Webhook not configured.");
@@ -57,6 +114,7 @@ async function webhook(request,env) {
  const {payment}=await square(env,`payments/${encodeURIComponent(paymentId)}`);
  if(!payment?.order_id||payment.location_id!==env.SQUARE_LOCATION_ID)return json({received:true});
  const {order}=await square(env,`orders/${encodeURIComponent(payment.order_id)}`);
+ if(order?.metadata?.klyra_kind==="character")return characterWebhook(env,payment,order);
  if(!/^[0-9a-f-]{36}$/i.test(order?.reference_id||""))return json({received:true});
  const records=await database(env,`supporter_orders?id=eq.${order.reference_id}&environment=eq.${env.SQUARE_ENVIRONMENT}`);
  if(!records.length)return json({received:true});
@@ -97,6 +155,8 @@ async function handle(request,env) {
  const path=new URL(request.url).pathname;
  if(path==="/payment-config"&&request.method==="GET")return json({applicationId:env.SQUARE_APPLICATION_ID,locationId:env.SQUARE_LOCATION_ID,sandbox:env.SQUARE_ENVIRONMENT!=="production",enabled:env.CHECKOUT_ENABLED==="true",amount:"4.99",currency:CURRENCY});
  if(path==="/pay"&&request.method==="POST")return embeddedPayment(request,env);
+ if(path==="/characters/config"&&request.method==="GET")return json({enabled:env.CHECKOUT_ENABLED==="true"&&env.CHARACTER_STORE_ENABLED==="true"&&env.SQUARE_ENVIRONMENT==="production",price:"1.99",amount:CHARACTER_PRICE,currency:CURRENCY});
+ if(path==="/characters/checkout"&&request.method==="POST")return characterCheckout(request,env);
  if(path==="/webhook"&&request.method==="POST")return webhook(request,env);
  if(path==="/status"&&request.method==="GET") {
   if(!request.headers.has("authorization"))return json({owned:false,sandbox:env.SQUARE_ENVIRONMENT!=="production",checkoutEnabled:env.CHECKOUT_ENABLED==="true"});
