@@ -1,5 +1,17 @@
 export const topics = [
   {
+    q: "Is KLYRA free?",
+    a: "Yes. KLYRA: Broken Front is free to play on Windows, Mac and in your browser. Every faction, vehicle and weapon is open to everyone. You only need a free KLYRA account so your gear and progress stay with you.",
+  },
+  {
+    q: "What is the Supporter Edition?",
+    a: "An optional, one-time $4.99 purchase that helps pay for servers and development. Supporters get cosmetic recognition, like a supporter badge. It does not unlock gameplay and it is not needed to play.",
+  },
+  {
+    q: "Do supporters get an advantage?",
+    a: "No. Supporters and free players fight the same war with the same gear. Supporter perks are cosmetic only.",
+  },
+  {
     q: "How do I install it?",
     a: "Open the Download page and get the file for your computer. Open that file. Let it finish getting the game, then start a match. Use your KLYRA account (callsign or email) in the game so the gear you extract stays with you.",
   },

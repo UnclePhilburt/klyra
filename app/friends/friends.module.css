@@ -63,3 +63,5 @@
 .cardForm select, .cardForm textarea { width: 100%; min-height: 46px; padding: 10px 12px; border-radius: 0; font: inherit; font-size: 16px; color: #ece6d6; background: #0c0f0b; border: 1px solid rgba(255,255,255,.16); }
 .cardForm textarea { min-height: 92px; resize: vertical; }
 .counter { justify-self: end; font-family: var(--mono, ui-monospace, monospace); font-size: 12px; color: rgba(236,230,214,.55); }
+.cardTag { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.who small { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }

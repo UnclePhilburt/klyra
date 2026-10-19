@@ -16,11 +16,11 @@ export const metadata = {
   metadataBase: new URL("https://klyra.lol"),
   title: "Klyra: Broken Front",
   description:
-    "KLYRA: Broken Front is a pre-alpha military sandbox. Fight for The Regiment, Kin of the Hollow, or Blackline Group, run the supplies, and bring your gear home.",
+    "KLYRA: Broken Front is a free-to-play pre-alpha military sandbox for Windows, Mac and the browser. Fight for The Regiment, Kin of the Hollow, or Blackline Group, run the supplies, and bring your gear home.",
   openGraph: {
     title: "Klyra: Broken Front",
     description:
-      "Fight the front for The Regiment, Kin of the Hollow, or Blackline Group, and bring your gear home.",
+      "Free to play on Windows, Mac and the browser. Fight the front for The Regiment, Kin of the Hollow, or Blackline Group, and bring your gear home.",
     url: "https://klyra.lol",
     siteName: "Klyra: Broken Front",
     type: "website",
@@ -29,7 +29,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Klyra: Broken Front",
-    description: "Fight the front for The Regiment, Kin of the Hollow, or Blackline Group.",
+    description: "Free to play. Fight the front for The Regiment, Kin of the Hollow, or Blackline Group.",
     images: ["/shots/trailer/hero.jpg"],
   },
   icons: { icon: "/brand.png" },

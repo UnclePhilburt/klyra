@@ -1,5 +1,5 @@
 export const windowsLauncher =
-  "https://cdn.klyra.lol/KlyraBrokenFrontLauncher-win-x64-0.1.21.exe";
+  "https://cdn.klyra.lol/KlyraBrokenFrontLauncher-win-x64-0.1.22.exe";
 
 export const macLauncher =
   "https://cdn.klyra.lol/KlyraBrokenFrontLauncher-mac-universal-0.1.21.dmg";

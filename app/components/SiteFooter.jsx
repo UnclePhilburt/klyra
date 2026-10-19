@@ -4,8 +4,8 @@ import { callsignOf } from "../session";
 import { useSession } from "../useSession";
 
 const groups = [
-  ["Game", [["Play", "/play/"], ["Download", "/download/"], ["Features", "/features/"], ["Factions", "/factions/"], ["Arsenal", "/arsenal/"]]],
-  ["Development", [["Roadmap", "/roadmap/"], ["Devlog", "/devlog/"], ["Get Klyra", "/support/"]]],
+  ["Game", [["Play free", "/play/"], ["Download free", "/download/"], ["Features", "/features/"], ["Factions", "/factions/"], ["Arsenal", "/arsenal/"]]],
+  ["Development", [["Roadmap", "/roadmap/"], ["Devlog", "/devlog/"], ["Support Klyra", "/support/"]]],
   ["Community", [["Community", "/community/"]]],
 ];
 
@@ -19,7 +19,7 @@ export default function SiteFooter() {
           <img src="/brand.png" alt="" />
           <div>
             <strong>Klyra: Broken Front</strong>
-            <p>Pre-alpha &middot; Built by an independent developer</p>
+            <p>Free to play &middot; Pre-alpha &middot; Built by an independent developer</p>
           </div>
         </div>
         <nav className="kxFooterCols" aria-label="Site">

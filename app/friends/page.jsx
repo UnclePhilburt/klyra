@@ -23,6 +23,7 @@ import {
 } from "./api";
 import PlayerCardModal, { CardBody, FACTION_CHOICES, BIO_MAX } from "./PlayerCard";
 import styles from "./friends.module.css";
+import SupporterBadge from "../components/SupporterBadge";
 
 const EMPTY = { friends: [], incoming: [], outgoing: [], blocked: [] };
 const REFRESH_MS = 30 * 1000;
@@ -55,7 +56,7 @@ function Row({ row, children, status, onOpen }) {
         ) : (
           <strong className="kxCallsign">{nameOf(row)}</strong>
         )}
-        {status ? <small>{status}</small> : null}
+        {status ? <small>{status}<SupporterBadge row={row} size="sm" /></small> : <SupporterBadge row={row} size="sm" />}
       </span>
       <span className={styles.actions}>{children}</span>
     </li>

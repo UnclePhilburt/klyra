@@ -18,7 +18,7 @@ const morePages = [
   ["Friends", "/friends/"],
   ["Browser", "/play/"],
   ["Devlog", "/devlog/"],
-  ["Get Klyra", "/support/"],
+  ["Support Klyra", "/support/"],
 ];
 
 function AccountMark() {
@@ -104,7 +104,7 @@ export default function SiteNav() {
             </a>
           ))}
           <a href="/friends/" aria-current={isActive("/friends/") ? "page" : undefined}>Friends{badge}</a>
-          <a href="/support/" aria-current={isActive("/support/") ? "page" : undefined}>Get Klyra</a>
+          <a className="kxNavSupport" href="/support/" aria-current={isActive("/support/") ? "page" : undefined}><i aria-hidden="true">&#9733;</i>Support</a>
         </div>
 
         <div className="kxNavActions">
@@ -118,7 +118,7 @@ export default function SiteNav() {
             <AccountMark />
             <span className="kxCallsign">{accountLabel}</span>
           </a>
-          <a className="kxPlayBtn" href="/play/">Play</a>
+          <a className="kxPlayBtn kxPlayFree" href="/download/"><span>Play free</span></a>
           <button
             className="kxBurger"
             type="button"
@@ -159,8 +159,9 @@ export default function SiteNav() {
           ))}
         </div>
         <div className="kxDrawerCta">
-          <a className="button huge" href="/play/" onClick={() => setMenuOpen(false)}>Play in browser</a>
-          <a className="button ghost huge" href="/download/" onClick={() => setMenuOpen(false)}>Download</a>
+          <a className="button huge" href="/download/" onClick={() => setMenuOpen(false)}>Download free</a>
+          <a className="button ghost huge" href="/play/" onClick={() => setMenuOpen(false)}>Play free in browser</a>
+          <a className="kxDrawerSupport" href="/support/" onClick={() => setMenuOpen(false)}><i aria-hidden="true">&#9733;</i> Support Klyra &middot; optional $4.99</a>
         </div>
       </div>
     </>

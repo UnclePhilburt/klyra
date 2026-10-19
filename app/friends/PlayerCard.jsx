@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import styles from "./friends.module.css";
+import SupporterBadge, { isSupporter } from "../components/SupporterBadge";
 
 const FACTIONS = {
   regiment: "The Regiment",
@@ -66,8 +67,8 @@ export function CardBody({ card, available, children }) {
   const joined = since(card.member_since);
   const presence = card.is_online === true ? "Online" : card.relationship === "accepted" && card.last_seen_at ? "Offline" : "";
   return (
-    <div className={styles.card}>
-      <p className="tag">Player card</p>
+    <div className={`${styles.card}${isSupporter(card) ? " kxSupCard" : ""}`}>
+      <p className={`tag ${styles.cardTag}`}>Player card<SupporterBadge row={card} /></p>
       <h2 className={`kxCallsign ${styles.cardName}`}>{name}</h2>
       <p className={styles.cardMeta}>
         {faction ? <span>Favorite faction: {faction}</span> : null}

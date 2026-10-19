@@ -1,7 +1,7 @@
 import Redirect from "../components/Redirect";
 
 export const metadata = {
-  title: "Get Klyra · Klyra: Broken Front",
+  title: "Support Klyra · Klyra: Broken Front",
   robots: { index: false },
 };
 

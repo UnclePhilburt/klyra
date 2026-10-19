@@ -9,7 +9,7 @@ export default function Redirect({ to, label }) {
       <script dangerouslySetInnerHTML={{ __html: code }} />
       <p className="tag">Moved</p>
       <h1>{label} moved.</h1>
-      <p><a className="button" href={to}>Go to Get Klyra</a></p>
+      <p><a className="button" href={to}>Continue</a></p>
     </main>
   );
 }

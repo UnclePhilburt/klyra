@@ -65,12 +65,12 @@ export default function EmbeddedCheckout({onComplete}) {
   finally{locked.current=false;setBusy(false);}
  }
  return <form className="embeddedCheckout" onSubmit={pay}>
-  <div className="checkoutHeading"><span className="supporterBadge">SECURE CHECKOUT</span><h3>Supporter Edition</h3><p>Windows + Mac <strong>$4.99 USD</strong></p></div>
+  <div className="checkoutHeading"><span className="supporterBadge">SECURE CHECKOUT</span><h3>Supporter Edition</h3><p>Optional support &middot; one time <strong>$4.99 USD</strong></p></div>
   <fieldset disabled={busy||retry}><legend>Billing name</legend><div className="checkoutNames"><label>First name<input required autoComplete="given-name" value={first} onChange={e=>setFirst(e.target.value)}/></label><label>Last name<input required autoComplete="family-name" value={last} onChange={e=>setLast(e.target.value)}/></label></div><label>Country<select required autoComplete="country" value={country} onChange={e=>setCountry(e.target.value)}>{countries.map(({code,name})=><option key={code} value={code}>{name}</option>)}</select></label></fieldset>
   <div ref={mount} className="squareCard" />
   {!ready&&!message&&<p role="status">Loading secure card fields...</p>}
   <button className="button huge" type="submit" disabled={!ready||busy}>{busy?"Confirming payment...":retry?"Retry same payment":"Pay $4.99 USD"}</button>
-  <p className="quiet">One-time purchase. Card details are handled securely by Square.</p>
+  <p className="quiet">One-time supporter purchase. The game stays free. Card details are handled securely by Square.</p>
   {message&&<p role="alert" className="formMessage">{message}</p>}
  </form>;
 }

@@ -4,13 +4,13 @@ import { SignedIn, SignedOut } from "../components/AuthGate";
 export const metadata = {
   title: "Play in the browser · Klyra: Broken Front",
   description:
-    "The KLYRA browser build opens on this page. Performance is degraded because it runs in a web browser. It uses your KLYRA account.",
+    "Play KLYRA free in your browser. Performance is degraded because it runs in a web browser. It uses your KLYRA account.",
 };
 
 const steps = [
   ["01", "Your account", "The browser game uses the same KLYRA account (callsign or email) as this site."],
   ["02", "Open this page", "The fight starts here. There is no launcher for the browser version."],
-  ["03", "Expect less", "Performance is degraded because this is a web browser build. The desktop download is the full-performance version."],
+  ["03", "Expect less", "Performance is degraded because this is a web browser build. The free desktop download is the full-performance version."],
 ];
 
 export default function PlayPage() {
@@ -26,7 +26,7 @@ export default function PlayPage() {
         </p>
         <div className="actions">
           <AccountLink className="button" signedOutLabel="Sign in" signedInPrefix="Playing as" />
-          <a className="button ghost" href="/download/">Download for full performance</a>
+          <a className="button ghost" href="/download/">Download free for full performance</a>
         </div>
       </section>
 
@@ -40,8 +40,8 @@ export default function PlayPage() {
             so the fight can run inside a browser tab.
           </p>
           <p>
-            The desktop download is the full-performance way to play. No
-            gameplay is locked behind either version. Same factions, same
+            The free desktop download is the full-performance way to play. No
+            gameplay is locked behind either version, and both are free. Same factions, same
             front, less room to spare in the browser.
           </p>
         </div>
@@ -69,10 +69,10 @@ export default function PlayPage() {
           <h2>The fight opens here.</h2>
           <p>
             <SignedOut>Sign in on this site first. </SignedOut>The browser game uses your KLYRA account.
-            The Windows and Mac downloads are the full-performance way to play.
+            The free Windows and Mac downloads are the full-performance way to play.
           </p>
           <div className="actions">
-            <a className="button" href="/download/">Download the pre-alpha</a>
+            <a className="button" href="/download/">Download free</a>
           </div>
         </div>
       </section>

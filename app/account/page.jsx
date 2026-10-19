@@ -208,7 +208,7 @@ export default function AccountPage() {
               {sinceShort ? <><span>Member since {sinceShort}</span><i aria-hidden="true">·</i></> : null}
               <span>Pre-alpha</span>
               <span className="kxAcctSupporterTag">Supporter</span>
-              <a className="kxAcctGetLink" href="/support/#buy">Get Supporter Edition &rarr;</a>
+              <a className="kxAcctGetLink" href="/support/#buy">Become a supporter &rarr;</a>
             </p>
           </div>          <p className="lead kxAcctIn" style={{ "--d": "80ms" }}>
             This is the same account on the website and in the game.<span className="kxDesktopCopy"> The browser version on the play page uses this sign-in. That build has degraded performance because it runs in a web browser.</span>
@@ -220,7 +220,7 @@ export default function AccountPage() {
           <div className="kxAcctGrid">
             <article className="kxAcctCard wide license kxAcctIn" id="license" style={{ "--d": "120ms" }}>
               <header>
-                <p className="tag">Game license</p>
+                <p className="tag">Support Klyra &middot; Optional</p>
                 <h2>Supporter Edition</h2>
               </header>
               <SupporterAccess />

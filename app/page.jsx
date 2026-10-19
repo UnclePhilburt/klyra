@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import AccountLink from "./components/AccountLink";
+import { WindowsIcon, AppleIcon, StarIcon, BrowserIcon } from "./components/PlatformIcons";
 
 const TRAILER_ID = "PqRKp7qlRx4";
 
@@ -115,27 +116,47 @@ export default function Home() {
 
   return (
     <main className="kxHome">
-      <section className="kxHero">
+      <section className="kxHero kxF2PHero">
         <div className="kxHeroBg" aria-hidden="true" />
         <div className="kxHeroGrain" aria-hidden="true" />
+        <div className="kxF2PScan" aria-hidden="true" />
+        <div className="kxF2PFlare" aria-hidden="true" />
         <div className="kxHeroHud" aria-hidden="true">
           <span>GRID 27.4N / 41.2E</span>
           <span>SECTOR: AN NAFUD</span>
+          <span className="kxF2PHudFree">ACCESS: OPEN // FREE TO PLAY</span>
           <span className="kxLive">● LIVE BUILD // PRE-ALPHA</span>
         </div>
         <div className="kxHeroCopy">
           <img className="kxHeroLogo" src="/brand.png" alt="KLYRA" />
-          <p className="kxKicker">Broken Front // Military sandbox shooter</p>
-          <h1>
-            Fight the <span>front.</span>
+          <p className="kxF2PStamp"><span>Free to play</span><b>Windows · Mac · Browser</b></p>
+          <h1 className="kxF2PTitle">
+            The front <br />is <span className="kxF2PFree" data-text="free.">free.</span>
           </h1>
           <p className="kxLead">
-            The Regiment, Kin of the Hollow, and Blackline Group. Push the battle, run the
-            supplies, and bring your gear home.
+            Fight for The Regiment, Kin of the Hollow, or Blackline Group. Push the battle, run the
+            supplies, and bring your gear home. No paywall. No subscription.
           </p>
-          <div className="kxActions">
-            <a className="button huge kxCta" href="/play/">Play now</a>
-            <a className="button ghost huge" href="/download/">Download</a>
+          <div className="kxF2PActions">
+            <a className="kxF2PPrimary" href="/download/">
+              <span className="kxF2PFace">
+                <span className="kxF2PSheen" aria-hidden="true" />
+                <span className="kxF2PLabel"><strong>Download free</strong><small>Windows + Mac</small></span>
+                <span className="kxF2PIcons" aria-hidden="true"><WindowsIcon /><AppleIcon /></span>
+              </span>
+            </a>
+            <a className="kxF2PSecondary" href="/play/">
+              <BrowserIcon />
+              <span className="kxF2PLabel"><strong>Play free</strong><small>In your browser</small></span>
+            </a>
+          </div>
+          <div className="kxF2PMeta">
+            <a className="kxF2PSupport" href="/support/">
+              <StarIcon />
+              <span>Support Klyra</span>
+              <em>Optional · $4.99</em>
+              <b aria-hidden="true">&rarr;</b>
+            </a>
             <AccountLink className="textLink heroSignIn" />
           </div>
         </div>
@@ -143,6 +164,18 @@ export default function Home() {
       </section>
 
       <div className="kxHazard" aria-hidden="true" />
+
+      <div className="kxF2PTicker" aria-hidden="true">
+        <div className="kxF2PTickerTrack">
+          {Array.from({ length: 2 }, (_, copy) => (
+            <span key={copy}>
+              {["Free to play", "Windows", "Mac", "Browser", "No paywall", "No subscription", "Three factions", "One account"].map((word) => (
+                <span key={word}><i>&#9733;</i>{word}</span>
+              ))}
+            </span>
+          ))}
+        </div>
+      </div>
 
       <section className="kxIntel" aria-label="Game overview">
         {intel.map((item) => (
@@ -289,17 +322,17 @@ export default function Home() {
         <a className="kxDeployCard" href="/play/">
           <span>Browser</span>
           <strong>Play in the tab</strong>
-          <p>Performance is degraded because it is a web browser build. It uses your KLYRA account, and the fight opens in the tab.</p>
+          <p>Free, right in the tab. Performance is lower because it is a web browser build. It uses your KLYRA account.</p>
         </a>
         <a className="kxDeployCard" href="/download/">
-          <span>Desktop</span>
-          <strong>Download the build</strong>
-          <p>The full-performance desktop build for Windows.</p>
+          <span>Desktop &middot; Free</span>
+          <strong>Download free</strong>
+          <p>The full-performance desktop build for Windows and Mac. Free to play.</p>
         </a>
-        <a className="kxDeployCard" href="/features/">
-          <span>The battlefield</span>
-          <strong>What you can do</strong>
-          <p>Factions, helicopters, logistics, and the weapon builder.</p>
+        <a className="kxDeployCard kxDeploySupport" href="/support/">
+          <span>Optional</span>
+          <strong>Support Klyra</strong>
+          <p>The game is free. A one-time $4.99 Supporter Edition helps pay for servers and development.</p>
         </a>
       </section>
     </main>
