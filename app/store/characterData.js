@@ -53,7 +53,27 @@ export const shopCharacters = [
   c("fantasy_apothecary", "Apothecary", "Fantasy_Apothecary_01", ["green"]),
 ];
 
-export const allCharacters = [...supporterCharacters, ...shopCharacters];
+const w = (id, name, resource, blurb) => ({
+  id,
+  name,
+  resource,
+  blurb,
+  teams: ["blue", "red", "green"],
+  exclusive: true,
+  kind: "weapon",
+  accent: "#d8b45a",
+  model: `/supporter-weapons/${id}.glb`,
+  poster: `/supporter-weapons/${id}.webp`,
+});
+
+export const supporterWeapons = [
+  w("supporter_midas_ak47", "Midas AK-47", "Gold AK-47", "Gold assault rifle"),
+  w("supporter_sunfire_rpg7", "Sunfire RPG-7", "Gold RPG", "Gold rocket launcher"),
+];
+
+export const supporterExclusives = [...supporterCharacters, ...supporterWeapons];
+
+export const allCharacters = [...supporterCharacters, ...supporterWeapons, ...shopCharacters];
 
 export function characterById(id) {
   return allCharacters.find((ch) => ch.id === id) || null;

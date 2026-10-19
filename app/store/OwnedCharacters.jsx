@@ -28,19 +28,19 @@ export default function OwnedCharacters({ session }) {
       ) : list.length ? (
         <ul className="kxOwnedGrid">
           {list.map((ch) => (
-            <li key={ch.id} style={{ "--team": teams[ch.teams[0]].color }}>
+            <li key={ch.id} style={{ "--team": ch.accent || teams[ch.teams[0]].color }}>
               <a href={`/store/characters/${ch.id}/`}>
                 <img src={ch.poster} alt="" loading="lazy" width="120" height="160" />
                 <span>
                   <strong>{ch.name}</strong>
-                  <small>{ch.exclusive ? "Supporter exclusive" : ch.teams.map((t) => teams[t].name).join(" · ")}</small>
+                  <small>{ch.kind === "weapon" ? "Supporter exclusive weapon" : ch.exclusive ? "Supporter exclusive" : ch.teams.map((t) => teams[t].name).join(" · ")}</small>
                 </span>
               </a>
             </li>
           ))}
         </ul>
       ) : (
-        <p>No characters yet. Characters you buy, plus the Supporter Edition exclusives, show up here and in the game.</p>
+        <p>No characters yet. Characters you buy, plus the Supporter Edition exclusives (including the Midas AK-47 and Sunfire RPG-7), show up here and in the game.</p>
       )}
       <a className="kxOwnedLink" href="/store/">Browse the character store &rarr;</a>
     </article>

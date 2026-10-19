@@ -56,6 +56,7 @@ const perks = [
   ["Supporter Edition in the launcher", "Your launcher shows Supporter Edition once you have backed the game.", "Live"],
   ["Supporter profile titles", "Five supporter-only titles for your profile card. See the full set below.", "Live"],
   ["Supporter characters", "Exclusive playable characters for supporters.", "Live"],
+  ["Supporter weapons", "The gold Midas AK-47 assault rifle and Sunfire RPG-7 rocket launcher, for every faction. Not sold separately.", "New"],
   ["Our thanks", "You keep the servers on and the front moving. That matters more than any badge.", "Always"],
 ];
 
@@ -131,7 +132,7 @@ export default function SupportPage() {
         <div className="sectionIntro">
           <p className="tag">02 // What supporters get</p>
           <h2 id="kx-perks-title">Wear it with pride.</h2>
-          <p>Supporter perks are cosmetic: a badge, a marker, titles and exclusive characters. Supporters and free players fight the same war with the same gear. No advantage is for sale.</p>
+          <p>Supporter perks are cosmetic: a badge, a marker, titles, exclusive characters and two gold weapons. Supporters and free players fight the same war with the same gear. No advantage is for sale.</p>
         </div>
         <div className="kxSupPerkGrid">
           <div className="kxSupPreview">

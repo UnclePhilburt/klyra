@@ -11,7 +11,7 @@ export default function StoreHero({ title = "Character store", children }) {
       <div className="kxStoreFacts">
         <span><b>{CHARACTER_PRICE_LABEL}</b> per character</span>
         <span><b>Account</b> sign-in required</span>
-        <span><b>Supporter</b> 3 exclusives included</span>
+        <span><b>Supporter</b> 5 exclusives included</span>
       </div>
     </section>
   );

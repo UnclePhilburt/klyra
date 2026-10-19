@@ -71,7 +71,7 @@ export default function CharacterPreview({ character, large = false }) {
     if (!mv) return;
     const done = () => {
       setLoaded(true);
-      if (mv.availableAnimations?.length) {
+      if (character.kind !== "weapon" && mv.availableAnimations?.length) {
         mv.animationName = mv.availableAnimations[0];
         mv.play({ repetitions: Infinity });
       }
@@ -80,7 +80,8 @@ export default function CharacterPreview({ character, large = false }) {
     return () => mv.removeEventListener("load", done);
   }, [ready, mount]);
 
-  const team = character.teams[0];
+  const team = character.kind === "weapon" ? "gold" : character.teams[0];
+  const weapon = character.kind === "weapon";
 
   return (
     <div
@@ -89,7 +90,7 @@ export default function CharacterPreview({ character, large = false }) {
       data-team={team}
       onContextMenu={(e) => e.preventDefault()}
     >
-      <img className="kxCharPoster" src={character.poster} alt={`${character.name} character preview`} loading="lazy" decoding="async" width="480" height="640" />
+      <img className="kxCharPoster" src={character.poster} alt={`${character.name} ${weapon ? "weapon" : "character"} preview`} loading="lazy" decoding="async" width="480" height="640" />
       {ready && mount ? (
         <model-viewer
           src={character.model}

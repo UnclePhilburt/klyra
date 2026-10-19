@@ -12,13 +12,13 @@ const pages = [
   ["Download", "/download/"],
   ["Roadmap", "/roadmap/"],
   ["Community", "/community/"],
+  ["Store", "/store/"],
 ];
 
 const morePages = [
   ["Friends", "/friends/"],
   ["Browser", "/play/"],
   ["Devlog", "/devlog/"],
-  ["Character Store", "/store/"],
   ["Support Klyra", "/support/"],
 ];
 

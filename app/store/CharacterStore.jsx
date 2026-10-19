@@ -3,14 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "../useSession";
 import CharacterPreview from "./CharacterPreview";
-import { CHARACTER_PRICE_LABEL, characterById, shopCharacters, supporterCharacters, teams } from "./characterData";
+import { CHARACTER_PRICE_LABEL, characterById, shopCharacters, supporterExclusives, teams } from "./characterData";
 import { catalogReady, ownedCharacters, startCharacterCheckout, storeConfig } from "./storeApi";
 
 export const RETURN_MESSAGE = "Payment received. Your character will unlock after Square confirms the payment.";
 
 function TeamTags({ character }) {
   return (
-    <ul className="kxCharTeams" aria-label="Compatible factions">
+    <ul className="kxCharTeams" aria-label={character.kind === "weapon" ? "Usable by" : "Compatible factions"}>
       {character.teams.map((key) => (
         <li key={key} style={{ "--team": teams[key].color }}>
           <i aria-hidden="true" />
@@ -45,12 +45,14 @@ function CharacterCard({ character, owned, signedIn, ready, open, busy, onBuy, f
     <article
       id={character.id}
       className={`kxCharCard ${exclusive ? "exclusive" : ""} ${owned ? "isOwned" : ""} ${focus ? "isFocus" : ""}`}
-      style={{ "--team": teams[character.teams[0]].color }}
+      style={{ "--team": character.accent || teams[character.teams[0]].color }}
+      data-kind={character.kind || "character"}
     >
       <CharacterPreview character={character} large={focus} />
       <div className="kxCharInfo">
-        {exclusive ? <p className="kxCharFlag">SUPPORTER EXCLUSIVE</p> : null}
+        {exclusive ? <p className="kxCharFlag">SUPPORTER EXCLUSIVE{character.kind === "weapon" ? " · WEAPON" : ""}</p> : null}
         <h3>{character.name}</h3>
+        {character.blurb ? <p className="kxCharBlurb">{character.blurb}</p> : null}
         <TeamTags character={character} />
         <div className="kxCharBuy">
           <span className="kxCharPrice">{exclusive ? "Included with Supporter Edition" : CHARACTER_PRICE_LABEL}</span>
@@ -140,7 +142,7 @@ export default function CharacterStore({ focusId = null }) {
   const ready = sessionReady && checked && ownedReady;
   const isOwned = (ch) => (ch.exclusive ? owned.supporter : owned.ids.has(ch.id));
   const focus = focusId ? characterById(focusId) : null;
-  const ownedCount = [...supporterCharacters, ...shopCharacters].filter(isOwned).length;
+  const ownedCount = [...supporterExclusives, ...shopCharacters].filter((ch) => ch.kind !== "weapon" && isOwned(ch)).length;
 
   const cardProps = (ch) => ({
     character: ch,
@@ -179,14 +181,14 @@ export default function CharacterStore({ focusId = null }) {
         </section>
       ) : null}
 
-      <section className="kxStoreGroup" aria-labelledby="sup-chars">
+      <section className="kxStoreGroup" id="supporter-exclusives" aria-labelledby="sup-chars">
         <header className="kxStoreGroupHead">
           <p className="tag">Supporter Edition &middot; $4.99</p>
           <h2 id="sup-chars">Supporter exclusives</h2>
-          <p>Three characters, one per faction, included with the Supporter Edition. They are never sold on their own.</p>
+          <p>Three characters, one per faction, plus the gold Midas AK-47 and Sunfire RPG-7 for every faction. All five come with the Supporter Edition and are never sold on their own.</p>
         </header>
-        <div className="kxCharGrid three">
-          {supporterCharacters.map((ch) => <CharacterCard key={ch.id} {...cardProps(ch)} />)}
+        <div className="kxCharGrid exclusives">
+          {supporterExclusives.map((ch) => <CharacterCard key={ch.id} {...cardProps(ch)} />)}
         </div>
       </section>
 
