@@ -78,56 +78,6 @@ async function characterWebhook(env,payment,order) {
  if(result!=="granted"&&result!=="already_granted")console.error("Character grant result",JSON.stringify({result,cosmeticId}));
  return json({received:true});
 }
-async function characterCheckout(request,env) {
- if(env.CHECKOUT_ENABLED!=="true"||env.CHARACTER_STORE_ENABLED!=="true")fail(503,"The character store is opening soon.");
- if(env.SQUARE_ENVIRONMENT!=="production")fail(503,"The character store is opening soon.");
- if(!env.SQUARE_LOCATION_ID||!env.SQUARE_ACCESS_TOKEN||!env.SQUARE_WEBHOOK_SIGNATURE_KEY)fail(503,"Checkout is not ready yet.");
- const u=await user(request,env);
- const body=await request.json().catch(()=>({}));
- const cosmeticId=String(body.cosmeticId||"");
- if(!COSMETIC_RE.test(cosmeticId))fail(400,"Unknown character.");
- let row;
- try{row=await characterRow(env,cosmeticId);}catch{fail(503,"The character store is opening soon.");}
- if(!row)fail(404,"Unknown character.");
- if(row.supporter_exclusive)fail(403,"This character comes with the Supporter Edition and cannot be bought on its own.");
- if(!purchasable(row))fail(409,"This character is not for sale right now.");
- if(await characterOwned(env,u.id,cosmeticId))fail(409,"You already own this character.");
- const id=crypto.randomUUID();
- const ref=`chr_${id.replace(/-/g,"")}`;
- const site=request.headers.get("origin")==="https://www.klyra.lol"&&env.SITE_ORIGIN==="https://klyra.lol"?"https://www.klyra.lol":env.SITE_ORIGIN;
- const name=`KLYRA Character: ${String(row.display_name||cosmeticId).slice(0,80)}`;
- const {payment_link}=await square(env,"online-checkout/payment-links",{idempotency_key:id,order:{location_id:env.SQUARE_LOCATION_ID,reference_id:ref,metadata:{klyra_kind:"character",klyra_user_id:u.id,klyra_cosmetic_id:cosmeticId},line_items:[{name,quantity:"1",base_price_money:{amount:CHARACTER_PRICE,currency:CURRENCY}}]},checkout_options:{redirect_url:`${site}/store/?checkout=returned&character=${encodeURIComponent(cosmeticId)}`,allow_tipping:false},pre_populated_data:{buyer_email:u.email}});
- if(!payment_link?.order_id||!payment_link?.url)throw new Error("Checkout unavailable");
- return json({url:payment_link.url});
-}
-async function bundleCheckout(request,env) {
- if(env.CHECKOUT_ENABLED!=="true"||env.CHARACTER_STORE_ENABLED!=="true")fail(503,"The character store is opening soon.");
- if(env.SQUARE_ENVIRONMENT!=="production")fail(503,"The character store is opening soon.");
- if(!env.SQUARE_LOCATION_ID||!env.SQUARE_ACCESS_TOKEN||!env.SQUARE_WEBHOOK_SIGNATURE_KEY)fail(503,"Checkout is not ready yet.");
- const u=await user(request,env);
- const body=await request.json().catch(()=>({}));
- const bundleId=String(body.bundleId||"");
- if(!BUNDLE_RE.test(bundleId))fail(400,"Unknown pack.");
- const id=crypto.randomUUID();
- const ref=`bnd_${id.replace(/-/g,"")}`;
- let rows;
- try{rows=await database(env,"rpc/create_bundle_order","POST",{p_user:u.id,p_bundle:bundleId,p_ref:ref});}catch{fail(503,"Packs are opening soon.");}
- const q=Array.isArray(rows)?rows[0]:rows;
- if(!q)fail(503,"Packs are opening soon.");
- if(!q.ok){
-  if(q.reason==="all_owned")fail(409,"You already own every character in this pack.");
-  if(q.reason==="not_found")fail(404,"Unknown pack.");
-  fail(409,"This pack is not for sale right now.");
- }
- const amount=Number(q.expected_cents);
- if(!Number.isInteger(amount)||amount<199||!Array.isArray(q.items)||!q.items.length)throw new Error("Bundle quote invalid");
- const site=request.headers.get("origin")==="https://www.klyra.lol"&&env.SITE_ORIGIN==="https://klyra.lol"?"https://www.klyra.lol":env.SITE_ORIGIN;
- const name=`KLYRA ${String(q.display_name||bundleId).slice(0,60)} (${q.items.length} character${q.items.length===1?"":"s"})`;
- const {payment_link}=await square(env,"online-checkout/payment-links",{idempotency_key:id,order:{location_id:env.SQUARE_LOCATION_ID,reference_id:ref,metadata:{klyra_kind:"bundle",klyra_user_id:u.id,klyra_order_ref:ref,klyra_bundle_id:bundleId},line_items:[{name,quantity:"1",base_price_money:{amount,currency:CURRENCY}}]},checkout_options:{redirect_url:`${site}/store/?checkout=returned&bundle=${encodeURIComponent(bundleId)}`,allow_tipping:false},pre_populated_data:{buyer_email:u.email}});
- if(!payment_link?.order_id||!payment_link?.url)throw new Error("Checkout unavailable");
- await database(env,`store_orders?ref=eq.${ref}&user_id=eq.${u.id}`,"PATCH",{square_order_id:payment_link.order_id});
- return json({url:payment_link.url,amount});
-}
 async function bundleWebhook(env,payment,order) {
  const m=order.metadata||{};
  const userId=m.klyra_user_id||"",ref=m.klyra_order_ref||"";
@@ -146,6 +96,97 @@ async function bundleWebhook(env,payment,order) {
  const result=await database(env,"rpc/grant_bundle_payment","POST",{p_ref:ref,p_user:userId,p_payment:payment.id,p_order:payment.order_id,p_amount:amount,p_currency:CURRENCY});
  if(typeof result!=="string"||(!result.startsWith("granted")&&result!=="already_granted"))console.error("Bundle grant result",JSON.stringify({result,ref}));
  return json({received:true});
+}
+// Embedded (on-site card form) purchases. Price always comes from the server catalog / bundle quote.
+// Ownership is granted only after the payment this worker created is re-read from Square as COMPLETED;
+// the production webhook grants the same payment idempotently (grants are keyed on the unique payment id).
+const ATTEMPT_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function storeReady(env) {
+ if(env.CHECKOUT_ENABLED!=="true"||env.CHARACTER_STORE_ENABLED!=="true"||env.SQUARE_ENVIRONMENT!=="production")fail(503,"The character store is opening soon.");
+ if(!env.SQUARE_LOCATION_ID||!env.SQUARE_ACCESS_TOKEN||!env.SQUARE_APPLICATION_ID)fail(503,"Checkout is not ready yet.");
+}
+function attemptInput(body) {
+ const attemptId=String(body.attemptId||""),sourceId=body.sourceId;
+ if(!ATTEMPT_RE.test(attemptId)||typeof sourceId!=="string"||sourceId.length<5||sourceId.length>2048)fail(400,"Invalid payment attempt.");
+ return {attemptId:attemptId.toLowerCase(),sourceId};
+}
+async function verifiedPayment(env,paymentId,orderId) {
+ const {payment}=await square(env,`payments/${encodeURIComponent(paymentId)}`);
+ if(!payment||payment.order_id!==orderId||payment.location_id!==env.SQUARE_LOCATION_ID)throw new Error("Payment response mismatch");
+ const {order}=await square(env,`orders/${encodeURIComponent(orderId)}`);
+ if(!order||order.id!==orderId)throw new Error("Order response mismatch");
+ return {payment,order};
+}
+async function characterPay(request,env) {
+ storeReady(env);
+ const u=await user(request,env);
+ const body=await request.json().catch(()=>({}));
+ const cosmeticId=String(body.cosmeticId||"");
+ if(!COSMETIC_RE.test(cosmeticId))fail(400,"Unknown character.");
+ const {attemptId,sourceId}=attemptInput(body);
+ if(await characterOwned(env,u.id,cosmeticId))return json({owned:true});
+ let row;
+ try{row=await characterRow(env,cosmeticId);}catch{fail(503,"The character store is opening soon.");}
+ if(!row)fail(404,"Unknown character.");
+ if(row.supporter_exclusive)fail(403,"This character comes with the Supporter Edition and cannot be bought on its own.");
+ if(!purchasable(row))fail(409,"This character is not for sale right now.");
+ const ref=`chr_${attemptId.replace(/-/g,"")}`;
+ const name=`KLYRA Character: ${String(row.display_name||cosmeticId).slice(0,80)}`;
+ const {order}=await square(env,"orders",{idempotency_key:`chr-${attemptId}`,order:{location_id:env.SQUARE_LOCATION_ID,reference_id:ref,metadata:{klyra_kind:"character",klyra_user_id:u.id,klyra_cosmetic_id:cosmeticId},line_items:[{name,quantity:"1",base_price_money:{amount:CHARACTER_PRICE,currency:CURRENCY}}]}});
+ const m=order?.metadata||{};
+ if(!order?.id||m.klyra_user_id!==u.id||m.klyra_cosmetic_id!==cosmeticId||order.reference_id!==ref)fail(403,"Payment attempt does not belong to this purchase.");
+ if(Number(order.total_money?.amount)!==CHARACTER_PRICE||order.total_money?.currency!==CURRENCY)throw new Error("Order total mismatch");
+ const created=(await square(env,"payments",{idempotency_key:`chrp-${attemptId}`,source_id:sourceId,amount_money:{amount:CHARACTER_PRICE,currency:CURRENCY},order_id:order.id,location_id:env.SQUARE_LOCATION_ID,autocomplete:true,reference_id:ref,buyer_email_address:u.email||undefined})).payment;
+ if(!created?.id)throw new Error("Payment response mismatch");
+ const v=await verifiedPayment(env,created.id,order.id);
+ await characterWebhook(env,v.payment,v.order);
+ return json({owned:await characterOwned(env,u.id,cosmeticId),status:v.payment.status});
+}
+async function bundlePay(request,env) {
+ storeReady(env);
+ const u=await user(request,env);
+ const body=await request.json().catch(()=>({}));
+ const bundleId=String(body.bundleId||"");
+ if(!BUNDLE_RE.test(bundleId))fail(400,"Unknown pack.");
+ const {attemptId,sourceId}=attemptInput(body);
+ const ref=`bnd_${attemptId.replace(/-/g,"")}`;
+ let saved=(await database(env,`store_orders?ref=eq.${ref}&select=ref,user_id,bundle_id,items,expected_cents,currency,status,square_order_id`))[0];
+ let displayName=bundleId;
+ if(!saved){
+  let rows;
+  try{rows=await database(env,"rpc/create_bundle_order","POST",{p_user:u.id,p_bundle:bundleId,p_ref:ref});}catch{fail(503,"Packs are opening soon.");}
+  const q=Array.isArray(rows)?rows[0]:rows;
+  if(!q)fail(503,"Packs are opening soon.");
+  if(!q.ok){
+   if(q.reason==="all_owned")fail(409,"You already own every character in this pack.");
+   if(q.reason==="not_found")fail(404,"Unknown pack.");
+   fail(409,"This pack is not for sale right now.");
+  }
+  displayName=q.display_name||bundleId;
+  saved=(await database(env,`store_orders?ref=eq.${ref}&select=ref,user_id,bundle_id,items,expected_cents,currency,status,square_order_id`))[0];
+  if(!saved)fail(503,"Unable to start payment. Please retry.");
+ }
+ if(saved.user_id!==u.id||saved.bundle_id!==bundleId)fail(403,"Payment attempt does not belong to this account.");
+ if(saved.status==="paid")return json({owned:true});
+ if(saved.status==="refunded")fail(409,"This payment was refunded. Start a new purchase.");
+ const amount=Number(saved.expected_cents);
+ if(!Number.isInteger(amount)||amount<199||saved.currency!==CURRENCY||!Array.isArray(saved.items)||!saved.items.length)throw new Error("Bundle quote invalid");
+ // The client tokenizes for the amount it displayed; refuse to charge if the server price differs.
+ if(body.expectedCents!==undefined&&Number(body.expectedCents)!==amount)fail(409,`The pack price changed to $${(amount/100).toFixed(2)}. Refresh the store and try again.`);
+ let orderId=saved.square_order_id;
+ if(!orderId){
+  const name=`KLYRA ${String(displayName).slice(0,60)} (${saved.items.length} character${saved.items.length===1?"":"s"})`;
+  const {order}=await square(env,"orders",{idempotency_key:`bnd-${attemptId}`,order:{location_id:env.SQUARE_LOCATION_ID,reference_id:ref,metadata:{klyra_kind:"bundle",klyra_user_id:u.id,klyra_order_ref:ref,klyra_bundle_id:bundleId},line_items:[{name,quantity:"1",base_price_money:{amount,currency:CURRENCY}}]}});
+  if(!order?.id||order.metadata?.klyra_user_id!==u.id||order.reference_id!==ref||Number(order.total_money?.amount)!==amount)throw new Error("Order response mismatch");
+  orderId=order.id;
+  await database(env,`store_orders?ref=eq.${ref}&user_id=eq.${u.id}`,"PATCH",{square_order_id:orderId});
+ }
+ const created=(await square(env,"payments",{idempotency_key:`bndp-${attemptId}`,source_id:sourceId,amount_money:{amount,currency:CURRENCY},order_id:orderId,location_id:env.SQUARE_LOCATION_ID,autocomplete:true,reference_id:ref,buyer_email_address:u.email||undefined})).payment;
+ if(!created?.id)throw new Error("Payment response mismatch");
+ const v=await verifiedPayment(env,created.id,orderId);
+ await bundleWebhook(env,v.payment,v.order);
+ const after=(await database(env,`store_orders?ref=eq.${ref}&select=status`))[0];
+ return json({owned:after?.status==="paid",status:v.payment.status});
 }
 async function webhook(request,env) {
  const raw=await request.text();
@@ -205,9 +246,9 @@ async function handle(request,env) {
  const path=new URL(request.url).pathname;
  if(path==="/payment-config"&&request.method==="GET")return json({applicationId:env.SQUARE_APPLICATION_ID,locationId:env.SQUARE_LOCATION_ID,sandbox:env.SQUARE_ENVIRONMENT!=="production",enabled:env.CHECKOUT_ENABLED==="true",amount:"4.99",currency:CURRENCY});
  if(path==="/pay"&&request.method==="POST")return embeddedPayment(request,env);
- if(path==="/characters/config"&&request.method==="GET")return json({enabled:env.CHECKOUT_ENABLED==="true"&&env.CHARACTER_STORE_ENABLED==="true"&&env.SQUARE_ENVIRONMENT==="production",price:"1.99",amount:CHARACTER_PRICE,currency:CURRENCY,bundles:true});
- if(path==="/characters/checkout"&&request.method==="POST")return characterCheckout(request,env);
- if(path==="/bundles/checkout"&&request.method==="POST")return bundleCheckout(request,env);
+ if(path==="/characters/config"&&request.method==="GET")return json({enabled:env.CHECKOUT_ENABLED==="true"&&env.CHARACTER_STORE_ENABLED==="true"&&env.SQUARE_ENVIRONMENT==="production",price:"1.99",amount:CHARACTER_PRICE,currency:CURRENCY,bundles:true,embedded:true});
+ if(path==="/characters/pay"&&request.method==="POST")return characterPay(request,env);
+ if(path==="/bundles/pay"&&request.method==="POST")return bundlePay(request,env);
  if(path==="/webhook"&&request.method==="POST")return webhook(request,env);
  if(path==="/status"&&request.method==="GET") {
   if(!request.headers.has("authorization"))return json({owned:false,sandbox:env.SQUARE_ENVIRONMENT!=="production",checkoutEnabled:env.CHECKOUT_ENABLED==="true"});

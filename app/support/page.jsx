@@ -1,4 +1,5 @@
 import SupporterAccess from "../components/SupporterAccess";
+import SupporterShowcase from "./SupporterShowcase";
 import SupporterBadge from "../components/SupporterBadge";
 import SupporterEmblem from "../components/SupporterEmblem";
 import { CardBody } from "../friends/PlayerCard";
@@ -161,6 +162,15 @@ export default function SupportPage() {
             ))}
           </ul>
         </div>
+      </section>
+
+      <section className="section kxStoreBody kxSupExclusives" id="supporter-exclusives" aria-labelledby="kx-exclusives-title">
+        <div className="sectionIntro">
+          <p className="tag">Supporter Edition &middot; $4.99</p>
+          <h2 id="kx-exclusives-title">Supporter exclusives</h2>
+          <p>Three characters, one per faction, plus the gold Midas AK-47 and Sunfire RPG-7 for every faction. All five come with the Supporter Edition and are never sold on their own. Drag to turn them around.</p>
+        </div>
+        <SupporterShowcase />
       </section>
 
       <section className="section kxSupTitles" aria-labelledby="kx-titles-title">

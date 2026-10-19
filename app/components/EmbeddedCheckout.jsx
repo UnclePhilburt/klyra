@@ -17,7 +17,9 @@ function loadSquare(sandbox) {
  });
  return sdkPromise;
 }
-export default function EmbeddedCheckout({onComplete}) {
+// Defaults are the Supporter Edition purchase. Store items pass endpoint/payload; the worker prices every item server-side.
+export default function EmbeddedCheckout({onComplete,endpoint="/pay",payload=null,amountCents=499,title="Supporter Edition",subtitle="Optional support \u00b7 one time",note="One-time supporter purchase. The game stays free. Card details are handled securely by Square."}) {
+ const price=(amountCents/100).toFixed(2);
  const mount=useRef(null),card=useRef(null),attempt=useRef(null),locked=useRef(false);
  const [ready,setReady]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState(""),[retry,setRetry]=useState(false);
  const [first,setFirst]=useState(""),[last,setLast]=useState(""),[country,setCountry]=useState("US");
@@ -51,12 +53,12 @@ export default function EmbeddedCheckout({onComplete}) {
    const session=await restoreSession();if(!session)throw new Error("Please sign in again before paying.");
    if(attempt.current&&attempt.current.user!==session.user.id)throw new Error("Your account changed. Refresh checkout before continuing.");
    if(!attempt.current){
-    const result=await card.current.tokenize({amount:"4.99",currencyCode:"USD",intent:"CHARGE",customerInitiated:true,sellerKeyedIn:false,billingContact:{givenName:first,familyName:last,countryCode:country.toUpperCase(),email:session.user.email}});
+    const result=await card.current.tokenize({amount:price,currencyCode:"USD",intent:"CHARGE",customerInitiated:true,sellerKeyedIn:false,billingContact:{givenName:first,familyName:last,countryCode:country.toUpperCase(),email:session.user.email}});
     if(result.status!=="OK")throw new Error("Please check your card details and complete any bank verification.");
     attempt.current={attemptId:crypto.randomUUID(),sourceId:result.token,user:session.user.id};
    }
    const {attemptId,sourceId}=attempt.current;
-   const r=await fetch(`${API}/pay`,{method:"POST",headers:{Authorization:`Bearer ${session.access_token}`,"Content-Type":"application/json"},body:JSON.stringify({attemptId,sourceId})});
+   const r=await fetch(`${API}${endpoint}`,{method:"POST",headers:{Authorization:`Bearer ${session.access_token}`,"Content-Type":"application/json"},body:JSON.stringify({...(payload||{}),attemptId,sourceId})});
    const data=await r.json();
    if(!r.ok){if(r.status===402){attempt.current=null;setRetry(false);}else setRetry(true);throw new Error(data.message||"Payment status is uncertain. Retry this same attempt.");}
    if(data.owned){attempt.current=null;setRetry(false);onComplete();}
@@ -65,12 +67,12 @@ export default function EmbeddedCheckout({onComplete}) {
   finally{locked.current=false;setBusy(false);}
  }
  return <form className="embeddedCheckout" onSubmit={pay}>
-  <div className="checkoutHeading"><span className="supporterBadge">SECURE CHECKOUT</span><h3>Supporter Edition</h3><p>Optional support &middot; one time <strong>$4.99 USD</strong></p></div>
+  <div className="checkoutHeading"><span className="supporterBadge">SECURE CHECKOUT</span><h3>{title}</h3><p>{subtitle} <strong>${price} USD</strong></p></div>
   <fieldset disabled={busy||retry}><legend>Billing name</legend><div className="checkoutNames"><label>First name<input required autoComplete="given-name" value={first} onChange={e=>setFirst(e.target.value)}/></label><label>Last name<input required autoComplete="family-name" value={last} onChange={e=>setLast(e.target.value)}/></label></div><label>Country<select required autoComplete="country" value={country} onChange={e=>setCountry(e.target.value)}>{countries.map(({code,name})=><option key={code} value={code}>{name}</option>)}</select></label></fieldset>
   <div ref={mount} className="squareCard" />
   {!ready&&!message&&<p role="status">Loading secure card fields...</p>}
-  <button className="button huge" type="submit" disabled={!ready||busy}>{busy?"Confirming payment...":retry?"Retry same payment":"Pay $4.99 USD"}</button>
-  <p className="quiet">One-time supporter purchase. The game stays free. Card details are handled securely by Square.</p>
+  <button className="button huge" type="submit" disabled={!ready||busy}>{busy?"Confirming payment...":retry?"Retry same payment":`Pay $${price} USD`}</button>
+  <p className="quiet">{note}</p>
   {message&&<p role="alert" className="formMessage">{message}</p>}
  </form>;
 }

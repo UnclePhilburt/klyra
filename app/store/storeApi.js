@@ -84,21 +84,6 @@ export async function ownedCharacters(session) {
   return { ids: new Set(), supporter: await paidSupporterFromStatus(session), ok: false };
 }
 
-export async function startCharacterCheckout(session, cosmeticId) {
-  if (!API) throw new Error("The character store is opening soon.");
-  const r = await timed(`${API}/characters/checkout`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ cosmeticId }),
-  }, 20000);
-  const data = await r.json().catch(() => ({}));
-  if (!r.ok || !data.url) throw new Error(data.message || "Could not start checkout. Try again.");
-  if (!/^https:\/\/([a-z0-9-]+\.)*(square\.link|square\.site|squareup\.com|squareupsandbox\.com)\//i.test(data.url)) {
-    throw new Error("Checkout returned an unexpected address.");
-  }
-  return data.url;
-}
-
 async function rpc(name, session) {
   const token = session?.access_token || supabaseKey;
   const r = await timed(`${supabaseUrl}/rest/v1/rpc/${name}`, {
@@ -130,19 +115,4 @@ export async function storeBundles(session) {
   } catch {
     return null;
   }
-}
-
-export async function startBundleCheckout(session, bundleId) {
-  if (!API) throw new Error("The Weekly Drop is opening soon.");
-  const r = await timed(`${API}/bundles/checkout`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ bundleId }),
-  }, 20000);
-  const data = await r.json().catch(() => ({}));
-  if (!r.ok || !data.url) throw new Error(data.message || "Could not start checkout. Try again.");
-  if (!/^https:\/\/([a-z0-9-]+\.)*(square\.link|square\.site|squareup\.com|squareupsandbox\.com)\//i.test(data.url)) {
-    throw new Error("Checkout returned an unexpected address.");
-  }
-  return data.url;
 }

@@ -2035,3 +2035,8 @@ html .kxAcctBanner h1.kxCallsignTitle { max-width: 100%; font-size: min(clamp(40
 .kx3dOther { grid-template-columns: auto 1fr; column-gap: 14px; }
 .kx3dOther > :not(.kx3dOtherLogo) { grid-column: 2; }
 .kx3dOtherLogo { grid-row: 1 / span 3; width: 48px; height: 48px; align-self: center; object-fit: contain; }
+
+/* Embedded store checkout (card form modal) */
+.kxCheckoutModal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,8,6,.78);overflow-y:auto}
+.kxCheckoutPanel{position:relative;width:100%;max-width:520px;max-height:calc(100vh - 32px);overflow-y:auto;background:#121814;border:1px solid #57594e;border-radius:10px;padding:20px}
+.kxCheckoutClose{position:absolute;top:8px;right:10px;background:none;border:0;color:#f4efe6;font-size:28px;line-height:1;cursor:pointer}

@@ -3,12 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "../useSession";
 import CharacterPreview from "./CharacterPreview";
-import { CHARACTER_PRICE_LABEL, characterById, shopCharacters, supporterExclusives, teams } from "./characterData";
-import { catalogReady, ownedCharacters, startBundleCheckout, startCharacterCheckout, storeBundles, storeConfig } from "./storeApi";
+import { CHARACTER_PRICE_CENTS, CHARACTER_PRICE_LABEL, characterById, shopCharacters, teams } from "./characterData";
+import { catalogReady, ownedCharacters, storeBundles, storeConfig } from "./storeApi";
+import EmbeddedCheckout from "../components/EmbeddedCheckout";
 import { WeeklyDrop } from "./BundleShop";
 
-export const RETURN_MESSAGE = "Payment received. Your character will unlock after Square confirms the payment.";
-export const RETURN_MESSAGE_PACK = "Payment received. Your characters will unlock after Square confirms the payment.";
+export const RETURN_MESSAGE = "Payment confirmed. Your character is unlocked on your account.";
+export const RETURN_MESSAGE_PACK = "Payment confirmed. Your characters are unlocked on your account.";
 
 function TeamTags({ character }) {
   return (
@@ -30,8 +31,6 @@ function CharacterCard({ character, owned, signedIn, ready, open, busy, onBuy, f
     action = <span className="kxCharState muted">Checking...</span>;
   } else if (owned) {
     action = <span className="kxCharState owned">OWNED</span>;
-  } else if (exclusive) {
-    action = <a className="kxCharBtn ghost" href="/support/#buy">Get Supporter Edition</a>;
   } else if (!signedIn) {
     action = <a className="kxCharBtn ghost" href="/account/">Sign in to buy</a>;
   } else if (!open) {
@@ -52,16 +51,14 @@ function CharacterCard({ character, owned, signedIn, ready, open, busy, onBuy, f
     >
       <CharacterPreview character={character} large={focus} />
       <div className="kxCharInfo">
-        {exclusive ? <p className="kxCharFlag">SUPPORTER EXCLUSIVE{character.kind === "weapon" ? " · WEAPON" : ""}</p> : null}
-        <h3>{character.name}</h3>
+                <h3>{character.name}</h3>
         {character.blurb ? <p className="kxCharBlurb">{character.blurb}</p> : null}
         <TeamTags character={character} />
         <div className="kxCharBuy">
-          <span className="kxCharPrice">{exclusive ? "Included with Supporter Edition" : CHARACTER_PRICE_LABEL}</span>
+          <span className="kxCharPrice">{CHARACTER_PRICE_LABEL}</span>
           {action}
         </div>
         {!exclusive && ready && !owned && !signedIn ? <p className="kxCharNote">Sign-in required. Characters are linked to your KLYRA account.</p> : null}
-        {exclusive && ready && !owned ? <p className="kxCharNote">Only for verified Supporter Edition owners. Not sold separately.</p> : null}
       </div>
     </article>
   );
@@ -138,38 +135,36 @@ export default function CharacterStore({ focusId = null }) {
     if (el) el.scrollIntoView({ block: "start" });
   }, [focusId]);
 
-  const onBuy = async (character) => {
+  // Purchases use the shared on-site card form (EmbeddedCheckout). Price is set by the worker.
+  const [pending, setPending] = useState(null);
+  const onBuy = (character) => {
     if (!session || character.exclusive) return;
-    setBusyId(character.id);
     setMessage("");
-    try {
-      const url = await startCharacterCheckout(session, character.id);
-      window.location.assign(url);
-    } catch (error) {
-      setMessage(error.message || "Could not start checkout. Try again.");
-      setBusyId(null);
-    }
+    setReturned(false);
+    setPending({ id: character.id, pack: false, endpoint: "/characters/pay", payload: { cosmeticId: character.id }, amountCents: CHARACTER_PRICE_CENTS, title: character.name, subtitle: "Character skin \u00b7 one time" });
   };
 
-  const onBuyBundle = async (quote) => {
-    if (!session) return;
-    setBusyId(quote.bundle_id);
+  const onBuyBundle = (quote) => {
+    if (!session || quote?.price_cents == null) return;
     setMessage("");
-    try {
-      const url = await startBundleCheckout(session, quote.bundle_id);
-      window.location.assign(url);
-    } catch (error) {
-      setMessage(error.message || "Could not start checkout. Try again.");
-      setBusyId(null);
-      refreshBundles();
-    }
+    setReturned(false);
+    setPending({ id: quote.bundle_id, pack: true, endpoint: "/bundles/pay", payload: { bundleId: quote.bundle_id, expectedCents: quote.price_cents }, amountCents: quote.price_cents, title: quote.display_name || "Weekly Drop", subtitle: "Character pack \u00b7 one time" });
+  };
+
+  const closeCheckout = () => setPending(null);
+  const onComplete = () => {
+    setReturnedPack(Boolean(pending?.pack));
+    setReturned(true);
+    setPending(null);
+    refreshOwned();
   };
 
   const signedIn = Boolean(session);
   const ready = sessionReady && checked && ownedReady;
   const isOwned = (ch) => (ch.exclusive ? owned.supporter : owned.ids.has(ch.id));
-  const focus = focusId ? characterById(focusId) : null;
-  const ownedCount = [...supporterExclusives, ...shopCharacters].filter((ch) => ch.kind !== "weapon" && isOwned(ch)).length;
+  const focusChar = focusId ? characterById(focusId) : null;
+  const focus = focusChar && !focusChar.exclusive ? focusChar : null;
+  const ownedCount = shopCharacters.filter((ch) => isOwned(ch)).length;
 
   const cardProps = (ch) => ({
     character: ch,
@@ -183,6 +178,14 @@ export default function CharacterStore({ focusId = null }) {
 
   return (
     <div className="kxStore">
+      {pending ? (
+        <div className="kxCheckoutModal" role="dialog" aria-modal="true" aria-label="Secure checkout" onClick={(e) => { if (e.target === e.currentTarget) closeCheckout(); }}>
+          <div className="kxCheckoutPanel">
+            <button className="kxCheckoutClose" type="button" aria-label="Close checkout" onClick={closeCheckout}>&times;</button>
+            <EmbeddedCheckout key={pending.id} endpoint={pending.endpoint} payload={pending.payload} amountCents={pending.amountCents} title={pending.title} subtitle={pending.subtitle} note="One-time purchase linked to your KLYRA account. Card details are handled securely by Square." onComplete={onComplete} />
+          </div>
+        </div>
+      ) : null}
       {returned ? (
         <div className="kxStoreNotice" role="status">
           <span className="kxStoreNoticeTag">CHECKOUT</span>
@@ -208,16 +211,6 @@ export default function CharacterStore({ focusId = null }) {
         </section>
       ) : null}
 
-      <section className="kxStoreGroup" id="supporter-exclusives" aria-labelledby="sup-chars">
-        <header className="kxStoreGroupHead">
-          <p className="tag">Supporter Edition &middot; $4.99</p>
-          <h2 id="sup-chars">Supporter exclusives</h2>
-          <p>Three characters, one per faction, plus the gold Midas AK-47 and Sunfire RPG-7 for every faction. All five come with the Supporter Edition and are never sold on their own.</p>
-        </header>
-        <div className="kxCharGrid exclusives">
-          {supporterExclusives.map((ch) => <CharacterCard key={ch.id} {...cardProps(ch)} />)}
-        </div>
-      </section>
 
       <WeeklyDrop data={bundles} owned={owned.ids} signedIn={signedIn} ready={ready} open={bundlesOpen} busyId={busyId} onBuy={onBuyBundle} onExpire={refreshBundles} />
 
