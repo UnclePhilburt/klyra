@@ -70,7 +70,10 @@ function HeroStage({ character, live3d }) {
           auto-rotate-delay="1500"
           rotation-per-second="14deg"
           interaction-prompt="none"
-          camera-orbit="20deg 85deg auto"
+          camera-orbit="20deg 82deg auto"
+          camera-target="auto auto auto"
+          field-of-view="auto"
+          bounds="tight"
           min-camera-orbit="auto 60deg auto"
           max-camera-orbit="auto 100deg auto"
           shadow-intensity="1"
@@ -110,6 +113,72 @@ function Clock({ ms }) {
   return (
     <div className="kgClock" role="timer" aria-live="off" aria-label="Time until the next Weekly Drop">
       {parts.map(([v, u]) => <b key={u}>{String(v).padStart(2, "0")}<small>{u}</small></b>)}
+    </div>
+  );
+}
+
+// Horizontal row: wheel scrolls sideways, mouse drag scrolls (a drag never selects), arrows page it, touch flicks natively.
+function ThumbRow({ children }) {
+  const track = useRef(null);
+  const drag = useRef(null);
+  const moved = useRef(false);
+  const [edges, setEdges] = useState({ left: false, right: true });
+  const update = useCallback(() => {
+    const el = track.current;
+    if (!el) return;
+    setEdges({ left: el.scrollLeft > 4, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 });
+  }, []);
+  useEffect(() => {
+    const el = track.current;
+    if (!el) return;
+    update();
+    const onWheel = (e) => {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX) || el.scrollWidth <= el.clientWidth) return;
+      const atStart = el.scrollLeft <= 0 && e.deltaY < 0;
+      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1 && e.deltaY > 0;
+      if (atStart || atEnd) return;
+      e.preventDefault();
+      el.scrollBy({ left: e.deltaY * (e.deltaMode === 1 ? 32 : 1) });
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("resize", update);
+    return () => { el.removeEventListener("wheel", onWheel); window.removeEventListener("resize", update); };
+  }, [update]);
+  const onPointerDown = (e) => {
+    if (e.pointerType !== "mouse" || e.button !== 0) return;
+    drag.current = { x: e.clientX, left: track.current.scrollLeft, id: e.pointerId };
+    moved.current = false;
+  };
+  const onPointerMove = (e) => {
+    const d = drag.current;
+    if (!d) return;
+    const dx = e.clientX - d.x;
+    if (!moved.current && Math.abs(dx) > 6) {
+      moved.current = true;
+      track.current.setPointerCapture?.(d.id);
+      track.current.classList.add("isDragging");
+    }
+    if (moved.current) track.current.scrollLeft = d.left - dx;
+  };
+  const endDrag = () => {
+    if (!drag.current) return;
+    drag.current = null;
+    track.current?.classList.remove("isDragging");
+  };
+  const onClickCapture = (e) => {
+    if (moved.current) { e.preventDefault(); e.stopPropagation(); moved.current = false; }
+  };
+  const page = (dir) => {
+    const el = track.current;
+    el.scrollBy({ left: dir * Math.max(240, el.clientWidth * 0.8), behavior: "smooth" });
+  };
+  return (
+    <div className={`kgRow ${edges.left ? "fadeL" : ""} ${edges.right ? "fadeR" : ""}`}>
+      <button type="button" className="kgArrow left" aria-label="Scroll characters left" onClick={() => page(-1)} disabled={!edges.left}>&#8249;</button>
+      <div ref={track} className="kgRowTrack" onScroll={update} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={endDrag} onPointerCancel={endDrag} onClickCapture={onClickCapture} onDragStart={(e) => e.preventDefault()}>
+        {children}
+      </div>
+      <button type="button" className="kgArrow right" aria-label="Scroll characters right" onClick={() => page(1)} disabled={!edges.right}>&#8250;</button>
     </div>
   );
 }
@@ -198,7 +267,8 @@ export default function CharacterStore({ focusId = null }) {
     setSelected(ch);
     setLoreOpen(false);
     setNotice("");
-    document.getElementById("kg-hero")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const heroEl = document.getElementById("kg-hero");
+    if (heroEl && heroEl.getBoundingClientRect().top < 0) window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const buyCharacter = (ch) => {
@@ -268,10 +338,10 @@ export default function CharacterStore({ focusId = null }) {
         </div>
       </section>
 
-      <section className="kgRow" aria-label="Characters">
-        <div className="kgRowTrack">
+      <section aria-label="Characters">
+        <ThumbRow>
           {others.map((ch) => <Thumb key={ch.id} character={ch} owned={owned.has(ch.id)} onPick={pick} />)}
-        </div>
+        </ThumbRow>
       </section>
 
       {quote && dropPicks.length ? (
