@@ -2117,3 +2117,24 @@ html .kxAcctBanner h1.kxCallsignTitle { max-width: 100%; font-size: min(clamp(40
  .kgClock b{min-width:56px}
 }
 @media (prefers-reduced-motion:reduce){.kgHeroStage,.kgDropTag{animation:none}}
+
+/* ===== Nav fit (fluid desktop nav; hamburger below 1100px) ===== */
+@media (min-width:1100px){
+ .kxNav{gap:clamp(8px,1.2vw,24px);padding-left:clamp(12px,2vw,40px);padding-right:clamp(12px,2vw,40px)}
+ .kxBrand{flex:0 0 auto;gap:clamp(6px,.6vw,10px)}
+ .kxBrand img{width:clamp(30px,2.6vw,40px);height:clamp(30px,2.6vw,40px)}
+ .kxBrand span{display:grid;font-size:clamp(13px,1.05vw,18px);letter-spacing:clamp(1px,.12vw,2.5px)}
+ .kxBrand em{font-size:clamp(8px,.62vw,10px);letter-spacing:clamp(.5px,.1vw,2px)}
+ .kxNavLinks{flex:1 1 auto;min-width:0;justify-content:center;gap:0}
+ .kxNavLinks a{padding:0 clamp(4px,.72vw,14px);font-size:clamp(10.5px,.84vw,13px);letter-spacing:clamp(.3px,.07vw,1.3px);white-space:nowrap}
+ .kxNavLinks a::after{left:clamp(4px,.72vw,14px);right:clamp(4px,.72vw,14px)}
+ .kxNavLinks a.kxNavSupport i{margin-right:clamp(3px,.3vw,6px)}
+ .kxNavActions{flex:0 0 auto;gap:clamp(6px,.6vw,10px)}
+ .kxAccount{padding:0 clamp(8px,.8vw,14px);font-size:clamp(11px,.85vw,13px);max-width:clamp(120px,12vw,200px)}
+ .kxPlayBtn{padding:0 clamp(12px,1.3vw,22px);font-size:clamp(11px,.85vw,13px);letter-spacing:clamp(.5px,.1vw,2px);white-space:nowrap}
+}
+@media (max-width:1099.98px){
+ .kxNavLinks{display:none}
+ .kxBurger{display:inline-flex}
+ .kxDrawer{display:flex}
+}
