@@ -12,6 +12,10 @@ export default function RedlineViewer({ cars }) {
   const host = useRef(null);
   const api = useRef(null);
   const [active, setActive] = useState(cars[0].id);
+  useEffect(() => {
+    const want = new URLSearchParams(window.location.search).get("car");
+    if (want && cars.some((c) => c.id === want)) setActive(want);
+  }, [cars]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [panels, setPanels] = useState({});

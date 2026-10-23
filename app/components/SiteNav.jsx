@@ -7,8 +7,9 @@ import { useSession } from "../useSession";
 
 const pages = [
   ["Games", "/games/"],
-  ["Store", "/store/"],
+  ["News", "/news/"],
   ["Community", "/community/"],
+  ["Store", "/store/"],
 ];
 
 // Broken Front sections stay one tap away in the mobile drawer (and on the BF page / footer).

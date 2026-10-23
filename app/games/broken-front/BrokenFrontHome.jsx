@@ -164,9 +164,6 @@ export default function BrokenFrontHome() {
         <a className="kxScroll" href="#trailer" aria-label="Scroll to trailer"><span /></a>
       </section>
 
-      <nav className="bfSubnav" aria-label="Broken Front">
-        {[["Features","/features/"],["Factions","/factions/"],["Arsenal","/arsenal/"],["Weapons","/weapons/"],["Vehicles","/vehicles/"],["Roadmap","/roadmap/"],["Devlog","/devlog/"],["Download","/download/"],["Play in browser","/play/"]].map(([l,h]) => <a key={h} href={h}>{l}</a>)}
-      </nav>
       <div className="kxHazard" aria-hidden="true" />
 
       <div className="kxF2PTicker" aria-hidden="true">

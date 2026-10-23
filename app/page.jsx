@@ -5,7 +5,7 @@ export const metadata = { alternates: { canonical: "https://klyra.lol/" } };
 const games = [
   { key: "bf", name: "Broken Front", tag: "Flagship · Free to play", pitch: "Free-to-play military shooter. Pre-alpha.", img: "/shots/trailer/tanks.jpg", href: "/games/broken-front/", cta: "Play" },
   { key: "rl", name: "Redline", tag: "In development", pitch: "Pro and Street racing. Car previews only.", img: "/cars/redline_pro_touring.webp", href: "/games/redline/", cta: "Preview" },
-  { key: "hub", name: "Social Hub", tag: "Part of the platform", pitch: "Soccer, boxing, team deathmatch and friends.", img: null, href: "/games/", cta: "All games" },
+  { key: "hub", name: "Social Hub", tag: "Part of the platform", pitch: "Hang out with friends. Kick a ball around, box your friends.", img: null, href: "/games/", cta: "All games" },
 ];
 
 const Icon = ({ d }) => (

@@ -1,5 +1,5 @@
-import RedlineViewer from "./RedlineViewer";
-import { redlineCars, redlineDisciplines } from "../gamesData";
+import { redlineDisciplines, redlineCars } from "../gamesData";
+import { WipNote } from "./RlBits";
 
 export const metadata = {
   title: "KLYRA: Redline · In development",
@@ -11,22 +11,32 @@ export const metadata = {
 export default function RedlinePage() {
   return (
     <main className="rlPage">
-      <section className="rlHead">
+      <section className="rlHead rlHero">
         <div className="rlSpeed" aria-hidden="true"><i /><i /><i /><i /><i /><i /></div>
         <p className="rlDev"><i aria-hidden="true" />In development</p>
         <h1><span>KLYRA:</span> Redline</h1>
-        <p className="rlLead">A racing game with two disciplines. Work-in-progress car models, no gameplay shown.</p>
+        <p className="rlLead">A racing game in two disciplines: Redline Pro, professional circuit racing, and Redline Street, underground street racing.</p>
+        <div className="rlHeroActions">
+          <a className="rlBtn" href="/games/redline/vehicles/">Explore the cars</a>
+          <a className="rlBtn ghost" href="/games/redline/roadmap/">Roadmap</a>
+        </div>
+        <img className="rlHeroCar" src="/cars/redline_pro_touring.webp" alt="" width="640" height="360" />
       </section>
-      <RedlineViewer cars={redlineCars} />
       <section className="rlSplit" aria-label="Disciplines">
         {redlineDisciplines.map((d) => (
-          <article key={d.id} className={`rlDisc ${d.id}`}>
+          <a key={d.id} className={`rlDisc ${d.id}`} href={`/games/redline/${d.id}/`}>
             <h2>{d.name}</h2>
             <ul>{d.points.map((p) => <li key={p}>{p}</li>)}</ul>
-          </article>
+            <b className="rlMore">Explore {d.name} &rarr;</b>
+          </a>
         ))}
       </section>
-      <p className="rlNote">KLYRA: Redline is in development. Everything shown here is work in progress and can change.</p>
+      <section className="rlFacts" aria-label="At a glance">
+        <div><b>{redlineCars.filter((c) => c.discipline === "pro").length}</b><span>Pro car models</span></div>
+        <div><b>{redlineCars.filter((c) => c.discipline === "street").length}</b><span>Street car models</span></div>
+        <div><b>One</b><span>KLYRA download</span></div>
+      </section>
+      <WipNote />
     </main>
   );
 }
