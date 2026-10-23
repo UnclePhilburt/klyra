@@ -2583,32 +2583,80 @@ a.rlDisc.street:hover{box-shadow:0 30px 70px -30px rgba(24,200,255,.6)}
 .mMusicViz .mMusicBars i{background:linear-gradient(#7ee3ff,#1ec8ff);box-shadow:0 0 8px rgba(30,200,255,.6)}
 @media (prefers-reduced-motion:reduce){.mWaveSet{animation:none}}
 
-/* Redline roadmap road (rr*) */
-.rrWrap{position:relative;height:900vh;margin:8px 0 48px}
-.rrSticky{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;border-radius:18px;background:#28324a}
-.rrCanvas{display:block;width:100%;height:100%}
-.rrLoading{position:absolute;inset:0;display:grid;place-items:center;color:#9aa3b2;font-weight:600}
-.rrHud{position:absolute;inset:0;pointer-events:none}
-.rrHud>*{pointer-events:auto}
-.rrTag{position:absolute;left:16px;top:14px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#cfd6e4;background:rgba(8,10,16,.6);padding:5px 9px;border-radius:999px}
-.rrDots{position:absolute;right:14px;top:50%;transform:translateY(-50%);list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.rrDots button{width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(8,10,16,.65);color:#cfd6e4;font-weight:700;cursor:pointer}
-.rrDots button.past{border-color:#ff3b30;color:#fff}
-.rrDots button.on{background:#ff3b30;border-color:#ff3b30;color:#fff}
-.rrCard{position:absolute;left:16px;bottom:16px;width:min(360px,calc(100% - 80px));max-height:58%;overflow:auto;background:rgba(8,10,16,.82);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 16px;color:#e8ecf4;animation:rrIn .35s ease}
-.rrCard h3{margin:6px 0 8px;font-size:20px}
-.rrCard ul{margin:0;padding-left:18px;font-size:14px;line-height:1.55;color:#c5ccd9}
-.rrCardTop{display:flex;align-items:center;gap:8px}
-.rrNum{font-size:12px;font-weight:700;color:#ff6b61;text-transform:uppercase;letter-spacing:.08em}
-.rrPill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:#2a3550;color:#cfe0ff}
-.rrX{margin-left:auto;background:none;border:0;color:#cfd6e4;font-size:22px;cursor:pointer}
-.rrNote{margin:8px 0 0;font-size:13px;color:#9aa3b2;font-style:italic}
-.rrIntro p{margin:0;color:#c5ccd9;font-size:14px}
-.rrHint{position:absolute;left:50%;transform:translateX(-50%);top:14px;font-size:12px;color:#cfd6e4;opacity:.8;display:none}
-.rrListHead{margin:24px 0 12px}
-@keyframes rrIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@media (min-width:760px){.rrHint{display:block}.rrCard{left:24px;bottom:24px}}
-@media (max-width:759px){.rrCard{max-height:42%;font-size:13px}.rrCard h3{font-size:17px}.rrDots button{width:28px;height:28px;font-size:12px}}
-.gPage:has(.rrWrap){overflow:visible;overflow-x:clip}
-.rrMore{display:none;margin-left:auto;background:none;border:1px solid rgba(255,255,255,.2);color:#cfd6e4;border-radius:999px;font-size:11px;padding:3px 9px;cursor:pointer}
-@media (max-width:759px){.rrMore{display:inline-block}.rrMore+.rrX{margin-left:4px}.rrCard{left:10px;bottom:10px;width:calc(100% - 64px);padding:10px 12px}.rrCard h3{margin:4px 0 0;font-size:15px}.rrCard:not(.exp) ul,.rrCard:not(.exp) .rrNote{display:none}.rrCard.exp ul{margin-top:6px}}
+/* Redline roadmap circuit map (rc*) */
+.gPage:has(.rcWrap){overflow:visible;overflow-x:clip}
+.rcWrap{position:relative;height:560vh;margin:8px 0 40px}
+.rcWrap.rcStatic{height:auto}
+.rcSticky{position:sticky;top:92px;height:calc(100vh - 108px);min-height:560px;display:grid;grid-template-columns:330px 1fr;gap:16px}.rcSide{display:flex;flex-direction:column;gap:12px;min-height:0}
+.rcStatic .rcSticky{position:relative;top:0;height:auto}
+.rcTower{background:linear-gradient(180deg,#101218,#0b0c10);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:12px;display:flex;flex-direction:column;font-variant-numeric:tabular-nums}
+.rcTowerHead{display:flex;justify-content:space-between;align-items:center;font:800 12px/1 var(--font-display,inherit);letter-spacing:.18em;color:#8b93a3;padding:6px 6px 12px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:6px}
+.rcBrand{color:#ff3b30;font-style:italic}
+.rcTower ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.rcRow{width:100%;display:grid;grid-template-columns:4px 34px 1fr auto;align-items:center;gap:8px;padding:7px 8px 7px 0;border:0;border-radius:8px;background:transparent;color:#aab2c0;text-align:left;cursor:pointer;font-size:13px;transition:background .25s,color .25s}
+.rcRow:hover{background:rgba(255,255,255,.04)}
+.rcRow.past{color:#e8ecf4}
+.rcRow.on{background:linear-gradient(90deg,rgba(255,59,48,.22),rgba(255,59,48,.04));color:#fff}
+.rcBar{height:22px;border-radius:2px;opacity:.35}
+.rcRow.past .rcBar,.rcRow.on .rcBar{opacity:1}
+.rcPos{font-weight:800;font-size:12px;color:#7d8595;letter-spacing:.04em}
+.rcRow.on .rcPos{color:#ff6b61}
+.rcName{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rcStat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:3px 7px;border-radius:999px;background:#1d2433;color:#9fb4d8}
+.rcFoot{display:none;font-size:11px;color:#6b7383;letter-spacing:.06em;text-transform:uppercase;padding:10px 6px 2px;border-top:1px solid rgba(255,255,255,.07)}
+.rcMapBox{position:relative;border-radius:14px;overflow:hidden;background:radial-gradient(120% 90% at 30% 70%,#141821,#0a0b0f);border:1px solid rgba(255,255,255,.07)}
+.rcMap{display:block;width:100%;height:100%}
+.rcEdge{fill:none;stroke:#323844;stroke-width:28;stroke-linejoin:round}.rcKerb{fill:none;stroke-width:30;stroke-linejoin:round}
+.rcAsphalt{fill:none;stroke:#23262e;stroke-width:22;stroke-linejoin:round;stroke-linecap:round}
+.rcKerb{stroke:#ff3b30}
+.rcStreetAsphalt{stroke:#17121f}
+.rcNeonBase{fill:none;stroke:#ff2d9a;stroke-width:30;opacity:.45;stroke-linejoin:round}
+.rcFutBase{fill:none;stroke:rgba(223,231,242,.22);stroke-width:4;stroke-dasharray:2 10;stroke-linecap:round}
+.rcRun{fill:none;stroke:#ff3b30;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.rcRunSt{stroke:url(#rcStRun)}
+.rcRunFu{fill:none;stroke:url(#rcFut);stroke-width:4;stroke-linecap:round}
+.rcFinish{stroke:#fff;stroke-width:5;stroke-dasharray:3 3}
+.rcPitMark{stroke:#21e6ff;stroke-width:3;stroke-dasharray:4 3}
+.rcPit{fill:none;stroke:rgba(255,255,255,.28);stroke-width:2;stroke-dasharray:6 5}
+.rcSmall{font-size:10px;font-weight:700;letter-spacing:.16em;fill:#6f7787}
+.rcZone{font-size:11px;font-weight:800;letter-spacing:.24em}
+.rcZoneSt{fill:#ff4fb0}.rcZoneFu{fill:#c9d6e6;opacity:.7}
+.rcTurn{cursor:pointer;outline:none}
+.rcHit{fill:transparent}
+.rcDot{fill:#0d0f14;stroke:var(--c);stroke-width:2.5;opacity:.75;transition:all .3s}
+.rcTurn.past .rcDot{fill:var(--c);opacity:1}
+.rcTurn.on .rcDot{stroke:#fff;stroke-width:3}
+.rcTurn:focus-visible .rcDot{stroke:#fff;stroke-width:4}
+.rcNum{font-size:12px;font-weight:800;fill:#cfd6e4;pointer-events:none}
+.rcTurn.past .rcNum{fill:#0b0c10}
+.rcTLabel{font-size:12.5px;font-weight:700;fill:#8b93a3;paint-order:stroke;stroke:#0b0c10;stroke-width:4px;transition:fill .3s;pointer-events:none}
+.rcTurn.past .rcTLabel,.rcTurn.on .rcTLabel{fill:#f1f4f9}
+.rcCarGlow{fill:rgba(255,59,48,.28);filter:blur(4px)}
+.rcCar{transition:opacity .3s}
+.rcTag{position:absolute;left:12px;top:12px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8b93a3;background:rgba(10,11,15,.7);padding:5px 9px;border-radius:999px}
+.rcCard{flex:1;min-height:0;overflow:auto;background:rgba(12,14,19,.9);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:14px 16px;color:#e8ecf4;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.rcCardTop{display:flex;align-items:center;gap:8px}
+.rcCardT{font-weight:900;font-size:13px}
+.rcCardPhase{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#8b93a3}
+.rcPill{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:3px 8px;border-radius:999px;background:#1d2433;color:#9fb4d8}
+.rcX{margin-left:auto;background:none;border:0;color:#aab2c0;font-size:20px;line-height:1;cursor:pointer}
+.rcCard h3{margin:6px 0 8px;font-size:18px}
+.rcCard ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:13px;color:#c5ccd9}
+.rcCard li{padding-left:10px;position:relative}
+.rcCard li:before{content:"";position:absolute;left:0;top:.6em;width:4px;height:4px;border-radius:1px;background:#ff3b30}
+.rcNote{margin:8px 0 0;font-size:12.5px;color:#8b93a3;font-style:italic}
+.rcStatic .rcMapBox{aspect-ratio:1000/640}
+@media (max-width:900px){
+.rcWrap{height:520vh}
+.rcSticky{top:110px;height:calc(100svh - 120px);grid-template-columns:1fr;grid-template-rows:auto auto 1fr;gap:8px;min-height:0}
+.rcTower{order:2;padding:6px;border-radius:12px}
+.rcTowerHead,.rcFoot{display:none}
+.rcTower ol{flex-direction:row;overflow-x:auto;gap:4px;scrollbar-width:none}
+.rcRow{grid-template-columns:3px auto;padding:6px 8px 6px 0;white-space:nowrap}
+.rcName,.rcStat{display:none}
+.rcMapBox{order:1;aspect-ratio:1000/640}
+.rcTLabel{display:none}
+.rcTurn.on .rcTLabel{display:block;font-size:20px}
+.rcDot{r:16px}.rcNum{font-size:15px}
+.rcSide{display:contents}.rcCard{order:3;min-height:0;padding:12px 14px}.rcCard h3{font-size:16px;margin:4px 0 6px}.rcCard ul{font-size:12.5px}
+}
