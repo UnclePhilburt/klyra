@@ -7,7 +7,7 @@ import { StarIcon } from "../components/PlatformIcons";
 import { topics } from "../components/helpTopics";
 
 export const metadata = {
-  title: "Support Klyra · Supporter Edition · Klyra: Broken Front",
+  title: "Support KLYRA · Supporter Edition",
   description:
     "KLYRA: Broken Front is free to play. The optional $4.99 Supporter Edition is a one-time way to help pay for servers and development, plus answers to common questions.",
   openGraph: {

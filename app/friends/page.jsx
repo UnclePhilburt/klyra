@@ -337,8 +337,8 @@ export default function FriendsPage() {
             {profile?.username
               ? loaded
                 ? `${lists.friends.length} friend${lists.friends.length === 1 ? "" : "s"}, ${online} online now.`
-                : "Loading your squad..."
-              : "Add friends by callsign and see who is online. The game will use this same list."}
+                : "Loading your friends..."
+              : "Add friends by callsign and see who is online. KLYRA games use this same list."}
           </p>
         </div>
 
@@ -407,7 +407,7 @@ export default function FriendsPage() {
             ) : null}
 
             <Section
-              tag={loaded ? `${online} online` : "Squad"}
+              tag={loaded ? `${online} online` : "Friends"}
               title="Friends"
               count={lists.friends.length}
               empty={loaded ? "No friends yet. Add one by callsign above." : "Loading..."}

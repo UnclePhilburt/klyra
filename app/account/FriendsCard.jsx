@@ -29,11 +29,11 @@ export default function FriendsCard({ session }) {
     ? `${plural(data.friends, "friend")} · ${data.online} online${data.requests ? ` · ${plural(data.requests, "request")} waiting` : ""}`
     : data
       ? "Add friends by callsign and see who is online."
-      : "Loading your squad...";
+      : "Loading your friends...";
 
   return (
     <article className="kxAcctCard wide slim kxAcctIn" id="friends" style={{ "--d": "210ms" }}>
-      <p className="tag">Squad</p>
+      <p className="tag">Friends</p>
       <h2>{ok ? `${data.friends} Friend${data.friends === 1 ? "" : "s"}` : "Friends"}</h2>
       <p>{line}</p>
       <p>

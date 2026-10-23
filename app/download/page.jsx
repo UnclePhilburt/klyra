@@ -1,7 +1,7 @@
 import DownloadPanel from "./DownloadPanel";
 
 export const metadata = {
-  title: "Download free · Klyra: Broken Front",
+  title: "Download free · KLYRA",
   description: "Download KLYRA: Broken Front free for Windows and Mac. Free to play, no subscription.",
 };
 

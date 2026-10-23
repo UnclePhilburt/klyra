@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Add a friend · Klyra: Broken Front",
-  description: "A KLYRA: Broken Front player invited you to be friends.",
+  title: "Add a friend · KLYRA",
+  description: "A KLYRA player invited you to be friends.",
 };
 
 export default function AddFriendLayout({ children }) {

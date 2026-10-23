@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Friends · Klyra: Broken Front",
+  title: "Friends · KLYRA",
   description: "Add friends by callsign, answer friend requests, and see who is online.",
 };
 

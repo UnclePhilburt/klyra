@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Account · Klyra: Broken Front",
+  title: "Account · KLYRA",
   description:
     "Sign in to your KLYRA account for your license, downloads, callsign, and password.",
 };

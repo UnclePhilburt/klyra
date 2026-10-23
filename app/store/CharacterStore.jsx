@@ -348,7 +348,7 @@ export default function CharacterStore({ focusId = null }) {
         <section className="kgDrop" id="weekly-drop" aria-labelledby="kg-drop-title">
           <div className="kgDropHead">
             <p className="kgDropTag">Weekly Drop</p>
-            <h2 id="kg-drop-title">Three soldiers. One week.</h2>
+            <h2 id="kg-drop-title">Three characters. One week.</h2>
             <Clock ms={left} />
           </div>
           <div className="kgDropPicks">

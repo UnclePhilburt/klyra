@@ -333,7 +333,7 @@ export default function AccountPage() {
             <article className="kxAcctCard wide slim kxAcctIn" style={{ "--d": "360ms" }}>
               <p className="tag">Development stage</p>
               <h2>Pre-Alpha</h2>
-              <p>The battlefield is still being built. What you download today can change.</p>
+              <p>KLYRA games are still being built. What you download today can change.</p>
             </article>
           </div>
         </section>      </main>
@@ -349,7 +349,7 @@ export default function AccountPage() {
           <p className="lead">
             {mode === "create"
               ? "Create the account you will use on the website and in the game."
-              : <>Sign in with your callsign or your email. This is the same account the game uses.<span className="kxDesktopCopy"> The browser version on the play page uses it too, with degraded performance because it runs in a web browser.</span></>}
+              : <>Sign in with your callsign or your email. This is the same account every KLYRA game uses.<span className="kxDesktopCopy"> The browser version on the play page uses it too, with degraded performance because it runs in a web browser.</span></>}
           </p>
           {loading ? <p className="quiet">Restoring any saved sign-in...</p> : null}
         </div>

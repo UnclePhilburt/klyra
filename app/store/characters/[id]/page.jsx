@@ -11,12 +11,12 @@ export const dynamicParams = false;
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const ch = characterById(id);
-  if (!ch) return { title: "Character Store · Klyra: Broken Front" };
+  if (!ch) return { title: "Character Store · KLYRA" };
   const factions = ch.teams.map((t) => teams[t].name).join(", ");
   const price = `${CHARACTER_PRICE_LABEL}`;
   const kind = "character";
   return {
-    title: `${ch.name} · Character Store · Klyra: Broken Front`,
+    title: `${ch.name} · Character Store · KLYRA`,
     description: `${ch.name} character skin for ${factions}. ${price}.`,
     alternates: { canonical: `https://klyra.lol/store/characters/${ch.id}/` },
     openGraph: { title: `${ch.name} · KLYRA ${kind}`, url: `https://klyra.lol/store/characters/${ch.id}/`, images: [{ url: ch.poster, width: 480, height: 640 }] },
