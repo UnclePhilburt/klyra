@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import HomeReveal from "../../components/HomeReveal";
 import AccountLink from "../../components/AccountLink";
 import SupporterEmblem from "../../components/SupporterEmblem";
 import { WindowsIcon, AppleIcon, StarIcon, BrowserIcon } from "../../components/PlatformIcons";
@@ -116,7 +117,8 @@ export default function BrokenFrontHome() {
   }, []);
 
   return (
-    <main className="kxHome">
+    <main className="kxHome bfPage">
+      <HomeReveal />
       <section className="kxHero kxF2PHero">
         <div className="kxHeroBg" aria-hidden="true" />
         <div className="kxHeroGrain" aria-hidden="true" />
@@ -181,7 +183,7 @@ export default function BrokenFrontHome() {
         </div>
       </div>
 
-      <section className="kxIntel" aria-label="Game overview">
+      <section className="kxIntel mReveal" aria-label="Game overview">
         {intel.map((item) => (
           <div key={item.v}>
             <strong>{item.k}</strong>
@@ -194,7 +196,7 @@ export default function BrokenFrontHome() {
         </a>
       </section>
 
-      <section id="trailer" className="kxTrailer" aria-labelledby="kx-trailer-title">
+      <section id="trailer" className="kxTrailer mReveal" aria-labelledby="kx-trailer-title">
         <div className="kxTrailerBg" aria-hidden="true" />
         <div className="kxTrailerHead">
           <p className="tag">Pre-alpha version</p>
@@ -203,7 +205,7 @@ export default function BrokenFrontHome() {
         <TrailerPlayer />
       </section>
 
-      <section className="kxMusic" ref={musicRef} aria-labelledby="music-credit-title">
+      <section className="kxMusic mReveal" ref={musicRef} aria-labelledby="music-credit-title">
         <div className="kxMusicBg" aria-hidden="true" />
         <div className="kxMusicInner">
           <div className="kxMusicStage" aria-hidden="true">
@@ -255,7 +257,7 @@ export default function BrokenFrontHome() {
         </div>
       </section>
 
-      <section className="kxSolo">
+      <section className="kxSolo mReveal">
         <p className="tag">Independently developed</p>
         <h2>
           One developer.
@@ -270,7 +272,7 @@ export default function BrokenFrontHome() {
         </p>
       </section>
 
-      <section className="section kxSection">
+      <section className="section kxSection mReveal">
         <div className="sectionIntro">
           <p className="tag">From the pre-alpha</p>
           <h2>See the fight.</h2>
@@ -286,7 +288,7 @@ export default function BrokenFrontHome() {
         </div>
       </section>
 
-      <section id="teams" className="section kxSection">
+      <section id="teams" className="section kxSection mReveal">
         <div className="sectionIntro">
           <p className="tag">The sides</p>
           <h2>Pick your mark.</h2>
@@ -322,7 +324,7 @@ export default function BrokenFrontHome() {
         </article>
       </section>
 
-      <section className="kxDeploy" aria-label="Next steps">
+      <section className="kxDeploy mReveal" aria-label="Next steps">
         <a className="kxDeployCard" href="/play/">
           <span>Browser</span>
           <strong>Play in the tab</strong>

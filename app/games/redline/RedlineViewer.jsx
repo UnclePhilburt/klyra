@@ -142,10 +142,15 @@ export default function RedlineViewer({ cars }) {
       <div className="rlPicker" role="tablist" aria-label="Cars">
         {["pro", "street"].map((d) => (
           <div key={d} className={`rlPickGroup ${d}`}>
-            <span>{d === "pro" ? "Pro" : "Street"}</span>
-            {cars.filter((c) => c.discipline === d).map((c) => (
-              <button key={c.id} type="button" role="tab" aria-selected={c.id === active} className={c.id === active ? "on" : ""} onClick={() => pick(c.id)}>{c.name}</button>
-            ))}
+            <span className="rlPickLabel">{d === "pro" ? "Pro" : "Street"}<small>{cars.filter((c) => c.discipline === d).length}</small></span>
+            <div className="rlPickTrack">
+              {cars.filter((c) => c.discipline === d).map((c) => (
+                <button key={c.id} type="button" role="tab" aria-selected={c.id === active} aria-label={c.name} className={`rlPickCard ${c.id === active ? "on" : ""}`} onClick={() => pick(c.id)}>
+                  <img src={c.poster} alt="" width="160" height="90" loading="lazy" decoding="async" />
+                  <b>{c.name}</b>
+                </button>
+              ))}
+            </div>
           </div>
         ))}
       </div>

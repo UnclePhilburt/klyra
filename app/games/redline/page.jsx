@@ -12,6 +12,7 @@ export default function RedlinePage() {
   return (
     <main className="rlPage">
       <section className="rlHead">
+        <div className="rlSpeed" aria-hidden="true"><i /><i /><i /><i /><i /><i /></div>
         <p className="rlDev"><i aria-hidden="true" />In development</p>
         <h1><span>KLYRA:</span> Redline</h1>
         <p className="rlLead">A racing game with two disciplines. Work-in-progress car models, no gameplay shown.</p>

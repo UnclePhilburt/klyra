@@ -2349,3 +2349,58 @@ a.khCard:hover{transform:translateY(-3px);border-color:rgba(30,200,255,.5)}
 @media (min-width:2000px){.mCards,.mHead{max-width:1700px}.mStrip{max-width:1600px}}
 @media (max-width:600px){.mMesh{filter:blur(40px)}.mMesh i{animation:none}}
 @media (prefers-reduced-motion:reduce){.mMesh i,.mGrid,.mScroll span{animation:none}.mReveal{opacity:1;transform:none;transition:none}.mCard,.mCardMedia img{transition:none}}
+
+/* ===== Makeovers ===== */
+/* Broken Front page: cinematic, gold + olive */
+.bfPage{--bfGold:#d8b45a;--bfOlive:#5b6b3a;background:#07080a}
+.bfPage .kxF2PHero{min-height:min(100svh,1000px)}
+.bfPage .kxF2PHero::after{content:"";position:absolute;inset:auto 0 0;height:40%;background:linear-gradient(180deg,transparent,#07080a);pointer-events:none;z-index:1}
+.bfPage .kxHeroCopy{position:relative;z-index:2}
+.bfPage .kxF2PTitle{letter-spacing:-.02em;text-shadow:0 10px 50px rgba(0,0,0,.6)}
+.bfSubnav{position:sticky;top:64px;z-index:20;background:rgba(10,12,8,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(216,180,90,.18)}
+.bfSubnav a{position:relative}
+.bfSubnav a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--bfGold,#d8b45a);transform:scaleX(0);transition:transform .25s}
+.bfSubnav a:hover::after{transform:scaleX(1)}
+.bfPage .kxIntel,.bfPage .kxSolo{background:linear-gradient(180deg,#07080a,#0c0e09)}
+.bfPage .kxSection{position:relative}
+.bfPage .kxSection::before{content:"";position:absolute;left:50%;top:0;width:min(1200px,90%);height:1px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(216,180,90,.35),transparent)}
+.bfPage .kxShots img{border-radius:10px;transition:transform .5s cubic-bezier(.2,.7,.2,1),filter .5s;filter:saturate(.9)}
+@media (hover:hover){.bfPage .kxShots img:hover{transform:scale(1.03);filter:saturate(1.1)}}
+.bfPage .kxDeployCard{border-radius:14px;transition:transform .3s,box-shadow .3s,border-color .3s}
+@media (hover:hover){.bfPage .kxDeployCard:hover{transform:translateY(-6px);box-shadow:0 24px 60px -24px rgba(216,180,90,.55)}}
+@media (max-width:960px){.bfSubnav{top:60px;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none}.bfSubnav a{white-space:nowrap}}
+
+/* Redline: speed + carousel */
+.rlHead{position:relative;overflow:hidden}
+.rlSpeed{position:absolute;inset:0;pointer-events:none;z-index:0}
+.rlSpeed i{position:absolute;height:2px;width:30vw;left:-30vw;background:linear-gradient(90deg,transparent,rgba(255,45,61,.7),transparent);animation:rlStreak 2.6s linear infinite}
+.rlSpeed i:nth-child(1){top:18%;animation-delay:0s}.rlSpeed i:nth-child(2){top:34%;animation-delay:.7s;width:20vw}.rlSpeed i:nth-child(3){top:52%;animation-delay:1.3s}.rlSpeed i:nth-child(4){top:66%;animation-delay:.3s;width:40vw;opacity:.5}.rlSpeed i:nth-child(5){top:80%;animation-delay:1.9s}.rlSpeed i:nth-child(6){top:9%;animation-delay:2.2s;opacity:.4}
+@keyframes rlStreak{to{transform:translateX(160vw)}}
+.rlHead > *:not(.rlSpeed){position:relative;z-index:1}
+.rlPicker{display:flex;flex-direction:column;gap:14px}
+.rlPickGroup{display:flex;align-items:center;gap:14px;min-width:0}
+.rlPickLabel{flex:none;width:74px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.12em;color:#ff2d3d;font-size:13px}
+.rlPickGroup.street .rlPickLabel{color:#18c8ff}
+.rlPickLabel small{display:block;color:#7d828c;font-style:normal;font-size:11px;letter-spacing:.1em}
+.rlPickTrack{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 2px 10px;min-width:0;flex:1;scrollbar-width:thin;scrollbar-color:#ff2d3d33 transparent;-webkit-mask-image:linear-gradient(90deg,#000 92%,transparent);mask-image:linear-gradient(90deg,#000 92%,transparent)}
+.rlPickCard{flex:0 0 auto;width:150px;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px;padding:6px 6px 8px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,#16181d,#0e0f12);color:#e8eaee;cursor:pointer;transform:none !important;font-style:normal !important;transition:border-color .2s,box-shadow .2s,transform .2s}
+.rlPickCard img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;background:#0a0b0d}
+.rlPickCard b{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rlPickCard:hover{border-color:rgba(255,45,61,.5)}
+.rlPickCard.on{border-color:#ff2d3d;box-shadow:0 0 0 1px #ff2d3d,0 10px 30px -10px rgba(255,45,61,.7)}
+.rlPickGroup.street .rlPickCard.on{border-color:#18c8ff;box-shadow:0 0 0 1px #18c8ff,0 10px 30px -10px rgba(24,200,255,.6)}
+.rlStage{border-radius:18px;overflow:hidden;box-shadow:0 30px 90px -40px rgba(255,45,61,.45)}
+@media (max-width:700px){.rlPickGroup{flex-direction:column;align-items:stretch;gap:6px}.rlPickLabel{width:auto}.rlPickLabel small{display:inline;margin-left:8px}.rlPickCard{width:128px}}
+@media (prefers-reduced-motion:reduce){.rlSpeed{display:none}}
+
+/* KLYRA Store */
+.kgPage{background:radial-gradient(90% 60% at 50% 0%,rgba(30,200,255,.12),transparent 60%),#06080b}
+.ksMast{flex-direction:column;align-items:center;gap:8px;letter-spacing:normal;text-transform:none;text-align:center}
+.ksMast .kgMastName{font-size:clamp(34px,5vw,64px);font-weight:800;letter-spacing:-.03em;text-transform:none}
+.ksMast .kgMastName span{color:#1ec8ff}
+.ksMast .kgMastTag{font-size:clamp(14px,1.2vw,17px);letter-spacing:.02em;color:#9aa6b4}
+.kgPage .kgThumb{border-radius:16px;transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s}
+@media (hover:hover){.kgPage .kgThumb:hover{transform:translateY(-6px);box-shadow:inset 0 0 0 1px rgba(30,200,255,.6),0 18px 40px -16px rgba(30,200,255,.55)}}
+.kgPage .kgThumb.isActive{box-shadow:inset 0 0 0 2px #1ec8ff,0 0 30px -6px rgba(30,200,255,.6)}
+.kgPage .kgDrop{border-radius:22px;border:1px solid rgba(30,200,255,.18);background:linear-gradient(180deg,rgba(30,200,255,.06),rgba(255,255,255,.01))}
+.kgPage .kgDropTag{color:#1ec8ff}
