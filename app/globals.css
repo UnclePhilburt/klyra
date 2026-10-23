@@ -2840,3 +2840,15 @@ html.rlDriving,html.rlDriving body{overflow:hidden}
  .rlCount{font-size:96px}
 }
 @media (prefers-reduced-motion: reduce){.rlCount{animation:none}}
+.rlDriveTimes .pos{color:#fff}.rlDriveTimes .pos i{font-style:normal;color:#8ab;font-size:.8em}
+.rlDrvMenu,.rlDrvRes{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(360px,calc(100% - 32px));display:grid;gap:10px;padding:18px;border:1px solid rgba(30,200,255,.4);border-radius:14px;background:rgba(8,12,18,.86);backdrop-filter:blur(10px);box-shadow:0 20px 60px -20px rgba(0,0,0,.8)}
+.rlDrvMenuT{margin:0 0 4px;font:900 italic 22px/1 system-ui,sans-serif;text-transform:uppercase;letter-spacing:.02em}
+.rlDrvMode{display:grid;gap:4px;text-align:left;min-height:52px;padding:10px 14px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.04);color:#e8f8ff;cursor:pointer;font-family:ui-monospace,Consolas,monospace}
+.rlDrvMode b{font-size:13px;letter-spacing:.14em;text-transform:uppercase}.rlDrvMode span{font-size:11px;color:#9ab}
+.rlDrvMode.main{border-color:#1ec8ff;background:rgba(30,200,255,.16)}
+.rlDrvMode:hover{border-color:#1ec8ff}.rlDrvMode:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.rlDrvRes ol{margin:0;padding:0;list-style:none;display:grid;gap:4px}
+.rlDrvRes li{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:7px 10px;border-radius:8px;background:rgba(255,255,255,.04);font-size:12px}
+.rlDrvRes li span{font-weight:900;color:#8ab}.rlDrvRes li b{font-weight:700;text-transform:uppercase;letter-spacing:.06em}.rlDrvRes li em{font-style:normal;font-variant-numeric:tabular-nums;color:#bcd}
+.rlDrvRes li.you{background:rgba(30,200,255,.18);box-shadow:inset 0 0 0 1px #1ec8ff}.rlDrvRes li.you span{color:#1ec8ff}
+.rlDrvResBtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}.rlDrvResBtns .rlDrvMode{text-align:center;padding:8px}.rlDrvResBtns .rlDrvMode b{font-size:10px}

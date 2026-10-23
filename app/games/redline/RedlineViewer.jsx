@@ -401,7 +401,7 @@ export default function RedlineViewer({ cars }) {
           </div>
         ) : null}
         {!loading && !error ? <button type="button" className="rlDriveStart" onClick={() => { setPop(null); if (api.current) api.current.paused = true; setDriving(true); }}>Test drive</button> : null}
-        {driving ? <RedlineDrive car={car} build={cz && czData && !czData.error ? build : null} paint={paint} onExit={() => { setDriving(false); if (api.current) { api.current.paused = false; api.current.resume(); } }} /> : null}
+        {driving ? <RedlineDrive car={car} cars={cars} build={cz && czData && !czData.error ? build : null} paint={paint} onExit={() => { setDriving(false); if (api.current) { api.current.paused = false; api.current.resume(); } }} /> : null}
         <p className="rlStageLabel"><b>{car.discipline === "pro" ? "Redline Pro" : "Redline Street"}</b>{car.name}</p>
       </div>
       <div className={`rlSheet ${sheet ? "open" : ""}`}>
