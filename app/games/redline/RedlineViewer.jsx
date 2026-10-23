@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const PAINTS = [["Factory", null], ["Redline", "#e3121f"], ["Volt", "#18c8ff"], ["Lime", "#9be22d"], ["Carbon", "#2a2d33"], ["Pearl", "#f2f2ee"]];
+// Paint schemes = the Synty Pro/Street Racer alt materials used in the Unity project (see docs/REDLINE_CUSTOMIZATION.md).
+// Each is a full atlas swap on the "paint" material, loaded lazily from /cars/paint/<id>.webp.
+let schemesP = null;
+const loadSchemes = () => (schemesP ||= fetch("/cars/paint/schemes.json").then((r) => r.json()).catch(() => { schemesP = null; return null; }));
+const schemesFor = (all, car) => (!all || !car ? [] : car.discipline === "pro" ? all.pro : [...all.street, ...(car.id === "redline_street_truck" ? all.truck : car.id === "redline_street_motorbike" ? all.motorbike : [])]);
+const SCHEME_RE = /^(pro|st|sv)-[a-z0-9-]+$/;
 const RIMS = [["Factory", null], ["Gunmetal", "#4a4f57"], ["Gold", "#d6a83a"], ["Cyan", "#1ec8ff"]];
 const VIEWS = { front: [0.6, 1.3, 5.6], side: [5.8, 1.2, 0], rear: [-0.6, 1.4, -5.6], interior: [0.32, 1.08, 0.05], engine: [0, 3.4, 3.6] };
 const TARGETS = { front: [0, 0.6, 0], side: [0, 0.6, 0], rear: [0, 0.6, 0], interior: [0, 0.95, 2.4], engine: [0, 0.6, 1.4] };
@@ -10,7 +15,7 @@ const CZ_LABEL = { Ligh_Covers_Front: "Light covers front", Ligh_Covers_Rear: "L
 const czLabel = (k) => CZ_LABEL[k] || k.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase()).replace(/ (\w)/g, (m) => m.toLowerCase());
 const encodeBuild = (b) => Object.entries(b).map(([k, v]) => `${k}.${v}`).join("-");
 const decodeBuild = (str) => { const o = {}; (str || "").split("-").forEach((x) => { const i = x.lastIndexOf("."); if (i > 0) o[x.slice(0, i)] = x.slice(i + 1); }); return o; };
-const urlPaint = () => { const p = new URLSearchParams(window.location.search).get("paint"); return (PAINTS.find(([, h]) => h && h.slice(1) === p) || [])[1] || null; };
+const urlPaint = () => { const p = new URLSearchParams(window.location.search).get("paint"); return p && SCHEME_RE.test(p) ? p : null; };
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 export default function RedlineViewer({ cars }) {
@@ -198,7 +203,21 @@ export default function RedlineViewer({ cars }) {
           if (/^Wheel_(FL|FR|RL|RR)_Stock$/.test(o.name)) o.visible = !b.Wheels || b.Wheels === "stock";
         });
       }
-      function applyPaint(hex) { const m = mats.paint; if (m) m.color.copy(hex ? new THREE.Color(hex).multiplyScalar(1.6) : base[m.uuid].color); }
+      const texCache = new Map(), texLoader = new THREE.TextureLoader();
+      let paintReq = 0;
+      function applyPaint(id) {
+        const m = mats.paint; if (!m) return;
+        const b = base[m.uuid]; if (!b.map) b.map = m.map;
+        const req = ++paintReq;
+        const set = (t) => { if (req !== paintReq || mats.paint !== m) return; m.map = t; m.color.copy(b.color); m.needsUpdate = true; };
+        if (!id) { set(b.map); return; }
+        let p = texCache.get(id);
+        if (!p) {
+          p = texLoader.loadAsync(`/cars/paint/${id}.webp`).then((t) => { const o = b.map; t.flipY = false; t.colorSpace = THREE.SRGBColorSpace; if (o) { t.magFilter = o.magFilter; t.minFilter = o.minFilter; t.wrapS = o.wrapS; t.wrapT = o.wrapT; t.anisotropy = o.anisotropy; } t.needsUpdate = true; return t; });
+          p.catch(() => texCache.delete(id)); texCache.set(id, p);
+        }
+        p.then(set, () => { if (req === paintReq) set(b.map); });
+      }
       function applyRim(hex) { const m = mats.rim; if (m) m.color.copy(hex ? new THREE.Color(hex).multiplyScalar(1.6) : base[m.uuid].color); }
       function applyXray(on) { const g = mats.glass; if (g) { g.transparent = true; g.opacity = on ? 0.08 : 0.6; g.needsUpdate = true; } }
       function toggle(k, on) { const n = nodes[k]; if (!n) return; const [axis, ang] = HINGE[k]; tween(n, "rotation", axis, on ? ang : 0, 650); }
@@ -240,7 +259,13 @@ export default function RedlineViewer({ cars }) {
 
   const pick = (id) => { if (id === active) return; setActive(id); api.current?.show(id); };
   const togglePanel = (k) => { const on = !open[k]; setOpen((o) => ({ ...o, [k]: on })); api.current?.toggle(k, on); };
-  const setP = (hex) => { setPaint(hex); if (api.current) { api.current.paint = hex; api.current.applyPaint(hex); } };
+  const setP = (id) => { setPaint(id); if (api.current) { api.current.paint = id; api.current.applyPaint(id); } };
+  const [schemes, setSchemes] = useState(null);
+  useEffect(() => { if (pop === "__paint" || paint) loadSchemes().then((d) => d && setSchemes(d)); }, [pop, paint]);
+  const carSchemes = schemesFor(schemes, cars.find((c) => c.id === active));
+  // A scheme from another pack (or an old hex link) falls back to factory paint.
+  useEffect(() => { if (schemes && paint && !carSchemes.some((x) => x.id === paint)) setP(null); }, [schemes, paint, active]);
+  const paintName = paint ? (carSchemes.find((x) => x.id === paint) || { name: "…" }).name : "Factory";
   const setR = (hex) => { setRim(hex); if (api.current) { api.current.rim = hex; api.current.applyRim(hex); } };
   const setX = () => { const v = !xray; setXray(v); if (api.current) { api.current.xray = v; api.current.applyXray(v); } };
   const view = (v) => { if (v === "engine" && panels.Hood && !open.Hood) togglePanel("Hood"); if (v === "interior" && !xray) setX(); api.current?.view(v); };
@@ -270,10 +295,10 @@ export default function RedlineViewer({ cars }) {
     if (!cz || !czData || czData.error) return;
     const qs = new URLSearchParams(window.location.search);
     qs.set("car", active); qs.set("parts", encodeBuild(build));
-    if (paint) qs.set("paint", paint.slice(1)); else qs.delete("paint");
+    if (paint) qs.set("paint", paint); else qs.delete("paint");
     window.history.replaceState(null, "", `${window.location.pathname}?${qs}`);
   }, [cz, czData, build, active, paint]);
-  useEffect(() => { const p = new URLSearchParams(window.location.search).get("paint"); const hit = PAINTS.find(([, h]) => h && h.slice(1) === p); if (hit) setPaint(hit[1]); }, []);
+  useEffect(() => { const p = urlPaint(); if (p) setPaint(p); }, []);
   const toggleCz = () => {
     const on = !cz; czRef.current.on = on; setCz(on);
     if (!on) { const qs = new URLSearchParams(window.location.search); qs.delete("parts"); qs.delete("paint"); window.history.replaceState(null, "", `${window.location.pathname}${qs.toString() ? "?" + qs : ""}`); }
@@ -297,13 +322,15 @@ export default function RedlineViewer({ cars }) {
   }, [pop]);
   const [dock, setDock] = useState(false);
   useEffect(() => { const el = stageRef.current; if (!el) return; const ro = new ResizeObserver(() => setDock(el.clientWidth < 600)); ro.observe(el); return () => ro.disconnect(); }, []);
-  const optLabel = (k, v) => (!v ? "" : v === "none" ? "None" : v === "stock" ? "Stock" : k === "Wheels" ? `Style ${v}` : `Option ${v}`);
+  // Removing a part the factory car has leaves a gap -> "None"; removing an add-on (no factory part) -> "Stock".
+  const noneLabel = (k) => (czData && !czData.error && czData.slots[k]?.default ? "None" : "Stock");
+  const optLabel = (k, v) => (!v ? "" : v === "none" ? noneLabel(k) : v === "stock" ? "Stock" : k === "Wheels" ? `Style ${v}` : `Option ${v}`);
   const czSlots = czData && !czData.error ? Object.keys(czData.defaults) : [];
   const czOpts = (slot) => {
     if (!czData || czData.error) return [];
     if (slot === "Wheels") return [["stock", "Stock", null], ...czData.wheels.map((w) => [w, `Style ${w}`, `/cars/custom/th/${active}/W_${w}.webp`])];
     const s = czData.slots[slot]; if (!s) return [];
-    return [...(s.default ? [] : [["none", "None", null]]), ...s.variants.map((v) => [v, `${czLabel(slot)} ${v}`, `/cars/custom/th/${active}/V_${slot}_${v}.webp`])];
+    return [["none", s.default ? "None" : "Stock", null], ...s.variants.map((v) => [v, `${czLabel(slot)} ${v}`, `/cars/custom/th/${active}/V_${slot}_${v}.webp`])];
   };
 
   return (
@@ -339,7 +366,7 @@ export default function RedlineViewer({ cars }) {
             <p className="rlCzNote">Preview of planned in-game customization</p>
             {!czData ? <span className="rlCzMsg" aria-live="polite">Loading parts…</span> : czData.error ? <span className="rlCzMsg">Could not load parts.</span> : (
               <>
-                <button type="button" className={`rlPaintBtn ${pop === "__paint" ? "on" : ""}`} style={{ "--sw": paint || "conic-gradient(#e3121f,#18c8ff,#9be22d,#e3121f)" }} aria-label="Paint" aria-expanded={pop === "__paint"} aria-controls="rlPop" onClick={() => setPop((p) => (p === "__paint" ? null : "__paint"))}><i aria-hidden="true" /></button>
+                <button type="button" className={`rlPaintBtn ${pop === "__paint" ? "on" : ""}`} style={{ "--sw": paint ? `center/cover url(/cars/paint/th/${paint}.webp)` : "conic-gradient(#e3121f,#18c8ff,#9be22d,#e3121f)" }} aria-label="Paint" aria-expanded={pop === "__paint"} aria-controls="rlPop" onClick={() => setPop((p) => (p === "__paint" ? null : "__paint"))}><i aria-hidden="true" /></button>
                 <button type="button" className="rlCzBtn" onClick={resetBuild}>Reset</button>
                 <button type="button" className="rlCzBtn" onClick={copyLink}>{copied ? "Copied" : "Share build"}</button>
               </>
@@ -348,17 +375,21 @@ export default function RedlineViewer({ cars }) {
         ) : car.custom ? (
           <button type="button" className="rlCzStart" onClick={toggleCz}>Customize parts</button>
         ) : <p className="rlCzNone">No parts for this vehicle</p>}
-        {pop && czData && !czData.error ? (
+        {pop && (pop === "__paint" || (czData && !czData.error)) ? (
           <div ref={popRef} id="rlPop" className={`rlPop ${pop === "__paint" ? "paint" : ""}`} data-dock={dock || pop === "__paint" ? "1" : "0"} role="dialog" aria-label={pop === "__paint" ? "Paint" : czLabel(pop)}>
-            <div className="rlPopHead"><b>{pop === "__paint" ? "Paint" : czLabel(pop)}</b><span>{pop === "__paint" ? (PAINTS.find(([, h]) => h === paint) || ["Factory"])[0] : optLabel(pop, build[pop])}</span><button type="button" className="rlPopX" aria-label="Close" onClick={() => setPop(null)}>×</button></div>
+            <div className="rlPopHead"><b>{pop === "__paint" ? "Paint" : czLabel(pop)}</b><span>{pop === "__paint" ? paintName : optLabel(pop, build[pop])}</span><button type="button" className="rlPopX" aria-label="Close" onClick={() => setPop(null)}>×</button></div>
             {pop === "__paint" ? (
-              <div className="rlPopSw">{PAINTS.map(([n, hex]) => <button key={n} type="button" className={`rlSwatch ${paint === hex ? "on" : ""}`} style={{ "--sw": hex || "conic-gradient(#e3121f,#18c8ff,#9be22d,#e3121f)" }} aria-label={`Paint ${n}`} aria-pressed={paint === hex} onClick={() => setP(hex)} />)}</div>
+              <div className="rlPopGrid paint">{!schemes ? <p className="rlCzMsg">Loading paint…</p> : [{ id: null, name: "Factory" }, ...carSchemes].map((x) => (
+                <button key={x.id || "f"} type="button" className={`rlCzOpt ${paint === x.id ? "on" : ""}`} aria-pressed={paint === x.id} aria-label={`Paint ${x.name}`} title={x.mat} onClick={() => setP(x.id)}>
+                  {x.id ? <img src={`/cars/paint/th/${x.id}.webp`} alt="" width="96" height="48" loading="lazy" decoding="async" /> : <i aria-hidden="true">★</i>}
+                  <b>{x.name}</b>
+                </button>))}</div>
             ) : (
               <div className="rlPopGrid">
                 {czOpts(pop).map(([v, label, img]) => (
                   <button key={v} type="button" className={`rlCzOpt ${build[pop] === v ? "on" : ""}`} aria-pressed={build[pop] === v} aria-label={label} onClick={() => choose(pop, v)}>
                     {img ? <img src={img} alt="" width="160" height="110" loading="lazy" decoding="async" /> : <i aria-hidden="true">{v === "none" ? "∅" : "★"}</i>}
-                    <b>{v === "none" ? "None" : v === "stock" ? "Stock" : v}</b>
+                    <b>{v === "none" ? noneLabel(pop) : v === "stock" ? "Stock" : v}</b>
                   </button>
                 ))}
               </div>
@@ -384,7 +415,8 @@ export default function RedlineViewer({ cars }) {
           </div>
           <div className="rlRow" aria-label="Paint">
             <span>Paint</span>
-            {PAINTS.map(([n, hex]) => <button key={n} type="button" className={`rlSwatch ${paint === hex ? "on" : ""}`} style={{ "--sw": hex || "conic-gradient(#e3121f,#18c8ff,#9be22d,#e3121f)" }} aria-label={`Paint ${n}`} aria-pressed={paint === hex} onClick={() => setP(hex)} />)}
+            <button type="button" className="rlPaintBtn" style={{ "--sw": paint ? `center/cover url(/cars/paint/th/${paint}.webp)` : "conic-gradient(#e3121f,#18c8ff,#9be22d,#e3121f)" }} aria-label="Paint schemes" aria-expanded={pop === "__paint"} onClick={() => setPop((p) => (p === "__paint" ? null : "__paint"))} />
+            <span className="rlPaintName">{paintName}</span>
           </div>
           <div className="rlRow" aria-label="Customize">
             <span>Build</span>

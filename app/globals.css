@@ -2766,7 +2766,12 @@ body p.kxCharFlag{white-space:normal;overflow:visible;letter-spacing:.14em}
 .rlPopSw{display:flex;flex-wrap:wrap;gap:10px;padding:12px}
 .rlPopSw .rlSwatch{width:40px;height:40px;padding:0;border-radius:50%;background:var(--sw);border:2px solid rgba(255,255,255,.25);cursor:pointer}
 .rlPopSw .rlSwatch.on{outline:2px solid #1ec8ff;outline-offset:3px}
-.rlPop.paint{width:auto}
+.rlPop.paint{width:360px}
+.rlPopGrid.paint{grid-template-columns:repeat(3,1fr)}
+.rlPopGrid.paint .rlCzOpt img{aspect-ratio:2/1;border-radius:4px}
+.rlPopGrid.paint .rlCzOpt i{aspect-ratio:2/1}
+.rlPopGrid.paint .rlCzOpt b{font-size:9px;letter-spacing:.06em;line-height:1.2;text-align:center}
+.rlPaintName{font:700 11px/1 ui-monospace,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:#bbb}
 .rlPop button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .rlCzBar{position:absolute;left:clamp(12px,5vw,80px);bottom:22px;z-index:3;display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:calc(100% - 24px)}
 .rlCzBar .rlCzNote{margin:0;background:rgba(10,12,16,.6)}
