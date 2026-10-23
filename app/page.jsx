@@ -1,46 +1,68 @@
+import HomeReveal from "./components/HomeReveal";
+
 export const metadata = { alternates: { canonical: "https://klyra.lol/" } };
 
-const cards = [
-  { name: "KLYRA: Broken Front", tag: "Flagship · Free to play", tagClass: "mil", pitch: "A free-to-play military shooter, in pre-alpha.", img: "/shots/trailer/gunship.jpg", href: "/games/broken-front/", cta: "Enter the front" },
-  { name: "KLYRA: Redline", tag: "In development", tagClass: "dev", pitch: "Racing with Pro and Street disciplines. Car previews only.", img: "/cars/redline_pro_touring.webp", href: "/games/redline/", cta: "Preview the cars" },
-  { name: "KLYRA Social Hub", tag: "Part of the platform", tagClass: "hub", pitch: "Soccer, boxing, team deathmatch, joining friends and public matchmaking.", img: null, href: "/games/", cta: "All games" },
+const games = [
+  { key: "bf", name: "Broken Front", tag: "Flagship · Free to play", pitch: "Free-to-play military shooter. Pre-alpha.", img: "/shots/trailer/tanks.jpg", href: "/games/broken-front/", cta: "Play" },
+  { key: "rl", name: "Redline", tag: "In development", pitch: "Pro and Street racing. Car previews only.", img: "/cars/redline_pro_touring.webp", href: "/games/redline/", cta: "Preview" },
+  { key: "hub", name: "Social Hub", tag: "Part of the platform", pitch: "Soccer, boxing, team deathmatch and friends.", img: null, href: "/games/", cta: "All games" },
 ];
+
+const Icon = ({ d }) => (
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d={d} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+);
 
 export default function Home() {
   return (
-    <main className="kxHome khHome">
-      <section className="khHero" aria-labelledby="kh-title">
-        <div className="khHeroGlow" aria-hidden="true" />
-        <div className="khHeroInner">
-          <img className="khWordmark" src="/brand/klyra-wordmark.svg" alt="" aria-hidden="true" width="290" height="78" />
-          <h1 id="kh-title" className="khTitle">One platform. <span>Every KLYRA game.</span></h1>
-          <ul className="khPillars">
-            <li><b>One download</b><span>Get the KLYRA client once.</span></li>
-            <li><b>One account</b><span>Your callsign and friends in every game.</span></li>
-            <li><b>Universal store</b><span>Skins belong to your KLYRA account, across games.</span></li>
-          </ul>
-          <div className="khActions">
-            <a className="khPrimary" href="/download/">Download KLYRA</a>
-            <a className="khSecondary" href="/account/">Create your account</a>
+    <main className="kxHome mHome">
+      <HomeReveal />
+      <section className="mHero" aria-labelledby="m-title">
+        <div className="mMesh" aria-hidden="true"><i /><i /><i /></div>
+        <div className="mGrid" aria-hidden="true" />
+        <div className="mHeroInner">
+          <img className="mWordmark" src="/brand/klyra-wordmark.svg" alt="KLYRA" width="290" height="78" fetchPriority="high" />
+          <h1 id="m-title" className="mTitle">Your games. <span>One home.</span></h1>
+          <p className="mLead">The KLYRA platform: every game, your friends and your gear in one place.</p>
+          <div className="mActions">
+            <a className="mCta" href="/download/">
+              <Icon d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14" />
+              Download KLYRA
+            </a>
+            <a className="mGhost" href="#games">Explore games</a>
           </div>
         </div>
+        <a className="mScroll" href="#games" aria-label="Scroll to games"><span /></a>
       </section>
 
-      <section id="games" className="khGames" aria-labelledby="kh-games-title">
-        <div className="khHead"><p className="khKicker">Games</p><h2 id="kh-games-title">The KLYRA lineup</h2></div>
-        <div className="khRow">
-          {cards.map((c) => (
-            <a key={c.name} className={`khMini ${c.tagClass}`} href={c.href}>
-              {c.img ? <img src={c.img} alt="" loading="lazy" /> : <span className="khMiniArt" aria-hidden="true"><i>⚽</i><i>🥊</i><i>⌖</i></span>}
-              <span className="khCardBody">
-                <em className={`khTag ${c.tagClass}`}>{c.tag}</em>
-                <strong>{c.name}</strong>
-                <small>{c.pitch}</small>
-                <b>{c.cta} &rarr;</b>
+      <section className="mStrip" aria-label="Platform">
+        <div className="mStripItem mReveal"><Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-7 8c1.5-3.3 4-5 7-5s5.5 1.7 7 5" /><span><b>One account</b> Callsign and friends everywhere</span></div>
+        <div className="mStripItem mReveal"><Icon d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14" /><span><b>One download</b> Every game, one client</span></div>
+        <div className="mStripItem mReveal"><Icon d="M4 7h16l-1.5 11h-13L4 7zm4 0a4 4 0 0 1 8 0" /><span><b>Universal store</b> Skins live on your KLYRA account</span></div>
+      </section>
+
+      <section id="games" className="mGames" aria-labelledby="m-games">
+        <header className="mHead mReveal"><p>Games</p><h2 id="m-games">Pick your world.</h2></header>
+        <div className="mCards">
+          {games.map((g, i) => (
+            <a key={g.key} href={g.href} className={`mCard mReveal ${g.key}`} style={{ "--d": `${i * 90}ms` }}>
+              <span className="mCardMedia">
+                {g.img ? <img src={g.img} alt="" loading="lazy" decoding="async" /> : <span className="mHubArt" aria-hidden="true"><i /><i /><i /></span>}
+              </span>
+              <span className="mCardGlow" aria-hidden="true" />
+              <span className="mCardBody">
+                <em>{g.tag}</em>
+                <strong>{g.name}</strong>
+                <small>{g.pitch}</small>
+                <b>{g.cta}<span aria-hidden="true">→</span></b>
               </span>
             </a>
           ))}
         </div>
+      </section>
+
+      <section className="mOutro mReveal" aria-label="Get KLYRA">
+        <h2>Ready when you are.</h2>
+        <a className="mCta" href="/download/">Download KLYRA</a>
       </section>
     </main>
   );
