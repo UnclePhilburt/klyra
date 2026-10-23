@@ -7,7 +7,7 @@ export const games = [
     genre: "Military shooter",
     status: "Pre-alpha · Free to play",
     blurb: "The flagship KLYRA game. A serious military shooter with three factions, combined-arms vehicles and an arsenal built for the front line.",
-    href: "/",
+    href: "/games/broken-front/",
     image: "/shots/trailer/gunship.jpg",
     theme: "military",
     accent: "#d8b45a",

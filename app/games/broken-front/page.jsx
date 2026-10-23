@@ -1,7 +1,11 @@
-import Redirect from "../../components/Redirect";
+import BrokenFrontHome from "./BrokenFrontHome";
 
-export const metadata = { title: "KLYRA: Broken Front", robots: { index: false }, alternates: { canonical: "https://klyra.lol/" } };
+export const metadata = {
+  title: "KLYRA: Broken Front · Free-to-play military shooter",
+  description: "KLYRA: Broken Front is a free-to-play military shooter in pre-alpha. Play on Windows, Mac or in your browser.",
+  alternates: { canonical: "https://klyra.lol/games/broken-front/" },
+};
 
-export default function BrokenFrontAlias() {
-  return <Redirect to="/" label="KLYRA: Broken Front" />;
+export default function BrokenFrontPage() {
+  return <BrokenFrontHome />;
 }
