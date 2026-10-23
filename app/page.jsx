@@ -60,6 +60,12 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="mSolo mReveal" aria-labelledby="m-solo">
+        <p className="mSoloTag">Independently developed</p>
+        <h2 id="m-solo">One developer.</h2>
+        <p>KLYRA is built by an independent developer. KLYRA: Broken Front is a solo-developed military sandbox built around large-scale warfare, player freedom, and an evolving battlefield.</p>
+      </section>
+
       <section className="mOutro mReveal" aria-label="Get KLYRA">
         <h2>Ready when you are.</h2>
         <a className="mCta" href="/download/">Download KLYRA</a>

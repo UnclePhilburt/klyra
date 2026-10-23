@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import HomeReveal from "../../components/HomeReveal";
-import AccountLink from "../../components/AccountLink";
 import SupporterEmblem from "../../components/SupporterEmblem";
 import { WindowsIcon, AppleIcon, StarIcon, BrowserIcon } from "../../components/PlatformIcons";
 
@@ -160,7 +159,6 @@ export default function BrokenFrontHome() {
               <em>Optional · $4.99</em>
               <b aria-hidden="true">&rarr;</b>
             </a>
-            <AccountLink className="textLink heroSignIn" />
           </div>
         </div>
         <a className="kxScroll" href="#trailer" aria-label="Scroll to trailer"><span /></a>
@@ -175,7 +173,7 @@ export default function BrokenFrontHome() {
         <div className="kxF2PTickerTrack">
           {Array.from({ length: 2 }, (_, copy) => (
             <span key={copy}>
-              {["Free to play", "Windows", "Mac", "Browser", "No paywall", "No subscription", "Three factions", "One account"].map((word) => (
+              {["Free to play", "Windows", "Mac", "Browser", "No paywall", "No subscription", "Three factions"].map((word) => (
                 <span key={word}><i>&#9733;</i>{word}</span>
               ))}
             </span>
@@ -190,10 +188,6 @@ export default function BrokenFrontHome() {
             <span>{item.v}</span>
           </div>
         ))}
-        <a href="/account/">
-          <strong>One account</strong>
-          <span>Synced progress &rarr;</span>
-        </a>
       </section>
 
       <section id="trailer" className="kxTrailer mReveal" aria-labelledby="kx-trailer-title">
@@ -257,21 +251,6 @@ export default function BrokenFrontHome() {
         </div>
       </section>
 
-      <section className="kxSolo mReveal">
-        <p className="tag">Independently developed</p>
-        <h2>
-          One developer.
-          <br />
-          Three factions.
-          <br />
-          <span>One battlefield.</span>
-        </h2>
-        <p>
-          KLYRA: Broken Front is a solo-developed military sandbox built around
-          large-scale warfare, player freedom, and an evolving battlefield.
-        </p>
-      </section>
-
       <section className="section kxSection mReveal">
         <div className="sectionIntro">
           <p className="tag">From the pre-alpha</p>
@@ -328,7 +307,7 @@ export default function BrokenFrontHome() {
         <a className="kxDeployCard" href="/play/">
           <span>Browser</span>
           <strong>Play in the tab</strong>
-          <p>Free, right in the tab. Performance is lower because it is a web browser build. It uses your KLYRA account.</p>
+          <p>Free, right in the tab. Performance is lower because it is a web browser build.</p>
         </a>
         <a className="kxDeployCard" href="/download/">
           <span>Desktop &middot; Free</span>
