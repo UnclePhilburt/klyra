@@ -133,7 +133,7 @@ export default function BrokenFrontHome() {
           <img className="kxHeroLogo" src="/brand.png" alt="KLYRA: Broken Front" />
           <p className="kxF2PStamp"><span>Free to play</span><b>Windows · Mac · Browser</b></p>
           <h1 className="kxF2PTitle">
-            The front <br />is <span className="kxF2PFree" data-text="free.">free.</span>
+            KLYRA: <br /><span className="kxF2PFree" data-text="Broken Front">Broken Front</span>
           </h1>
           <p className="kxLead">
             Fight for The Regiment, Kin of the Hollow, or Blackline Group. Push the battle, run the
