@@ -64,25 +64,25 @@ export const redlineDisciplines = [
   { id: "street", name: "Redline Street", points: ["Urban environments", "Night racing", "Highway races", "Sprint races", "Drifting", "Customization", "Performance upgrades", "Street reputation"] },
 ];
 
-// fpv: per-car test-drive driver-eye tweaks (metres, applied on top of the eye computed from each model's glass/cabin bounds).
+// fpv: per-car test-drive driver-eye tweaks (metres, applied on top of the seated-head eye; only for cars whose default view was blocked).
 export const redlineCars = [
-  { id: "redline_pro_touring", name: "Touring car", discipline: "pro", fpv: { dy: 0.2, dz: 0.25 } },
-  { id: "redline_pro_stock", name: "Stock car", discipline: "pro", fpv: { dy: 0.25, dz: 0.25 } },
-  { id: "redline_pro_prototype", name: "Prototype", discipline: "pro", fpv: { dy: 0.15 } },
-  { id: "redline_pro_rally", name: "Rally car", discipline: "pro", fpv: { dz: 0.3 } },
-  { id: "redline_pro_openwheeler", name: "Open-wheeler", discipline: "pro" },
+  { id: "redline_pro_touring", name: "Touring car", discipline: "pro" },
+  { id: "redline_pro_stock", name: "Stock car", discipline: "pro", fpv: { dy: -0.05, dz: 0.3 } },
+  { id: "redline_pro_prototype", name: "Prototype", discipline: "pro" },
+  { id: "redline_pro_rally", name: "Rally car", discipline: "pro" },
+  { id: "redline_pro_openwheeler", name: "Open-wheeler", discipline: "pro", fpv: { dz: 0.3 } },
   { id: "redline_pro_vintage", name: "Vintage racer", discipline: "pro" },
-  { id: "redline_pro_kart", name: "Kart", discipline: "pro", fpv: { dz: 1.6 } },
-  { id: "redline_pro_truck", name: "Race truck", discipline: "pro", fpv: { dz: 0.55 } },
-  { id: "redline_pro_dirtbike", name: "Dirt bike", discipline: "pro" },
-  { id: "redline_street_sports", name: "Sports coupe", discipline: "street", fpv: { dz: 0.25 } },
+  { id: "redline_pro_kart", name: "Kart", discipline: "pro" },
+  { id: "redline_pro_truck", name: "Race truck", discipline: "pro", fpv: { dy: -0.6, dz: 1.0 } },
+  { id: "redline_pro_dirtbike", name: "Dirt bike", discipline: "pro", fpv: { dy: 0.07, dz: 0.35 } },
+  { id: "redline_street_sports", name: "Sports coupe", discipline: "street" },
   { id: "redline_street_muscle", name: "Muscle car", discipline: "street" },
   { id: "redline_street_exotic", name: "Exotic", discipline: "street" },
   { id: "redline_street_hatch", name: "Hot hatch", discipline: "street" },
   { id: "redline_street_sedan", name: "Sedan", discipline: "street" },
   { id: "redline_street_ute", name: "Ute", discipline: "street" },
-  { id: "redline_street_truck", name: "Street truck", discipline: "street" },
-  { id: "redline_street_motorbike", name: "Motorbike", discipline: "street" },
+  { id: "redline_street_truck", name: "Street truck", discipline: "street", fpv: { dy: -0.2, dz: 1.2 } },
+  { id: "redline_street_motorbike", name: "Motorbike", discipline: "street", fpv: { dy: 0.05, dz: 1.77, pitch: 2 } },
 ].map((c) => ({ ...c, model: `/cars/${c.id}.glb`, custom: c.id !== "redline_pro_dirtbike", poster: `/cars/${c.id}.webp`, thumb: `/cars/thumbs/${c.id}.webp` }));
 
 export function activeSections(id) {

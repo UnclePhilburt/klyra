@@ -411,32 +411,17 @@ export default function RedlineDrive({ car, cars, build, paint, onExit }) {
       // First-person (default): eye at the driver's seat inside the built car; chase cam is optional (C).
       const ctr = bx.getCenter(new THREE.Vector3());
       const open = /kart|openwheeler|vintage|motorbike|dirtbike/.test(car.id);
-      // Driver eye per car: start at the seat (glass bounds when the car has a cabin), then raise it until the bonnet/dash
-      // in front stays below ~9 deg of depression (road clearly visible). Per-car tweaks live in gamesData (car.fpv).
+      // Driver eye: seated head height inside the cabin (same placement as 8276852); small per-car tweaks live in gamesData (car.fpv),
+      // clamped so the eye stays inside the car bounds and >=5 cm under the roof.
       const eye = (() => {
         const e = new THREE.Vector3(open ? 0 : csz.x * 0.15, bx.min.y + csz.y * (open ? 0.95 : 0.8), ctr.z + csz.z * (open ? -0.1 : 0.005));
-        carObj.updateMatrixWorld(true);
-        const isGlass = (m) => m && /^glass/i.test(m.name), gb = new THREE.Box3(), hb = new THREE.Box3(), vv = new THREE.Vector3();
-        // cabin = bounds of the glass-material vertices; rider head = top 6% of an open vehicle
-        carObj.traverse((o) => { if (!o.isMesh) return; const pa = o.geometry.attributes.position, ms = Array.isArray(o.material) ? o.material : [o.material], groups = o.geometry.groups.length ? o.geometry.groups : [{ start: 0, count: o.geometry.index ? o.geometry.index.count : pa.count, materialIndex: 0 }];
-          groups.forEach((g) => { if (!isGlass(ms[g.materialIndex || 0])) return; const ix = o.geometry.index; for (let k = g.start; k < g.start + g.count; k += 3) { vv.fromBufferAttribute(pa, ix ? ix.getX(k) : k).applyMatrix4(o.matrixWorld); gb.expandByPoint(vv); } });
-          if (open) for (let k = 0; k < pa.count; k += 2) { vv.fromBufferAttribute(pa, k).applyMatrix4(o.matrixWorld); if (vv.y > bx.max.y - csz.y * 0.06) hb.expandByPoint(vv); } });
-        if (!open && !gb.isEmpty()) { e.y = gb.min.y + (gb.max.y - gb.min.y) * 0.45; e.z = (gb.min.z + gb.max.z) / 2 - (gb.max.z - gb.min.z) * 0.05; e.x = Math.min(e.x, (gb.max.x - gb.min.x) * 0.22); }
-        if (open && !hb.isEmpty()) { e.x = (hb.min.x + hb.max.x) / 2; e.y = (hb.min.y + hb.max.y) / 2; e.z = hb.max.z + 0.06; }
-        const y0 = e.y, TH = Math.tan((9 * Math.PI) / 180), v = new THREE.Vector3(); let need = e.y;
-        const shown = (o) => { for (let q = o; q; q = q.parent) if (!q.visible) return false; return true; };
-        carObj.updateMatrixWorld(true);
-        carObj.traverse((o) => { if (!o.isMesh || !shown(o) || /glass/i.test(o.name) || (o.material && o.material.name === "glass")) return; const pa = o.geometry.attributes.position, step = Math.max(1, Math.floor(pa.count / 4000));
-          for (let k = 0; k < pa.count; k += step) { v.fromBufferAttribute(pa, k).applyMatrix4(o.matrixWorld); const dz = v.z - e.z; if (dz < 0.25 || Math.abs(v.x - e.x) > 0.8 || v.y > y0 + 0.04) continue; need = Math.max(need, v.y + TH * dz); } });
-        if (!open) e.y = Math.min(need, y0 + 0.15);
-        const f = car.fpv || {}; e.x += f.dx || 0; e.y += f.dy || 0; e.z += f.dz || 0; e.pitch = f.pitch || 0; return e; })();
-      if (typeof window !== "undefined") window.__rlEye = { x: +eye.x.toFixed(3), y: +eye.y.toFixed(3), z: +eye.z.toFixed(3), carH: +csz.y.toFixed(3), zmin: +bx.min.z.toFixed(2), zmax: +bx.max.z.toFixed(2) };
+        const f = car.fpv || {}; e.x += f.dx || 0; e.y += f.dy || 0; e.z += f.dz || 0; e.pitch = f.pitch || 0;
+        if (!open) e.y = Math.min(e.y, bx.max.y - 0.05);
+        e.x = Math.max(bx.min.x + 0.1, Math.min(bx.max.x - 0.1, e.x)); e.z = Math.max(bx.min.z + 0.2, Math.min(bx.max.z - 0.2, e.z)); return e; })();
+      st.setEye = (x, y, z) => { eye.set(x, y, z); cam(0, true); return true; }; // test hook (fpv tuning)
+      if (typeof window !== "undefined") window.__rlEye = { roofY: +bx.max.y.toFixed(3), x: +eye.x.toFixed(3), y: +eye.y.toFixed(3), z: +eye.z.toFixed(3), carH: +csz.y.toFixed(3), zmin: +bx.min.z.toFixed(2), zmax: +bx.max.z.toFixed(2) };
       const glass = []; carObj.traverse((o) => { if (o.isMesh) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => { if (/^glass/i.test(m.name) && !glass.includes(m)) glass.push(m); }); });
-      // In driver view, clip the player's own car above eye level so the roof lining and pillars never cover the windscreen; the dash and bonnet stay.
-      renderer.localClippingEnabled = true; const roofClip = new THREE.Plane(new THREE.Vector3(0, -1, 0), eye.y + (open ? -0.05 : 0.04)); // open cockpits: also cut the rider's own helmet
-      st.setEye = (x, y, z, pitch) => { eye.set(x, y, z); if (pitch != null) eye.pitch = pitch; roofClip.constant = eye.y + (open ? -0.05 : 0.04); cam(0, true); return window.__rlEye = { x, y, z }; };
-      const carMats = []; carObj.traverse((o) => { if (o.isMesh) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => { if (!carMats.includes(m)) { m.userData.side0 = m.side; carMats.push(m); } }); });
-      const setFp = (on) => { carMats.forEach((m) => { m.clippingPlanes = on ? [roofClip] : null; m.needsUpdate = true; }); glass.forEach((m) => { m.transparent = true; m.opacity = on ? 0.1 : 0.6; m.needsUpdate = true; }); camera.near = on ? 0.03 : 0.3; camera.updateProjectionMatrix(); };
+      const setFp = (on) => {  glass.forEach((m) => { m.transparent = true; m.opacity = on ? 0.1 : 0.6; m.needsUpdate = true; }); camera.near = on ? 0.03 : 0.3; camera.updateProjectionMatrix(); };
       let fpMode = camModeRef.current.current === "fp"; setFp(fpMode);
       camModeRef.current.apply = (m) => { fpMode = m === "fp"; setFp(fpMode); cam(0, true); };
       let bobT = 0, lean = 0, kick = 0, rumT = 0;
