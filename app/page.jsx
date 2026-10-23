@@ -65,7 +65,7 @@ export default function Home() {
       <section className="mMusic mReveal" aria-labelledby="m-music">
         <div className="mMusicArt">
           <img src="/shots/trailer/squad.jpg" alt="" loading="lazy" decoding="async" />
-          <span className="mMusicBars" aria-hidden="true">{Array.from({ length: 24 }, (_, i) => <i key={i} style={{ "--i": i }} />)}</span>
+          <span className="mMusicBars" aria-hidden="true">{Array.from({ length: 24 }, (_, i) => <i key={i} style={{ "--i": i, height: `${22 + ((i * 37) % 70)}%` }} />)}</span>
         </div>
         <div className="mMusicCopy">
           <p className="mSoloTag">Official soundtrack partner</p>
