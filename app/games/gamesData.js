@@ -82,7 +82,7 @@ export const redlineCars = [
   { id: "redline_street_ute", name: "Ute", discipline: "street" },
   { id: "redline_street_truck", name: "Street truck", discipline: "street" },
   { id: "redline_street_motorbike", name: "Motorbike", discipline: "street" },
-].map((c) => ({ ...c, model: `/cars/${c.id}.glb`, poster: `/cars/${c.id}.webp`, thumb: `/cars/thumbs/${c.id}.webp` }));
+].map((c) => ({ ...c, model: `/cars/${c.id}.glb`, custom: c.id !== "redline_pro_dirtbike", poster: `/cars/${c.id}.webp`, thumb: `/cars/thumbs/${c.id}.webp` }));
 
 export function activeSections(id) {
   const g = games.find((x) => x.id === id);
