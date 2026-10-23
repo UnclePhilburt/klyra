@@ -2610,3 +2610,5 @@ a.rlDisc.street:hover{box-shadow:0 30px 70px -30px rgba(24,200,255,.6)}
 @media (min-width:760px){.rrHint{display:block}.rrCard{left:24px;bottom:24px}}
 @media (max-width:759px){.rrCard{max-height:42%;font-size:13px}.rrCard h3{font-size:17px}.rrDots button{width:28px;height:28px;font-size:12px}}
 .gPage:has(.rrWrap){overflow:visible;overflow-x:clip}
+.rrMore{display:none;margin-left:auto;background:none;border:1px solid rgba(255,255,255,.2);color:#cfd6e4;border-radius:999px;font-size:11px;padding:3px 9px;cursor:pointer}
+@media (max-width:759px){.rrMore{display:inline-block}.rrMore+.rrX{margin-left:4px}.rrCard{left:10px;bottom:10px;width:calc(100% - 64px);padding:10px 12px}.rrCard h3{margin:4px 0 0;font-size:15px}.rrCard:not(.exp) ul,.rrCard:not(.exp) .rrNote{display:none}.rrCard.exp ul{margin-top:6px}}

@@ -22,6 +22,7 @@ export default function RoadmapRoad({ phases }) {
   const [active, setActive] = useState(-1);
   const [loaded, setLoaded] = useState(false);
   const [open, setOpen] = useState(null);
+  const [exp, setExp] = useState(false);
 
   useEffect(() => { setOk(canUse3D()); }, []);
 
@@ -154,7 +155,7 @@ export default function RoadmapRoad({ phases }) {
         for (let k = -2; k <= 2; k++) place("Prop_Cone_01", t + 0.006, 0, 0).position.copy(frame(t + 0.006, 1, k * 0.6 + (k < 0 ? -W / 2 + 1.4 : W / 2 - 1.4) * 0 + k * 2.4).p);
       });
       // Finish-ish: Phase 8 leads into fog; a finish sign stays at the edge of the future
-      place("Prop_Sign_Finish_01", 0.97, 0, 0, Math.PI, 2.2);
+      place("Prop_Sign_Finish_01", 0.97, 0, 0, 0, 2.2);
 
       // Car
       const carObj = car.scene; scene.add(carObj);
@@ -173,7 +174,7 @@ export default function RoadmapRoad({ phases }) {
       const onClick = (e) => {
         const r = canvas.getBoundingClientRect(); mv.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
         ray.setFromCamera(mv, camera); const hit = ray.intersectObjects(boards)[0];
-        if (hit) { setOpen(hit.object.userData.phase); }
+        if (hit) { setOpen(hit.object.userData.phase); setExp(true); }
       };
       canvas.addEventListener("click", onClick);
       api.current.goTo = (i) => {
@@ -230,8 +231,8 @@ export default function RoadmapRoad({ phases }) {
             ))}
           </ol>
           {ph ? (
-            <div className="rrCard" key={ph.id}>
-              <div className="rrCardTop"><span className="rrNum">Phase {shown + 1}</span><span className="rrPill">{STATUS_LABEL[ph.status] || ph.status}</span>{open != null && <button type="button" className="rrX" onClick={() => setOpen(null)} aria-label="Close">×</button>}</div>
+            <div className={"rrCard" + (exp ? " exp" : "")} key={ph.id}>
+              <div className="rrCardTop"><span className="rrNum">Phase {shown + 1}</span><span className="rrPill">{STATUS_LABEL[ph.status] || ph.status}</span><button type="button" className="rrMore" aria-expanded={exp} onClick={() => setExp(!exp)}>{exp ? "Hide" : `${ph.items.length} features`}</button>{open != null && <button type="button" className="rrX" onClick={() => setOpen(null)} aria-label="Close">×</button>}</div>
               <h3>{ph.title}</h3>
               <ul>{ph.items.map((it) => <li key={it}>{it}</li>)}</ul>
               {ph.note && <p className="rrNote">{ph.note}</p>}
