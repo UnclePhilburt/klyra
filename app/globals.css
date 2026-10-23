@@ -2741,3 +2741,47 @@ body p.kxCharFlag{white-space:normal;overflow:visible;letter-spacing:.14em}
  .rlSheet.open:has(.rlCz) .rlCtl{max-height:20vh}
  .rlCzGrid{grid-template-columns:repeat(3,1fr)}
 }
+/* Redline garage: part hotspots */
+.rlHsLayer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2}
+.rlHsLayer[data-on="0"]{visibility:hidden}
+.rlHs{position:absolute;left:-22px;top:-22px;width:44px;height:44px;padding:0;border:0;background:none;cursor:pointer;display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .25s;will-change:transform}
+.rlHs[data-vis="1"]{opacity:1;pointer-events:auto}
+.rlHs i{position:relative;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0 18%,#f4fbff 32%,#cfe9f5 62%,#8fb8cc 100%);box-shadow:0 0 6px 1px rgba(255,255,255,.75),0 0 14px 3px rgba(30,200,255,.35),0 1px 3px rgba(0,0,0,.5);transition:transform .2s,box-shadow .2s,filter .2s}
+.rlHs i::after{content:"";position:absolute;inset:-5px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.35),rgba(30,200,255,.12) 55%,transparent 72%);animation:rlOrb 2.6s ease-in-out infinite;pointer-events:none;z-index:-1}
+@keyframes rlOrb{0%,100%{transform:scale(.85);opacity:.55}50%{transform:scale(1.2);opacity:1}}
+.rlHs:hover i,.rlHs:focus-visible i,.rlHs.on i{transform:scale(1.2);filter:brightness(1.12);box-shadow:0 0 8px 2px rgba(255,255,255,.95),0 0 22px 6px rgba(30,200,255,.55),0 1px 3px rgba(0,0,0,.5)}
+.rlHs:focus-visible{outline:none}.rlHs:focus-visible i{outline:2px solid #1ec8ff;outline-offset:4px}
+.rlPop{position:absolute;left:0;top:0;z-index:4;width:300px;max-height:min(360px,calc(100% - 16px));display:flex;flex-direction:column;background:rgba(10,12,16,.94);border:1px solid rgba(30,200,255,.35);border-radius:12px;box-shadow:0 18px 50px -12px rgba(0,0,0,.7);backdrop-filter:blur(10px);animation:rlPopIn .16s ease-out}
+.rlPop[data-dock="1"]{left:auto;right:12px;top:auto;bottom:22px;transform:none!important}
+@keyframes rlPopIn{from{opacity:0}to{opacity:1}}
+.rlPopHead{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.rlPopHead b{font:800 12px/1 ui-monospace,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:#fff}
+.rlPopHead span{font:700 11px/1 ui-monospace,Consolas,monospace;color:#1ec8ff;letter-spacing:.08em}
+.rlPopX{margin-left:auto;width:40px;height:40px;border:0;background:none;color:#aaa;font-size:22px;cursor:pointer;border-radius:8px}
+.rlPopX:hover{color:#fff;background:rgba(255,255,255,.06)}
+.rlPopGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px;overflow-y:auto}
+.rlPop .rlCzOpt{padding:4px;border-radius:8px;min-height:44px}
+.rlPop .rlCzOpt.on{border-color:#1ec8ff;background:rgba(30,200,255,.12);box-shadow:inset 0 0 0 1px #1ec8ff}
+.rlPop .rlCzOpt i{font-size:20px}
+.rlPopSw{display:flex;flex-wrap:wrap;gap:10px;padding:12px}
+.rlPopSw .rlSwatch{width:40px;height:40px;padding:0;border-radius:50%;background:var(--sw);border:2px solid rgba(255,255,255,.25);cursor:pointer}
+.rlPopSw .rlSwatch.on{outline:2px solid #1ec8ff;outline-offset:3px}
+.rlPop.paint{width:auto}
+.rlPop button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.rlCzBar{position:absolute;left:clamp(12px,5vw,80px);bottom:22px;z-index:3;display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:calc(100% - 24px)}
+.rlCzBar .rlCzNote{margin:0;background:rgba(10,12,16,.6)}
+.rlCzBtn,.rlCzStart{min-height:40px;padding:0 14px;border:1px solid rgba(30,200,255,.4);border-radius:20px;background:rgba(10,12,16,.7);color:#e8f8ff;font:800 11px/1 ui-monospace,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.rlCzBtn:hover,.rlCzStart:hover{border-color:#1ec8ff}
+.rlCzStart{position:absolute;right:clamp(12px,5vw,80px);bottom:22px;z-index:3}
+.rlCzNone{position:absolute;right:clamp(12px,5vw,80px);bottom:22px;z-index:3;margin:0;font:700 11px/1 ui-monospace,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:#888}
+.rlPaintBtn{width:40px;height:40px;padding:0;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:var(--sw);cursor:pointer}
+.rlPaintBtn.on{outline:2px solid #1ec8ff;outline-offset:2px}
+.rlPaintBtn:focus-visible,.rlCzBtn:focus-visible,.rlCzStart:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media (max-width:600px){
+ .rlCzBar{left:10px;right:10px;bottom:16px;gap:6px}
+ .rlCzBar .rlCzNote{order:-1;flex-basis:100%;width:max-content;max-width:100%;font-size:9px;padding:4px 8px}
+ .rlPop[data-dock="1"]{left:8px;right:8px;bottom:8px;width:auto;max-height:44%}
+ .rlPopGrid{grid-template-columns:repeat(4,1fr)}
+ .rlPop .rlCzOpt b{font-size:10px}
+}
+@media (prefers-reduced-motion: reduce){.rlHs,.rlHs i{transition:none}.rlHs i::after{animation:none;opacity:.75}.rlPop{animation:none}}

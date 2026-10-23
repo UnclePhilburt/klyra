@@ -13,6 +13,13 @@ Web preview of planned in-game part customization in the Redline garage viewer (
 - Dirt bike has no part FBXs and stays non-customizable.
 - Excluded from conversion (not body parts / need rigs): netting, screen banners, trailer axle/hitch, seats, truck stock wheels, door-specific fender variants, flatbeds.
 
+## Hotspot UI
+
+- After **Customize parts**, each slot gets a small cyan hotspot (44px tap target) anchored on the part: top surface of solid parts (raycast down), or the camera-facing side for split parts (skirts, fenders); Wheels anchor on the front wheel facing the camera.
+- Hotspots are projected every frame, so they follow the orbit; a throttled (120 ms) raycast hides ones behind the body (glass ignored), and overlapping ones are decluttered (38px).
+- Tapping opens a pop-up next to the hotspot with thumbnails and the current choice; at stage widths under 600px it docks as a compact bottom sheet over the lower part of the stage. Esc / outside tap closes it.
+- Stage bar: preview label, paint swatch button (paint pop-up), Reset, Share build (copies URL). Rims stay in Controls.
+
 ## Per car
 
 | Car | id | Slots | Options | GLB | Thumbs |
