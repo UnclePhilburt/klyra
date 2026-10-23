@@ -7,19 +7,20 @@ import { useSession } from "../useSession";
 
 const pages = [
   ["Games", "/games/"],
+  ["Store", "/store/"],
+  ["Community", "/community/"],
+];
+
+// Broken Front sections stay one tap away in the mobile drawer (and on the BF page / footer).
+const morePages = [
+  ["Friends", "/friends/"],
+  ["Broken Front", "/games/broken-front/"],
   ["Features", "/features/"],
   ["Factions", "/factions/"],
   ["Arsenal", "/arsenal/"],
-  ["Download", "/download/"],
   ["Roadmap", "/roadmap/"],
-  ["Community", "/community/"],
-  ["Store", "/store/"],
-];
-
-const morePages = [
-  ["Friends", "/friends/"],
-  ["Browser", "/play/"],
   ["Devlog", "/devlog/"],
+  ["Browser play", "/play/"],
   ["Support Broken Front", "/support/"],
 ];
 
@@ -119,7 +120,7 @@ export default function SiteNav() {
             <AccountMark />
             <span className="kxCallsign">{accountLabel}</span>
           </a>
-          <a className="kxPlayBtn kxPlayFree" href="/download/"><span>Play free</span></a>
+          <a className="kxPlayBtn kxPlayFree" href="/download/"><span>Download KLYRA</span></a>
           <button
             className="kxBurger"
             type="button"
@@ -160,7 +161,7 @@ export default function SiteNav() {
           ))}
         </div>
         <div className="kxDrawerCta">
-          <a className="button huge" href="/download/" onClick={() => setMenuOpen(false)}>Download free</a>
+          <a className="button huge" href="/download/" onClick={() => setMenuOpen(false)}>Download KLYRA</a>
           <a className="button ghost huge" href="/play/" onClick={() => setMenuOpen(false)}>Play free in browser</a>
           <a className="kxDrawerSupport" href="/support/" onClick={() => setMenuOpen(false)}><i aria-hidden="true">&#9733;</i> Support Broken Front &middot; optional $4.99</a>
         </div>

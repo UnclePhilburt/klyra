@@ -4,9 +4,9 @@ import { callsignOf } from "../session";
 import { useSession } from "../useSession";
 
 const groups = [
-  ["Game", [["Play free", "/play/"], ["Download free", "/download/"], ["Features", "/features/"], ["Factions", "/factions/"], ["Arsenal", "/arsenal/"]]],
-  ["Development", [["Roadmap", "/roadmap/"], ["Devlog", "/devlog/"], ["Character Store", "/store/"], ["Support Broken Front", "/support/"]]],
-  ["Community", [["Community", "/community/"]]],
+  ["KLYRA", [["Games", "/games/"], ["Download KLYRA", "/download/"], ["Store", "/store/"], ["Friends", "/friends/"], ["Community", "/community/"]]],
+  ["Broken Front", [["Overview", "/games/broken-front/"], ["Play in browser", "/play/"], ["Features", "/features/"], ["Factions", "/factions/"], ["Arsenal", "/arsenal/"]]],
+  ["Development", [["Redline", "/games/redline/"], ["Roadmap", "/roadmap/"], ["Devlog", "/devlog/"], ["Support Broken Front", "/support/"]]],
 ];
 
 export default function SiteFooter() {
@@ -18,7 +18,7 @@ export default function SiteFooter() {
         <div className="kxFooterBrand">
           <div>
             <img className="kxFooterWordmark" src="/brand/klyra-wordmark.svg" alt="KLYRA" width="290" height="78" />
-            <p>Home of KLYRA: Broken Front &middot; Free to play &middot; Pre-alpha &middot; Built by an independent developer</p>
+            <p>KLYRA &middot; Home of Broken Front, Redline and the Social Hub &middot; Built by an independent developer</p>
           </div>
         </div>
         <nav className="kxFooterCols" aria-label="Site">
@@ -40,7 +40,7 @@ export default function SiteFooter() {
           </div>
         </nav>
       </div>
-      <p className="kxFooterBase">&copy; {new Date().getFullYear()} KLYRA &middot; KLYRA: Broken Front is in pre-alpha &middot; Pre-alpha. Everything you see can change.</p>
+      <p className="kxFooterBase">&copy; {new Date().getFullYear()} KLYRA &middot; Games in pre-alpha and in development. Everything you see can change.</p>
     </footer>
   );
 }

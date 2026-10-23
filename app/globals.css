@@ -2276,3 +2276,7 @@ a.khCard:hover{transform:translateY(-3px);border-color:rgba(30,200,255,.5)}
 @media (max-width:860px){.khRow{grid-template-columns:1fr}}
 @media (min-width:2000px){.khRow{max-width:1600px}}
 .khHero{padding-bottom:clamp(48px,7vh,80px)}
+.bfSubnav{display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:center;padding:14px 20px;background:#0c0d0a;border-top:1px solid rgba(216,180,90,.25)}
+.bfSubnav a{color:#d8b45a;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;padding:6px 2px}
+.bfSubnav a:hover{color:#fff}
+.kxPlayFree span{white-space:nowrap}@media (max-width:520px){.kxPlayFree span{font-size:11px;letter-spacing:.06em}}
