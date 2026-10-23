@@ -20,7 +20,7 @@ const morePages = [
   ["Friends", "/friends/"],
   ["Browser", "/play/"],
   ["Devlog", "/devlog/"],
-  ["Support Klyra", "/support/"],
+  ["Support Broken Front", "/support/"],
 ];
 
 function AccountMark() {
@@ -162,7 +162,7 @@ export default function SiteNav() {
         <div className="kxDrawerCta">
           <a className="button huge" href="/download/" onClick={() => setMenuOpen(false)}>Download free</a>
           <a className="button ghost huge" href="/play/" onClick={() => setMenuOpen(false)}>Play free in browser</a>
-          <a className="kxDrawerSupport" href="/support/" onClick={() => setMenuOpen(false)}><i aria-hidden="true">&#9733;</i> Support Klyra &middot; optional $4.99</a>
+          <a className="kxDrawerSupport" href="/support/" onClick={() => setMenuOpen(false)}><i aria-hidden="true">&#9733;</i> Support Broken Front &middot; optional $4.99</a>
         </div>
       </div>
     </>

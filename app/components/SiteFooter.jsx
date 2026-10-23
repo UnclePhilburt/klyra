@@ -5,7 +5,7 @@ import { useSession } from "../useSession";
 
 const groups = [
   ["Game", [["Play free", "/play/"], ["Download free", "/download/"], ["Features", "/features/"], ["Factions", "/factions/"], ["Arsenal", "/arsenal/"]]],
-  ["Development", [["Roadmap", "/roadmap/"], ["Devlog", "/devlog/"], ["Character Store", "/store/"], ["Support Klyra", "/support/"]]],
+  ["Development", [["Roadmap", "/roadmap/"], ["Devlog", "/devlog/"], ["Character Store", "/store/"], ["Support Broken Front", "/support/"]]],
   ["Community", [["Community", "/community/"]]],
 ];
 

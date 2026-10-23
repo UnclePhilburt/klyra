@@ -2228,3 +2228,41 @@ html .kxAcctBanner h1.kxCallsignTitle { max-width: 100%; font-size: min(clamp(40
  .rlPage{padding-bottom:72px}
  .rlSheet{position:fixed;left:0;right:0;bottom:0;padding-bottom:env(safe-area-inset-bottom)}
 }
+
+/* ===== KLYRA hub homepage ===== */
+.khHero{position:relative;overflow:hidden;background:#07090c;color:#f2f4f7;padding:clamp(120px,14vh,170px) 24px clamp(64px,9vh,110px);text-align:center}
+.khHeroGlow{position:absolute;inset:-20% -10% auto;height:120%;background:radial-gradient(50% 45% at 50% 30%,rgba(30,200,255,.18),transparent 70%),linear-gradient(115deg,transparent 46%,rgba(30,200,255,.10) 50%,transparent 54%);pointer-events:none}
+.khHeroInner{position:relative;max-width:980px;margin:0 auto}
+.khWordmark{width:clamp(150px,18vw,240px);height:auto;margin:0 auto 22px;display:block}
+.khTitle{font-size:clamp(34px,6vw,78px);line-height:1.02;font-weight:800;letter-spacing:-.02em;margin:0 0 18px}
+.khTitle span{display:block;color:#1ec8ff}
+.khLead{font-size:clamp(16px,1.4vw,20px);color:#aab3bf;max-width:680px;margin:0 auto 34px;line-height:1.5}
+.khPillars{list-style:none;padding:0;margin:0 auto 36px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:900px;text-align:left}
+.khPillars li{border:1px solid rgba(30,200,255,.22);background:rgba(255,255,255,.03);border-radius:10px;padding:16px 18px}
+.khPillars b{display:block;color:#fff;font-size:15px;margin-bottom:4px}
+.khPillars span{color:#98a2ae;font-size:14px;line-height:1.4}
+.khActions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.khActions a{padding:14px 22px;border-radius:8px;font-weight:700;text-decoration:none;min-height:48px;display:inline-flex;align-items:center}
+.khPrimary{background:#1ec8ff;color:#041018}
+.khSecondary{border:1px solid #1ec8ff;color:#1ec8ff}
+.khGhost{color:#c8d0da}
+.khGames{background:#0b0e13;color:#f2f4f7;padding:clamp(56px,8vw,100px) 24px}
+.khHead,.khFlagHead{max-width:1240px;margin:0 auto 28px}
+.khKicker{color:#1ec8ff;font-size:13px;letter-spacing:.2em;text-transform:uppercase;margin:0 0 6px;font-weight:700}
+.khHead h2,.khFlagHead h2{font-size:clamp(28px,3.4vw,46px);margin:0;color:#f2f4f7}
+.khGrid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr;grid-template-rows:auto auto;gap:18px}
+.khCard{position:relative;display:flex;flex-direction:column;border-radius:12px;overflow:hidden;background:#11151c;border:1px solid rgba(255,255,255,.08);text-decoration:none;color:inherit;transition:transform .2s,border-color .2s}
+a.khCard:hover{transform:translateY(-3px);border-color:rgba(30,200,255,.5)}
+.khCard img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.khFlag{grid-row:span 2}.khFlag img{flex:1;aspect-ratio:auto;min-height:240px}
+.khCardBody{padding:18px 20px;display:flex;flex-direction:column;gap:6px}
+.khCardBody strong{font-size:22px}.khCardBody small{color:#98a2ae;font-size:14px;line-height:1.4}
+.khCardBody b{color:#1ec8ff;font-size:14px;margin-top:4px}
+.khTag{font-style:normal;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;align-self:flex-start;padding:4px 8px;border-radius:4px}
+.khTag.mil{background:#d8b45a;color:#16130a}.khTag.dev{background:#ff2d3d;color:#fff}.khTag.hub{background:rgba(30,200,255,.15);color:#1ec8ff}
+.khRed b{color:#ff5a66}
+.khFlagHead{padding:clamp(48px,6vw,80px) 24px 0;margin:0 auto;max-width:none;background:#07090c}
+.khFlagHead > *{max-width:1240px;margin-left:auto;margin-right:auto}
+@media (max-width:860px){.khGrid{grid-template-columns:1fr}.khFlag{grid-row:auto}.khFlag img{aspect-ratio:16/9;min-height:0}.khPillars{grid-template-columns:1fr}}
+@media (min-width:2000px){.khHeroInner{max-width:1200px}.khGrid,.khHead,.khFlagHead > *{max-width:1600px}}
+.khFlagHead h2,.khFlagHead .khKicker{margin-left:auto;margin-right:auto}

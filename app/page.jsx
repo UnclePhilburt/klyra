@@ -117,6 +117,43 @@ export default function Home() {
 
   return (
     <main className="kxHome">
+      <section className="khHero" aria-labelledby="kh-title">
+        <div className="khHeroGlow" aria-hidden="true" />
+        <div className="khHeroInner">
+          <img className="khWordmark" src="/brand/klyra-wordmark.svg" alt="" aria-hidden="true" width="290" height="78" />
+          <h1 id="kh-title" className="khTitle">One platform. <span>Every KLYRA game.</span></h1>
+          <p className="khLead">KLYRA is the home of our games: one download, one account and one store, with your friends coming with you from game to game.</p>
+          <ul className="khPillars">
+            <li><b>One download</b><span>Get the KLYRA client once.</span></li>
+            <li><b>One account</b><span>Sign in once, keep your callsign and friends.</span></li>
+            <li><b>Universal store</b><span>One place to shop. Items stay with the game they belong to.</span></li>
+          </ul>
+          <div className="khActions">
+            <a className="khPrimary" href="/download/">Download KLYRA</a>
+            <a className="khSecondary" href="/account/">Create your account</a>
+            <a className="khGhost" href="#games">See the games</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="games" className="khGames" aria-labelledby="kh-games-title">
+        <div className="khHead"><p className="khKicker">Games</p><h2 id="kh-games-title">The KLYRA lineup</h2></div>
+        <div className="khGrid">
+          <a className="khCard khFlag" href="#broken-front">
+            <img src="/shots/trailer/gunship.jpg" alt="" loading="lazy" />
+            <span className="khCardBody"><em className="khTag mil">Flagship · Pre-alpha · Free to play</em><strong>KLYRA: Broken Front</strong><small>Military shooter. Windows, Mac and browser.</small><b>Enter the front &rarr;</b></span>
+          </a>
+          <a className="khCard khRed" href="/games/redline/">
+            <img src="/cars/redline_pro_touring.webp" alt="" loading="lazy" />
+            <span className="khCardBody"><em className="khTag dev">In development</em><strong>KLYRA: Redline</strong><small>Racing with Pro and Street disciplines. Car previews only.</small><b>Preview the cars &rarr;</b></span>
+          </a>
+          <div className="khCard khHub">
+            <span className="khCardBody"><em className="khTag hub">Part of the platform</em><strong>KLYRA Social Hub</strong><small>A shared space for soccer, boxing and team deathmatch, joining friends, and public matchmaking.</small></span>
+          </div>
+        </div>
+      </section>
+
+      <div id="broken-front" className="khFlagHead"><p className="khKicker">Flagship game</p><h2>KLYRA: Broken Front</h2></div>
       <section className="kxHero kxF2PHero">
         <div className="kxHeroBg" aria-hidden="true" />
         <div className="kxHeroGrain" aria-hidden="true" />
@@ -129,11 +166,11 @@ export default function Home() {
           <span className="kxLive">● LIVE BUILD // PRE-ALPHA</span>
         </div>
         <div className="kxHeroCopy">
-          <img className="kxHeroLogo" src="/brand.png" alt="KLYRA" />
+          <img className="kxHeroLogo" src="/brand.png" alt="KLYRA: Broken Front" />
           <p className="kxF2PStamp"><span>Free to play</span><b>Windows · Mac · Browser</b></p>
-          <h1 className="kxF2PTitle">
+          <h2 className="kxF2PTitle">
             The front <br />is <span className="kxF2PFree" data-text="free.">free.</span>
-          </h1>
+          </h2>
           <p className="kxLead">
             Fight for The Regiment, Kin of the Hollow, or Blackline Group. Push the battle, run the
             supplies, and bring your gear home. No paywall. No subscription.
@@ -154,7 +191,7 @@ export default function Home() {
           <div className="kxF2PMeta">
             <a className="kxF2PSupport" href="/support/">
               <StarIcon />
-              <span>Support Klyra</span>
+              <span>Support Broken Front</span>
               <em>Optional · $4.99</em>
               <b aria-hidden="true">&rarr;</b>
             </a>
@@ -333,7 +370,7 @@ export default function Home() {
         <a className="kxDeployCard kxDeploySupport" href="/support/">
           <SupporterEmblem size={140} className="kxDeployCrest" alt="" />
           <span>Optional</span>
-          <strong>Support Klyra</strong>
+          <strong>Support Broken Front</strong>
           <p>The game is free. A one-time $4.99 Supporter Edition helps pay for servers and development, and unlocks supporter titles, characters and a badge.</p>
         </a>
       </section>
