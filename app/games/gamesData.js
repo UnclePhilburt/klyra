@@ -34,6 +34,15 @@ export const redlineDisciplines = [
 export const redlineCars = [
   { id: "redline_pro_touring", name: "Touring car", discipline: "pro" },
   { id: "redline_pro_stock", name: "Stock car", discipline: "pro" },
+  { id: "redline_pro_prototype", name: "Prototype", discipline: "pro" },
+  { id: "redline_pro_rally", name: "Rally car", discipline: "pro" },
+  { id: "redline_pro_openwheeler", name: "Open-wheeler", discipline: "pro" },
+  { id: "redline_pro_vintage", name: "Vintage racer", discipline: "pro" },
+  { id: "redline_pro_kart", name: "Kart", discipline: "pro" },
+  { id: "redline_pro_truck", name: "Race truck", discipline: "pro" },
+  { id: "redline_pro_dirtbike", name: "Dirt bike", discipline: "pro" },
+  { id: "redline_pro_foodtruck", name: "Food trailer", discipline: "pro" },
+  { id: "redline_pro_foodvan", name: "Food truck", discipline: "pro" },
   { id: "redline_street_sports", name: "Sports coupe", discipline: "street" },
   { id: "redline_street_muscle", name: "Muscle car", discipline: "street" },
 ].map((c) => ({ ...c, model: `/cars/${c.id}.glb`, poster: `/cars/${c.id}.webp` }));
