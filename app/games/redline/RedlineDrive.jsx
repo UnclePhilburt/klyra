@@ -201,13 +201,16 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
 
       // Arcade physics
       const st = { x: 0, z: 0, h: 0, vx: 0, vz: 0, yaw: 0, steer: 0, si: 0, lap: 0, lapStart: 0, last: null, best: Number(localStorage.getItem(BEST_KEY)) || null, cp: 0, running: false, off: false, wheelSpin: 0, lapsDone: 0 };
-      function place(i) { const [x, z, ry] = at(i, 0); st.x = x; st.z = z; st.h = ry; st.vx = st.vz = st.yaw = 0; st.si = ((i % N) + N) % N; }
+      // Render state: physics runs at a fixed 120 Hz; visuals interpolate between the last two steps.
+      const R = { x: 0, z: 0, h: 0, roll: 0, rollV: 0 };
+      function place(i) { const [x, z, ry] = at(i, 0); st.x = x; st.z = z; st.h = ry; st.vx = st.vz = st.yaw = 0; st.si = ((i % N) + N) % N; st.px = x; st.pz = z; st.ph = ry; R.x = x; R.z = z; R.h = ry; }
       place(-10);
       resetRef.current = () => { // R: back onto the track at the nearest point, facing forward
         place(st.si); };
       function nearest() { let best = st.si, bd = Infinity; for (let k = -40; k <= 40; k++) { const i = (st.si + k + N) % N, p = pts[i], d = (p.x - st.x) ** 2 + (p.z - st.z) ** 2; if (d < bd) { bd = d; best = i; } } return best; }
       const MAXV = 46, ACC = 17, BRK = 34, REV = 9;
       function step(dt, now) {
+        st.px = st.x; st.pz = st.z; st.ph = st.h;
         const inp = input.current, go = st.running;
         const fx = Math.sin(st.h), fz = Math.cos(st.h);
         let vF = st.vx * fx + st.vz * fz, vL = st.vx * fz - st.vz * fx;
@@ -251,7 +254,7 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
         }
         st.wheelSpin += vF * dt / 0.36;
       }
-      window.__rlDrive = st; st.audio = () => audio.state(); st.N = N; window.__rlPts = pts.map((p) => [p.x, p.z]);
+      window.__rlDrive = st; st.camera = camera; st.audio = () => audio.state(); st.N = N; window.__rlPts = pts.map((p) => [p.x, p.z]);
 
       // camera
       const camPos = new THREE.Vector3(), look = new THREE.Vector3(), cd = Math.max(6.5, csz.z * 1.55), ch = Math.max(2.6, csz.y * 1.7);
@@ -267,28 +270,29 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
       const ew = new THREE.Vector3(), fw = new THREE.Vector3();
       function fpCam(dt) {
         const spd = Math.hypot(st.vx, st.vz);
-        bobT += dt * (4 + spd * 0.35);
-        const bob = Math.sin(bobT) * Math.min(0.012, spd * 0.0004) + (st.off ? Math.sin(bobT * 3.1) * Math.min(0.03, spd * 0.002) : 0);
+        bobT += dt * 1.2; // slow ~0.2 Hz sway, not a per-step bounce
+        const bob = Math.sin(bobT) * 0.0015 * Math.min(1, Math.max(0, (spd - 30) / 20));
         lean += (-st.yaw * Math.min(1, spd / 25) * 0.025 - lean) * Math.min(1, dt * 5);
         const fov = (camera.aspect < 1 ? 80 : 68) + Math.min(14, spd * 0.3); if (Math.abs(camera.fov - fov) > 0.05) { camera.fov += (fov - camera.fov) * Math.min(1, dt * 3); camera.updateProjectionMatrix(); }
-        ew.copy(eye); ew.y += bob; carObj.updateWorldMatrix(true, false); ew.applyMatrix4(carObj.matrixWorld);
+        const ch_ = Math.cos(R.h), sh_ = Math.sin(R.h);
+        ew.set(R.x + eye.x * ch_ + eye.z * sh_, eye.y + bob, R.z - eye.x * sh_ + eye.z * ch_);
         camera.position.copy(ew);
-        fw.set(Math.sin(st.h), 0, Math.cos(st.h)); look.copy(ew).addScaledVector(fw, 20); look.y = ew.y - (camera.aspect < 1 ? 0.25 : 0.7);
-        camera.up.set(Math.cos(st.h) * lean, 1, -Math.sin(st.h) * lean).normalize(); camera.lookAt(look);
-        if (useShadow) { sun.position.set(st.x - 110, 64, st.z - 154); sun.target.position.set(st.x, 0, st.z); }
+        fw.set(sh_, 0, ch_); look.copy(ew).addScaledVector(fw, 20); look.y = ew.y - (camera.aspect < 1 ? 0.25 : 0.7);
+        camera.up.set(ch_ * lean, 1, -sh_ * lean).normalize(); camera.lookAt(look);
+        if (useShadow) { sun.position.set(R.x - 110, 64, R.z - 154); sun.target.position.set(R.x, 0, R.z); }
       }
       let camH = st.h;
       function cam(dt, snap) {
         if (fpMode) { fpCam(dt); return; }
         camera.up.set(0, 1, 0);
-        const spd = Math.hypot(st.vx, st.vz); let dh = st.h - camH; dh = Math.atan2(Math.sin(dh), Math.cos(dh)); camH += dh * (snap ? 1 : 1 - Math.exp(-dt * 4.5));
+        const spd = Math.hypot(st.vx, st.vz); let dh = R.h - camH; dh = Math.atan2(Math.sin(dh), Math.cos(dh)); camH += dh * (snap ? 1 : 1 - Math.exp(-dt * 4.5));
         const fov = (camera.aspect < 1 ? 72 : 58) + Math.min(10, spd * 0.22); if (Math.abs(camera.fov - fov) > 0.05) { camera.fov += (fov - camera.fov) * Math.min(1, dt * 3); camera.updateProjectionMatrix(); }
         const fx = Math.sin(camH), fz = Math.cos(camH);
-        const tx = st.x - fx * (cd + spd * 0.04), tz = st.z - fz * (cd + spd * 0.04);
+        const tx = R.x - fx * (cd + spd * 0.04), tz = R.z - fz * (cd + spd * 0.04);
         const k = snap ? 1 : 1 - Math.exp(-dt * 7);
         camera.position.set(camera.position.x + (tx - camera.position.x) * k, ch, camera.position.z + (tz - camera.position.z) * k);
-        look.set(st.x + Math.sin(st.h) * 5, 1.0, st.z + Math.cos(st.h) * 5); camera.lookAt(look);
-        if (useShadow) { sun.position.set(st.x - 110, 64, st.z - 154); sun.target.position.set(st.x, 0, st.z); }
+        look.set(R.x + Math.sin(camH) * 5, 1.0, R.z + Math.cos(camH) * 5); camera.lookAt(look);
+        if (useShadow) { sun.position.set(R.x - 110, 64, R.z - 154); sun.target.position.set(R.x, 0, R.z); }
       }
       function camOld(dt, snap) {
         const fx = Math.sin(st.h), fz = Math.cos(st.h);
@@ -306,9 +310,13 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
         raf = 0; if (document.hidden) { last = now; return; }
         const dt = Math.min(0.05, (now - last) / 1000); last = now;
         if (!st.running) { const left = 3 - Math.floor((now - t0) / 800); if (left <= 0) { st.running = true; st.lap = 0; startAt = now; setPhase("run"); setCount(0); } else setCount(left); }
-        acc += dt; while (acc > 1 / 120) { step(1 / 120, now); acc -= 1 / 120; }
-        carRoot.position.set(st.x, 0, st.z); carRoot.rotation.y = st.h;
-        carObj.rotation.z = -st.yaw * 0.025 * Math.min(1, Math.hypot(st.vx, st.vz) / 20);
+        acc += dt; while (acc >= 1 / 120) { step(1 / 120, now); acc -= 1 / 120; }
+        const al = acc * 120, px = st.px ?? st.x, pz = st.pz ?? st.z, ph = st.ph ?? st.h; let dhh = st.h - ph; dhh = Math.atan2(Math.sin(dhh), Math.cos(dhh));
+        R.x = px + (st.x - px) * al; R.z = pz + (st.z - pz) * al; R.h = ph + dhh * al;
+        // body roll: critically damped spring toward a small target (no oscillation)
+        const rollT = -st.yaw * 0.02 * Math.min(1, Math.hypot(st.vx, st.vz) / 20), wn = 6;
+        R.rollV += (wn * wn * (rollT - R.roll) - 2 * wn * R.rollV) * dt; R.roll += R.rollV * dt;
+        carRoot.position.set(R.x, 0, R.z); carRoot.rotation.y = R.h; carObj.rotation.z = R.roll;
         wheels.forEach((w) => { w.rotation.x = st.wheelSpin; }); front.forEach((w) => { w.rotation.y = st.steer * 0.45; });
         cam(dt); sky.position.copy(camera.position);
         audio.update(st, input.current, dt);
