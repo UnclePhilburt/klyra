@@ -10,7 +10,7 @@ const F = [
   ["AI racing", "Racing lines, overtaking, collision avoidance and adjustable difficulty, filling empty grid positions."],
   ["Race modes", "Quick Race, Time Trial and Multiplayer Race are the targets for the first Redline Pro release."],
   ["Redline Street", "Urban environments, night racing, highway and sprint races, drifting, customization, performance upgrades and street reputation."],
-  ["Real car models", "The cars in Vehicles are the in-development game models, with opening panels."],
+  ["Real car models", "The cars in the Garage are the in-development game models, with opening panels."],
 ];
 
 export default function RedlineFeatures() {

@@ -8,7 +8,7 @@ export default function VehiclePage({ slug }) {
     <main className="kx3d">
       <RevealRoot />
       <section className="kx3dHead">
-        <p className="tag" data-reveal><a href="/arsenal/">&larr; Back to the arsenal</a></p>
+        <p className="tag" data-reveal><a href="/games/broken-front/arsenal/">&larr; Back to the arsenal</a></p>
         <h1 data-reveal>{v.name}<span>.</span></h1>
         <p className="lead" data-reveal>{v.kind}. Drag to look around.</p>
       </section>
@@ -19,7 +19,7 @@ export default function VehiclePage({ slug }) {
             <span className="kx3dTeam">{v.kind}</span>
             <h2>{v.name}</h2>
             <p>{v.copy}</p>
-            <a className="button ghost" href="/arsenal/">Back to the arsenal</a>
+            <a className="button ghost" href="/games/broken-front/arsenal/">Back to the arsenal</a>
           </div>
         </article>
       </section>

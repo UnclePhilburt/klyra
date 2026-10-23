@@ -19,7 +19,7 @@ export default function Weapons() {
               <span className="kx3dTeam">{w.kind}</span>
               <h2>{w.name}</h2>
               <p>{w.copy}</p>
-              <a className="button ghost" href={`/weapons/${w.slug}/`}>View {w.name}</a>
+              <a className="button ghost" href={`/games/broken-front/weapons/${w.slug}/`}>View {w.name}</a>
             </div>
           </article>
         ))}

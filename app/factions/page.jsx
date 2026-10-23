@@ -20,7 +20,7 @@ export default function FactionsHub() {
               <span className="kx3dTeam">{f.team}</span>
               <h2>{f.name}</h2>
               <p>{f.hook}</p>
-              <a className="button ghost" href={`/factions/${f.slug}/`}>View {f.name}</a>
+              <a className="button ghost" href={`/games/broken-front/factions/${f.slug}/`}>View {f.name}</a>
             </div>
           </article>
         ))}

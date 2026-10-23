@@ -25,7 +25,8 @@ Ground rules: no invented dates, player counts, features or games. Nothing is de
 
 1. **Hero:** "KLYRA: One Platform. Endless Experiences." over real Broken Front media (trailer stills such as `/shots/trailer/*.jpg`, or the trailer). Badge "Free to play. Every KLYRA game." Primary CTA Download KLYRA; secondary Explore games.
 2. **Explore games:** large cards from the config (art, logo, title, one-line description, status badge, link). Order: Broken Front (flagship), Redline (In development), Social Hub.
-3. **Social Hub:** a place to meet friends and move between experiences. Soccer, boxing and TDM are **casual, unfinished minigames** in the hub (confirmed by Cody), so describe them only casually ("kick a ball around, box your friends"), never as polished modes or headline features. No "play now" until it ships.
+3. **Social Hub:** available today (confirmed by Cody): hang out with friends and move between games. Soccer, boxing and TDM are casual, half-finished minigames, so describe them only casually ("kick a ball around, box your friends"), never as polished modes or headline features.
+3b. **Music:** TROY (The Reality of Yourself), official soundtrack partner, shown as KLYRA-wide music ("across every KLYRA game"). Links to Spotify, YouTube and the official store. No autoplay. Also kept on the Broken Front page.
 4. **Platform features:** one account, one download, friends, universal skins (skins on your KLYRA account). Only what exists today, or with the existing wording Cody approved.
 5. **Latest news:** cards from the unified news data, tagged by game (BF, Redline, Platform), linking to `/news/`.
 6. **Community:** link to `/community/` (existing channels).
@@ -71,7 +72,7 @@ Redirects should be Cloudflare Pages `_redirects` 301s (server-side). The existi
 | Overview | Hero, two disciplines, model counts | yes |
 | Pro | Professional circuit racing + Pro car renders | yes |
 | Street | Underground street racing + Street car renders | yes |
-| Vehicles | 3D viewer (today's "Garage") | yes |
+| Garage | 3D viewer. Canonical `/games/redline/garage/`; `/games/redline/vehicles/` is an alias and 301s to it | yes |
 | Tracks | No real track content yet | **no** (hidden) |
 | Media | Car renders labelled "Model render" | yes |
 | Roadmap | 8 phases from `REDLINE_VISION.md`, all Planned | yes |
@@ -122,9 +123,13 @@ It drives `/games/`, the homepage cards, the game switcher, the sitemap and each
 - **D:** homepage hub sections (Social Hub wording once confirmed, Latest News, Community). BF roadmap moves to the shared component.
 - **E:** game switcher dropdown, JSON-LD, per-game OG images.
 
-## Open questions for Cody
-1. Social Hub: Cody confirmed soccer, boxing and TDM are casual, unfinished minigames, so they are described casually. Still open: is the hub itself (meeting friends, moving between experiences) available to players today?
-2. Redline is already public on klyra.lol (`/games/redline/`, with the Games nav and sitemap). Keep it public, or noindex it until announced?
-3. Should Store stay in the top nav, given the spec's global nav doesn't list it?
-4. Rename Redline "Garage" to "Vehicles" (per the spec)? The preview uses Vehicles and keeps `/garage/` working.
-5. Approve switching BF canonicals to `/games/broken-front/*` and adding 301s (Phases B and C)?
+## Decisions (Cody, 22 Oct 2026)
+1. The Social Hub is available today; the minigames stay casual.
+2. Redline stays public and indexed.
+3. Store stays in the top nav (global nav: logo, Games, News, Community, Store, Friends, Support, Account, Download KLYRA).
+4. Redline keeps the name "Garage".
+5. Approved: `/games/broken-front/*` is canonical. Old BF URLs 301 via `public/_redirects` (Phases B and C done on the `game-sections` branch). Download, purchase, account and auth URLs are not redirected. Internal links and the sitemap use the new URLs.
+6. TROY music appears on the homepage as KLYRA-wide music, and stays on BF.
+
+## Still open
+- The "200 bots" stat on BF Features is unconfirmed (left as is).

@@ -29,14 +29,14 @@ export default function Arsenal() {
       <section id="weapons" className="kx3dSection">
         <p className="tag" data-reveal>Weapons</p>
         <div className="kx3dGrid three">
-          {weapons.map((w, i) => <Card key={w.slug} item={w} base="/weapons/" i={i} />)}
+          {weapons.map((w, i) => <Card key={w.slug} item={w} base="/games/broken-front/weapons/" i={i} />)}
         </div>
       </section>
       <div className="kxHazard" aria-hidden="true" />
       <section id="vehicles" className="kx3dSection">
         <p className="tag" data-reveal>Vehicles</p>
         <div className="kx3dGrid three">
-          {vehicles.map((v, i) => <Card key={v.slug} item={v} base="/vehicles/" i={i} />)}
+          {vehicles.map((v, i) => <Card key={v.slug} item={v} base="/games/broken-front/vehicles/" i={i} />)}
         </div>
       </section>
     </main>

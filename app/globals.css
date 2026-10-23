@@ -2557,3 +2557,19 @@ a.rlDisc.street:hover{box-shadow:0 30px 70px -30px rgba(24,200,255,.6)}
 .nwCard em{font-style:normal;color:var(--acc);font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
 .nwCard small{color:#8a94a0}.nwCard strong{font-size:20px;line-height:1.25}
 .nwEmpty{max-width:1100px;margin:0 auto;color:#8a94a0}
+.mMusic{max-width:1100px;margin:0 auto clamp(70px,9vw,120px);padding:0 22px;display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(24px,4vw,56px);align-items:center}
+.mMusicArt{position:relative;border-radius:22px;overflow:hidden;aspect-ratio:4/3;border:1px solid rgba(255,255,255,.08)}
+.mMusicArt img{width:100%;height:100%;object-fit:cover;filter:grayscale(.4) brightness(.6)}
+.mMusicArt::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(30,200,255,.25),rgba(122,92,255,.2) 60%,transparent)}
+.mMusicBars{position:absolute;left:0;right:0;bottom:0;height:40%;display:flex;align-items:flex-end;gap:4px;padding:0 18px 18px;z-index:1}
+.mMusicBars i{flex:1;border-radius:3px;background:#1ec8ff;opacity:.75;height:calc(20% + (var(--i) * 37 % 70) * 1%);animation:mBar 1.6s ease-in-out infinite alternate;animation-delay:calc(var(--i) * -0.13s)}
+@keyframes mBar{to{transform:scaleY(.35)}}
+.mMusicBars i{transform-origin:bottom}
+.mMusicCopy h2{margin:0 0 10px;font-size:clamp(40px,5vw,72px);letter-spacing:-.02em;line-height:.95;color:#fff;text-transform:none}
+.mMusicCopy h2 span{display:block;font-size:.38em;letter-spacing:.04em;color:#9fe9ff;margin-top:10px}
+.mMusicCopy > p:not(.mSoloTag){color:#9aa6b4;font-size:clamp(16px,1.3vw,19px);margin:0 0 22px}
+.mMusicLinks{display:flex;flex-wrap:wrap;gap:10px}
+.mMusicLinks a{padding:11px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.04);color:#eef2f6;text-decoration:none;font-weight:700;font-size:14px;transition:background .2s,border-color .2s}
+.mMusicLinks a:hover{border-color:#1ec8ff;background:rgba(30,200,255,.12)}
+@media (max-width:860px){.mMusic{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.mMusicBars i{animation:none}}

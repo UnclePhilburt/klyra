@@ -1,0 +1,20 @@
+# Broken Front moved under /games/broken-front/ (301). Download, store, support, account and auth URLs are NOT redirected.
+/features /games/broken-front/features/ 301
+/features/ /games/broken-front/features/ 301
+/roadmap /games/broken-front/roadmap/ 301
+/roadmap/ /games/broken-front/roadmap/ 301
+/arsenal /games/broken-front/arsenal/ 301
+/arsenal/ /games/broken-front/arsenal/ 301
+/devlog /games/broken-front/devlog/ 301
+/devlog/ /games/broken-front/devlog/ 301
+/factions /games/broken-front/factions/ 301
+/factions/ /games/broken-front/factions/ 301
+/weapons /games/broken-front/weapons/ 301
+/weapons/ /games/broken-front/weapons/ 301
+/vehicles /games/broken-front/vehicles/ 301
+/vehicles/ /games/broken-front/vehicles/ 301
+/factions/* /games/broken-front/factions/:splat 301
+/weapons/* /games/broken-front/weapons/:splat 301
+/vehicles/* /games/broken-front/vehicles/:splat 301
+/games/redline/vehicles/ /games/redline/garage/ 301
+/games/redline/vehicles /games/redline/garage/ 301

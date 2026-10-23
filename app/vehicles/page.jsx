@@ -10,7 +10,7 @@ function Card({ v, i }) {
         <span className="kx3dTeam">{v.kind}</span>
         <h2>{v.name}</h2>
         <p>{v.copy}</p>
-        <a className="button ghost" href={`/vehicles/${v.slug}/`}>View {v.name}</a>
+        <a className="button ghost" href={`/games/broken-front/vehicles/${v.slug}/`}>View {v.name}</a>
       </div>
     </article>
   );

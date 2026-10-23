@@ -141,7 +141,7 @@ export default function RoadmapPage() {
         </p>
         <div className={styles.actions}>
           <a className="button huge" href="/play/">Play the pre-alpha</a>
-          <a className="button ghost huge" href="/devlog/">Read the devlog</a>
+          <a className="button ghost huge" href="/games/broken-front/devlog/">Read the devlog</a>
         </div>
       </section>
     </main>

@@ -5,7 +5,7 @@ export const metadata = { alternates: { canonical: "https://klyra.lol/" } };
 const games = [
   { key: "bf", name: "Broken Front", tag: "Flagship · Free to play", pitch: "Free-to-play military shooter. Pre-alpha.", img: "/shots/trailer/tanks.jpg", href: "/games/broken-front/", cta: "Play" },
   { key: "rl", name: "Redline", tag: "In development", pitch: "Pro and Street racing. Car previews only.", img: "/cars/redline_pro_touring.webp", href: "/games/redline/", cta: "Preview" },
-  { key: "hub", name: "Social Hub", tag: "Part of the platform", pitch: "Hang out with friends. Kick a ball around, box your friends.", img: null, href: "/games/", cta: "All games" },
+  { key: "hub", name: "Social Hub", tag: "Available now", pitch: "Hang out with friends and move between games. Casual minigames too: kick a ball around, box your friends.", img: null, href: "/games/", cta: "All games" },
 ];
 
 const Icon = ({ d }) => (
@@ -59,6 +59,23 @@ export default function Home() {
               </span>
             </a>
           ))}
+        </div>
+      </section>
+
+      <section className="mMusic mReveal" aria-labelledby="m-music">
+        <div className="mMusicArt">
+          <img src="/shots/trailer/squad.jpg" alt="" loading="lazy" decoding="async" />
+          <span className="mMusicBars" aria-hidden="true">{Array.from({ length: 24 }, (_, i) => <i key={i} style={{ "--i": i }} />)}</span>
+        </div>
+        <div className="mMusicCopy">
+          <p className="mSoloTag">Official soundtrack partner</p>
+          <h2 id="m-music">TROY <span>The Reality of Yourself</span></h2>
+          <p>The music of KLYRA, across every KLYRA game.</p>
+          <div className="mMusicLinks">
+            <a href="https://open.spotify.com/artist/0ZcBV5wpdzrQOKuC7hUGQs?si=44Oq1W4LQHeqPBMm8DKFaw" target="_blank" rel="noreferrer">Listen on Spotify ↗</a>
+            <a href="https://www.youtube.com/channel/UC_tSPmI8_iRieBMvpWvtpFg" target="_blank" rel="noreferrer">Watch on YouTube ↗</a>
+            <a href="https://www.store.therealityofyourself.com/" target="_blank" rel="noreferrer">Official store ↗</a>
+          </div>
         </div>
       </section>
 

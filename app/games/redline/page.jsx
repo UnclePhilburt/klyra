@@ -17,7 +17,7 @@ export default function RedlinePage() {
         <h1><span>KLYRA:</span> Redline</h1>
         <p className="rlLead">A racing game in two disciplines: Redline Pro, professional circuit racing, and Redline Street, underground street racing.</p>
         <div className="rlHeroActions">
-          <a className="rlBtn" href="/games/redline/vehicles/">Explore the cars</a>
+          <a className="rlBtn" href="/games/redline/garage/">Enter the garage</a>
           <a className="rlBtn ghost" href="/games/redline/roadmap/">Roadmap</a>
         </div>
         <img className="rlHeroCar" src="/cars/redline_pro_touring.webp" alt="" width="640" height="360" />

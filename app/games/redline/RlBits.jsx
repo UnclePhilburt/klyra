@@ -16,7 +16,7 @@ export function RedlineSubPage({ title, lead, className = "", children }) {
 export function CarGrid({ discipline }) {
   const items = redlineCars.filter((c) => !discipline || c.discipline === discipline).map((c) => ({
     src: c.poster, title: c.name, kicker: c.discipline === "pro" ? "Redline Pro" : "Redline Street",
-    href: `/games/redline/vehicles/?car=${c.id}`, tone: c.discipline, label: "Model render",
+    href: `/games/redline/garage/?car=${c.id}`, tone: c.discipline, label: "Model render",
   }));
   return <MediaGallery items={items} className="rlMedia" />;
 }

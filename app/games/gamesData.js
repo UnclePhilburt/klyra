@@ -49,7 +49,7 @@ export const games = [
       { id: "features", label: "Features", href: "/games/redline/features/", active: true },
       { id: "pro", label: "Pro", href: "/games/redline/pro/", active: true },
       { id: "street", label: "Street", href: "/games/redline/street/", active: true },
-      { id: "vehicles", label: "Vehicles", href: "/games/redline/vehicles/", active: true },
+      { id: "garage", label: "Garage", href: "/games/redline/garage/", active: true },
       { id: "tracks", label: "Tracks", href: "/games/redline/tracks/", active: false }, // no real track content yet
       { id: "media", label: "Media", href: "/games/redline/media/", active: true },
       { id: "roadmap", label: "Roadmap", href: "/games/redline/roadmap/", active: true },

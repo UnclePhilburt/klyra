@@ -16,11 +16,11 @@ const pages = [
 const morePages = [
   ["Friends", "/friends/"],
   ["Broken Front", "/games/broken-front/"],
-  ["Features", "/features/"],
-  ["Factions", "/factions/"],
-  ["Arsenal", "/arsenal/"],
-  ["Roadmap", "/roadmap/"],
-  ["Devlog", "/devlog/"],
+  ["Features", "/games/broken-front/features/"],
+  ["Factions", "/games/broken-front/factions/"],
+  ["Arsenal", "/games/broken-front/arsenal/"],
+  ["Roadmap", "/games/broken-front/roadmap/"],
+  ["Devlog", "/games/broken-front/devlog/"],
   ["Browser play", "/play/"],
   ["Support Broken Front", "/support/"],
 ];
@@ -89,7 +89,7 @@ export default function SiteNav() {
 
   const isActive = (href) => {
     if (href === "/") return pathname === "/";
-    if (href === "/arsenal/") return ["/arsenal", "/weapons", "/vehicles"].some((p) => pathname?.startsWith(p));
+    if (href === "/games/broken-front/arsenal/") return ["/games/broken-front/arsenal", "/games/broken-front/weapons", "/games/broken-front/vehicles"].some((p) => pathname?.startsWith(p));
     return pathname?.startsWith(href);
   };
 

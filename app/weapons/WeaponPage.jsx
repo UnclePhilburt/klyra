@@ -8,7 +8,7 @@ export default function WeaponPage({ slug }) {
     <main className="kx3d">
       <RevealRoot />
       <section className="kx3dHead">
-        <p className="tag" data-reveal><a href="/arsenal/">&larr; Back to the arsenal</a></p>
+        <p className="tag" data-reveal><a href="/games/broken-front/arsenal/">&larr; Back to the arsenal</a></p>
         <h1 data-reveal>{w.name}<span>.</span></h1>
         <p className="lead" data-reveal>{w.kind}. Drag to turn it over.</p>
       </section>
@@ -30,7 +30,7 @@ export default function WeaponPage({ slug }) {
           <div><h3>Optics</h3><ul>{optics.map((o) => <li key={o}>{o}</li>)}</ul></div>
           <div><h3>Foregrips</h3><ul>{grips.map((g) => <li key={g}>{g}</li>)}</ul></div>
         </div>
-        <p data-reveal><a className="button ghost" href="/arsenal/">Back to the arsenal</a></p>
+        <p data-reveal><a className="button ghost" href="/games/broken-front/arsenal/">Back to the arsenal</a></p>
       </section>
     </main>
   );
