@@ -16,20 +16,20 @@ export const metadata = {
   metadataBase: new URL("https://klyra.lol"),
   title: "KLYRA · Every KLYRA game. One home.",
   description:
-    "KLYRA is the home of KLYRA's own games: KLYRA: Broken Front, KLYRA: Redline (in development) and the Social Hub. Free to play. Every KLYRA game. One account, one download.",
+    "KLYRA is a growing collection of free-to-play games, connected by one account, one download, one store and one social hub.",
   openGraph: {
     title: "KLYRA · Every KLYRA game. One home.",
-    description: "Free to play. Every KLYRA game. One account, one download.",
+    description: "Free to play. Every KLYRA game. One account, one store, one social hub.",
     url: "https://klyra.lol",
     siteName: "KLYRA",
     type: "website",
-    images: [{ url: "/shots/trailer/hero.jpg", width: 1600, height: 900, alt: "KLYRA: Broken Front battlefield" }],
+    images: [{ url: "/og/klyra-og.png", width: 1200, height: 630, alt: "KLYRA. Every KLYRA game. One home." }],
   },
   twitter: {
     card: "summary_large_image",
     title: "KLYRA · Every KLYRA game. One home.",
     description: "Free to play. Every KLYRA game.",
-    images: ["/shots/trailer/hero.jpg"],
+    images: ["/og/klyra-og.png"],
   },
   icons: { icon: [{ url: "/brand/klyra-favicon.svg", type: "image/svg+xml" }, { url: "/brand.png" }] },
 };

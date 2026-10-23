@@ -16,6 +16,10 @@ export default function Home() {
   return (
     <main className="kxHome mHome">
       <HomeReveal />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@graph": [
+        { "@type": "Organization", name: "KLYRA", url: "https://klyra.lol/", logo: "https://klyra.lol/brand/klyra-wordmark.svg" },
+        { "@type": "WebSite", name: "KLYRA", url: "https://klyra.lol/", description: "Free-to-play KLYRA games, connected by one account, one store and one social hub." },
+      ] }) }} />
       <section className="mHero" aria-labelledby="m-title">
         <div className="mMesh" aria-hidden="true"><i /><i /><i /></div>
         <div className="mGrid" aria-hidden="true" />
@@ -94,7 +98,7 @@ export default function Home() {
       <section className="mSolo mReveal" aria-labelledby="m-solo">
         <p className="mSoloTag">Independently developed</p>
         <h2 id="m-solo">One developer.</h2>
-        <p>KLYRA is built by an independent developer. KLYRA: Broken Front is a solo-developed military sandbox built around large-scale warfare, player freedom, and an evolving battlefield.</p>
+        <p>KLYRA is built by one independent developer: a growing collection of free-to-play games connected by one account, one store and one social hub.</p>
       </section>
 
       <section className="mOutro mReveal" aria-label="Get KLYRA">
