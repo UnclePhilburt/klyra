@@ -69,3 +69,12 @@ Total parts GLBs: 13.1 MB across 16 cars (each loaded only on demand). Thumbnail
 ## Rebuild
 
 `/workspace/cars/czall.sh` (cz.py per car) then `czthumb.py` for thumbnails; copy `out/cz_<id>.{glb,json}` to `public/cars/custom/`.
+
+## Test drive (website mini preview)
+
+- **Test drive** button on the garage stage opens a fullscreen overlay (`app/games/redline/RedlineDrive.jsx`, code-split, loaded only on click). Exit / Esc returns to the garage with the build untouched; the garage render loop pauses while driving.
+- Uses the visitor's car: same GLB (custom GLB with the build when the customizer is open, else stock), parts, wheels and paint scheme.
+- Track: procedural ~1.1 km closed Catmull-Rom loop (asphalt, red/white kerbs, run-off) dressed with instanced Synty props from `/cars/track/kit.glb` (480 KB, Draco + WebP; built by `/workspace/cars/trackkit.py` from FBXs in `/workspace/cars-src/road`): concrete striped barriers (straights), tyre barriers (bends), tyre stacks, cones, starting line and grid, gantry, grandstands, pit wall, lights, trees.
+- Arcade physics (custom, 120 Hz fixed step): throttle/brake/reverse, speed-sensitive steering, lateral grip decay (handbrake = drift), off-track slowdown, wall push-back. Lap = cross start line after two checkpoints; best lap in `localStorage["klyra.redline.testdrive.best"]`.
+- Controls: WASD/arrows, Space handbrake, R reset, Esc exit; touch: ◀ ▶ bottom-left, Gas/Brake bottom-right.
+- Perf: no shadow maps (blob shadow), pixel ratio cap 1.25 mobile / 1.75 desktop, no AA on mobile, fog, rAF stops when the tab is hidden.

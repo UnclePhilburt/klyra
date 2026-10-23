@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+
+const RedlineDrive = dynamic(() => import("./RedlineDrive"), { ssr: false });
 
 // Paint schemes = the Synty Pro/Street Racer alt materials used in the Unity project (see docs/REDLINE_CUSTOMIZATION.md).
 // Each is a full atlas swap on the "paint" material, loaded lazily from /cars/paint/<id>.webp.
@@ -44,6 +47,7 @@ export default function RedlineViewer({ cars }) {
   const hsLayer = useRef(null);
   const popRef = useRef(null);
   const [pop, setPop] = useState(null);
+  const [driving, setDriving] = useState(false);
 
   useEffect(() => {
     let disposed = false;
@@ -233,7 +237,7 @@ export default function RedlineViewer({ cars }) {
       let frames = 0, fpsStart = performance.now();
       function loop(now) {
         raf = 0;
-        if (!visible || document.hidden) return;
+        if (!visible || document.hidden || api.current?.paused) return;
         tweens = tweens.filter((t) => { const p = Math.min(1, (now - t.start) / t.ms); t.obj[t.prop][t.axis] = t.from + (t.to - t.from) * ease(p); return p < 1; });
         if (camFly) { const p = Math.min(1, (now - camFly.start) / camFly.ms), e = ease(p); camera.position.lerpVectors(camFly.from, camFly.to, e); controls.target.lerpVectors(camFly.tf, camFly.tt, e); if (p >= 1) camFly = null; }
         if (!reduce && wheelT < 0 && now > nextWheel && controls.autoRotate) wheelT = now;
@@ -248,7 +252,7 @@ export default function RedlineViewer({ cars }) {
         raf = requestAnimationFrame(loop);
       }
       raf = requestAnimationFrame(loop);
-      api.current = { show, applyBuild, resetAnchors: () => { anchors = null; }, stopSpin: () => { controls.autoRotate = false; }, toggle, detach, view, applyPaint, applyRim, applyXray, paint: urlPaint(), rim: null, xray: false };
+      api.current = { resume: () => { if (!raf) raf = requestAnimationFrame(loop); }, show, applyBuild, resetAnchors: () => { anchors = null; }, stopSpin: () => { controls.autoRotate = false; }, toggle, detach, view, applyPaint, applyRim, applyXray, paint: urlPaint(), rim: null, xray: false };
       const qs = new URLSearchParams(window.location.search), want = qs.get("car");
       if (qs.has("parts") && want && cars.find((c) => c.id === want)?.custom) { czRef.current.on = true; setCz(true); }
       show(want && cars.some((c) => c.id === want) ? want : cars[0].id);
@@ -396,6 +400,8 @@ export default function RedlineViewer({ cars }) {
             )}
           </div>
         ) : null}
+        {!loading && !error ? <button type="button" className="rlDriveStart" onClick={() => { setPop(null); if (api.current) api.current.paused = true; setDriving(true); }}>Test drive</button> : null}
+        {driving ? <RedlineDrive car={car} build={cz && czData && !czData.error ? build : null} paint={paint} onExit={() => { setDriving(false); if (api.current) { api.current.paused = false; api.current.resume(); } }} /> : null}
         <p className="rlStageLabel"><b>{car.discipline === "pro" ? "Redline Pro" : "Redline Street"}</b>{car.name}</p>
       </div>
       <div className={`rlSheet ${sheet ? "open" : ""}`}>
