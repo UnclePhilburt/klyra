@@ -32,7 +32,7 @@ export const metadata = {
     description: "Free to play. Fight the front for The Regiment, Kin of the Hollow, or Blackline Group.",
     images: ["/shots/trailer/hero.jpg"],
   },
-  icons: { icon: "/brand.png" },
+  icons: { icon: [{ url: "/brand/klyra-favicon.svg", type: "image/svg+xml" }, { url: "/brand.png" }] },
 };
 
 export default function RootLayout({ children }) {

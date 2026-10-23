@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 8 312 84" role="img" aria-label="KLYRA">
+  <defs>
+    <linearGradient id="ks" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#1ec8ff" stop-opacity="0"/>
+      <stop offset=".45" stop-color="#e8fbff"/>
+      <stop offset="1" stop-color="#1ec8ff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="kg" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.6"/></filter>
+  </defs>
+  <g fill="#f2f4f7">
+    <path d="M0 20H15V80H0Z"/>
+    <path d="M47 20H65L27 58H15V50Z"/>
+    <path d="M30 51H44L66 80H48Z"/>
+    <path d="M74 20H89V67H116V80H74Z"/>
+    <path d="M118 20H135L148 41L161 20H178L155.5 54V80H140.5V54Z"/>
+    <path fill-rule="evenodd" d="M186 80V20H221C234 20 240 28 240 39C240 48 235 54 228 57L241 80H224L213 59H201V80ZM201 32V48H219C223.5 48 225.5 45 225.5 40C225.5 35 223.5 32 219 32Z"/>
+    <path d="M244 80L266 20H283L305 80H289L285.5 70H263.5L260 80ZM267.5 58H281.5L274.5 37Z" fill-rule="evenodd"/>
+  </g>
+  <path d="M62 14L14 88" stroke="#1ec8ff" stroke-width="5" filter="url(#kg)" opacity=".85"/>
+  <path d="M62 14L14 88" stroke="url(#ks)" stroke-width="1.8"/>
+</svg>

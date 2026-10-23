@@ -16,10 +16,9 @@ export default function SiteFooter() {
       <div className="kxFooterHazard" aria-hidden="true" />
       <div className="kxFooterInner">
         <div className="kxFooterBrand">
-          <img src="/brand.png" alt="" />
           <div>
-            <strong>Klyra: Broken Front</strong>
-            <p>Free to play &middot; Pre-alpha &middot; Built by an independent developer</p>
+            <img className="kxFooterWordmark" src="/brand/klyra-wordmark.svg" alt="KLYRA" width="290" height="78" />
+            <p>Home of KLYRA: Broken Front &middot; Free to play &middot; Pre-alpha &middot; Built by an independent developer</p>
           </div>
         </div>
         <nav className="kxFooterCols" aria-label="Site">
@@ -41,7 +40,7 @@ export default function SiteFooter() {
           </div>
         </nav>
       </div>
-      <p className="kxFooterBase">&copy; {new Date().getFullYear()} Klyra: Broken Front &middot; Pre-alpha. Everything you see can change.</p>
+      <p className="kxFooterBase">&copy; {new Date().getFullYear()} KLYRA &middot; KLYRA: Broken Front is in pre-alpha &middot; Pre-alpha. Everything you see can change.</p>
     </footer>
   );
 }

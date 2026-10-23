@@ -6,6 +6,7 @@ import { callsignOf } from "../session";
 import { useSession } from "../useSession";
 
 const pages = [
+  ["Games", "/games/"],
   ["Features", "/features/"],
   ["Factions", "/factions/"],
   ["Arsenal", "/arsenal/"],
@@ -93,9 +94,8 @@ export default function SiteNav() {
   return (
     <>
       <nav className={`kxNav${scrolled ? " scrolled" : ""}${menuOpen ? " menuOpen" : ""}`} aria-label="Main">
-        <a className="kxBrand" href="/" aria-label="Klyra Broken Front home">
-          <img src="/brand.png" alt="" />
-          <span>Klyra<em>Broken Front</em></span>
+        <a className="kxBrand kxBrandMark" href="/" aria-label="KLYRA home">
+          <img className="kxWordmark" src="/brand/klyra-wordmark.svg" alt="KLYRA" width="290" height="78" />
         </a>
 
         <div className="kxNavLinks">
