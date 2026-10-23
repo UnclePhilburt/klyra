@@ -2582,3 +2582,42 @@ a.rlDisc.street:hover{box-shadow:0 30px 70px -30px rgba(24,200,255,.6)}
 .mMusicViz .mMusicBars{height:34%;opacity:.8}
 .mMusicViz .mMusicBars i{background:linear-gradient(#7ee3ff,#1ec8ff);box-shadow:0 0 8px rgba(30,200,255,.6)}
 @media (prefers-reduced-motion:reduce){.mWaveSet{animation:none}}
+
+/* ===== Polish pass (pl): refinements only, no layout redesign ===== */
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+h1,h2,h3,h4{text-wrap:balance}
+p,li{text-wrap:pretty}
+::selection{background:rgba(30,200,255,.35);color:#fff}
+/* Consistent, visible keyboard focus in each identity */
+:where(a,button,[role="button"],[role="tab"],summary,input,select,textarea):focus-visible{outline:2px solid #1ec8ff;outline-offset:3px;border-radius:6px}
+:where(.kxF2PHero,.kxDlHero,.kxSupport,[class*="kxF2P"]) :where(a,button):focus-visible,.kxSecNav :where(a):focus-visible{outline-color:#d8b45a}
+:where(.rlPage,.rlViewer) :where(a,button):focus-visible{outline-color:#ff2d3d}
+/* Footer: KLYRA-level headings neutral, links get a calm hover */
+.kxFooterCols h2{color:rgba(232,236,244,.45)}
+.kxFooterCols a{transition:color .18s ease}
+.kxFooterBrand p,.kxFooterBase{color:rgba(232,236,244,.5)}
+/* BF hero: breathing room under the game sub-nav */
+.kxF2PHero{padding-top:clamp(120px,17vh,190px)}
+.kxF2PSupport em{white-space:nowrap}
+@media (max-width:520px){.kxF2PSupport{flex-wrap:wrap;row-gap:2px;padding:10px 14px 10px 12px}.kxF2PSupport span{flex:1 1 auto}.kxF2PSupport em{order:3;flex-basis:100%;padding-left:28px}}
+/* Store: masthead clears the fixed nav; lore uses the site typeface */
+.kgMast{padding-top:calc(max(10px, env(safe-area-inset-top)) + 96px)}
+.kgLore{font-family:inherit;font-style:normal;color:#aeb4bd;letter-spacing:.005em}
+/* News: cards get depth + hover consistent with home game cards */
+.nwCard{min-height:132px;box-shadow:0 1px 0 rgba(255,255,255,.04) inset}
+.nwCard:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--acc) 45%,transparent);box-shadow:0 18px 40px -22px color-mix(in srgb,var(--acc) 60%,transparent)}
+.nwCard h2,.nwCard h3{line-height:1.25}
+.nwTabs button{transition:background .18s,border-color .18s,color .18s}
+.nwTabs button:not(.on):hover{border-color:rgba(255,255,255,.3);color:#fff}
+/* Redline garage: whole car visible in picker thumbnails */
+.rlPickCard img{object-fit:contain;padding:4px 2px;background:radial-gradient(80% 70% at 50% 60%,#1a1c22,#0a0b0d)}
+/* Mobile rhythm */
+@media (max-width:520px){
+  .nwHead{padding-top:112px}
+  .nwGrid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.nwCard:hover{transform:none}}
+.rlPicker .rlPickCard[aria-selected="true"]{background:linear-gradient(180deg,#1c1013,#0e0f12);color:#fff}
+.rlPicker .rlPickGroup.street .rlPickCard[aria-selected="true"]{background:linear-gradient(180deg,#0f1a20,#0e0f12)}
+@media (max-width:520px){.nwCard{min-height:0}.nwTabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-left:-22px;margin-right:-22px;padding:0 22px}.nwTabs button{flex:0 0 auto}}
+.rlHead.rlHero{padding-top:clamp(28px,5vh,56px)}.rlHero .rlHeroActions{margin-top:28px}

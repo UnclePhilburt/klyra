@@ -66,7 +66,7 @@ export default function RedlineViewer({ cars }) {
       const draco = new DRACOLoader(); draco.setDecoderPath("/vendor/draco/");
       const loader = new GLTFLoader(); loader.setDRACOLoader(draco);
       const cache = new Map();
-      let car = null, nodes = {}, mats = {}, base = {}, tweens = [], wheelT = -1, nextWheel = 0;
+      let fit = 1, fitY = 0.6, car = null, nodes = {}, mats = {}, base = {}, tweens = [], wheelT = -1, nextWheel = 0;
 
       const resize = () => { const w = el.clientWidth, h = el.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w / h < 1 ? 58 : w / h < 1.4 ? 44 : 35; camera.updateProjectionMatrix(); };
       const ro = new ResizeObserver(resize); ro.observe(el); resize();
@@ -82,6 +82,10 @@ export default function RedlineViewer({ cars }) {
           if (disposed) return;
           if (car) scene.remove(car);
           car = gltf.scene; scene.add(car); nodes = {}; mats = {};
+          { const bx = new THREE.Box3().setFromObject(car), sz = bx.getSize(new THREE.Vector3());
+            fit = Math.max(1, Math.max(sz.z / 4.6, sz.y / 1.6, sz.x / 2.2)); fitY = Math.max(0.6, sz.y * 0.42);
+            ground.scale.set(fit, fit, 1); controls.maxDistance = 12 * fit;
+            if (!camFly) { camera.position.set(...VIEWS.front.map((v) => v * fit)); controls.target.set(0, fitY, 0); } }
           car.traverse((o) => {
             if (o.name) nodes[o.name] = o;
             if (o.isMesh) { const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach((m) => { mats[m.name] = m; if (!base[m.uuid]) base[m.uuid] = { color: m.color.clone(), opacity: m.opacity }; }); }
@@ -101,7 +105,7 @@ export default function RedlineViewer({ cars }) {
       function toggle(k, on) { const n = nodes[k]; if (!n) return; const [axis, ang] = HINGE[k]; tween(n, "rotation", axis, on ? ang : 0, 650); }
       function detach() { if (nodes.Wheel_FL && wheelT < 0) wheelT = performance.now(); }
       let camFly = null;
-      function view(name) { controls.autoRotate = false; camFly = { from: camera.position.clone(), to: new THREE.Vector3(...VIEWS[name]), tf: controls.target.clone(), tt: new THREE.Vector3(...TARGETS[name]), start: performance.now(), ms: 900 }; }
+      function view(name) { controls.autoRotate = false; camFly = { from: camera.position.clone(), to: new THREE.Vector3(...VIEWS[name]).multiplyScalar(name === "interior" ? 1 : fit), tf: controls.target.clone(), tt: new THREE.Vector3(...TARGETS[name]).setY(name === "interior" ? TARGETS[name][1] : Math.max(TARGETS[name][1], fitY)), start: performance.now(), ms: 900 }; }
 
       let visible = true, raf = 0;
       const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible && !raf) raf = requestAnimationFrame(loop); }, { threshold: 0.01 });
@@ -127,7 +131,8 @@ export default function RedlineViewer({ cars }) {
       }
       raf = requestAnimationFrame(loop);
       api.current = { show, toggle, detach, view, applyPaint, applyRim, applyXray, paint: null, rim: null, xray: false };
-      show(cars[0].id);
+      const want = new URLSearchParams(window.location.search).get("car");
+      show(want && cars.some((c) => c.id === want) ? want : cars[0].id);
       cleanup = () => { cancelAnimationFrame(raf); io.disconnect(); ro.disconnect(); document.removeEventListener("visibilitychange", onVis); controls.dispose(); renderer.dispose(); draco.dispose(); pmrem.dispose(); renderer.domElement.remove(); };
     })().catch(() => setError("3D viewer unavailable on this device."));
     return () => { disposed = true; cleanup(); };
