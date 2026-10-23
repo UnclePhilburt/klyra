@@ -22,7 +22,7 @@ const morePages = [
   ["Roadmap", "/games/broken-front/roadmap/"],
   ["Devlog", "/games/broken-front/devlog/"],
   ["Browser play", "/play/"],
-  ["Support Broken Front", "/support/"],
+  ["Support KLYRA", "/support/"],
 ];
 
 function AccountMark() {
@@ -164,7 +164,7 @@ export default function SiteNav() {
         <div className="kxDrawerCta">
           <a className="button huge" href="/download/" onClick={() => setMenuOpen(false)}>Download KLYRA</a>
           <a className="button ghost huge" href="/play/" onClick={() => setMenuOpen(false)}>Play free in browser</a>
-          <a className="kxDrawerSupport" href="/support/" onClick={() => setMenuOpen(false)}><i aria-hidden="true">&#9733;</i> Support Broken Front &middot; optional $4.99</a>
+          <a className="kxDrawerSupport" href="/support/" onClick={() => setMenuOpen(false)}><i aria-hidden="true">&#9733;</i> Support KLYRA &middot; optional $4.99</a>
         </div>
       </div>
     </>

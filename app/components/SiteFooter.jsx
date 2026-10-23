@@ -6,7 +6,7 @@ import { useSession } from "../useSession";
 const groups = [
   ["KLYRA", [["Games", "/games/"], ["Download KLYRA", "/download/"], ["Store", "/store/"], ["Friends", "/friends/"], ["Community", "/community/"]]],
   ["Broken Front", [["Overview", "/games/broken-front/"], ["Play in browser", "/play/"], ["Features", "/games/broken-front/features/"], ["Factions", "/games/broken-front/factions/"], ["Arsenal", "/games/broken-front/arsenal/"]]],
-  ["Development", [["Redline", "/games/redline/"], ["Roadmap", "/games/broken-front/roadmap/"], ["Devlog", "/games/broken-front/devlog/"], ["Support Broken Front", "/support/"]]],
+  ["Development", [["Redline", "/games/redline/"], ["Roadmap", "/games/broken-front/roadmap/"], ["Devlog", "/games/broken-front/devlog/"], ["Support KLYRA", "/support/"]]],
 ];
 
 export default function SiteFooter() {
