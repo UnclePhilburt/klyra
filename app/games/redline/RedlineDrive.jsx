@@ -9,6 +9,47 @@ const ROAD = 7.5, KERB = 8.8, WALL = 13.5, N = 1600;
 const fmt = (ms) => (ms == null || !isFinite(ms) ? "--:--.---" : `${Math.floor(ms / 60000)}:${String(Math.floor((ms / 1000) % 60)).padStart(2, "0")}.${String(Math.floor(ms % 1000)).padStart(3, "0")}`);
 const BEST_KEY = "klyra.redline.testdrive.best";
 
+// Engine/skid/impact audio from Realistic Car Controller Pro (Assets/Realistic Car Controller Pro/Audio), as small AAC loops.
+function makeAudio(set) {
+  const A = "/cars/track/audio/";
+  const bands = [["idle", 0, 0.05, 0.18], ["low", 0.08, 0.3, 0.5], ["med", 0.38, 0.6, 0.8], ["high", 0.68, 0.92, 1.2]];
+  let ctx = null, master = null, eng = [], skid = null, grass = null, buf = {}, muted = false, rpm = 0, gear = 1, lastImpact = 0, ready = false;
+  const load = async (n) => { const r = await fetch(A + n + ".m4a"); const ab = await r.arrayBuffer(); return new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej)); };
+  const loop = (b) => { const src = ctx.createBufferSource(); src.buffer = b; src.loop = true; const g = ctx.createGain(); g.gain.value = 0; src.connect(g); g.connect(master); src.start(); return { src, g }; };
+  const once = (b, vol) => { if (!b || muted) return; const src = ctx.createBufferSource(); src.buffer = b; const g = ctx.createGain(); g.gain.value = vol; src.connect(g); g.connect(master); src.start(); };
+  return {
+    async start() {
+      if (ctx) return; const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+      ctx = new AC(); master = ctx.createGain(); master.gain.value = muted ? 0 : 0.55; master.connect(ctx.destination);
+      try {
+        const names = [...bands.map(([b]) => `${set}-${b}`), "skid-asphalt", "skid-grass", "impact3", "exhaust-fire1"];
+        const bs = await Promise.all(names.map(load)); if (!ctx) return; names.forEach((n, i) => { buf[n] = bs[i]; });
+        eng = bands.map(([b]) => loop(buf[`${set}-${b}`])); skid = loop(buf["skid-asphalt"]); grass = loop(buf["skid-grass"]); ready = true;
+      } catch { ready = false; }
+    },
+    setMuted(m) { muted = m; if (master) master.gain.setTargetAtTime(m ? 0 : 0.55, ctx.currentTime, 0.05); },
+    update(st, inp, dt) {
+      if (!ready || !ctx) return;
+      if (ctx.state === "suspended") { if (!document.hidden) ctx.resume(); return; }
+      const t = ctx.currentTime, sp = Math.hypot(st.vx, st.vz);
+      // simple 6-speed box: rpm climbs within each gear and drops on upshift
+      const tops = [0, 9, 16, 23, 30, 38, 52]; let g = 1; while (g < 6 && sp > tops[g]) g++;
+      if (g > gear && st.running) once(buf["exhaust-fire1"], 0.3); gear = g;
+      const lo = tops[g - 1], hi = tops[g]; let target = Math.min(1, Math.max(0, (sp - lo) / (hi - lo))) * 0.75 + 0.2;
+      if (sp < 1.5) target = inp.up ? 0.35 : 0.03; target = Math.min(1, target + (inp.up ? 0.06 : -0.04));
+      rpm += (target - rpm) * Math.min(1, dt * 7);
+      const ld = inp.up ? 1 : 0.55;
+      bands.forEach(([, a, c, b], i) => { let w = rpm <= a || rpm >= b ? 0 : rpm < c ? (rpm - a) / (c - a) : 1 - (rpm - c) / (b - c); if (i === 0 && rpm < c) w = 1; const e = eng[i];
+        e.g.gain.setTargetAtTime(w * ld * 0.9, t, 0.04); e.src.playbackRate.setTargetAtTime(0.75 + ((rpm - a) / (b - a)) * 0.6, t, 0.04); });
+      const slip = st.slip || 0, sk = sp > 4 ? Math.min(1, Math.max(0, (slip - 2.2) / 6)) : 0;
+      skid.g.gain.setTargetAtTime(st.off ? 0 : sk * 0.7, t, 0.05); grass.g.gain.setTargetAtTime(st.off && sp > 3 ? Math.min(0.6, sp / 40) : 0, t, 0.08);
+      if (st.impact > 3 && t - lastImpact > 0.35) { once(buf.impact3, Math.min(1, st.impact / 14)); lastImpact = t; } st.impact = 0;
+    },
+    state() { return { ctx: ctx && ctx.state, ready, rpm: Math.round(rpm * 100) / 100 }; },
+    close() { try { if (ctx) ctx.close(); } catch {} ctx = null; ready = false; },
+  };
+}
+
 export default function RedlineDrive({ car, build, paint, onExit }) {
   const host = useRef(null);
   const input = useRef({ up: 0, down: 0, left: 0, right: 0, hb: 0 });
@@ -18,6 +59,13 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
   const [err, setErr] = useState("");
   const [touch, setTouch] = useState(false);
   const resetRef = useRef(() => {});
+  const camModeRef = useRef({ current: "fp" });
+  const [camMode, setCamMode] = useState("fp");
+  const toggleCam = () => setCamMode((m) => { const n = m === "fp" ? "chase" : "fp"; camModeRef.current.current = n; camModeRef.current.apply?.(n); return n; });
+  const [muted, setMuted] = useState(() => { try { return localStorage.getItem("klyra.redline.testdrive.muted") === "1"; } catch { return false; } });
+  const [armed, setArmed] = useState(false);
+  const audioRef = useRef(null);
+  if (!audioRef.current) audioRef.current = makeAudio(car.discipline === "pro" ? "fast" : "muscle");
 
   useEffect(() => { setTouch(window.matchMedia("(pointer: coarse)").matches || "ontouchstart" in window); }, []);
 
@@ -36,12 +84,23 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       el.appendChild(renderer.domElement);
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x16202b);
-      scene.fog = new THREE.Fog(0x16202b, 90, 260);
-      scene.add(new THREE.HemisphereLight(0xcfe9ff, 0x2a3a22, 1.25));
-      const sun = new THREE.DirectionalLight(0xffffff, 1.5); sun.position.set(60, 120, 40); scene.add(sun);
-      const camera = new THREE.PerspectiveCamera(62, 1, 0.3, 400);
-      const resize = () => { const w = el.clientWidth, h = el.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w / h < 1 ? 72 : 60; camera.updateProjectionMatrix(); };
+      // Late-afternoon look: gradient sky dome, warm sun, cool sky fill, horizon-matched fog.
+      const HORIZON = new THREE.Color(0xbfd6e3);
+      scene.fog = new THREE.Fog(HORIZON, 180, 760);
+      const sky = new THREE.Mesh(new THREE.SphereGeometry(600, 24, 12), new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false,
+        uniforms: { top: { value: new THREE.Color(0x2f6fb0) }, mid: { value: HORIZON }, sunDir: { value: new THREE.Vector3(-0.55, 0.32, -0.77).normalize() } },
+        vertexShader: "varying vec3 vP; void main(){ vP = normalize(position); vec4 p = modelViewMatrix * vec4(position,1.0); gl_Position = projectionMatrix * p; gl_Position.z = gl_Position.w * 0.9999; }",
+        fragmentShader: "uniform vec3 top; uniform vec3 mid; uniform vec3 sunDir; varying vec3 vP; void main(){ float h = clamp(vP.y,0.0,1.0); vec3 c = mix(mid, top, pow(h,0.55)); float s = max(dot(vP,sunDir),0.0); c += vec3(1.0,0.85,0.6)*(pow(s,10.0)*0.35 + pow(s,400.0)*1.4); if (vP.y < 0.0) c = mid; gl_FragColor = vec4(c,1.0); }" }));
+      sky.renderOrder = -1; sky.frustumCulled = false; scene.add(sky);
+      scene.add(new THREE.HemisphereLight(0xcfe6ff, 0x4a5a32, 1.15));
+      const sun = new THREE.DirectionalLight(0xfff1dc, 2.2); sun.position.set(-110, 64, -154); scene.add(sun); scene.add(sun.target);
+      const useShadow = !mobile;
+      if (useShadow) { renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024); const sc = sun.shadow.camera; sc.left = sc.bottom = -18; sc.right = sc.top = 18; sc.near = 1; sc.far = 300; sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.04; }
+      const canvasTex = (w, h, draw, rep) => { const c = document.createElement("canvas"); c.width = w; c.height = h; draw(c.getContext("2d"), w, h); const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; if (rep) t.repeat.set(rep[0], rep[1]); return t; };
+      const noise = (g, w, h, base, amp, n) => { g.fillStyle = base; g.fillRect(0, 0, w, h); for (let i = 0; i < n; i++) { const v = (Math.random() - 0.5) * amp; g.fillStyle = v > 0 ? `rgba(255,255,255,${v})` : `rgba(0,0,0,${-v})`; g.fillRect(Math.random() * w, Math.random() * h, 1 + Math.random() * 2, 1 + Math.random() * 2); } };
+      const camera = new THREE.PerspectiveCamera(62, 1, 0.3, 800);
+      const audio = audioRef.current;
+      const resize = () => { const w = el.clientWidth, h = el.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w / h < 1 ? 72 : 58; camera.updateProjectionMatrix(); };
       const ro = new ResizeObserver(resize); ro.observe(el); resize();
 
       // Centreline samples
@@ -52,22 +111,31 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
       const LEN = curve.getLength();
 
       // Ground + road ribbons
-      const ground = new THREE.Mesh(new THREE.PlaneGeometry(900, 900), new THREE.MeshLambertMaterial({ color: 0x3f6b35 }));
+      const grassTex = canvasTex(256, 256, (g, w, h) => { noise(g, w, h, "#5d8a3e", 0.22, 9000); for (let i = 0; i < 6; i++) { g.fillStyle = `rgba(${i % 2 ? "40,70,30" : "120,150,70"},.12)`; g.beginPath(); g.arc(Math.random() * w, Math.random() * h, 30 + Math.random() * 50, 0, 7); g.fill(); } }, [140, 140]);
+      const ground = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshLambertMaterial({ map: grassTex }));
+      ground.receiveShadow = useShadow;
       ground.rotation.x = -Math.PI / 2; ground.position.set(130, -0.02, 40); scene.add(ground);
-      function ribbon(a, b, y, color, stripe) {
-        const pos = [], col = [], idx = [], c1 = new THREE.Color(color), c2 = new THREE.Color(0xffffff);
+      const asphalt = canvasTex(256, 256, (g, w, h) => { noise(g, w, h, "#55595f", 0.16, 14000); });
+      const gravel = canvasTex(128, 128, (g, w, h) => noise(g, w, h, "#9c9384", 0.35, 5000));
+      function ribbon(a, b, y, color, stripe, map) {
+        const pos = [], col = [], idx = [], uv = [], c1 = new THREE.Color(color), c2 = new THREE.Color(0xf2f2f2);
         for (let i = 0; i <= N; i++) {
           const k = i % N, p = pts[k], n = nor[k], c = stripe && Math.floor(i / 6) % 2 ? c2 : c1;
-          for (const off of [a, b]) { pos.push(p.x + n.x * off, y, p.z + n.z * off); col.push(c.r, c.g, c.b); }
+          for (const off of [a, b]) { pos.push(p.x + n.x * off, y, p.z + n.z * off); col.push(c.r, c.g, c.b); uv.push(off === a ? 0 : Math.max(1, Math.round((b - a) / 4)), (i / N) * LEN / 4); }
           if (i < N) { const j = i * 2; idx.push(j, j + 2, j + 1, j + 1, j + 2, j + 3); }
         }
         const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3)); g.setIndex(idx); g.computeVertexNormals();
-        const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide })); scene.add(m); return m;
+        g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+        const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, map: map || null, side: THREE.DoubleSide })); m.receiveShadow = useShadow; scene.add(m); return m;
       }
-      ribbon(-ROAD, ROAD, 0.01, 0x3b3f46);
+      ribbon(-ROAD, ROAD, 0.01, 0xffffff, false, asphalt);
       ribbon(ROAD, KERB, 0.02, 0xd6262f, true); ribbon(-KERB, -ROAD, 0.02, 0xd6262f, true);
       ribbon(ROAD - 0.45, ROAD - 0.3, 0.015, 0xe8e8e8); ribbon(-ROAD + 0.3, -ROAD + 0.45, 0.015, 0xe8e8e8);
-      ribbon(KERB, WALL, 0.005, 0x5d5a52); ribbon(-WALL, -KERB, 0.005, 0x5d5a52);
+      ribbon(KERB, WALL + 1, 0.005, 0xffffff, false, gravel); ribbon(-WALL - 1, -KERB, 0.005, 0xffffff, false, gravel);
+      // Distant low-poly hills ring so the horizon is never an empty void.
+      { const hm = new THREE.MeshLambertMaterial({ color: 0x4d7048, flatShading: true }), hm2 = new THREE.MeshLambertMaterial({ color: 0x5f7a74, flatShading: true });
+        for (let i = 0; i < 26; i++) { const a = (i / 26) * Math.PI * 2 + Math.random() * 0.1, r = 330 + Math.random() * 90, hgt = 22 + Math.random() * 38;
+          const m = new THREE.Mesh(new THREE.ConeGeometry(60 + Math.random() * 50, hgt, 6 + (i % 3)), i % 3 ? hm : hm2); m.position.set(130 + Math.cos(a) * r, hgt / 2 - 4, 40 + Math.sin(a) * r); m.rotation.y = Math.random() * 3; scene.add(m); } }
 
       const draco = new DRACOLoader(); draco.setDecoderPath("/vendor/draco/");
       const loader = new GLTFLoader(); loader.setDRACOLoader(draco);
@@ -97,7 +165,8 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
       scatter("Prop_Barrier_Concrete_01_Striped_01", conc); scatter("Prop_Barrier_Tyres_01", tyres);
       // Start/finish: line, gantry, grid, lights, grandstand
       const S0 = 0;
-      { const [x, z, ry] = at(S0, 0); const line = prop.Env_RoadMarkings_StartingLine_01; if (line) { const m = line.clone(); m.position.set(x, 0.03, z); m.rotation.y = ry; m.scale.set(ROAD * 2 / 13.6, 1, 1); scene.add(m); }
+      { const [x, z, ry] = at(S0, 0); const chk = canvasTex(128, 16, (g) => { for (let i = 0; i < 16; i++) for (let j = 0; j < 2; j++) { g.fillStyle = (i + j) % 2 ? "#111" : "#f4f4f4"; g.fillRect(i * 8, j * 8, 8, 8); } }); chk.magFilter = THREE.NearestFilter;
+        const line = new THREE.Mesh(new THREE.PlaneGeometry(ROAD * 2, 1.6), new THREE.MeshLambertMaterial({ map: chk })); line.rotation.set(-Math.PI / 2, 0, ry); line.position.set(x, 0.03, z); line.receiveShadow = useShadow; scene.add(line);
         const g = prop.Prop_Gantry_01; if (g) { const m = g.clone(); m.position.set(x, 0, z); m.rotation.y = ry; m.scale.setScalar((WALL * 2 + 2) / 13.2); scene.add(m); } }
       const grid = []; for (let r = 1; r <= 3; r++) for (const s of [-3, 3]) { const [x, z, ry] = at(-r * 14 + (s > 0 ? 7 : 0), s); grid.push([x, z, ry]); } scatter("Env_RoadMarkings_StartingGrid_01", grid);
       { const [x, z, ry] = at(-60, -(WALL + 9)); const gs = prop.Bld_Grandstand_01; if (gs) { const m = gs.clone(); m.position.set(x, 0, z); m.rotation.y = ry - Math.PI / 2; scene.add(m); const [x2, z2] = at(-20, -(WALL + 9)); const m2 = m.clone(); m2.position.set(x2, 0, z2); scene.add(m2); } }
@@ -106,7 +175,7 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
       const stacks = [], cones = [], trees = [], trees2 = [], thin = [], lights = [];
       let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
       for (let i = 0; i < N; i += 40) { if (curv[i] > 0.2) { const side = tan[(i + 8) % N].clone().cross(tan[(i - 8 + N) % N]).y > 0 ? -1 : 1; const [x, z] = at(i, side * (WALL + 1.4)); stacks.push([x, z, rnd() * 6]); const [cx, cz] = at(i, side * (KERB + 0.8)); cones.push([cx, cz, 0]); } }
-      for (let i = 0; i < N; i += 22) { const side = rnd() > 0.5 ? 1 : -1, off = side * (WALL + 10 + rnd() * 30); const [x, z] = at(i, off); let ok = true; for (let j = 0; j < N; j += 8) if (Math.hypot(pts[j].x - x, pts[j].z - z) < WALL + 6) { ok = false; break; } if (ok) (rnd() < 0.4 ? trees : rnd() < 0.5 ? trees2 : thin).push([x, z, rnd() * 6, 0.8 + rnd() * 0.5]); }
+      for (let i = 0; i < N; i += 9) { const side = rnd() > 0.5 ? 1 : -1; const off = side * (WALL + 8 + rnd() * 55); const [x, z] = at(i, off); let ok = true; for (let j = 0; j < N; j += 8) if (Math.hypot(pts[j].x - x, pts[j].z - z) < WALL + 6) { ok = false; break; } if (ok) (rnd() < 0.4 ? trees : rnd() < 0.5 ? trees2 : thin).push([x, z, rnd() * 6, 0.8 + rnd() * 0.5]); }
       for (let i = 20; i < N; i += 110) { const [x, z, ry] = at(i, WALL + 2.2); lights.push([x, z, ry]); }
       scatter("Prop_Tyre_Stack_01", stacks); scatter("Prop_Cone_01", cones); scatter("Env_Tree_01", trees); scatter("Env_Tree_02", trees2); scatter("Env_Tree_Thin_01", thin); scatter("Prop_Light_01", lights);
 
@@ -121,6 +190,7 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
       if (paint && paintMat) new THREE.TextureLoader().loadAsync(`/cars/paint/${paint}.webp`).then((t) => { const o = paintMat.map; t.flipY = false; t.colorSpace = THREE.SRGBColorSpace; if (o) { t.magFilter = o.magFilter; t.minFilter = o.minFilter; } paintMat.map = t; paintMat.needsUpdate = true; }).catch(() => {});
       const bx = new THREE.Box3().setFromObject(carObj), csz = bx.getSize(new THREE.Vector3());
       const carRoot = new THREE.Group(); carRoot.add(carObj); scene.add(carRoot);
+      if (useShadow) carObj.traverse((o) => { if (o.isMesh) o.castShadow = true; });
       const wheels = ["Wheel_FL", "Wheel_FR", "Wheel_RL", "Wheel_RR"].map((k) => nodes[k]).filter(Boolean);
       const front = [nodes.Wheel_FL, nodes.Wheel_FR].filter(Boolean);
       wheels.forEach((w) => { w.rotation.order = "YXZ"; });
@@ -152,6 +222,7 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
         st.yaw += (yawTarget - st.yaw) * Math.min(1, dt * 6);
         st.h += st.yaw * dt;
         const grip = inp.hb && go ? 1.4 : st.off ? 5 : 7.5;
+        st.slip = Math.abs(vL);
         vL *= Math.exp(-grip * dt); if (inp.hb && go) vF -= vF * 0.6 * dt;
         const nfx = Math.sin(st.h), nfz = Math.cos(st.h);
         // velocity keeps some momentum sideways (drift), the rest follows the new heading
@@ -165,7 +236,7 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
         const lim = WALL - Math.max(csz.x, 1.6) * 0.5;
         if (Math.abs(lat) > lim) { // wall: push back, kill normal velocity, scrub speed
           const s = Math.sign(lat), push = Math.abs(lat) - lim; st.x -= n.x * s * push; st.z -= n.z * s * push;
-          const vn = st.vx * n.x + st.vz * n.z; if (vn * s > 0) { st.vx -= n.x * vn * 1.35; st.vz -= n.z * vn * 1.35; }
+          const vn = st.vx * n.x + st.vz * n.z; if (vn * s > 0) { st.impact = Math.max(st.impact || 0, Math.abs(vn)); st.vx -= n.x * vn * 1.35; st.vz -= n.z * vn * 1.35; }
           st.vx *= 1 - 1.5 * dt; st.vz *= 1 - 1.5 * dt;
         }
         // laps: checkpoints at 1/3, 2/3; crossing index 0 forward completes a lap
@@ -179,11 +250,46 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
         }
         st.wheelSpin += vF * dt / 0.36;
       }
-      window.__rlDrive = st; st.N = N; window.__rlPts = pts.map((p) => [p.x, p.z]);
+      window.__rlDrive = st; st.audio = () => audio.state(); st.N = N; window.__rlPts = pts.map((p) => [p.x, p.z]);
 
       // camera
       const camPos = new THREE.Vector3(), look = new THREE.Vector3(), cd = Math.max(6.5, csz.z * 1.55), ch = Math.max(2.6, csz.y * 1.7);
+      // First-person (default): eye at the driver's seat inside the built car; chase cam is optional (C).
+      const ctr = bx.getCenter(new THREE.Vector3());
+      const open = /kart|openwheeler|motorbike|dirtbike/.test(car.id);
+      const eye = new THREE.Vector3(open ? 0 : csz.x * 0.15, bx.min.y + csz.y * (open ? 0.95 : 0.8), ctr.z + csz.z * (open ? -0.1 : 0.005));
+      const glass = []; carObj.traverse((o) => { if (o.isMesh) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => { if (m.name === "glass" && !glass.includes(m)) glass.push(m); }); });
+      const setFp = (on) => { glass.forEach((m) => { m.transparent = true; m.opacity = on ? 0.1 : 0.6; m.needsUpdate = true; }); camera.near = on ? 0.03 : 0.3; camera.updateProjectionMatrix(); };
+      let fpMode = camModeRef.current.current === "fp"; setFp(fpMode);
+      camModeRef.current.apply = (m) => { fpMode = m === "fp"; setFp(fpMode); cam(0, true); };
+      let bobT = 0, lean = 0;
+      const ew = new THREE.Vector3(), fw = new THREE.Vector3();
+      function fpCam(dt) {
+        const spd = Math.hypot(st.vx, st.vz);
+        bobT += dt * (4 + spd * 0.35);
+        const bob = Math.sin(bobT) * Math.min(0.012, spd * 0.0004) + (st.off ? Math.sin(bobT * 3.1) * Math.min(0.03, spd * 0.002) : 0);
+        lean += (-st.yaw * Math.min(1, spd / 25) * 0.025 - lean) * Math.min(1, dt * 5);
+        const fov = (camera.aspect < 1 ? 80 : 68) + Math.min(14, spd * 0.3); if (Math.abs(camera.fov - fov) > 0.05) { camera.fov += (fov - camera.fov) * Math.min(1, dt * 3); camera.updateProjectionMatrix(); }
+        ew.copy(eye); ew.y += bob; carObj.updateWorldMatrix(true, false); ew.applyMatrix4(carObj.matrixWorld);
+        camera.position.copy(ew);
+        fw.set(Math.sin(st.h), 0, Math.cos(st.h)); look.copy(ew).addScaledVector(fw, 20); look.y = ew.y - (camera.aspect < 1 ? 0.25 : 0.7);
+        camera.up.set(Math.cos(st.h) * lean, 1, -Math.sin(st.h) * lean).normalize(); camera.lookAt(look);
+        if (useShadow) { sun.position.set(st.x - 110, 64, st.z - 154); sun.target.position.set(st.x, 0, st.z); }
+      }
+      let camH = st.h;
       function cam(dt, snap) {
+        if (fpMode) { fpCam(dt); return; }
+        camera.up.set(0, 1, 0);
+        const spd = Math.hypot(st.vx, st.vz); let dh = st.h - camH; dh = Math.atan2(Math.sin(dh), Math.cos(dh)); camH += dh * (snap ? 1 : 1 - Math.exp(-dt * 4.5));
+        const fov = (camera.aspect < 1 ? 72 : 58) + Math.min(10, spd * 0.22); if (Math.abs(camera.fov - fov) > 0.05) { camera.fov += (fov - camera.fov) * Math.min(1, dt * 3); camera.updateProjectionMatrix(); }
+        const fx = Math.sin(camH), fz = Math.cos(camH);
+        const tx = st.x - fx * (cd + spd * 0.04), tz = st.z - fz * (cd + spd * 0.04);
+        const k = snap ? 1 : 1 - Math.exp(-dt * 7);
+        camera.position.set(camera.position.x + (tx - camera.position.x) * k, ch, camera.position.z + (tz - camera.position.z) * k);
+        look.set(st.x + Math.sin(st.h) * 5, 1.0, st.z + Math.cos(st.h) * 5); camera.lookAt(look);
+        if (useShadow) { sun.position.set(st.x - 110, 64, st.z - 154); sun.target.position.set(st.x, 0, st.z); }
+      }
+      function camOld(dt, snap) {
         const fx = Math.sin(st.h), fz = Math.cos(st.h);
         const tx = st.x - fx * cd, tz = st.z - fz * cd;
         const k = snap ? 1 : 1 - Math.exp(-dt * 5);
@@ -203,7 +309,8 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
         carRoot.position.set(st.x, 0, st.z); carRoot.rotation.y = st.h;
         carObj.rotation.z = -st.yaw * 0.025 * Math.min(1, Math.hypot(st.vx, st.vz) / 20);
         wheels.forEach((w) => { w.rotation.x = st.wheelSpin; }); front.forEach((w) => { w.rotation.y = st.steer * 0.45; });
-        cam(dt);
+        cam(dt); sky.position.copy(camera.position);
+        audio.update(st, input.current, dt);
         renderer.render(scene, camera);
         if (now - hudT > 100) { hudT = now; setHud({ lap: st.lap, cur: st.lap > 0 ? now - st.lapStart : null, last: st.last, best: st.best, kmh: Math.round(Math.hypot(st.vx, st.vz) * 3.6), off: st.off }); el.dataset.si = String(st.si); }
         raf = requestAnimationFrame(loop);
@@ -215,11 +322,19 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
     })().catch((e) => { if (!disposed) setErr("Could not start the test drive on this device."); });
     return () => { disposed = true; cleanup(); };
   }, [car, build, paint]);
+  useEffect(() => { audioRef.current.setMuted(muted); try { localStorage.setItem("klyra.redline.testdrive.muted", muted ? "1" : "0"); } catch {} }, [muted]);
+  useEffect(() => () => audioRef.current.close(), []);
+  // Sound starts only after the first key press / tap inside the test drive (browser autoplay rules).
+  useEffect(() => {
+    const arm = () => { audioRef.current.start(); setArmed(true); };
+    window.addEventListener("keydown", arm, { once: true }); window.addEventListener("pointerdown", arm, { once: true });
+    return () => { window.removeEventListener("keydown", arm); window.removeEventListener("pointerdown", arm); };
+  }, []);
 
   // keyboard
   useEffect(() => {
     const map = { ArrowUp: "up", KeyW: "up", ArrowDown: "down", KeyS: "down", ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right", Space: "hb" };
-    const kd = (e) => { if (e.code === "Escape") { onExit(); return; } if (e.code === "KeyR") { resetRef.current(); return; } const k = map[e.code]; if (k) { input.current[k] = 1; e.preventDefault(); } };
+    const kd = (e) => { if (e.code === "Escape") { onExit(); return; } if (e.code === "KeyR") { resetRef.current(); return; } if (e.code === "KeyC") { toggleCam(); return; } const k = map[e.code]; if (k) { input.current[k] = 1; e.preventDefault(); } };
     const ku = (e) => { const k = map[e.code]; if (k) input.current[k] = 0; };
     const blur = () => { Object.keys(input.current).forEach((k) => { input.current[k] = 0; }); };
     window.addEventListener("keydown", kd); window.addEventListener("keyup", ku); window.addEventListener("blur", blur);
@@ -246,6 +361,8 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
           <span className="best"><small>Best</small>{fmt(hud.best)}</span>
         </div>
         <div className="rlDriveBtns">
+          <button type="button" className={`rlDriveBtn snd ${muted || !armed ? "mute" : ""}`} onClick={() => setMuted((m) => !m)} aria-pressed={!muted} aria-label={muted ? "Unmute sound" : "Mute sound"} title={!armed ? "Sound starts on your first key press or tap" : ""}>{muted ? "Sound off" : armed ? "Sound on" : "Sound"}</button>
+          <button type="button" className="rlDriveBtn" onClick={toggleCam} aria-label={camMode === "fp" ? "Switch to chase camera" : "Switch to driver view"}>{camMode === "fp" ? "Chase cam" : "Driver view"}</button>
           <button type="button" className="rlDriveBtn" onClick={() => resetRef.current()} aria-label="Reset car to track">Reset</button>
           <button type="button" className="rlDriveBtn exit" onClick={onExit}>Exit</button>
         </div>
@@ -254,7 +371,7 @@ export default function RedlineDrive({ car, build, paint, onExit }) {
       {phase === "loading" && !err ? <div className="rlDriveMsg"><i />Loading track</div> : null}
       {err ? <div className="rlDriveMsg">{err}</div> : null}
       {phase === "count" && count > 0 ? <div className="rlCount" key={count}>{count}</div> : null}
-      {!touch ? <p className="rlDriveKeys">W A S D / arrows · Space handbrake · R reset · Esc exit</p> : (
+      {!touch ? <p className="rlDriveKeys">W A S D / arrows · Space handbrake · C camera · R reset · Esc exit</p> : (
         <div className="rlPads">
           <div className="rlPadL">
             <button type="button" aria-label="Steer left" {...hold("left")}>◀</button>

@@ -2821,7 +2821,7 @@ html.rlDriving,html.rlDriving body{overflow:hidden}
 @keyframes rlCountIn{from{transform:scale(1.4);opacity:0}30%{opacity:1}to{transform:scale(1);opacity:.85}}
 .rlPads{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:flex-end;padding:0 14px calc(14px + env(safe-area-inset-bottom));pointer-events:none}
 .rlPads>div{display:flex;gap:10px;pointer-events:auto}
-.rlPads button{width:68px;height:68px;border-radius:50%;border:1px solid rgba(30,200,255,.45);background:rgba(10,12,16,.45);color:#e8f8ff;font:800 12px/1 ui-monospace,Consolas,monospace;letter-spacing:.1em;text-transform:uppercase;touch-action:none;-webkit-tap-highlight-color:transparent}
+.rlPads button{width:66px;height:66px;border-radius:50%;border:1px solid rgba(30,200,255,.4);background:rgba(10,12,16,.28);color:#e8f8ff;font:800 12px/1 ui-monospace,Consolas,monospace;letter-spacing:.1em;text-transform:uppercase;touch-action:none;-webkit-tap-highlight-color:transparent}
 .rlPads button.on{background:rgba(30,200,255,.35);border-color:#1ec8ff}
 .rlPadR{flex-direction:column;align-items:center}
 .rlPadR .gas{width:76px;height:76px;order:-1;border-color:#1ec8ff}
@@ -2830,7 +2830,10 @@ html.rlDriving,html.rlDriving body{overflow:hidden}
 @media (max-width:600px){
  .rlDriveTop{flex-wrap:wrap;gap:6px;padding:calc(8px + env(safe-area-inset-top)) 8px 0}
  .rlDriveTag{order:1;padding:5px 8px}.rlDriveTag b{font-size:9px}.rlDriveTag span{font-size:9px}
- .rlDriveBtns{order:2;margin-left:auto}
+ .rlDriveBtns{order:2;margin-left:auto;gap:4px}
+ .rlDriveBtn{min-height:40px;padding:0 9px;font-size:9px;letter-spacing:.08em}
+ .rlDriveTag{flex:1 1 100%}
+ .rlDriveBtns{flex:1 1 100%;justify-content:flex-end}
  .rlDriveTimes{order:3;flex-basis:100%;justify-content:space-between;margin:0}
  .rlDriveTimes span{padding:2px 4px;font-size:12px}
  .rlDrvSpeed b{font-size:34px}
