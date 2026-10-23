@@ -2409,3 +2409,7 @@ a.khCard:hover{transform:translateY(-3px);border-color:rgba(30,200,255,.5)}
 .mSolo h2{margin:0 0 16px;font-size:clamp(34px,4.6vw,64px);letter-spacing:-.03em;line-height:1;color:#fff;text-transform:none}
 .mSolo p:last-child{margin:0 auto;max-width:640px;color:#9aa6b4;font-size:clamp(16px,1.3vw,19px);line-height:1.6}
 @media (max-width:960px){.mSolo{margin-left:16px;margin-right:16px}}
+.mFree{display:inline-flex;align-items:center;gap:8px;margin:0 0 18px;padding:7px 14px;border-radius:999px;border:1px solid rgba(30,200,255,.35);background:rgba(30,200,255,.08);color:#bdefff;font-size:13px;font-weight:700;letter-spacing:.06em;backdrop-filter:blur(8px)}
+.mFree i{width:7px;height:7px;border-radius:50%;background:#1ec8ff;box-shadow:0 0 10px #1ec8ff}
+.mFreeNote{margin:16px 0 0;color:#7f8b98;font-size:13px}
+.mTitle{font-size:clamp(40px,7vw,112px)}.mHeroInner{max-width:1240px}

@@ -28,10 +28,24 @@ Every remaining vehicle in `PolygonProRacer/Models` that drives on wheels was ad
 | `redline_pro_kart` | SM_Veh_Kart_01 | Engine_01, Exhaust_01, Front/Rear_Bumper_01, Seat_01, Side_Skirts_01, Spoiler_01, Undercarriage_01 | Vehicle_15 | nothing |
 | `redline_pro_truck` | SM_Veh_Truck_01 | Fairing_Top_01, Front_Bumper_01, Front_Fender_01, Side_Skirts_01, Spoiler_01 | Vehicle_18 | left and right doors |
 | `redline_pro_dirtbike` | SM_Veh_Dirtbike_01 | none | Vehicle_03 | nothing |
-| `redline_pro_foodtruck` | SM_Veh_Food_Truck_01 (food trailer) | none | Vehicle_05 | nothing |
-| `redline_pro_foodvan` | SM_Veh_Food_Truck_02 | none | Vehicle_09 | left and right doors |
+
+Removed at Cody's request: SM_Veh_Food_Truck_01 (food trailer) and SM_Veh_Food_Truck_02 (food truck), not race vehicles.
 
 Not added: SM_Veh_Blimp_01 (an airship, not a car), SM_Veh_Trailer_01 (unpowered trailer), and SM_Veh_Attach_Pace_Car_Siren_01 (an attachment, not a vehicle).
+
+## Additional Street pack vehicles
+
+| Web model | Source FBX | Extra pack parts | Texture | Opens |
+|---|---|---|---|---|
+| `redline_street_exotic` | SM_Veh_Exotic_01 | Bonnet_01, Front/Rear_Bumper_01, Side_Skirts_01 | PolygonStreetRacer_03_A | hood, both doors |
+| `redline_street_hatch` | SM_Veh_Hatch_01 | Bonnet_01, Front/Rear_Bumper_01 | PolygonStreetRacer_01_B | hood, trunk (hatch), both doors |
+| `redline_street_sedan` | SM_Veh_Sedan_01 | Bonnet_01, Front/Rear_Bumper_01, Spoiler_01 | PolygonStreetRacer_04_A | hood, trunk, both doors |
+| `redline_street_ute` | SM_Veh_Ute_01 | Bonnet_01, Front/Rear_Bumper_01 | PolygonStreetRacer_02_C | hood, both doors |
+| `redline_street_truck` | SM_Veh_Truck_01 | Fenders_01, Front_Bumper_01, Side_Skirts_01 | PolygonStreetRacer_03_B | both doors |
+| `redline_street_motorbike` | SM_Veh_Motorbike_01 | Fuel_Tank_01, Panel_Bottom/Front/Mid_01, Seat_01 | PolygonStreetRacer_04_C | nothing |
+
+Hatch_01: the pack's boot-glass and door-glass objects carry broken transforms (placed ~100x away in the FBX), so they were dropped; the rest of the glass is kept.
+Street pack items not added (not road cars or bikes): Barge, Boat, boat trailers, ContainerCrane, ContainerShip, StraddleCarrier, TenderBoat, Tugboat, Truck_Car_Trailer, Truck_Trailer.
 
 ## Wheels: separate or baked in (from object names inside each FBX)
 

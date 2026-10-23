@@ -21,8 +21,9 @@ export default function Home() {
         <div className="mGrid" aria-hidden="true" />
         <div className="mHeroInner">
           <img className="mWordmark" src="/brand/klyra-wordmark.svg" alt="KLYRA" width="290" height="78" fetchPriority="high" />
-          <h1 id="m-title" className="mTitle">Your games. <span>One home.</span></h1>
-          <p className="mLead">The KLYRA platform: every game, your friends and your gear in one place.</p>
+          <p className="mFree"><i aria-hidden="true" />Free to play. Every KLYRA game.</p>
+          <h1 id="m-title" className="mTitle">Every KLYRA game. <span>One home.</span></h1>
+          <p className="mLead">The KLYRA platform: our games, your friends and your gear in one place.</p>
           <div className="mActions">
             <a className="mCta" href="/download/">
               <Icon d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14" />
@@ -30,13 +31,14 @@ export default function Home() {
             </a>
             <a className="mGhost" href="#games">Explore games</a>
           </div>
+          <p className="mFreeNote">Free download. Every KLYRA game is free to play; optional skins are sold in the store.</p>
         </div>
         <a className="mScroll" href="#games" aria-label="Scroll to games"><span /></a>
       </section>
 
       <section className="mStrip" aria-label="Platform">
         <div className="mStripItem mReveal"><Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-7 8c1.5-3.3 4-5 7-5s5.5 1.7 7 5" /><span><b>One account</b> Callsign and friends everywhere</span></div>
-        <div className="mStripItem mReveal"><Icon d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14" /><span><b>One download</b> Every game, one client</span></div>
+        <div className="mStripItem mReveal"><Icon d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14" /><span><b>One download</b> Every KLYRA game, one client</span></div>
         <div className="mStripItem mReveal"><Icon d="M4 7h16l-1.5 11h-13L4 7zm4 0a4 4 0 0 1 8 0" /><span><b>Universal store</b> Skins live on your KLYRA account</span></div>
       </section>
 
@@ -69,6 +71,7 @@ export default function Home() {
       <section className="mOutro mReveal" aria-label="Get KLYRA">
         <h2>Ready when you are.</h2>
         <a className="mCta" href="/download/">Download KLYRA</a>
+        <p className="mFreeNote">Free to play. Every KLYRA game.</p>
       </section>
     </main>
   );

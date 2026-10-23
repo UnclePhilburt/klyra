@@ -14,22 +14,21 @@ export const viewport = {
 
 export const metadata = {
   metadataBase: new URL("https://klyra.lol"),
-  title: "KLYRA · Games platform, home of KLYRA: Broken Front",
+  title: "KLYRA · Every KLYRA game. One home.",
   description:
-    "KLYRA: Broken Front is a free-to-play pre-alpha military sandbox for Windows, Mac and the browser. Fight for The Regiment, Kin of the Hollow, or Blackline Group, run the supplies, and bring your gear home.",
+    "KLYRA is the home of KLYRA's own games: KLYRA: Broken Front, KLYRA: Redline (in development) and the Social Hub. Free to play. Every KLYRA game. One account, one download.",
   openGraph: {
-    title: "KLYRA: Broken Front",
-    description:
-      "Free to play on Windows, Mac and the browser. Fight the front for The Regiment, Kin of the Hollow, or Blackline Group, and bring your gear home.",
+    title: "KLYRA · Every KLYRA game. One home.",
+    description: "Free to play. Every KLYRA game. One account, one download.",
     url: "https://klyra.lol",
-    siteName: "KLYRA: Broken Front",
+    siteName: "KLYRA",
     type: "website",
     images: [{ url: "/shots/trailer/hero.jpg", width: 1600, height: 900, alt: "KLYRA: Broken Front battlefield" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "KLYRA: Broken Front",
-    description: "Free to play. Fight the front for The Regiment, Kin of the Hollow, or Blackline Group.",
+    title: "KLYRA · Every KLYRA game. One home.",
+    description: "Free to play. Every KLYRA game.",
     images: ["/shots/trailer/hero.jpg"],
   },
   icons: { icon: [{ url: "/brand/klyra-favicon.svg", type: "image/svg+xml" }, { url: "/brand.png" }] },

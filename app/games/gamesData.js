@@ -41,10 +41,14 @@ export const redlineCars = [
   { id: "redline_pro_kart", name: "Kart", discipline: "pro" },
   { id: "redline_pro_truck", name: "Race truck", discipline: "pro" },
   { id: "redline_pro_dirtbike", name: "Dirt bike", discipline: "pro" },
-  { id: "redline_pro_foodtruck", name: "Food trailer", discipline: "pro" },
-  { id: "redline_pro_foodvan", name: "Food truck", discipline: "pro" },
   { id: "redline_street_sports", name: "Sports coupe", discipline: "street" },
   { id: "redline_street_muscle", name: "Muscle car", discipline: "street" },
+  { id: "redline_street_exotic", name: "Exotic", discipline: "street" },
+  { id: "redline_street_hatch", name: "Hot hatch", discipline: "street" },
+  { id: "redline_street_sedan", name: "Sedan", discipline: "street" },
+  { id: "redline_street_ute", name: "Ute", discipline: "street" },
+  { id: "redline_street_truck", name: "Street truck", discipline: "street" },
+  { id: "redline_street_motorbike", name: "Motorbike", discipline: "street" },
 ].map((c) => ({ ...c, model: `/cars/${c.id}.glb`, poster: `/cars/${c.id}.webp` }));
 
 export function gameById(id) {
