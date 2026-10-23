@@ -1,4 +1,5 @@
 import HomeReveal from "./components/HomeReveal";
+import HeroCursor from "./components/HeroCursor";
 
 export const metadata = { alternates: { canonical: "https://klyra.lol/" } };
 
@@ -23,6 +24,7 @@ export default function Home() {
       <section className="mHero" aria-labelledby="m-title">
         <div className="mMesh" aria-hidden="true"><i /><i /><i /></div>
         <div className="mGrid" aria-hidden="true" />
+        <HeroCursor />
         <div className="mHeroInner">
           <img className="mWordmark" src="/brand/klyra-wordmark.svg" alt="KLYRA" width="290" height="78" fetchPriority="high" />
           <p className="mFree"><i aria-hidden="true" />Free to play. Every KLYRA game.</p>
