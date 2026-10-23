@@ -81,3 +81,14 @@ Total parts GLBs: 13.1 MB across 16 cars (each loaded only on demand). Thumbnail
 - Camera: first person by default (driver's seat inside the car's interior mesh, glass thinned, head bob, cornering lean, speed FOV); chase cam on C / "Chase cam" button.
 - Look: gradient sky dome with sun glow, warm sun + hemisphere fill, horizon fog, canvas-noise grass/asphalt/gravel, chequered start line, low-poly hills ring. Desktop: one 1024 sun shadow map following the car; mobile: blob shadow only.
 - Audio (Web Audio, starts on first key/tap, mute toggle saved in localStorage): Realistic Car Controller Pro `Audio/Engine/Engine_Muscle_{Idle,Low,Med,High}` (street cars) or `Engine_Fast_*` (pro cars) crossfaded and pitched by a simulated 6-speed RPM, `Skid/Skid_Asphalt` on drift, `Skid/Skid_Grass` off track, `Impact/Impact3` on wall hits, `Exhaust/Exhaust_Fire1` on upshift. Mono AAC 64 kb/s `.m4a` in `/cars/track/audio/`, 128 KB total.
+
+## Test drive: feel of speed, second track, mobile HUD, per-car driver eye
+- Speed lines: camera-attached additive streaks above ~86 km/h (56 desktop / 18 mobile instances, lower opacity on mobile).
+- Tyre smoke: pooled GPU points (110 desktop / 40 mobile) from the rear wheels when drifting (handbrake or real lateral slip) or doing a burnout (throttle + handbrake/brake under 32 km/h).
+- Skid marks: ring-buffer ribbon, 1000 quads desktop / 360 mobile, oldest overwritten; they persist until the track is reloaded.
+- Rumble: a few-mm camera shake only on kerbs / off the asphalt; zero on the racing surface (straight-line camera jitter stays ~0.03 mm std).
+- FOV: gentle widening with speed plus a small kick (max 4 deg) under hard acceleration.
+- Wind / road noise: `Vehicle_Wind.wav` from Realistic Car Controller Pro (Audio/Vehicle), `public/cars/track/audio/wind.m4a` (32 KB), gain rises with speed squared.
+- Track 2 "Dock City": tight filleted street circuit (`roundPoly` in RedlineDrive.jsx), dusk lighting, kit `public/cars/track/city.glb` (514 KB, built by `/workspace/cars/citykit.py` from PolygonStreetRacer: warehouses, repair shops, garage, shelter, light poles, concrete barriers, hazard/arrow/company signs, neon, pallets, barrels). Lazy-loaded only when the city is picked. Best lap is stored per track (`klyra.redline.testdrive.best` / `.best.city`); last picked track in `klyra.redline.testdrive.track`.
+- Mobile HUD (≤760 px wide or ≤520 px tall): one-line pill label, compact timing strip (m:ss.t, tabular numerals, no "Last"), sound icon + one menu button (camera, restart, reset, exit), 44 px targets, safe-area insets.
+- Driver eye: computed per car from the glass-material bounds (cabin) or the rider's head (open vehicles), raised until the bonnet/dash stays under ~9 deg; the player's car is clipped above eye level in driver view so the roof lining never covers the screen. Per-car tweaks: `fpv: { dx, dy, dz, pitch }` in `app/games/gamesData.js`.

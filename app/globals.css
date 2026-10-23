@@ -2827,18 +2827,30 @@ html.rlDriving,html.rlDriving body{overflow:hidden}
 .rlPadR .gas{width:76px;height:76px;order:-1;border-color:#1ec8ff}
 .rlPadR .brake{width:60px;height:60px}
 .rlPads~.rlDrvSpeed,.rlDrive:has(.rlPads) .rlDrvSpeed{right:auto;left:50%;transform:translateX(-50%);justify-items:center;bottom:calc(24px + env(safe-area-inset-bottom))}
-@media (max-width:600px){
- .rlDriveTop{flex-wrap:wrap;gap:6px;padding:calc(8px + env(safe-area-inset-top)) 8px 0}
- .rlDriveTag{order:1;padding:5px 8px}.rlDriveTag b{font-size:9px}.rlDriveTag span{font-size:9px}
- .rlDriveBtns{order:2;margin-left:auto;gap:4px}
- .rlDriveBtn{min-height:40px;padding:0 9px;font-size:9px;letter-spacing:.08em}
- .rlDriveTag{flex:1 1 100%}
- .rlDriveBtns{flex:1 1 100%;justify-content:flex-end}
- .rlDriveTimes{order:3;flex-basis:100%;justify-content:space-between;margin:0}
- .rlDriveTimes span{padding:2px 4px;font-size:12px}
- .rlDrvSpeed b{font-size:34px}
- .rlCount{font-size:96px}
-}
+/* Compact HUD (phones, portrait and landscape): one-line pill, fixed-width timing strip, icon buttons + menu. */
+.rlDriveTop.cmp{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"tag btns" "times times";align-items:center;gap:6px;padding:calc(6px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right)) 0 calc(8px + env(safe-area-inset-left))}
+.rlDriveTop.cmp .rlDriveTag{grid-area:tag;justify-self:start;max-width:100%;display:block;padding:4px 9px;border-radius:999px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rlDriveTop.cmp .rlDriveTag b{font-size:9px;letter-spacing:.1em}
+.rlDriveTop.cmp .rlDriveTimes{grid-area:times;justify-self:center;margin:0;gap:0;padding:3px 4px;max-width:100%;flex-wrap:nowrap}
+.rlDriveTop.cmp .rlDriveTimes span{white-space:nowrap;padding:1px 7px;font-size:12px;text-align:left}
+.rlDriveTop.cmp .rlDriveTimes span.t{min-width:7.4ch}
+.rlDriveTop.cmp .rlDriveTimes small{font-size:8px;letter-spacing:.12em}
+.rlDriveBtns.cmp{grid-area:btns;position:relative;gap:6px}
+.rlDriveIco{width:44px;height:44px;display:grid;place-items:center;padding:0;border:1px solid rgba(30,200,255,.4);border-radius:50%;background:rgba(10,12,16,.72);color:#e8f8ff;cursor:pointer}
+.rlDriveIco.mute{color:#8ab}.rlDriveIco[aria-expanded="true"]{border-color:#1ec8ff;background:rgba(30,200,255,.2)}
+.rlDriveIco:focus-visible,.rlDriveDrop button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.rlDriveDrop{position:absolute;right:0;top:50px;z-index:5;display:grid;min-width:160px;padding:6px;border:1px solid rgba(30,200,255,.4);border-radius:12px;background:rgba(8,12,18,.94);box-shadow:0 14px 40px -12px rgba(0,0,0,.8)}
+.rlDriveDrop button{min-height:44px;padding:0 12px;border:0;border-radius:8px;background:none;color:#e8f8ff;text-align:left;font:800 11px/1 ui-monospace,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.rlDriveDrop button:hover{background:rgba(30,200,255,.12)}.rlDriveDrop button.exit{color:#1ec8ff}
+@media (orientation:landscape){.rlDriveTop.cmp{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"tag times btns"}}
+.rlPads{padding-left:calc(14px + env(safe-area-inset-left));padding-right:calc(14px + env(safe-area-inset-right))}
+@media (max-width:600px){.rlDrvSpeed b{font-size:34px}.rlCount{font-size:96px}}
+@media (max-height:520px){.rlPads button{width:58px;height:58px}.rlPadR .gas{width:66px;height:66px}.rlPadR .brake{width:54px;height:54px}.rlDrvSpeed b{font-size:30px}}
+.rlDrvTracks{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.rlDrvTracks button{display:grid;gap:3px;min-height:48px;padding:8px 10px;text-align:left;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.03);color:#e8f8ff;cursor:pointer;font-family:ui-monospace,Consolas,monospace}
+.rlDrvTracks button b{font-size:11px;letter-spacing:.12em;text-transform:uppercase}.rlDrvTracks button span{font-size:10px;color:#9ab}
+.rlDrvTracks button.on{border-color:#1ec8ff;box-shadow:inset 0 0 0 1px #1ec8ff;background:rgba(30,200,255,.1)}
+.rlDrvTracks button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 @media (prefers-reduced-motion: reduce){.rlCount{animation:none}}
 .rlDriveTimes .pos{color:#fff}.rlDriveTimes .pos i{font-style:normal;color:#8ab;font-size:.8em}
 .rlDrvMenu,.rlDrvRes{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(360px,calc(100% - 32px));display:grid;gap:10px;padding:18px;border:1px solid rgba(30,200,255,.4);border-radius:14px;background:rgba(8,12,18,.86);backdrop-filter:blur(10px);box-shadow:0 20px 60px -20px rgba(0,0,0,.8)}
