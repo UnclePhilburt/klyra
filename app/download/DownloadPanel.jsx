@@ -7,9 +7,15 @@ import ServerDownloads from "./ServerDownloads";
 import { RevealRoot } from "../features/FeatureFX";
 
 const steps = [
-  ["01", "Download the launcher", "Free for Windows and Mac. It installs the game and keeps it up to date."],
+  ["01", "Download the launcher", "Free for Windows and Mac. It installs your KLYRA games and keeps them up to date."],
   ["02", "Sign in", "Use a free KLYRA account, the same one as this site. No account yet? Create one in under a minute."],
-  ["03", "Drop in", "Pick The Regiment, Kin of the Hollow, or Blackline Group and push the front. Your account keeps the gear you extract."],
+  ["03", "Pick a game and play", "Jump into Broken Front or the Social Hub. Your account, friends and skins come with you."],
+];
+
+const games = [
+  { name: "KLYRA: Broken Front", cls: "bf", status: "Playable now", line: "Free-to-play military shooter. Three factions, one moving front.", href: "/games/broken-front/", cta: "About Broken Front" },
+  { name: "KLYRA: Redline", cls: "rl", status: "In development", line: "Pro circuit racing and underground street racing. Not playable yet.", href: "/games/redline/", cta: "About Redline" },
+  { name: "Social Hub", cls: "hub", status: "Available now", line: "Hang out with friends and move between games. Casual minigames too.", href: "/games/", cta: "All games" },
 ];
 
 export default function DownloadPanel() {
@@ -21,7 +27,7 @@ export default function DownloadPanel() {
         <div className="kxF2PFlare" aria-hidden="true" />
         <p className="kxF2PStamp kxF2PStampCenter"><span>Free to play</span><b>No paywall · No subscription</b></p>
         <h1>Download <span className="kxF2PFree" data-text="free.">free.</span></h1>
-        <p className="lead">KLYRA: Broken Front is free on Windows and Mac. Grab the launcher, sign in with your free KLYRA account, and drop onto the front.</p>
+        <p className="lead">KLYRA is free on Windows and Mac. One download, every KLYRA game. Grab the launcher, sign in with your free KLYRA account, and play.</p>
       </section>
 
       <section className="kxDlPlatforms" aria-label="Choose your platform">
@@ -43,10 +49,27 @@ export default function DownloadPanel() {
         </article>
       </section>
 
+      <section className="kxDlWrap dlInside" aria-labelledby="dl-inside">
+        <div className="sectionIntro" data-reveal>
+          <p className="tag">What's inside</p>
+          <h2 id="dl-inside">One launcher. Every game.</h2>
+        </div>
+        <ul className="dlGames">
+          {games.map((g, i) => (
+            <li key={g.name} className={`dlGame ${g.cls}`} data-reveal style={{ "--d": `${i * 90}ms` }}>
+              <span className="dlStatus">{g.status}</span>
+              <h3>{g.name}</h3>
+              <p>{g.line}</p>
+              <a href={g.href}>{g.cta} <b aria-hidden="true">&rarr;</b></a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section className="kxDlExplain kxF2PDlExplain" data-reveal>
         <div className="kxDlFree">
           <strong>Free for everyone.</strong>
-          <span>Every faction, vehicle and weapon. Nothing in the fight is behind a purchase.</span>
+          <span>Every KLYRA game is free to play. In Broken Front, every faction, vehicle and weapon is open to everyone.</span>
         </div>
         <AccountLink className="button" signedOutLabel="Create free account" signedInPrefix="Signed in as" />
       </section>
