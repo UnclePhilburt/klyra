@@ -14,7 +14,8 @@ function makeAudio(set) {
   const A = "/cars/track/audio/";
   const bands = [["idle", 0, 0.05, 0.18], ["low", 0.08, 0.3, 0.5], ["med", 0.38, 0.6, 0.8], ["high", 0.68, 0.92, 1.2]];
   let ctx = null, master = null, eng = [], skid = null, grass = null, buf = {}, muted = false, rpm = 0, gear = 1, lastImpact = 0, ready = false;
-  const load = async (n) => { const r = await fetch(A + n + ".m4a"); const ab = await r.arrayBuffer(); return new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej)); };
+  const load = async (n) => { const r = await fetch(A + n + ".m4a"); if (!r.ok) throw new Error("audio " + r.status); const ab = await r.arrayBuffer();
+    return new Promise((res, rej) => { const p = ctx.decodeAudioData(ab, res, rej); if (p && p.catch) p.catch(rej); }); };
   const loop = (b) => { const src = ctx.createBufferSource(); src.buffer = b; src.loop = true; const g = ctx.createGain(); g.gain.value = 0; src.connect(g); g.connect(master); src.start(); return { src, g }; };
   const once = (b, vol) => { if (!b || muted) return; const src = ctx.createBufferSource(); src.buffer = b; const g = ctx.createGain(); g.gain.value = vol; src.connect(g); g.connect(master); src.start(); };
   return {
