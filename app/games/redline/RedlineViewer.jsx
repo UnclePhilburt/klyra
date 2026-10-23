@@ -48,6 +48,13 @@ export default function RedlineViewer({ cars }) {
   const popRef = useRef(null);
   const [pop, setPop] = useState(null);
   const [driving, setDriving] = useState(false);
+  // Challenge link (#ch=...): decoded + validated client-side; bad links show a notice and are ignored.
+  const [chal, setChal] = useState(null), [chErr, setChErr] = useState(""), chOpened = useRef(false);
+  useEffect(() => {
+    const m = /[#&]ch=([A-Za-z0-9_-]+)/.exec(window.location.hash); if (!m && !/[#&]ch=/.test(window.location.hash)) return;
+    import("./challenge").then(({ decodeChallenge }) => decodeChallenge(m ? m[1] : "", { tracks: new Set(["gp", "city"]), cars: new Set(cars.map((c) => c.id)) }))
+      .then((c) => setChal(c)).catch(() => { setChErr("This challenge link is damaged or out of date."); window.history.replaceState(null, "", window.location.pathname + window.location.search); });
+  }, [cars]);
 
   useEffect(() => {
     let disposed = false;
@@ -274,6 +281,9 @@ export default function RedlineViewer({ cars }) {
   const setX = () => { const v = !xray; setXray(v); if (api.current) { api.current.xray = v; api.current.applyXray(v); } };
   const view = (v) => { if (v === "engine" && panels.Hood && !open.Hood) togglePanel("Hood"); if (v === "interior" && !xray) setX(); api.current?.view(v); };
   const car = cars.find((c) => c.id === active);
+  // Open the test drive automatically once the challenged build has loaded in the garage.
+  useEffect(() => { if (!chal || chOpened.current || loading || error || active !== chal.car) return; if (chal.parts && car?.custom && !(cz && czData)) return;
+    chOpened.current = true; setPop(null); if (api.current) api.current.paused = true; setDriving(true); }, [chal, loading, error, active, cz, czData]);
 
   // Customizer: per-car slot data and parts are lazy-loaded only when the panel is opened.
   useEffect(() => {
@@ -300,12 +310,12 @@ export default function RedlineViewer({ cars }) {
     const qs = new URLSearchParams(window.location.search);
     qs.set("car", active); qs.set("parts", encodeBuild(build));
     if (paint) qs.set("paint", paint); else qs.delete("paint");
-    window.history.replaceState(null, "", `${window.location.pathname}?${qs}`);
+    window.history.replaceState(null, "", `${window.location.pathname}?${qs}${window.location.hash}`);
   }, [cz, czData, build, active, paint]);
   useEffect(() => { const p = urlPaint(); if (p) setPaint(p); }, []);
   const toggleCz = () => {
     const on = !cz; czRef.current.on = on; setCz(on);
-    if (!on) { const qs = new URLSearchParams(window.location.search); qs.delete("parts"); qs.delete("paint"); window.history.replaceState(null, "", `${window.location.pathname}${qs.toString() ? "?" + qs : ""}`); }
+    if (!on) { const qs = new URLSearchParams(window.location.search); qs.delete("parts"); qs.delete("paint"); window.history.replaceState(null, "", `${window.location.pathname}${qs.toString() ? "?" + qs : ""}${window.location.hash}`); }
     api.current?.show(active);
   };
   const choose = (slot, v) => { const b = { ...build, [slot]: v }; setBuild(b); czRef.current.build = b; api.current?.applyBuild(b); };
@@ -401,7 +411,8 @@ export default function RedlineViewer({ cars }) {
           </div>
         ) : null}
         {!loading && !error ? <button type="button" className="rlDriveStart" onClick={() => { setPop(null); if (api.current) api.current.paused = true; setDriving(true); }}>Test drive</button> : null}
-        {driving ? <RedlineDrive car={car} cars={cars} build={cz && czData && !czData.error ? build : null} paint={paint} onExit={() => { setDriving(false); if (api.current) { api.current.paused = false; api.current.resume(); } }} /> : null}
+        {chErr ? <p className="rlChErr" role="alert">{chErr}<button type="button" aria-label="Dismiss" onClick={() => setChErr("")}>×</button></p> : null}
+        {driving ? <RedlineDrive car={car} cars={cars} build={cz && czData && !czData.error ? build : null} paint={paint} challenge={chal} onExit={() => { setDriving(false); if (api.current) { api.current.paused = false; api.current.resume(); } }} /> : null}
         <p className="rlStageLabel"><b>{car.discipline === "pro" ? "Redline Pro" : "Redline Street"}</b>{car.name}</p>
       </div>
       <div className={`rlSheet ${sheet ? "open" : ""}`}>

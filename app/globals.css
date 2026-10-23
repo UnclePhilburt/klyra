@@ -2864,3 +2864,18 @@ html.rlDriving,html.rlDriving body{overflow:hidden}
 .rlDrvRes li span{font-weight:900;color:#8ab}.rlDrvRes li b{font-weight:700;text-transform:uppercase;letter-spacing:.06em}.rlDrvRes li em{font-style:normal;font-variant-numeric:tabular-nums;color:#bcd}
 .rlDrvRes li.you{background:rgba(30,200,255,.18);box-shadow:inset 0 0 0 1px #1ec8ff}.rlDrvRes li.you span{color:#1ec8ff}
 .rlDrvResBtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}.rlDrvResBtns .rlDrvMode{text-align:center;padding:8px}.rlDrvResBtns .rlDrvMode b{font-size:10px}
+/* Challenge links: ghost delta in the timing strip, lap toast, challenge card */
+.rlDriveTimes .gh{color:#9fe6ff}.rlDriveTimes .gd{min-width:6ch}.rlDriveTimes .gd.ahead{color:#5df2a6}.rlDriveTimes .gd.behind{color:#ffb347}
+.rlDrvMode.chal{box-shadow:0 0 0 1px #1ec8ff,0 0 24px -6px rgba(30,200,255,.7)}
+.rlDrvLapT{position:absolute;left:50%;top:calc(96px + env(safe-area-inset-top));transform:translateX(-50%);width:min(340px,calc(100% - 24px));display:grid;gap:8px;padding:10px 12px;border:1px solid rgba(30,200,255,.45);border-radius:12px;background:rgba(8,12,18,.88);backdrop-filter:blur(8px);font-size:12px}
+.rlDrvLapT p{margin:0;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}.rlDrvLapT p b{font-size:14px;font-variant-numeric:tabular-nums}
+.rlDrvLapT .ahead{color:#5df2a6}.rlDrvLapT .behind{color:#ffb347}
+.rlDrvLapT div{display:flex;gap:6px}
+.rlDrvLapT button{min-height:44px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:#e8f8ff;font:800 11px/1 ui-monospace,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.rlDrvLapT button.go{flex:1;border-color:#1ec8ff;background:rgba(30,200,255,.18)}.rlDrvLapT button.x{width:44px;font-size:18px}
+.rlDrvLapT button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.rlDrvLapT em{font-style:normal;color:#1ec8ff;letter-spacing:.1em;text-transform:uppercase;font-size:10px}
+.rlDrvLapT input{width:100%;min-height:36px;padding:0 8px;border:1px solid rgba(30,200,255,.4);border-radius:8px;background:#0b1016;color:#e8f8ff;font:11px ui-monospace,Consolas,monospace}
+@media (max-height:520px){.rlDrvLapT{top:calc(52px + env(safe-area-inset-top))}}
+.rlChErr{position:absolute;left:50%;top:60px;transform:translateX(-50%);z-index:4;display:flex;gap:10px;align-items:center;padding:8px 12px;border:1px solid rgba(255,179,71,.5);border-radius:10px;background:rgba(10,12,16,.9);color:#ffd9a0;font:12px ui-monospace,Consolas,monospace}
+.rlChErr button{min-height:32px;min-width:32px;border:0;background:none;color:#fff;font-size:16px;cursor:pointer}

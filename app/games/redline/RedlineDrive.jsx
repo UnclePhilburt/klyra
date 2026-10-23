@@ -2,6 +2,7 @@
 
 // Website mini test drive for the Redline garage. Arcade physics, solo time trial, lazy-loaded.
 import { useEffect, useRef, useState } from "react";
+import { encodeChallenge } from "./challenge";
 
 // Track centreline (metres), closed Catmull-Rom loop.
 const TRACK = [[0, -40], [0, 90], [18, 138], [60, 162], [108, 152], [128, 115], [112, 72], [124, 38], [165, 25], [198, -8], [192, -68], [145, -96], [85, -92], [38, -108], [6, -84]].map(([x, z]) => [x * 1.3, z * 1.3]);
@@ -75,7 +76,7 @@ function makeAudio(set) {
   };
 }
 
-export default function RedlineDrive({ car, cars, build, paint, onExit }) {
+export default function RedlineDrive({ car, cars, build, paint, onExit, challenge }) {
   const host = useRef(null);
   const input = useRef({ up: 0, down: 0, left: 0, right: 0, hb: 0 });
   const [phase, setPhase] = useState("loading");
@@ -86,10 +87,27 @@ export default function RedlineDrive({ car, cars, build, paint, onExit }) {
   const resetRef = useRef(() => {});
   const ctlRef = useRef({});
   const [mode, setMode] = useState(null); // "race" | "trial"
-  const [track, setTrack] = useState(() => { try { return localStorage.getItem("klyra.redline.testdrive.track") === "city" ? "city" : "gp"; } catch { return "gp"; } });
+  const [track, setTrack] = useState(() => { if (challenge && TRACKS[challenge.track]) return challenge.track; try { return localStorage.getItem("klyra.redline.testdrive.track") === "city" ? "city" : "gp"; } catch { return "gp"; } });
   const pickTrack = (t) => { if (t === track) return; try { localStorage.setItem("klyra.redline.testdrive.track", t); } catch {} setPhase("loading"); setMode(null); setResults(null); setTrack(t); };
   const [compact, setCompact] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [lapT, setLapT] = useState(null); // last completed time-trial lap { ms, vs }
+  const [shareMsg, setShareMsg] = useState("");
+  const chg = challenge && challenge.track === track ? challenge : null;
+  const shareLap = async () => {
+    const lap = ctlRef.current.lastLap; if (!lap) return;
+    try {
+      const qs = new URLSearchParams(window.location.search), q = new URLSearchParams(); q.set("car", car.id);
+      const parts = car.custom && build && qs.get("car") === car.id ? qs.get("parts") || "" : ""; if (parts) q.set("parts", parts); if (paint) q.set("paint", paint);
+      const payload = await encodeChallenge({ track, car: car.id, parts, paint: paint || "", ms: lap.ms, samples: lap.samples });
+      const url = `${window.location.origin}/games/redline/garage/?${q}#ch=${payload}`;
+      ctlRef.current.lastUrl = url; window.__rlChallengeUrl = url;
+      const text = `Beat my ${fmt(lap.ms)} lap in the ${car.name} on ${TRACKS[track].name}`;
+      if (touch && navigator.share) { try { await navigator.share({ title: "KLYRA Redline challenge", text, url }); setShareMsg("Shared"); } catch (e) { if (e && e.name === "AbortError") return; throw e; } }
+      else if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(url); setShareMsg("Link copied"); }
+      else setShareMsg("copy");
+    } catch { setShareMsg("copy"); }
+  };
   const [results, setResults] = useState(null);
   const camModeRef = useRef({ current: "fp" });
   const [camMode, setCamMode] = useState("fp");
@@ -281,7 +299,7 @@ export default function RedlineDrive({ car, cars, build, paint, onExit }) {
       resetRef.current = () => { // R: back onto the track at the nearest point, facing forward
         place(st.si); };
       function nearest() { let best = st.si, bd = Infinity; for (let k = -40; k <= 40; k++) { const i = (st.si + k + N) % N, p = pts[i], d = (p.x - st.x) ** 2 + (p.z - st.z) ** 2; if (d < bd) { bd = d; best = i; } } return best; }
-      const MAXV = 46, ACC = 17, BRK = 34, REV = 9;
+      const MAXV = 46, ACC = 17, BRK = 34, REV = 9; let rec = [], recT = 0, lapN = 0;
       function step(dt, now) {
         st.px = st.x; st.pz = st.z; st.ph = st.h;
         const inp = input.current, go = st.running;
@@ -323,10 +341,11 @@ export default function RedlineDrive({ car, cars, build, paint, onExit }) {
           const f = st.si / N;
           if (st.cp === 0 && f > 0.3 && f < 0.4) st.cp = 1; else if (st.cp === 1 && f > 0.63 && f < 0.73) st.cp = 2;
           if (prev > N * 0.9 && st.si < N * 0.1) {
-            if (st.cp === 2) { const t = now - st.lapStart; st.last = t; st.lapsDone++; if (mode0.current === "race" && st.lapsDone >= LAPS && !st.finished) { st.finished = true; st.finishT = now - raceStart; st.running = false; } if (!st.best || t < st.best) { st.best = t; try { localStorage.setItem(BEST_KEY, String(Math.round(t))); } catch {} } }
-            if (st.cp === 2 || st.lap === 0) { st.lap++; st.lapStart = now; st.cp = 0; }
+            if (st.cp === 2) { const t = now - st.lapStart; if (mode0.current === "trial" && rec.length > 10) { ctlRef.current.lastLap = { ms: t, samples: rec.slice() }; setLapT({ ms: t, vs: chg ? t - chg.ms : null, n: ++lapN }); setShareMsg(""); } st.last = t; st.lapsDone++; if (mode0.current === "race" && st.lapsDone >= LAPS && !st.finished) { st.finished = true; st.finishT = now - raceStart; st.running = false; } if (!st.best || t < st.best) { st.best = t; try { localStorage.setItem(BEST_KEY, String(Math.round(t))); } catch {} } }
+            if (st.cp === 2 || st.lap === 0) { st.lap++; st.lapStart = now; st.cp = 0; rec = [[st.x, st.z, st.h]]; recT = 0; }
           }
         }
+        if (go && st.lap > 0 && rec.length < 6000) { recT += dt; while (recT >= rec.length * 0.1 && rec.length < 6000) rec.push([st.x, st.z, st.h]); } // 10 Hz lap recording
         st.wheelSpin += vF * dt / 0.36;
       }
       window.__rlDrive = st; st.track = TR.id; st.dbg = () => ({ carObj, scene, camera }); st.start = (m) => ctlRef.current.start(m); st.camera = camera; st.audio = () => audio.state(); st.N = N; window.__rlPts = pts.map((p) => [p.x, p.z]);
@@ -361,6 +380,29 @@ export default function RedlineDrive({ car, cars, build, paint, onExit }) {
           ai.push({ obj, wh, name: c.name, skill, vmax: MAXV * (0.84 + Math.random() * 0.1), lane: (Math.random() - 0.5) * 2, s: 0, d: 0, v: 0, lap: 0, done: null, ps: 0, pd: 0, spin: 0, slot: slots[k] });
         });
       }
+      // ---- Challenge ghost: the link's build as a translucent cyan car, no collisions, replaying the recorded lap.
+      let ghost = null;
+      if (chg) { try {
+        const gc = (cars || []).find((c) => c.id === chg.car) || car, gb = {}; (chg.parts || "").split("-").forEach((t) => { const [k, v] = t.split("."); if (k && v) gb[k] = v; });
+        const gg = await loader.loadAsync(gc.custom && chg.parts ? `/cars/custom/${gc.id}.glb` : gc.model); if (disposed) return;
+        const gobj = gg.scene, gm = new THREE.MeshBasicMaterial({ color: 0x1ec8ff, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+        gobj.traverse((o) => { let m = /^V_(.+)_(\d\d)$/.exec(o.name); if (m && chg.parts) o.visible = gb[m[1]] === m[2];
+          m = /^W_Wheel_(FL|FR|RL|RR)_(\d\d)$/.exec(o.name); if (m && chg.parts) o.visible = gb.Wheels === m[2]; if (/^Wheel_(FL|FR|RL|RR)_Stock$/.test(o.name) && chg.parts) o.visible = !gb.Wheels || gb.Wheels === "stock";
+          if (o.isMesh) { o.material = gm; o.castShadow = false; o.renderOrder = 3; } });
+        scene.add(gobj); gobj.visible = false;
+        const gs = chg.samples, n = gs.length, gsi = []; let hint = 0;
+        gs.forEach(([x, z], k) => { let best = hint, bd = Infinity; const R = k === 0 ? N : 60; for (let j = -R; j <= R; j++) { const i = (((hint + j) % N) + N) % N, d = (pts[i].x - x) ** 2 + (pts[i].z - z) ** 2; if (d < bd) { bd = d; best = i; } } hint = best; gsi.push(best); });
+        let off = 0; const gprog = gsi.map((v, k) => { if (k > 0 && v < gsi[k - 1] - N / 2) off += N; return v + off - (gsi[0] > N / 2 ? N : 0); }); for (let k = 1; k < n; k++) gprog[k] = Math.max(gprog[k], gprog[k - 1]);
+        ghost = { obj: gobj, mat: gm, gs, n, gprog, ms: chg.ms };
+      } catch { ghost = null; } }
+      st.ghost = () => ghost && { visible: ghost.obj.visible, x: +ghost.obj.position.x.toFixed(2), z: +ghost.obj.position.z.toFixed(2), n: ghost.n };
+      function ghostRender(now) { if (!ghost) return; const on = mode0.current === "trial"; ghost.obj.visible = on; if (!on) return;
+        const u = st.running && st.lap > 0 ? Math.min(1, (now - st.lapStart) / ghost.ms) : 0, f = u * (ghost.n - 1), k = Math.min(ghost.n - 2, Math.floor(f)), a = f - k, A = ghost.gs[k], B = ghost.gs[k + 1];
+        let dh = B[2] - A[2]; dh = Math.atan2(Math.sin(dh), Math.cos(dh)); ghost.obj.position.set(A[0] + (B[0] - A[0]) * a, 0, A[1] + (B[1] - A[1]) * a); ghost.obj.rotation.y = A[2] + dh * a;
+        const gd_ = Math.hypot(ghost.obj.position.x - R.x, ghost.obj.position.z - R.z); ghost.mat.opacity = 0.32 * Math.min(1, Math.max(0, (gd_ - 2.5) / 6)); } // fade when overlapping the player
+      function ghostDelta(now) { if (!ghost || mode0.current !== "trial" || !st.running || st.lap < 1) return null; const t = now - st.lapStart; let p = st.si; if (p > N * 0.75 && t < ghost.ms * 0.4) p -= N;
+        const gp = ghost.gprog; let lo = 0, hi = ghost.n - 1; if (p <= gp[0]) return t; if (p >= gp[hi]) return t - ghost.ms; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (gp[m] < p) lo = m; else hi = m; }
+        const fr = gp[hi] > gp[lo] ? (p - gp[lo]) / (gp[hi] - gp[lo]) : 0, tg = ((lo + fr) / (ghost.n - 1)) * ghost.ms; return t - tg; }
       const aiReset = () => ai.forEach((a) => { const g = GRID[a.slot]; a.s = a.ps = N + g.i; a.d = a.pd = g.off; a.v = 0; a.lap = 0; a.done = null; });
       st.ai = ai;
       aiReset();
@@ -502,7 +544,7 @@ export default function RedlineDrive({ car, cars, build, paint, onExit }) {
       let raf = 0, last = performance.now(), acc = 0, hudT = 0, startAt = 0;
       setPhase("menu");
       let t0 = Infinity;
-      ctlRef.current.start = (m) => { mode0.current = m; raceOn = m === "race" && ai.length > 0; st.running = false; st.finished = false; st.finishT = null; st.lap = 0; st.lapsDone = 0; st.cp = 0; st.last = null;
+      ctlRef.current.start = (m) => { setLapT(null); mode0.current = m; raceOn = m === "race" && ai.length > 0; st.running = false; st.finished = false; st.finishT = null; st.lap = 0; st.lapsDone = 0; st.cp = 0; st.last = null;
         placeGrid(raceOn ? PSLOT : PSLOT); aiReset(); t0 = performance.now(); acc = 0; setResults(null); setPhase("count"); setCount(3); cam(0, true); };
       ctlRef.current.aiCount = ai.length;
       function loop(now) {
@@ -516,14 +558,14 @@ export default function RedlineDrive({ car, cars, build, paint, onExit }) {
         const rollT = -st.yaw * 0.02 * Math.min(1, Math.hypot(st.vx, st.vz) / 20), wn = 6;
         R.rollV += (wn * wn * (rollT - R.roll) - 2 * wn * R.rollV) * dt; R.roll += R.rollV * dt;
         carRoot.position.set(R.x, 0, R.z); carRoot.rotation.y = R.h; carObj.rotation.z = R.roll;
-        aiRender(al, dt); fx(dt, Math.hypot(st.vx, st.vz));
+        aiRender(al, dt); fx(dt, Math.hypot(st.vx, st.vz)); ghostRender(now);
         wheels.forEach((w) => { w.rotation.x = st.wheelSpin; }); front.forEach((w) => { w.rotation.y = st.steer * 0.45; });
         cam(dt); sky.position.copy(camera.position);
         audio.update(st, input.current, dt, raceOn ? ai.map((a) => { sAt(a.s, a.d, tmpP); return { d: Math.hypot(tmpP.x - st.x, tmpP.z - st.z), v: a.v }; }) : []);
         renderer.render(scene, camera);
         if (now - hudT > 100) { hudT = now;
           if (raceOn) { const sd = standings(now); const pos = sd.findIndex((x) => x.you) + 1; st.pos = pos; if (st.finished && (!st.resT || now - st.resT < 15000)) { st.resT = st.resT || now; setResults(sd.map((x) => ({ name: x.name, you: !!x.you, done: x.done, prog: x.prog }))); } }
-          setHud({ pos: raceOn ? st.pos : 0, of: ai.length + 1, race: raceOn, lap: st.lap, cur: st.lap > 0 ? now - st.lapStart : null, last: st.last, best: st.best, kmh: Math.round(Math.hypot(st.vx, st.vz) * 3.6), off: st.off }); el.dataset.si = String(st.si); }
+          setHud({ gm: ghost && mode0.current === "trial" ? ghost.ms : null, gd: ghostDelta(now), pos: raceOn ? st.pos : 0, of: ai.length + 1, race: raceOn, lap: st.lap, cur: st.lap > 0 ? now - st.lapStart : null, last: st.last, best: st.best, kmh: Math.round(Math.hypot(st.vx, st.vz) * 3.6), off: st.off }); el.dataset.si = String(st.si); }
         raf = requestAnimationFrame(loop);
       }
       raf = requestAnimationFrame(loop);
@@ -570,7 +612,9 @@ export default function RedlineDrive({ car, cars, build, paint, onExit }) {
           <span><small>Lap</small>{hud.race ? `${Math.min(hud.lap || 0, 3) || "–"}/3` : hud.lap || "–"}</span>
           <span className="t"><small>Time</small>{(compact ? fmtS : fmt)(hud.cur)}</span>
           {compact ? null : <span className="t"><small>Last</small>{fmt(hud.last)}</span>}
-          <span className="best t"><small>Best</small>{(compact ? fmtS : fmt)(hud.best)}</span>
+          {compact && hud.gm ? null : <span className="best t"><small>Best</small>{(compact ? fmtS : fmt)(hud.best)}</span>}
+          {hud.gm ? <span className="t gh"><small>Beat</small>{(compact ? fmtS : fmt)(hud.gm)}</span> : null}
+          {hud.gm ? <span className={`t gd ${hud.gd == null ? "" : hud.gd <= 0 ? "ahead" : "behind"}`}><small>Ghost</small>{hud.gd == null ? "–" : `${hud.gd <= 0 ? "−" : "+"}${(Math.abs(hud.gd) / 1000).toFixed(compact ? 1 : 2)}`}</span> : null}
         </div>
         {compact ? (
           <div className="rlDriveBtns cmp">
@@ -601,11 +645,22 @@ export default function RedlineDrive({ car, cars, build, paint, onExit }) {
       {phase === "menu" ? (
         <div className="rlDrvMenu" role="group" aria-label="Choose a mode">
           <p className="rlDrvMenuT">Test drive</p>
+          {chg ? <button type="button" className="rlDrvMode main chal" onClick={() => { setMode("trial"); ctlRef.current.start?.("trial"); }}><b>Challenge · Beat {fmt(chg.ms)}</b><span>Race the ghost of a {((cars || []).find((c) => c.id === chg.car) || car).name} on {TRACKS[chg.track].name}</span></button> : null}
           <div className="rlDrvTracks" role="radiogroup" aria-label="Track">
             {Object.values(TRACKS).map((t) => <button key={t.id} type="button" role="radio" aria-checked={track === t.id} className={track === t.id ? "on" : ""} onClick={() => pickTrack(t.id)}><b>{t.name}</b><span>{t.desc}</span></button>)}
           </div>
           <button type="button" className="rlDrvMode main" onClick={() => { setMode("race"); ctlRef.current.start?.("race"); }}><b>Race</b><span>3 laps vs {ctlRef.current.aiCount || (touch ? 3 : 5)} AI rivals</span></button>
           <button type="button" className="rlDrvMode" onClick={() => { setMode("trial"); ctlRef.current.start?.("trial"); }}><b>Time trial</b><span>Solo, chase your best lap</span></button>
+        </div>
+      ) : null}
+      {lapT && mode === "trial" ? (
+        <div className="rlDrvLapT" role="status">
+          <p><b>Lap {fmt(lapT.ms)}</b>{lapT.vs != null ? <span className={lapT.vs <= 0 ? "ahead" : "behind"}>{lapT.vs <= 0 ? `Beat it by ${(-lapT.vs / 1000).toFixed(2)} s` : `${(lapT.vs / 1000).toFixed(2)} s slower`}</span> : null}</p>
+          <div>
+            <button type="button" className="go" onClick={shareLap}>{chg ? "Share back" : "Challenge a friend"}</button>
+            <button type="button" className="x" aria-label="Dismiss" onClick={() => setLapT(null)}>×</button>
+          </div>
+          {shareMsg === "copy" ? <input readOnly aria-label="Challenge link" value={ctlRef.current.lastUrl || ""} onFocus={(e) => e.target.select()} /> : shareMsg ? <em>{shareMsg}</em> : null}
         </div>
       ) : null}
       {results ? (

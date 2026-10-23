@@ -92,3 +92,14 @@ Total parts GLBs: 13.1 MB across 16 cars (each loaded only on demand). Thumbnail
 - Track 2 "Dock City": tight filleted street circuit (`roundPoly` in RedlineDrive.jsx), dusk lighting, kit `public/cars/track/city.glb` (514 KB, built by `/workspace/cars/citykit.py` from PolygonStreetRacer: warehouses, repair shops, garage, shelter, light poles, concrete barriers, hazard/arrow/company signs, neon, pallets, barrels). Lazy-loaded only when the city is picked. Best lap is stored per track (`klyra.redline.testdrive.best` / `.best.city`); last picked track in `klyra.redline.testdrive.track`.
 - Mobile HUD (≤760 px wide or ≤520 px tall): one-line pill label, compact timing strip (m:ss.t, tabular numerals, no "Last"), sound icon + one menu button (camera, restart, reset, exit), 44 px targets, safe-area insets.
 - Driver eye: seated head height inside the cabin (the 8276852 placement), no roof clipping or auto-raise. Small per-car tweaks `fpv: { dx, dy, dz, pitch }` in `app/games/gamesData.js`, only for cars whose default view was blocked (open-wheeler, stock car, race truck, street truck, dirt bike, motorbike). The eye is clamped inside the car bounds and at least 5 cm under the roof on closed cars.
+
+## Challenge links
+After a completed time-trial lap the drive offers "Challenge a friend" (or "Share back" when racing a ghost). The link is
+`/games/redline/garage/?car=…&parts=…&paint=…#ch=<payload>`; the payload lives in the hash, so it is never sent to the server.
+Payload (`app/games/redline/challenge.js`): version + flags, then (deflate-raw via CompressionStream when available, raw otherwise)
+a JSON header {track, car, parts, paint, ms, n} and 10 Hz samples (5 cm / 1/1024-turn quantized, zigzag-varint deltas), base64url.
+About 1.7 KB of hash per ~40 s of driving (~2.6 KB for a 1 min lap). Decoding validates version, track, car, build strings, time (5 s to 10 min),
+sample count (max 6000) and clamps coordinates (±3 km) and per-sample steps (10 m); bad links show a notice in the garage and are ignored.
+Opening a valid link loads the build in the garage, opens the drive on that track with a "Challenge · Beat <time>" card, and shows
+a translucent cyan ghost (no collisions, fades when overlapping you) plus Beat and live ghost-delta readouts. Web Share on touch devices,
+clipboard on desktop, with a selectable text field as fallback.
