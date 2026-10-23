@@ -2,9 +2,8 @@
 import { windowsLauncher, macLauncher } from "../site-data";
 import { WindowsIcon, AppleIcon } from "../components/PlatformIcons";
 import AccountLink from "../components/AccountLink";
-import SupporterEmblem from "../components/SupporterEmblem";
 import ServerDownloads from "./ServerDownloads";
-import { RevealRoot } from "../features/FeatureFX";
+import HomeReveal from "../components/HomeReveal";
 
 const steps = [
   ["01", "Download the launcher", "Free for Windows and Mac. It installs your KLYRA games and keeps them up to date."],
@@ -13,96 +12,83 @@ const steps = [
 ];
 
 const games = [
-  { name: "KLYRA: Broken Front", cls: "bf", status: "Playable now", line: "Free-to-play military shooter. Three factions, one moving front.", href: "/games/broken-front/", cta: "About Broken Front" },
-  { name: "KLYRA: Redline", cls: "rl", status: "In development", line: "Pro circuit racing and underground street racing. Not playable yet.", href: "/games/redline/", cta: "About Redline" },
-  { name: "Social Hub", cls: "hub", status: "Available now", line: "Hang out with friends and move between games. Casual minigames too.", href: "/games/", cta: "All games" },
+  { name: "Broken Front", cls: "bf", status: "Playable now", line: "Free-to-play military shooter. Three factions, one moving front. Every faction, vehicle and weapon is open to everyone.", img: "/shots/trailer/tanks.jpg", href: "/games/broken-front/", cta: "About Broken Front" },
+  { name: "Redline", cls: "rl", img: "/cars/redline_pro_touring.webp", status: "In development", line: "Pro circuit racing and underground street racing. Not playable yet.", href: "/games/redline/", cta: "About Redline" },
+  { name: "Social Hub", cls: "hub", img: null, status: "Available now", line: "Hang out with friends and move between games. Casual minigames too.", href: "/games/", cta: "All games" },
 ];
+
+const Dl = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 
 export default function DownloadPanel() {
   return (
-    <>
-      <RevealRoot />
-      <section className="kxDlHero kxF2PDlHero">
-        <div className="kxDlBg" aria-hidden="true" />
-        <div className="kxF2PFlare" aria-hidden="true" />
-        <p className="kxF2PStamp kxF2PStampCenter"><span>Free to play</span><b>No paywall · No subscription</b></p>
-        <h1>Download <span className="kxF2PFree" data-text="free.">free.</span></h1>
-        <p className="lead">KLYRA is free on Windows and Mac. One download, every KLYRA game. Grab the launcher, sign in with your free KLYRA account, and play.</p>
-      </section>
-
-      <section className="kxDlPlatforms" aria-label="Choose your platform">
-        <article className="kxDlCard kxF2PDlCard" data-reveal>
-          <span className="kxF2PFreeTag">Free</span>
-          <div className="kxDlIcon"><WindowsIcon /></div>
-          <p className="tag">Windows</p>
-          <h2>Windows</h2>
-          <p>64-bit Windows. Keyboard and mouse or controller.</p>
-          <a className="kxDlBtn" href={windowsLauncher}><WindowsIcon /><span>Download free for Windows</span></a>
-        </article>
-        <article className="kxDlCard kxF2PDlCard" data-reveal style={{ "--d": "90ms" }}>
-          <span className="kxF2PFreeTag">Free</span>
-          <div className="kxDlIcon"><AppleIcon /></div>
-          <p className="tag">Mac</p>
-          <h2>Mac</h2>
-          <p>macOS 12 or newer. Keyboard and mouse or controller.</p>
-          <a className="kxDlBtn" href={macLauncher}><AppleIcon /><span>Download free for Mac</span></a>
-        </article>
-      </section>
-
-      <section className="kxDlWrap dlInside" aria-labelledby="dl-inside">
-        <div className="sectionIntro" data-reveal>
-          <p className="tag">What's inside</p>
-          <h2 id="dl-inside">One launcher. Every game.</h2>
+    <div className="mHome kd">
+      <HomeReveal />
+      <section className="mHero kdHero" aria-labelledby="kd-title">
+        <div className="mMesh" aria-hidden="true"><i /><i /><i /></div>
+        <div className="mGrid" aria-hidden="true" />
+        <div className="mHeroInner">
+          <img className="mWordmark" src="/brand/klyra-wordmark.svg" alt="KLYRA" width="290" height="78" fetchPriority="high" />
+          <p className="mFree"><i aria-hidden="true" />Free to play. No paywall, no subscription.</p>
+          <h1 id="kd-title" className="mTitle">Download KLYRA. <span>Free.</span></h1>
+          <p className="mLead">KLYRA is free on Windows and Mac. One download, every KLYRA game. Grab the launcher, sign in with your free KLYRA account, and play.</p>
+          <div className="kdPlatforms" aria-label="Choose your platform">
+            <a className="mCta" href={windowsLauncher}><WindowsIcon /><span>Download free for Windows</span></a>
+            <a className="mGhost kdGhost" href={macLauncher}><AppleIcon /><span>Download free for Mac</span></a>
+          </div>
+          <p className="mFreeNote">Windows: 64-bit. Mac: macOS 12 or newer. Keyboard and mouse or controller.</p>
         </div>
-        <ul className="dlGames">
+      </section>
+
+      <section className="mGames kdInside" aria-labelledby="dl-inside">
+        <header className="mHead mReveal"><p>What's inside</p><h2 id="dl-inside">One launcher. Every game.</h2></header>
+        <ul className="kdGames">
           {games.map((g, i) => (
-            <li key={g.name} className={`dlGame ${g.cls}`} data-reveal style={{ "--d": `${i * 90}ms` }}>
-              <span className="dlStatus">{g.status}</span>
-              <h3>{g.name}</h3>
-              <p>{g.line}</p>
-              <a href={g.href}>{g.cta} <b aria-hidden="true">&rarr;</b></a>
+            <li key={g.name} className={`kdGame mReveal ${g.cls}`} style={{ "--d": `${i * 90}ms` }}>
+              <span className="kdArt" aria-hidden="true">{g.img ? <img src={g.img} alt="" loading="lazy" decoding="async" /> : <span className="mHubArt"><i /><i /><i /></span>}</span>
+              <span className="kdBody">
+                <span className="kdStatus">{g.status}</span>
+                <h3>{g.name}</h3>
+                <p>{g.line}</p>
+                <a href={g.href}>{g.cta} <b aria-hidden="true">&rarr;</b></a>
+              </span>
             </li>
           ))}
         </ul>
       </section>
 
-      <section className="kxDlExplain kxF2PDlExplain" data-reveal>
-        <div className="kxDlFree">
-          <strong>Free for everyone.</strong>
-          <span>Every KLYRA game is free to play. In Broken Front, every faction, vehicle and weapon is open to everyone.</span>
+      <section className="kdWrap mReveal">
+        <div className="kdFree">
+          <div><strong>Free for everyone.</strong><span>Every KLYRA game is free to play. Optional skins are sold in the store and live on your KLYRA account.</span></div>
+          <AccountLink className="mGhost" signedOutLabel="Create free account" signedInPrefix="Signed in as" />
         </div>
-        <AccountLink className="button" signedOutLabel="Create free account" signedInPrefix="Signed in as" />
       </section>
 
-      <section className="kxDlWrap kxF2PDlSupport" data-reveal>
-        <a className="kxF2PSupportBand" href="/support/">
-          <SupporterEmblem size={140} className="kxF2PSupportCrest" alt="" />
-          <span className="kxF2PSupportText">
-            <small>Optional</small>
-            <strong>Like it? Back the front.</strong>
-            <span>A one-time $4.99 Supporter Edition helps pay for servers and development, and unlocks supporter cosmetics: badge, profile titles, exclusive characters and an in-game marker.</span>
-          </span>
-          <span className="kxF2PSupportGo">Support Klyra <b aria-hidden="true">&rarr;</b></span>
-        </a>
-        <p className="kxDlAlt">Rather not download? <a href="/play/">Play free in your browser &rarr;</a></p>
-      </section>
-
-      <section className="kxDlWrap">
-        <div className="sectionIntro" data-reveal>
-          <p className="tag">How it works</p>
-          <h2>Three steps in.</h2>
-        </div>
-        <ol className="kxDlSteps">
+      <section className="kdWrap">
+        <header className="mHead mReveal"><p>How it works</p><h2>Three steps in.</h2></header>
+        <ol className="kdSteps">
           {steps.map(([n, t, c], i) => (
-            <li key={n} data-reveal style={{ "--d": `${i * 90}ms` }}><span>{n}</span><h3>{t}</h3><p>{c}</p></li>
+            <li key={n} className="mReveal" style={{ "--d": `${i * 90}ms` }}><span>{n}</span><h3>{t}</h3><p>{c}</p></li>
           ))}
         </ol>
       </section>
 
-      <section className="kxDlWrap" id="dedicated-servers">
-        <div className="kxDlServers" data-reveal>
+      <section className="kdWrap mReveal">
+        <a className="kdSupport" href="/support/">
+          <img src="/brand/klyra-wordmark.svg" alt="" width="120" height="32" />
+          <span className="kdSupportText">
+            <small>Optional</small>
+            <strong>Support KLYRA.</strong>
+            <span>A one-time $4.99 Supporter Edition helps pay for servers and development, and unlocks supporter cosmetics: badge, profile titles, exclusive characters and an in-game marker.</span>
+          </span>
+          <span className="kdSupportGo">Support KLYRA <b aria-hidden="true">&rarr;</b></span>
+        </a>
+        <p className="kdAlt">Rather not download? <a href="/play/">Play free in your browser &rarr;</a></p>
+      </section>
+
+      <section className="kdWrap" id="dedicated-servers">
+        <div className="kdServers mReveal">
           <div>
-            <p className="tag">Private developer tools</p>
+            <p className="kdKicker">Private developer tools</p>
             <h2>Dedicated servers</h2>
             <p>Run a KLYRA dedicated server on Windows or Mac. Server packages require the authorized developer account.</p>
           </div>
@@ -112,6 +98,6 @@ export default function DownloadPanel() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }

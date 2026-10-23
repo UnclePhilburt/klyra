@@ -2668,3 +2668,50 @@ body p.kxCharFlag{white-space:normal;overflow:visible;letter-spacing:.14em}
 .dlGame a{margin-top:6px;font-weight:800;font-size:14px;letter-spacing:.04em;color:var(--acc);text-decoration:none}
 .dlGame a:hover b{display:inline-block;transform:translateX(3px)}
 @media (max-width:760px){.dlGames{grid-template-columns:1fr}}
+
+/* Download page: KLYRA platform theme */
+.kd .kdHero{min-height:min(88svh,860px)}
+.kdPlatforms{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+.kdPlatforms svg{width:20px;height:20px;fill:currentColor}
+.kdGhost{gap:10px}
+.kdInside{padding-bottom:clamp(40px,6vw,80px)}
+.kdGames{list-style:none;margin:0 auto;padding:0;max-width:var(--mW);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.kdGame{--acc:#1ec8ff;display:flex;flex-direction:column;border-radius:18px;overflow:hidden;background:#0a0e13;border:1px solid rgba(255,255,255,.09)}
+.kdGame.bf{--acc:#d8b45a}.kdGame.rl{--acc:#ff2d3d}.kdGame.hub{--acc:#1ec8ff}
+.kdArt{position:relative;display:block;aspect-ratio:16/9;overflow:hidden;background:#0c1016}
+.kdArt img{width:100%;height:100%;object-fit:cover;display:block}
+.kdGame.rl .kdArt{background:radial-gradient(80% 60% at 50% 45%,#3a0a10,#0c0d10 75%)}
+.kdGame.rl .kdArt img{object-fit:contain;transform:scale(1.2)}
+.kdArt::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,#0a0e13);pointer-events:none}
+.kdBody{display:flex;flex-direction:column;gap:8px;padding:18px 22px 22px;flex:1;border-top:2px solid var(--acc)}
+.kdStatus{align-self:flex-start;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);padding:5px 10px;border-radius:999px;background:color-mix(in srgb,var(--acc) 12%,transparent);border:1px solid color-mix(in srgb,var(--acc) 40%,transparent)}
+.kdGame h3{margin:4px 0 0;font-size:clamp(22px,2vw,28px);letter-spacing:-.02em;text-transform:none;color:#fff}
+.kdGame p{margin:0;color:#9aa6b4;font-size:15px;line-height:1.5;flex:1}
+.kdGame a{margin-top:6px;font-weight:800;font-size:14px;color:var(--acc);text-decoration:none}
+.kdWrap{max-width:var(--mW);margin:0 auto;padding:clamp(28px,4vw,48px) 22px}
+.kdFree{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:26px 30px;border-radius:18px;background:linear-gradient(120deg,rgba(30,200,255,.1),rgba(122,92,255,.08));border:1px solid rgba(30,200,255,.25)}
+.kdFree strong{display:block;font-size:22px;color:#fff;margin-bottom:4px}.kdFree span{color:#9aa6b4}
+.kdSteps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.kdSteps li{padding:24px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
+.kdSteps span{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:rgba(30,200,255,.12);color:#1ec8ff;font-weight:800}
+.kdSteps h3{margin:14px 0 6px;font-size:20px;text-transform:none;color:#fff}.kdSteps p{margin:0;color:#9aa6b4;line-height:1.5}
+.kdSupport{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:24px;padding:24px 30px;border-radius:18px;text-decoration:none;color:#eef2f6;background:#0a0e13;border:1px solid rgba(122,92,255,.35)}
+.kdSupport img{width:120px;height:auto;opacity:.9}
+.kdSupportText small{display:block;color:#7a5cff;font-weight:800;letter-spacing:.18em;text-transform:uppercase;font-size:12px}
+.kdSupportText strong{display:block;font-size:22px;margin:4px 0}.kdSupportText>span{color:#9aa6b4;line-height:1.5}
+.kdSupportGo{font-weight:800;color:#1ec8ff;white-space:nowrap}
+.kdSupport:hover{border-color:#1ec8ff}
+.kdAlt{margin:16px 0 0;color:#9aa6b4;text-align:center}.kdAlt a{color:#1ec8ff}
+.kdServers{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(20px,4vw,48px);padding:clamp(24px,4vw,40px);border-radius:18px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.08)}
+.kdServers h2{margin:6px 0 10px;text-transform:none;color:#fff}.kdServers p{color:#9aa6b4}
+.kdKicker{margin:0;color:#1ec8ff;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase}
+.kd .kdWrap:last-child{padding-bottom:clamp(60px,8vw,110px)}
+@media (max-width:900px){.kdGames,.kdSteps{grid-template-columns:1fr}.kdSupport{grid-template-columns:1fr;gap:12px}.kdServers{grid-template-columns:1fr}}
+@media (max-width:600px){.kdPlatforms a{width:100%;justify-content:center}}
+.kdServers .serverDownloadGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kdServers h2{font-size:clamp(26px,3vw,36px);letter-spacing:-.02em;line-height:1.05}
+.kdServers p,.kdServers .quiet{font-size:15px;line-height:1.5}
+.kdServers .button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;border-radius:999px;background:#1ec8ff;color:#02121a;border:0;font-weight:800;text-transform:none;letter-spacing:0;clip-path:none;box-shadow:none;transform:none}
+.kdServers .button.ghost{background:rgba(255,255,255,.06);color:#eef2f6;border:1px solid rgba(255,255,255,.16)}
+.kdServers .tag{color:#1ec8ff}
+.kd .mGhost{cursor:pointer}
