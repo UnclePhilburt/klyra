@@ -131,5 +131,5 @@ It drives `/games/`, the homepage cards, the game switcher, the sitemap and each
 5. Approved: `/games/broken-front/*` is canonical. Old BF URLs 301 via `public/_redirects` (Phases B and C done on the `game-sections` branch). Download, purchase, account and auth URLs are not redirected. Internal links and the sitemap use the new URLs.
 6. TROY music appears on the homepage as KLYRA-wide music, and stays on BF.
 
-## Still open
-- The "200 bots" stat on BF Features is unconfirmed (left as is).
+## Resolved
+- The "200 bots" stat on BF Features is confirmed by Cody: the Frontline dedicated server still runs 200 bots.

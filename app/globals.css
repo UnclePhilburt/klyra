@@ -2573,3 +2573,12 @@ a.rlDisc.street:hover{box-shadow:0 30px 70px -30px rgba(24,200,255,.6)}
 .mMusicLinks a:hover{border-color:#1ec8ff;background:rgba(30,200,255,.12)}
 @media (max-width:860px){.mMusic{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.mMusicBars i{animation:none}}
+.mMusicViz{background:radial-gradient(70% 60% at 50% 45%,rgba(30,200,255,.16),transparent 70%),linear-gradient(160deg,#081018,#05070a 70%);display:flex;align-items:center;justify-content:center}
+.mMusicViz::after{background:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px) 0 0/100% 28px;opacity:.6}
+.mWaves{position:absolute;inset:0;width:100%;height:100%}
+.mWaveSet{animation:mWave 7s ease-in-out infinite alternate;transform-origin:50% 50%}
+@keyframes mWave{to{transform:scaleY(.6) translateX(-2%)}}
+.mMusicWord{position:relative;z-index:2;font-size:clamp(64px,9vw,128px);font-weight:900;letter-spacing:.12em;color:#f2f4f7;text-shadow:0 0 24px rgba(30,200,255,.65),0 0 60px rgba(30,200,255,.35);margin-bottom:12%}
+.mMusicViz .mMusicBars{height:34%;opacity:.8}
+.mMusicViz .mMusicBars i{background:linear-gradient(#7ee3ff,#1ec8ff);box-shadow:0 0 8px rgba(30,200,255,.6)}
+@media (prefers-reduced-motion:reduce){.mWaveSet{animation:none}}

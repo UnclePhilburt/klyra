@@ -63,9 +63,21 @@ export default function Home() {
       </section>
 
       <section className="mMusic mReveal" aria-labelledby="m-music">
-        <div className="mMusicArt">
-          <img src="/shots/trailer/squad.jpg" alt="" loading="lazy" decoding="async" />
-          <span className="mMusicBars" aria-hidden="true">{Array.from({ length: 24 }, (_, i) => <i key={i} style={{ "--i": i, height: `${22 + ((i * 37) % 70)}%` }} />)}</span>
+        <div className="mMusicArt mMusicViz" aria-hidden="true">
+          <svg className="mWaves" viewBox="0 0 600 450" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="mwg" x1="0" x2="1"><stop offset="0" stopColor="#1ec8ff" stopOpacity="0" /><stop offset=".5" stopColor="#1ec8ff" /><stop offset="1" stopColor="#7a5cff" stopOpacity="0" /></linearGradient>
+              <filter id="mwglow"><feGaussianBlur stdDeviation="4" /></filter>
+            </defs>
+            <g className="mWaveSet" fill="none" stroke="url(#mwg)">
+              <path filter="url(#mwglow)" strokeWidth="6" d="M0 225 C75 150 150 300 225 225 S375 150 450 225 S550 300 600 225" />
+              <path strokeWidth="2" d="M0 225 C75 150 150 300 225 225 S375 150 450 225 S550 300 600 225" />
+              <path strokeWidth="1.5" opacity=".55" d="M0 225 C60 120 140 330 225 225 S380 110 450 225 S560 330 600 225" />
+              <path strokeWidth="1" opacity=".35" d="M0 225 C90 185 160 265 240 225 S390 185 460 225 S560 265 600 225" />
+            </g>
+          </svg>
+          <span className="mMusicWord">TROY</span>
+          <span className="mMusicBars">{Array.from({ length: 32 }, (_, i) => <i key={i} style={{ "--i": i, height: `${18 + ((i * 37) % 72)}%` }} />)}</span>
         </div>
         <div className="mMusicCopy">
           <p className="mSoloTag">Official soundtrack partner</p>
