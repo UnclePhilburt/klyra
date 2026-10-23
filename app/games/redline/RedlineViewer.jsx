@@ -6,6 +6,11 @@ const PAINTS = [["Factory", null], ["Redline", "#e3121f"], ["Volt", "#18c8ff"], 
 const RIMS = [["Factory", null], ["Gunmetal", "#4a4f57"], ["Gold", "#d6a83a"], ["Cyan", "#1ec8ff"]];
 const VIEWS = { front: [0.6, 1.3, 5.6], side: [5.8, 1.2, 0], rear: [-0.6, 1.4, -5.6], interior: [0.32, 1.08, 0.05], engine: [0, 3.4, 3.6] };
 const TARGETS = { front: [0, 0.6, 0], side: [0, 0.6, 0], rear: [0, 0.6, 0], interior: [0, 0.95, 2.4], engine: [0, 0.6, 1.4] };
+const CZ_LABEL = { Ligh_Covers_Front: "Light covers front", Ligh_Covers_Rear: "Light covers rear", RollCage: "Roll cage", Rollcage: "Roll cage", Wheels: "Wheels" };
+const czLabel = (k) => CZ_LABEL[k] || k.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase()).replace(/ (\w)/g, (m) => m.toLowerCase());
+const encodeBuild = (b) => Object.entries(b).map(([k, v]) => `${k}.${v}`).join("-");
+const decodeBuild = (str) => { const o = {}; (str || "").split("-").forEach((x) => { const i = x.lastIndexOf("."); if (i > 0) o[x.slice(0, i)] = x.slice(i + 1); }); return o; };
+const urlPaint = () => { const p = new URLSearchParams(window.location.search).get("paint"); return (PAINTS.find(([, h]) => h && h.slice(1) === p) || [])[1] || null; };
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 export default function RedlineViewer({ cars }) {
@@ -24,6 +29,12 @@ export default function RedlineViewer({ cars }) {
   const [paint, setPaint] = useState(null);
   const [rim, setRim] = useState(null);
   const [sheet, setSheet] = useState(false);
+  const [cz, setCz] = useState(false);
+  const [czData, setCzData] = useState(null);
+  const [build, setBuild] = useState({});
+  const [tab, setTab] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const czRef = useRef({ on: false, build: {} });
 
   useEffect(() => {
     let disposed = false;
@@ -77,8 +88,11 @@ export default function RedlineViewer({ cars }) {
       async function show(id) {
         setLoading(true); setError("");
         try {
-          let gltf = cache.get(id);
-          if (!gltf) { gltf = await loader.loadAsync(cars.find((c) => c.id === id).model); cache.set(id, gltf); }
+          const c = cars.find((x) => x.id === id);
+          const custom = czRef.current.on && c.custom;
+          const ck = (custom ? "cz:" : "") + id;
+          let gltf = cache.get(ck);
+          if (!gltf) { gltf = await loader.loadAsync(custom ? `/cars/custom/${id}.glb` : c.model); cache.set(ck, gltf); }
           if (disposed) return;
           if (car) scene.remove(car);
           car = gltf.scene; scene.add(car); nodes = {}; mats = {};
@@ -94,10 +108,21 @@ export default function RedlineViewer({ cars }) {
           ["Wheel_FL", "Wheel_FR", "Wheel_RL", "Wheel_RR"].forEach((k) => { const w = nodes[k]; if (w) { w.userData.home = w.position.clone(); } });
           setPanels({ Hood: !!nodes.Hood, Trunk: !!nodes.Trunk, Door_L: !!nodes.Door_L, Door_R: !!nodes.Door_R, wheels: !!nodes.Wheel_FL });
           setOpen({});
+          if (custom) applyBuild(czRef.current.build);
           applyPaint(api.current?.paint ?? null); applyRim(api.current?.rim ?? null); applyXray(api.current?.xray ?? false);
           nextWheel = performance.now() + 2500;
         } catch (e) { setError("Could not load this car."); }
         setLoading(false);
+      }
+      function applyBuild(b) {
+        if (!car) return;
+        car.traverse((o) => {
+          let m = /^V_(.+)_(\d\d)$/.exec(o.name);
+          if (m) { o.visible = b[m[1]] === m[2]; return; }
+          m = /^W_Wheel_(FL|FR|RL|RR)_(\d\d)$/.exec(o.name);
+          if (m) { o.visible = b.Wheels === m[2]; return; }
+          if (/^Wheel_(FL|FR|RL|RR)_Stock$/.test(o.name)) o.visible = !b.Wheels || b.Wheels === "stock";
+        });
       }
       function applyPaint(hex) { const m = mats.paint; if (m) m.color.copy(hex ? new THREE.Color(hex).multiplyScalar(1.6) : base[m.uuid].color); }
       function applyRim(hex) { const m = mats.rim; if (m) m.color.copy(hex ? new THREE.Color(hex).multiplyScalar(1.6) : base[m.uuid].color); }
@@ -130,8 +155,9 @@ export default function RedlineViewer({ cars }) {
         raf = requestAnimationFrame(loop);
       }
       raf = requestAnimationFrame(loop);
-      api.current = { show, toggle, detach, view, applyPaint, applyRim, applyXray, paint: null, rim: null, xray: false };
-      const want = new URLSearchParams(window.location.search).get("car");
+      api.current = { show, applyBuild, toggle, detach, view, applyPaint, applyRim, applyXray, paint: urlPaint(), rim: null, xray: false };
+      const qs = new URLSearchParams(window.location.search), want = qs.get("car");
+      if (qs.has("parts") && want && cars.find((c) => c.id === want)?.custom) { czRef.current.on = true; setCz(true); }
       show(want && cars.some((c) => c.id === want) ? want : cars[0].id);
       cleanup = () => { cancelAnimationFrame(raf); io.disconnect(); ro.disconnect(); document.removeEventListener("visibilitychange", onVis); controls.dispose(); renderer.dispose(); draco.dispose(); pmrem.dispose(); renderer.domElement.remove(); };
     })().catch(() => setError("3D viewer unavailable on this device."));
@@ -145,6 +171,53 @@ export default function RedlineViewer({ cars }) {
   const setX = () => { const v = !xray; setXray(v); if (api.current) { api.current.xray = v; api.current.applyXray(v); } };
   const view = (v) => { if (v === "engine" && panels.Hood && !open.Hood) togglePanel("Hood"); if (v === "interior" && !xray) setX(); api.current?.view(v); };
   const car = cars.find((c) => c.id === active);
+
+  // Customizer: per-car slot data and parts are lazy-loaded only when the panel is opened.
+  useEffect(() => {
+    if (!cz || !car.custom) { setCzData(null); return; }
+    let live = true;
+    fetch(`/cars/custom/${active}.json`).then((r) => r.json()).then((d) => {
+      if (!live) return;
+      const defs = {}; Object.entries(d.slots).forEach(([k, v]) => { defs[k] = v.default || "none"; });
+      if (d.wheels.length) defs.Wheels = "stock";
+      d.defaults = defs;
+      const qs = new URLSearchParams(window.location.search);
+      const fromUrl = qs.get("car") === active ? decodeBuild(qs.get("parts")) : {};
+      const b = { ...defs };
+      Object.entries(fromUrl).forEach(([k, v]) => { if (k === "Wheels" ? v === "stock" || d.wheels.includes(v) : d.slots[k] && (v === "none" || d.slots[k].variants.includes(v))) b[k] = v; });
+      setCzData(d); setBuild(b); czRef.current.build = b; api.current?.applyBuild(b);
+      setTab((t) => (t && t in defs ? t : Object.keys(defs)[0]));
+    }).catch(() => setCzData({ error: true }));
+    return () => { live = false; };
+  }, [cz, active]);
+  useEffect(() => {
+    if (!cz || !czData || czData.error) return;
+    const qs = new URLSearchParams(window.location.search);
+    qs.set("car", active); qs.set("parts", encodeBuild(build));
+    if (paint) qs.set("paint", paint.slice(1)); else qs.delete("paint");
+    window.history.replaceState(null, "", `${window.location.pathname}?${qs}`);
+  }, [cz, czData, build, active, paint]);
+  useEffect(() => { const p = new URLSearchParams(window.location.search).get("paint"); const hit = PAINTS.find(([, h]) => h && h.slice(1) === p); if (hit) setPaint(hit[1]); }, []);
+  const toggleCz = () => {
+    const on = !cz; czRef.current.on = on; setCz(on);
+    if (!on) { const qs = new URLSearchParams(window.location.search); qs.delete("parts"); qs.delete("paint"); window.history.replaceState(null, "", `${window.location.pathname}${qs.toString() ? "?" + qs : ""}`); }
+    api.current?.show(active);
+  };
+  const choose = (slot, v) => { const b = { ...build, [slot]: v }; setBuild(b); czRef.current.build = b; api.current?.applyBuild(b); };
+  const resetBuild = () => { if (!czData?.defaults) return; const b = { ...czData.defaults }; setBuild(b); czRef.current.build = b; api.current?.applyBuild(b); setP(null); setR(null); };
+  const copyLink = async () => { try { await navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); } };
+  const tabKeys = (e, keys) => {
+    const i = keys.indexOf(tab); let n = -1;
+    if (e.key === "ArrowRight") n = (i + 1) % keys.length; else if (e.key === "ArrowLeft") n = (i - 1 + keys.length) % keys.length; else if (e.key === "Home") n = 0; else if (e.key === "End") n = keys.length - 1;
+    if (n >= 0) { e.preventDefault(); setTab(keys[n]); e.currentTarget.parentElement.querySelectorAll("[role=tab]")[n]?.focus(); }
+  };
+  const czSlots = czData && !czData.error ? Object.keys(czData.defaults) : [];
+  const czOpts = (slot) => {
+    if (!czData || czData.error) return [];
+    if (slot === "Wheels") return [["stock", "Stock", null], ...czData.wheels.map((w) => [w, `Style ${w}`, `/cars/custom/th/${active}/W_${w}.webp`])];
+    const s = czData.slots[slot]; if (!s) return [];
+    return [...(s.default ? [] : [["none", "None", null]]), ...s.variants.map((v) => [v, `${czLabel(slot)} ${v}`, `/cars/custom/th/${active}/V_${slot}_${v}.webp`])];
+  };
 
   return (
     <section className="rlViewer" aria-label="Car viewer">
@@ -188,11 +261,40 @@ export default function RedlineViewer({ cars }) {
             <span>Paint</span>
             {PAINTS.map(([n, hex]) => <button key={n} type="button" className={`rlSwatch ${paint === hex ? "on" : ""}`} style={{ "--sw": hex || "conic-gradient(#e3121f,#18c8ff,#9be22d,#e3121f)" }} aria-label={`Paint ${n}`} aria-pressed={paint === hex} onClick={() => setP(hex)} />)}
           </div>
+          <div className="rlRow" aria-label="Customize">
+            <span>Build</span>
+            <button type="button" className={cz ? "on" : ""} aria-pressed={cz} aria-controls="rlCz" disabled={!car.custom} onClick={toggleCz}>{car.custom ? (cz ? "Close customizer" : "Customize parts") : "No parts for this vehicle"}</button>
+          </div>
           <div className="rlRow" aria-label="Rims">
             <span>Rims</span>
             {RIMS.map(([n, hex]) => <button key={n} type="button" className={`rlSwatch ${rim === hex ? "on" : ""}`} style={{ "--sw": hex || "conic-gradient(#888,#ddd,#888)" }} aria-label={`Rims ${n}`} aria-pressed={rim === hex} onClick={() => setR(hex)} />)}
           </div>
         </div>
+        {cz && car.custom ? (
+          <div className="rlCz" id="rlCz" aria-label="Customize parts">
+            <p className="rlCzNote">Preview of planned in-game customization</p>
+            {!czData ? <p className="rlCzMsg" aria-live="polite">Loading parts…</p> : czData.error ? <p className="rlCzMsg">Could not load parts for this car.</p> : (
+              <>
+                <div className="rlCzTabs" role="tablist" aria-label="Part slots">
+                  {czSlots.map((k) => <button key={k} type="button" role="tab" id={`czt-${k}`} aria-selected={tab === k} aria-controls="czPanel" tabIndex={tab === k ? 0 : -1} className={tab === k ? "on" : ""} onKeyDown={(e) => tabKeys(e, czSlots)} onClick={() => setTab(k)}>{czLabel(k)}</button>)}
+                </div>
+                <div className="rlCzGrid" id="czPanel" role="tabpanel" aria-labelledby={`czt-${tab}`}>
+                  {czOpts(tab).map(([v, label, img]) => (
+                    <button key={v} type="button" className={`rlCzOpt ${build[tab] === v ? "on" : ""}`} aria-pressed={build[tab] === v} aria-label={label} onClick={() => choose(tab, v)}>
+                      {img ? <img src={img} alt="" width="160" height="110" loading="lazy" decoding="async" /> : <i aria-hidden="true">{v === "none" ? "∅" : "★"}</i>}
+                      <b>{v === "none" ? "None" : v === "stock" ? "Stock" : v}</b>
+                    </button>
+                  ))}
+                </div>
+                <div className="rlCzActions">
+                  <button type="button" onClick={resetBuild}>Reset build</button>
+                  <button type="button" onClick={copyLink}>{copied ? "Link copied" : "Copy build link"}</button>
+                  <span className="rlCzCount">{czSlots.length} slots</span>
+                </div>
+              </>
+            )}
+          </div>
+        ) : null}
       </div>
     </section>
   );
