@@ -32,11 +32,11 @@ const teams = [
 ];
 
 const shots = [
-  { src: "/shots/trailer/assault.jpg", alt: "An assault under fire with explosions across the front", caption: "The push, under fire." },
+  { src: "/shots/trailer/assault-crop.jpg", alt: "An assault under fire with explosions across the front", caption: "The push, under fire." },
   { src: "/shots/trailer/heli.jpg", alt: "Helicopter cockpit flying over the coast", caption: "Helicopters are part of the fight." },
   { src: "/shots/trailer/tanks.jpg", alt: "Tanks rolling across the battlefield", caption: "Armor on the front." },
   { src: "/shots/trailer/squad.jpg", alt: "A squad riding a helicopter at night", caption: "Night insertion by helicopter." },
-  { src: "/shots/trailer/action-1.jpg", alt: "First-person rifle fire", caption: "The front, from the rifle." },
+  { src: "/shots/trailer/action-1-crop.jpg", alt: "First-person rifle fire", caption: "The front, from the rifle." },
   { src: "/shots/trailer/heli-cabin.jpg", alt: "Door gunner in a helicopter cabin", caption: "Door gunner on the run in." },
 ];
 

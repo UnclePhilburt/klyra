@@ -7,6 +7,7 @@ export const metadata = { title: "Arsenal | Klyra: Broken Front" };
 function Card({ item, base, i }) {
   return (
     <article className="kx3dCard" style={{ "--delay": `${i * 100}ms` }} data-reveal>
+      <div className="kx3dCardArt" aria-hidden="true"><img src={item.model.replace("/models/", "/models/posters/").replace(".glb", ".webp")} alt="" width="960" height="540" loading="lazy" decoding="async" /></div>
       <div className="kx3dCardText">
         <span className="kx3dTeam">{item.kind}</span>
         <h2>{item.name}</h2>
@@ -28,14 +29,14 @@ export default function Arsenal() {
       </section>
       <section id="weapons" className="kx3dSection">
         <p className="tag" data-reveal>Weapons</p>
-        <div className="kx3dGrid three">
+        <div className="kx3dGrid two">
           {weapons.map((w, i) => <Card key={w.slug} item={w} base="/games/broken-front/weapons/" i={i} />)}
         </div>
       </section>
       <div className="kxHazard" aria-hidden="true" />
       <section id="vehicles" className="kx3dSection">
         <p className="tag" data-reveal>Vehicles</p>
-        <div className="kx3dGrid three">
+        <div className="kx3dGrid two">
           {vehicles.map((v, i) => <Card key={v.slug} item={v} base="/games/broken-front/vehicles/" i={i} />)}
         </div>
       </section>

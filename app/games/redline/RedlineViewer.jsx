@@ -155,7 +155,7 @@ export default function RedlineViewer({ cars }) {
             <div className="rlPickTrack">
               {cars.filter((c) => c.discipline === d).map((c) => (
                 <button key={c.id} type="button" role="tab" aria-selected={c.id === active} aria-label={c.name} className={`rlPickCard ${c.id === active ? "on" : ""}`} onClick={() => pick(c.id)}>
-                  <img src={c.poster} alt="" width="160" height="90" loading="lazy" decoding="async" />
+                  <img src={c.thumb || c.poster} alt="" width="160" height="90" loading="lazy" decoding="async" />
                   <b>{c.name}</b>
                 </button>
               ))}

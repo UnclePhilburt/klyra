@@ -2621,3 +2621,40 @@ p,li{text-wrap:pretty}
 .rlPicker .rlPickGroup.street .rlPickCard[aria-selected="true"]{background:linear-gradient(180deg,#0f1a20,#0e0f12)}
 @media (max-width:520px){.nwCard{min-height:0}.nwTabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-left:-22px;margin-right:-22px;padding:0 22px}.nwTabs button{flex:0 0 auto}}
 .rlHead.rlHero{padding-top:clamp(28px,5vh,56px)}.rlHero .rlHeroActions{margin-top:28px}
+/* pl2: BF armory cards get a real render of each model */
+.kx3dCard{grid-template-rows:auto 1fr;overflow:hidden;transition:border-color .25s ease,transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s ease}
+.kx3dCardArt{position:relative;aspect-ratio:16/9;background:radial-gradient(70% 70% at 50% 62%,color-mix(in srgb,var(--team,#d8b45a) 16%,transparent),transparent 70%),linear-gradient(180deg,#121510,#0a0c09);border-bottom:1px solid rgba(255,255,255,.07)}
+.kx3dCardArt::after{content:"";position:absolute;left:14%;right:14%;bottom:12%;height:1px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--team,#d8b45a) 60%,transparent),transparent)}
+.kx3dCardArt img{position:absolute;inset:6% 6% 10%;width:88%;height:84%;object-fit:contain;filter:drop-shadow(0 18px 18px rgba(0,0,0,.55));transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.kx3dCard:hover{border-color:rgba(216,180,90,.35);transform:translateY(-3px);box-shadow:0 24px 48px -28px rgba(0,0,0,.9)}
+.kx3dCard:hover .kx3dCardArt img{transform:scale(1.04)}
+@media (prefers-reduced-motion:reduce){.kx3dCard:hover,.kx3dCard:hover .kx3dCardArt img{transform:none}}
+/* pl2: homepage — one container width (1200) and one section rhythm */
+:root{--mW:1200px;--mSec:clamp(72px,9vw,128px)}
+.mStrip,.mHead,.mCards{max-width:var(--mW)}
+.mGames{padding:var(--mSec) 22px}
+.mMusic{max-width:calc(var(--mW) + 44px);margin:0 auto var(--mSec);grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.mSolo{max-width:var(--mW);margin:0 auto var(--mSec);width:calc(100% - 44px)}
+.mSolo h2{font-size:clamp(34px,4.6vw,64px)}
+.mOutro{padding-top:0}
+.mHead h2{letter-spacing:-.025em}
+@media (max-width:760px){.mMusic{grid-template-columns:1fr}.mSolo{width:calc(100% - 44px)}}
+/* pl2: Broken Front — one eyebrow scale, squared military cards, tidy rows */
+body p.tag{font-family:ui-monospace,Consolas,monospace;font-size:12px;line-height:1.4;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--gold,#d8b45a);margin:0 0 14px}
+body .rlPage p.tag,body .mHome p.tag{font-family:inherit}
+body p.kxCharFlag{font-size:10px;line-height:1.3;letter-spacing:.18em;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.kxSection .teamCard{border-radius:2px;border-top:3px solid color-mix(in srgb,var(--team) 70%,transparent);min-height:240px}
+.kxSection .teamCard:hover,.kxSection .teamCard[aria-pressed="true"]{box-shadow:0 22px 44px -28px color-mix(in srgb,var(--team) 80%,transparent)}
+.kxSection .teamStage{border-radius:2px}
+.sectionIntro h2{letter-spacing:-.01em}
+.sectionIntro p:not(.tag){max-width:60ch}
+@media (min-width:761px){.kxIntel{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}.kxIntel>*:last-child{border-right:0}}
+.kxShots figure{border-radius:2px}
+.kxShots figcaption{font-size:13px;letter-spacing:.01em}
+/* Download / support: consistent card padding + heading rhythm */
+.kxDlCard,.kxDlExplain{border-radius:2px}
+.kx3dCardText .button{max-width:100%;justify-content:center;text-align:center}
+@media (max-width:520px){.kx3dCardText .button{justify-self:stretch;font-size:14px;letter-spacing:.08em;padding-left:14px;padding-right:14px}}
+.rlPickCard img{background:transparent}
+.kx3dSection .kx3dGrid,.kx3dSection .kx3dList{width:100%}
+body p.kxCharFlag{white-space:normal;overflow:visible;letter-spacing:.14em}

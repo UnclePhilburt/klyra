@@ -15,6 +15,7 @@ export default function Weapons() {
       <section className="kx3dGrid two">
         {weapons.map((w, i) => (
           <article key={w.slug} className="kx3dCard" style={{ "--delay": `${i * 100}ms` }} data-reveal>
+            <div className="kx3dCardArt" aria-hidden="true"><img src={w.model.replace("/models/", "/models/posters/").replace(".glb", ".webp")} alt="" width="960" height="540" loading="lazy" decoding="async" /></div>
             <div className="kx3dCardText">
               <span className="kx3dTeam">{w.kind}</span>
               <h2>{w.name}</h2>

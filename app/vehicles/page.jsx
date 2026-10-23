@@ -6,7 +6,8 @@ export const metadata = { title: "Vehicles | Klyra: Broken Front" };
 function Card({ v, i }) {
   return (
     <article className="kx3dCard" style={{ "--delay": `${i * 100}ms` }} data-reveal>
-      <div className="kx3dCardText">
+      <div className="kx3dCardArt" aria-hidden="true"><img src={v.model.replace("/models/", "/models/posters/").replace(".glb", ".webp")} alt="" width="960" height="540" loading="lazy" decoding="async" /></div>
+            <div className="kx3dCardText">
         <span className="kx3dTeam">{v.kind}</span>
         <h2>{v.name}</h2>
         <p>{v.copy}</p>
