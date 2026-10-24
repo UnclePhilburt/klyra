@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <title>Join as player two | Klyra: Broken Front</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <span class="eyebrow">Klyra: Broken Front</span>
+      <p class="step">Player two</p>
+      <h1>Sit down and sign in.</h1>
+      <p>This computer already has a player. Use your own account so your gear stays yours.</p>
+    </header>
+    <section class="card">
+      <div class="notice">You should be next to the person playing. Sign in, check the game name, then approve.</div>
+      <div id="auth">
+        <nav aria-label="Account action">
+          <button id="loginTab" class="active" type="button" aria-pressed="true">Sign in</button>
+          <button id="signupTab" type="button" aria-pressed="false">Create account</button>
+        </nav>
+        <form id="form">
+          <label id="nameField" hidden>Callsign<input id="username" autocomplete="nickname" maxlength="32"></label>
+          <label>Email<input id="email" type="email" autocomplete="username" required></label>
+          <label>Password<input id="password" type="password" autocomplete="current-password" minlength="8" required></label>
+          <button class="primary" id="submit" type="submit">Sign in</button>
+        </form>
+        <p><a href="../reset-password/" target="_blank" rel="noopener noreferrer">Forgot password?</a></p>
+      </div>
+      <div id="approval" hidden>
+        <span class="eyebrow">Ready to join</span>
+        <h2>Signed in</h2>
+        <p id="identity"></p>
+        <p>Check that this is the game in front of you. Only approve if you are sitting at that computer.</p>
+        <p id="binding"></p>
+        <button class="primary" id="approve" disabled>Join this game</button>
+        <button id="signout" type="button">Use another account</button>
+      </div>
+      <p id="status" role="status" aria-live="polite"></p>
+    </section>
+    <footer>This only adds you as the second player on this computer. It does not change the other player's account.</footer>
+  </main>
+  <script src="./page.js" defer></script>
+</body>
+</html>
