@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Reset password | Klyra: Broken Front</title>
+  <link rel="stylesheet" href="../local-player/style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <span class="eyebrow">Klyra: Broken Front</span>
+      <h1>Get back in.</h1>
+      <p>Choose a new password, then sign in from the launcher.</p>
+    </header>
+    <section class="card">
+      <form id="request">
+        <h2>Forgot your password?</h2>
+        <p>Enter the email on your account. We'll send a link.</p>
+        <label>Email<input id="email" type="email" autocomplete="email" required></label>
+        <button class="primary" type="submit">Send reset link</button>
+      </form>
+      <form id="change" hidden>
+        <h2>Choose a new password</h2>
+        <label>New password<input id="password" type="password" autocomplete="new-password" minlength="8" required></label>
+        <label>Confirm password<input id="confirm" type="password" autocomplete="new-password" minlength="8" required></label>
+        <button class="primary" type="submit">Save new password</button>
+      </form>
+      <p id="status" role="status" aria-live="polite"></p>
+      <a href="../">Back to the game</a>
+    </section>
+    <footer>If you were joining as player two, scan the code in the game again after this.</footer>
+  </main>
+  <script src="./page.js" defer></script>
+</body>
+</html>
